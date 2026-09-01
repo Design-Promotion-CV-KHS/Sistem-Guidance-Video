@@ -81,6 +81,15 @@
       background: #f8fafc;
     }
 
+    .editor-wip-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .editor-wip-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.1);
+    }
+
     .crud-field label {
       display: block;
     }
@@ -154,9 +163,12 @@
         <a href="#" id="nav-crud"
           class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Kelola
           Data Planning</a>
-        <a href="#" id="nav-panduan"
-          class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Panduan
-          Editing Video</a>
+        <a href="#" id="nav-workflow"
+          class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Workflow
+          Editing</a>
+        <a href="#" id="nav-tools"
+          class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Tools
+          AI Production</a>
         <a href="#"
           class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Media
           Converter</a>
@@ -257,8 +269,7 @@
             <p class="text-[11px] text-gray-400 mt-1">Skenario sudah siap, menunggu diedit</p>
           </div>
           <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3">
-              ✂️
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3">✂️
             </div>
             <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Sedang WIP</p>
             <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-wip">0</h4>
@@ -266,20 +277,50 @@
           </div>
           <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div
-              class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3">
-              ✅
+              class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3">✅
             </div>
             <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Berhasil Diedit</p>
             <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-done">0</h4>
             <p class="text-[11px] text-gray-400 mt-1">Total video berstatus Done</p>
           </div>
           <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div
-              class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-3">
+            <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-3">
               📝</div>
             <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Transkrip Siap</p>
             <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-transkrip">0</h4>
             <p class="text-[11px] text-gray-400 mt-1">Menunggu dibuatkan skenario</p>
+          </div>
+        </div>
+
+        <!-- SEDANG DIKERJAKAN EDITOR SAAT INI -->
+        <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+              Sedang Dikerjakan Editor Saat Ini
+              <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+              </span>
+            </h4>
+          </div>
+          <p class="text-xs text-gray-400 mb-4">Judul video yang sedang berstatus WIP untuk tiap editor, lengkap dengan
+            due date &amp; sisa waktu.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-1"
+            id="wip-grid">
+            <p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
+          </div>
+        </div>
+
+        <!-- TARGET MINGGUAN PER EDITOR -->
+        <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
+            <h4 class="text-sm font-bold text-gray-800">Target Mingguan Editor</h4>
+            <span class="text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200 self-start sm:self-auto"
+              id="week-range-label">Memuat minggu berjalan...</span>
+          </div>
+          <p class="text-xs text-gray-400 mb-5">Target tetap: <span class="font-semibold">1 video Done per editor
+              setiap minggu</span> (Senin–Minggu). Dihitung dari due date video berstatus Done.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="weekly-target-grid">
+            <p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
           </div>
         </div>
 
@@ -308,8 +349,7 @@
             <h4 class="text-sm font-bold text-gray-800">Target Pencapaian Bulanan</h4>
             <span class="text-[11px] text-gray-400" id="target-bulan-label">Bulan Berjalan</span>
           </div>
-          <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span
-              class="font-semibold">12
+          <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span class="font-semibold">12
               video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan lain.</p>
           <div id="target-grid" class="max-w-sm">
             <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
@@ -326,8 +366,7 @@
             </div>
           </div>
 
-          <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 overflow-hidden flex flex-col">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 overflow-hidden flex flex-col">
             <div class="p-6 pb-3">
               <h4 class="text-sm font-bold text-gray-800 mb-1">Prioritas Pengerjaan Terdekat</h4>
               <p class="text-xs text-gray-400">Video Ready to Edit &amp; WIP diurutkan dari due date paling dekat</p>
@@ -350,6 +389,33 @@
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+
+        <!-- BERIKUTNYA DIPLANNINGKAN UNTUK DIEDIT -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 pb-3">
+            <h4 class="text-sm font-bold text-gray-800 mb-1">Berikutnya Diplanningkan untuk Diedit</h4>
+            <p class="text-xs text-gray-400">Video dengan skenario siap (belum masuk WIP), diurutkan dari due date
+              paling dekat — ini yang akan dikerjakan setelah WIP saat ini selesai</p>
+          </div>
+          <div class="overflow-x-auto max-h-[340px] overflow-y-auto px-2 pb-2">
+            <table class="w-full text-left border-collapse">
+              <thead class="sticky top-0 bg-white z-10">
+                <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                  <th class="py-3 px-4">Antrean</th>
+                  <th class="py-3 px-4">Judul Video</th>
+                  <th class="py-3 px-4">Editor Ditugaskan</th>
+                  <th class="py-3 px-4">Due Date</th>
+                  <th class="py-3 px-4">Musim</th>
+                </tr>
+              </thead>
+              <tbody id="nextup-body" class="text-sm text-gray-700 divide-y divide-gray-50">
+                <tr>
+                  <td colspan="5" class="text-center py-8 text-gray-400">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -382,8 +448,7 @@
             <div class="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                </path>
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
               </svg>
             </div>
             <div class="flex flex-col">
@@ -474,6 +539,317 @@
       </div>
       <!-- ============ /VIEW: CRUD PLANNING EDITOR ============ -->
 
+      <!-- ============ VIEW: WORKFLOW EDITING ============ -->
+      <div id="view-workflow" class="hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+              <span
+                class="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[11px] font-extrabold uppercase tracking-widest border border-blue-100 mb-3">SOP
+                &amp; Alur Kerja</span>
+              <h3 class="text-2xl font-bold text-gray-800">Pusat Guidance Editing Video</h3>
+              <p class="text-sm text-gray-500 mt-1.5 max-w-2xl">Ikuti langkah-langkah di bawah ini untuk pengeditan
+                video yang lebih efisien dan berkualitas.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- LANGKAH 1 -->
+          <div class="panduan-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-gray-100">
+              <div
+                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+                A</div>
+              <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">LANGKAH 1 : PRE - EDITING</h4>
+            </div>
+            <ol class="space-y-3 text-sm text-gray-600 leading-relaxed">
+              <li><span class="font-bold text-blue-600 mr-1">1.</span>Plotting video sesuai resource yang ada.
+                <a href="https://docs.google.com/spreadsheets/d/1AJK6-zuCPy-4lRjIx4XboaR6tjlz34VMtLqOkuyfSZM/edit?usp=sharing"
+                  target="_blank" class="text-blue-600 font-bold hover:underline">Klik Disini.</a>
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">2.</span>Video editor mengambil resource yang diplotkan
+                di server 2.</li>
+              <li>
+                <span class="font-bold text-blue-600 mr-1">3.</span>Melakukan transkripsi dari video untuk
+                mendapatkan transkrip dialog. Selanjutnya mengkurasi poin poin penting yang ada pada transkrip.
+                <div class="mt-3 ml-1 space-y-2 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wide">Opsi 1</p>
+                  <a href="https://gemini.google.com/share/80ce9e695415" target="_blank"
+                    class="text-blue-600 text-xs font-bold hover:underline block">Gunakan tools ini untuk transkripsi
+                    dan kurasi isi transkrip.</a>
+
+                  <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wide pt-2">Opsi 2</p>
+                  <p class="text-xs text-gray-600">a. Convert file video wawancara menjadi audio</p>
+                  <p class="text-xs text-gray-600">b. Upload ke gemini ai, masukkan prompt</p>
+                  <textarea class="prompt-box" onclick="this.select()" readonly>Transkrip audio ini menjadi teks</textarea>
+                  <p class="text-xs text-gray-600">c. Setelah selesai transkrip, masukkan prompt</p>
+                  <textarea class="prompt-box" onclick="this.select()" readonly>Pisahkan antara pewawancara dengan narasumber menjadi 2 tabel</textarea>
+                  <p class="text-xs text-gray-600">d. Jika sudah terpisah, masukkan prompt</p>
+                  <textarea class="prompt-box" onclick="this.select()" readonly>ambil informasi penting dari transkripsi ini tanpa mengurangi kalimat statement di transkripsi mentah</textarea>
+                  <p class="text-xs text-gray-600">e. Jika sudah, copy hasil transkripsi yang sudah terpisah kedalam
+                    Gdocs</p>
+                </div>
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">4.</span>Review hasil kurasi ke kepala seksi madya.</li>
+            </ol>
+          </div>
+
+          <!-- LANGKAH 2 -->
+          <div class="panduan-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-gray-100">
+              <div
+                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+                B</div>
+              <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">LANGKAH 2 : EDITING TAHAP
+                AWAL (ROUGH CUT)</h4>
+            </div>
+            <ol class="space-y-3 text-sm text-gray-600 leading-relaxed">
+              <li><span class="font-bold text-blue-600 mr-1">5.</span>Sesuaikan poin - poin dengan audio wawancara.
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">6.</span>Gunakan backsound yang sesuai dengan video.
+                <a href="https://pixabay.com/music/" target="_blank"
+                  class="text-blue-600 font-bold hover:underline">Klik disini untuk mencari lagu bebas royalty.</a>
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">7.</span>Susun video rough cut menjadi satu kesatuan,
+                Kombinasikan video wawancara dengan video olah lahan dan hasil olah lahan. Tambahkan elemen
+                secukupnya.</li>
+              <li><span class="font-bold text-blue-600 mr-1">8.</span>Review kepala seksi madya.</li>
+              <li><span class="font-bold text-blue-600 mr-1">9.</span>Review kepala seksi.</li>
+              <li><span class="font-bold text-blue-600 mr-1">10.</span>Review direktur utama.</li>
+            </ol>
+          </div>
+
+          <!-- LANGKAH 3 -->
+          <div class="panduan-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-gray-100">
+              <div
+                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+                C</div>
+              <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">LANGKAH 3 : EDITING TAHAP
+                AKHIR (FINISHING)</h4>
+            </div>
+            <ol class="space-y-3 text-sm text-gray-600 leading-relaxed">
+              <li><span class="font-bold text-blue-600 mr-1">11.</span>Revisi editing sesuai arahan kepala seksi,
+                Penambahan elemen - elemen yang membuat video menjadi lebih hidup, & penambahan pop up spektra dan
+                pop up tokoquick.</li>
+              <li>
+                <span class="font-bold text-blue-600 mr-1">12.</span>Pembuatan thumbnail video.
+                <div class="mt-2 ml-1 space-y-1">
+                  <a href="https://gemini.google.com/share/577efcc3902b" target="_blank"
+                    class="text-blue-600 text-xs font-bold hover:underline block">Gunakan tools ini untuk mencari ide
+                    headline thumbnail.</a>
+                  <a href="https://gemini.google.com/share/51c90287c0ce" target="_blank"
+                    class="text-blue-600 text-xs font-bold hover:underline block">Gunakan tools ini untuk mempercantik
+                    thumbnail.</a>
+                  <a href="https://share.gemini.google.com/nTiRVqxGArLz" target="_blank"
+                    class="text-blue-600 text-xs font-bold hover:underline block">Gunakan Thumbnail Maker untuk
+                    mempermudah layout desain.</a>
+                </div>
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">13.</span>Review kepala seksi madya.</li>
+              <li><span class="font-bold text-blue-600 mr-1">14.</span>Review kepala seksi.</li>
+              <li><span class="font-bold text-blue-600 mr-1">15.</span>Review direktur utama.</li>
+            </ol>
+          </div>
+
+          <!-- LANGKAH 4 -->
+          <div class="panduan-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-gray-100">
+              <div
+                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+                D</div>
+              <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">LANGKAH 4 : PRE - PUBLISH</h4>
+            </div>
+            <ol class="space-y-3 text-sm text-gray-600 leading-relaxed">
+              <li>
+                <span class="font-bold text-blue-600 mr-1">16.</span>Masukkan video yang sudah siap diupload youtube
+                kedalam server 1.
+                <code class="ip-box-light block w-fit">\\192.168.3.9\mkt\[ UPLOAD VIDEO YOUTUBE ]</code>
+                Masukkan dalam folder yang sesuai dengan produk dalam video yang dibuat.
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">17.</span>Buat approval sheet untuk video yang sudah
+                jadi.
+                <a href="https://www.figma.com/design/88YiR0BAyfXTUiLFMFY3ht/Template-Approval-Sheet--2-lembar-?node-id=0-1&t=ydYF6tNGkVmZn0QW-1"
+                  target="_blank" class="text-blue-600 font-bold hover:underline">Template Approval Sheet</a>
+              </li>
+            </ol>
+          </div>
+
+          <!-- LANGKAH 5 -->
+          <div class="panduan-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-gray-100">
+              <div
+                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+                E</div>
+              <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">LANGKAH 5 : PUBLISHING</h4>
+            </div>
+            <ol class="space-y-3 text-sm text-gray-600 leading-relaxed">
+              <li><span class="font-bold text-blue-600 mr-1">18.</span>Informasikan pada sie digital marketing bahwa
+                video yang dikerjakan sudah siap untuk diupload pada youtube.</li>
+              <li><span class="font-bold text-blue-600 mr-1">19.</span>Kirimkan transkrip pada sie digital marketing
+                untuk keperluan pembuatan judul video serta deskripsi video.</li>
+            </ol>
+          </div>
+
+          <!-- LANGKAH 6 -->
+          <div class="panduan-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-gray-100">
+              <div
+                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shrink-0">
+                F</div>
+              <h4 class="text-xs font-extrabold text-gray-800 uppercase tracking-wider">LANGKAH 6 : POST - PUBLISH
+              </h4>
+            </div>
+            <ol class="space-y-3 text-sm text-gray-600 leading-relaxed">
+              <li><span class="font-bold text-blue-600 mr-1">20.</span>Update progress editing pada tabel
+                spreadsheet.
+                <a href="https://docs.google.com/spreadsheets/d/1US1m2XOT5Eu04DWAMhJ-pEfLhNYIIMTJElcGprqn4LY/edit?gid=1935407345#gid=1935407345"
+                  target="_blank" class="text-blue-600 font-bold hover:underline">Spreadsheet Progress Editing</a>
+              </li>
+              <li><span class="font-bold text-blue-600 mr-1">21.</span>Ulangi proses dari nomor 1 lagi jika video
+                sudah di publish.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: WORKFLOW EDITING ============ -->
+
+      <!-- ============ VIEW: TOOLS AI PRODUCTION ============ -->
+      <div id="view-tools" class="hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+          <span
+            class="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[11px] font-extrabold uppercase tracking-widest border border-blue-100 mb-3">AI
+            Production</span>
+          <h3 class="text-2xl font-bold text-gray-800">Pusat Tools AI Production</h3>
+          <p class="text-sm text-gray-500 mt-1.5 max-w-2xl">Kumpulan tools untuk membantu proses produksi video,
+            thumbnail, audio, transkrip, dan kebutuhan kreatif lainnya.</p>
+        </div>
+
+        <div>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+            <span class="text-blue-600 text-base leading-none">•</span> Thumbnail Kits (Main Focus)
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <a href="https://gemini.google.com/share/577efcc3902b" target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-5 h-full flex items-start gap-3">
+                <div
+                  class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+                  📰</div>
+                <div>
+                  <h5 class="text-sm font-bold text-gray-800 mb-1">Headline Thumbnail</h5>
+                  <p class="text-xs text-gray-500 leading-relaxed">Generate ide judul thumbnail yang menarik
+                    berdasarkan transkrip wawancara.</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://gemini.google.com/share/51c90287c0ce" target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-5 h-full flex items-start gap-3">
+                <div
+                  class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                  📸</div>
+                <div>
+                  <h5 class="text-sm font-bold text-gray-800 mb-1">Advance Thumbnail</h5>
+                  <p class="text-xs text-gray-500 leading-relaxed">Optimasi visual dan grading warna thumbnail agar
+                    lebih eye-catching.</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://gemini.google.com/share/de2492e153ba?skid=583bf20b-8989-4199-becb-22f95514ad16"
+              target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-5 h-full flex items-start gap-3">
+                <div
+                  class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                  🎨</div>
+                <div>
+                  <h5 class="text-sm font-bold text-gray-800 mb-1">Thumbnail Maker</h5>
+                  <p class="text-xs text-gray-500 leading-relaxed">Membantu membuat layout, komposisi grafis, dan
+                    desain thumbnail secara instan.</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://gemini.google.com/share/bf706a2e9c61?skid=f9c43ebf-3644-4122-a1c5-95a7d04ec723"
+              target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-5 h-full flex items-start gap-3">
+                <div
+                  class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
+                  🖼️</div>
+                <div>
+                  <h5 class="text-sm font-bold text-gray-800 mb-1">Poster Maker</h5>
+                  <p class="text-xs text-gray-500 leading-relaxed">Membantu membuat layout, komposisi grafis, dan
+                    desain poster promosi secara instan.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+            <span class="text-blue-600 text-base leading-none">•</span> Production &amp; Audio Utilities
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="https://gemini.google.com/share/55131cc237a2" target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-4 h-full flex items-start gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-base shrink-0">
+                  🎙️</div>
+                <div>
+                  <h5 class="text-xs font-bold text-gray-800 mb-1">Audio Generator</h5>
+                  <p class="text-[11px] text-gray-500 leading-snug">Mengubah teks menjadi suara (VO) berkualitas
+                    tinggi menggunakan Gemini AI.</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://docs.google.com/document/d/1tjoO_zQxw3nN4oXH-dUPmbjUNp-EpwCn98BDdAN6R0Q/edit?usp=sharing"
+              target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-4 h-full flex items-start gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-base shrink-0">
+                  💡</div>
+                <div>
+                  <h5 class="text-xs font-bold text-gray-800 mb-1">Prompt Thumbnail</h5>
+                  <p class="text-[11px] text-gray-500 leading-snug">Library prompt khusus untuk pengolahan visual di
+                    Advance Tools.</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://gemini.google.com/share/80ce9e695415" target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-4 h-full flex items-start gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-base shrink-0">
+                  ✍️</div>
+                <div>
+                  <h5 class="text-xs font-bold text-gray-800 mb-1">Generate Transcript</h5>
+                  <p class="text-[11px] text-gray-500 leading-snug">Mempercepat konversi audio rekaman lahan menjadi
+                    teks transkrip siap pakai.</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://podcast.adobe.com/en" target="_blank" class="block h-full">
+              <div
+                class="tool-card-panduan bg-white rounded-2xl shadow-sm border border-gray-100 p-4 h-full flex items-start gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-base shrink-0">
+                  🪄</div>
+                <div>
+                  <h5 class="text-xs font-bold text-gray-800 mb-1">Audio Enhancer</h5>
+                  <p class="text-[11px] text-gray-500 leading-snug">Menghilangkan noise angin atau suara mesin agar
+                    vokal terdengar jernih.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: TOOLS AI PRODUCTION ============ -->
+
     </div>
   </main>
 
@@ -482,8 +858,7 @@
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
       <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
         <h4 id="crud-modal-title" class="text-lg font-bold text-gray-800">Tambah Data</h4>
-        <button id="crud-modal-close" type="button"
-          class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        <button id="crud-modal-close" type="button" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
       </div>
       <form id="crud-form" class="p-6 space-y-4">
         <input type="hidden" id="crud-field-id">
@@ -561,8 +936,7 @@
             class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
         </div>
 
-        <div id="crud-form-error" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3">
-        </div>
+        <div id="crud-form-error" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
 
         <div class="flex justify-end gap-3 pt-2">
           <button type="button" id="crud-cancel-btn"
@@ -588,6 +962,8 @@
 
     // Urutan bulan kalender untuk sorting yang benar (bukan alfabetis)
     const URUTAN_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    const COLOR_PALETTE = ['#2563eb', '#0d9488', '#f59e0b', '#8b5cf6', '#ef4444', '#0891b2', '#65a30d', '#db2777', '#4f46e5'];
 
     let listPlanningGlobal = [];
     let planningRawGlobal = []; // data mentah (nama kolom asli Supabase) dipakai oleh menu CRUD
@@ -679,25 +1055,21 @@
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('data_user');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     });
 
     // ===================== NAVIGASI ANTAR MENU =====================
+    const ALL_VIEWS = ['dashboard', 'crud', 'workflow', 'tools'];
+
     function tampilkanView(view) {
-      const isDashboard = view === 'dashboard';
-      document.getElementById('view-dashboard').classList.toggle('hidden', !isDashboard);
-      document.getElementById('view-crud').classList.toggle('hidden', isDashboard);
-
-      const navDash = document.getElementById('nav-dashboard');
-      const navCrud = document.getElementById('nav-crud');
-
-      navDash.classList.toggle('bg-blue-900/50', isDashboard);
-      navDash.classList.toggle('text-blue-200', isDashboard);
-      navDash.classList.toggle('text-gray-300', !isDashboard);
-
-      navCrud.classList.toggle('bg-blue-900/50', !isDashboard);
-      navCrud.classList.toggle('text-blue-200', !isDashboard);
-      navCrud.classList.toggle('text-gray-300', isDashboard);
+      ALL_VIEWS.forEach(v => {
+        const isActive = v === view;
+        document.getElementById('view-' + v).classList.toggle('hidden', !isActive);
+        const nav = document.getElementById('nav-' + v);
+        nav.classList.toggle('bg-blue-900/50', isActive);
+        nav.classList.toggle('text-blue-200', isActive);
+        nav.classList.toggle('text-gray-300', !isActive);
+      });
     }
 
     document.getElementById('nav-dashboard').addEventListener('click', (e) => {
@@ -708,6 +1080,16 @@
     document.getElementById('nav-crud').addEventListener('click', (e) => {
       e.preventDefault();
       tampilkanView('crud');
+    });
+
+    document.getElementById('nav-workflow').addEventListener('click', (e) => {
+      e.preventDefault();
+      tampilkanView('workflow');
+    });
+
+    document.getElementById('nav-tools').addEventListener('click', (e) => {
+      e.preventDefault();
+      tampilkanView('tools');
     });
 
     // ===================== AMBIL DATA SUPABASE =====================
@@ -834,11 +1216,14 @@
     function renderSemua() {
       const filtered = getFilteredData();
       renderKartuStatistik(filtered);
+      renderWipGrid(filtered);
+      renderWeeklyTarget(filtered);
       renderChartEditor(filtered);
       renderChartStatus(filtered);
       renderLeaderboard(filtered);
       renderPriorityTable(filtered);
-      renderTargetBulanan();
+      renderNextUpTable(filtered);
+      renderTargetBulanan(); 
     }
 
     function renderKartuStatistik(data) {
@@ -1014,6 +1399,169 @@
           </tr>
         `;
       }).join('');
+    }
+
+    /* ===== Sedang Dikerjakan Editor Saat Ini (WIP per editor) ===== */
+    function parseTanggal(str) {
+      if (!str) return null;
+      const d = new Date(str);
+      return isNaN(d) ? null : d;
+    }
+
+    function hitungSisaWaktu(dueDateObj) {
+      if (!dueDateObj) return { label: 'Tanpa due date', cls: 'bg-slate-100 text-slate-500 border border-slate-200' };
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const diffDays = Math.round((dueDateObj - today) / 86400000);
+      if (diffDays < 0) return { label: `Lewat ${Math.abs(diffDays)} hari`, cls: 'bg-rose-50 text-rose-600 border border-rose-200' };
+      if (diffDays === 0) return { label: 'Jatuh tempo hari ini', cls: 'bg-amber-50 text-amber-600 border border-amber-200' };
+      if (diffDays <= 3) return { label: `${diffDays} hari lagi`, cls: 'bg-amber-50 text-amber-600 border border-amber-200' };
+      return { label: `${diffDays} hari lagi`, cls: 'bg-slate-100 text-slate-600 border border-slate-200' };
+    }
+
+    function renderWipGrid(data) {
+      const container = document.getElementById('wip-grid');
+      const wipData = data.filter(i => i.statusEdit === 'WIP' && i.editor && i.editor.toLowerCase() !== 'all editor');
+
+      if (wipData.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Tidak ada video yang sedang WIP untuk filter ini. Semua editor sedang menunggu penugasan baru.</p>';
+        return;
+      }
+
+      const perEditor = {};
+      wipData.forEach(item => {
+        if (!perEditor[item.editor]) perEditor[item.editor] = [];
+        perEditor[item.editor].push(item);
+      });
+      Object.keys(perEditor).forEach(editorName => {
+        perEditor[editorName].sort((a, b) => {
+          const da = parseTanggal(a.dueDate), db_ = parseTanggal(b.dueDate);
+          if (!da && !db_) return 0; if (!da) return 1; if (!db_) return -1;
+          return da - db_;
+        });
+      });
+
+      const namaEditorSorted = Object.keys(perEditor).sort();
+      const colorMap = {};
+      namaEditorSorted.forEach((e, idx) => colorMap[e] = COLOR_PALETTE[idx % COLOR_PALETTE.length]);
+
+      container.innerHTML = namaEditorSorted.map(editorName => {
+        const items = perEditor[editorName];
+        const warna = colorMap[editorName];
+        const inisial = editorName.charAt(0).toUpperCase();
+
+        const daftarVideo = items.map(item => {
+          const dueObj = parseTanggal(item.dueDate);
+          const sisa = hitungSisaWaktu(dueObj);
+          return `
+            <div class="py-2.5 border-b border-gray-100 last:border-b-0 last:pb-0">
+              <p class="text-sm font-semibold text-gray-800 leading-snug mb-1.5" title="${item.judul}">${item.judul}</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-gray-400">${item.dueDate ? 'Due: ' + item.dueDate : 'Tanpa due date'}</span>
+                <span class="badge-pill ${sisa.cls}">${sisa.label}</span>
+              </div>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="editor-wip-card border border-gray-100 rounded-2xl p-5 bg-gradient-to-b from-white to-gray-50/60 flex flex-col">
+            <div class="flex items-center gap-2.5 mb-3 shrink-0">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0" style="background:${warna}">${inisial}</div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-bold text-gray-800 truncate">${editorName}</p>
+                <span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">✂️ ${items.length} Video WIP</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-0.5 shrink-0">Sedang Dikerjakan</p>
+            <div class="max-h-[260px] overflow-y-auto pr-1">
+              ${daftarVideo}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    /* ===== Target Mingguan Editor (1 video/minggu/editor) ===== */
+    function getAwalAkhirMinggu(refDate) {
+      const d = new Date(refDate);
+      d.setHours(0, 0, 0, 0);
+      const hari = d.getDay();
+      const offsetKeSenin = hari === 0 ? -6 : 1 - hari;
+      const senin = new Date(d);
+      senin.setDate(d.getDate() + offsetKeSenin);
+      const minggu = new Date(senin);
+      minggu.setDate(senin.getDate() + 6);
+      return { senin, minggu };
+    }
+
+    function formatTglSingkat(d) {
+      return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+    }
+
+    function renderWeeklyTarget(data) {
+      const container = document.getElementById('weekly-target-grid');
+      const labelEl = document.getElementById('week-range-label');
+      const { senin, minggu } = getAwalAkhirMinggu(new Date());
+      labelEl.innerText = `Minggu ini: ${formatTglSingkat(senin)} — ${formatTglSingkat(minggu)}`;
+
+      const namaEditorSet = new Set(data.map(i => i.editor).filter(e => e && e.toLowerCase() !== 'all editor'));
+      if (namaEditorSet.size === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung target mingguannya untuk filter ini.</p>';
+        return;
+      }
+
+      const namaEditorSorted = Array.from(namaEditorSet).sort();
+      const TARGET_MINGGUAN = 1;
+
+      container.innerHTML = namaEditorSorted.map(editorName => {
+        const doneMingguIni = data.filter(i => {
+          if (i.editor !== editorName || i.statusEdit !== 'Done') return false;
+          const d = parseTanggal(i.dueDate);
+          if (!d) return false;
+          return d >= senin && d <= minggu;
+        }).length;
+        const wipAktif = data.filter(i => i.editor === editorName && i.statusEdit === 'WIP').length;
+        const tercapai = doneMingguIni >= TARGET_MINGGUAN;
+        const persen = Math.min(100, Math.round((doneMingguIni / TARGET_MINGGUAN) * 100));
+        const barColor = tercapai ? 'bg-emerald-500' : (wipAktif > 0 ? 'bg-blue-600' : 'bg-amber-500');
+        const statusBadge = tercapai
+          ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Target Tercapai</span>'
+          : (wipAktif > 0
+            ? '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">Sedang Dikerjakan</span>'
+            : '<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Belum Mulai</span>');
+        return `
+          <div class="p-4 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
+            <p class="text-sm font-bold text-gray-800 truncate mb-2">${editorName}</p>
+            <div class="flex items-end gap-1.5 mb-2"><span class="text-2xl font-black text-gray-800">${doneMingguIni}</span><span class="text-xs text-gray-400 font-semibold mb-0.5">/ ${TARGET_MINGGUAN} video minggu ini</span></div>
+            <div class="progress-track w-full h-2 rounded-full overflow-hidden mb-3"><div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div></div>
+            ${statusBadge}
+          </div>`;
+      }).join('');
+    }
+
+    /* ===== Berikutnya Diplanningkan untuk Diedit (Next Up) ===== */
+    function renderNextUpTable(data) {
+      const tbody = document.getElementById('nextup-body');
+      const nextUp = data.filter(i => i.statusEdit === 'Skenario Siap');
+      const withDate = nextUp.map(i => {
+        const d = parseTanggal(i.dueDate);
+        return { ...i, dueDateObj: d };
+      }).sort((a, b) => {
+        if (!a.dueDateObj && !b.dueDateObj) return 0;
+        if (!a.dueDateObj) return 1;
+        if (!b.dueDateObj) return -1;
+        return a.dueDateObj - b.dueDateObj;
+      });
+      if (withDate.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Tidak ada video yang mengantre untuk diedit saat ini.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = withDate.map((item, idx) => `
+        <tr class="priority-row transition-colors">
+          <td class="py-3 px-4 text-gray-400 font-bold">#${idx + 1}</td>
+          <td class="py-3 px-4 max-w-xs truncate font-medium text-gray-700" title="${item.judul}">${item.judul}</td>
+          <td class="py-3 px-4 text-gray-600">${item.editor || '<span class="text-gray-300">Belum ditugaskan</span>'}</td>
+          <td class="py-3 px-4 text-gray-500 text-xs">${item.dueDate || '-'}</td>
+          <td class="py-3 px-4 text-gray-500 text-xs">${item.musim || '-'}</td>
+        </tr>`).join('');
     }
 
     function getBulanBerjalan() {
