@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Editor - Sistem Internal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js untuk Grafik Interaktif -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <!-- Supabase Client JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: '#161724', background: '#F4F5FB' } } }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(22, 23, 36, 0.15);
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(22, 23, 36, 0.3);
+    }
+
+    .stat-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-box {
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      transition: all 0.25s ease;
+    }
+
+    .filter-box:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-box:focus-within {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .progress-track {
+      background: #eef0f7;
+    }
+
+    .progress-fill {
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .badge-pill {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+
+    .priority-row:hover {
+      background: #f8fafc;
+    }
+
+    .crud-field label {
+      display: block;
+    }
+
+    /* ===== Styling untuk Menu Panduan Editing Video ===== */
+    .panduan-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .panduan-card:hover {
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.08);
+    }
+
+    .prompt-box {
+      width: 100%;
+      background: #eff6ff;
+      border: 1px dashed #93c5fd;
+      color: #1d4ed8;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      margin: 6px 0;
+      display: block;
+      resize: none;
+      cursor: pointer;
+    }
+
+    .ip-box-light {
+      background: #eff6ff;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      color: #1d4ed8;
+      margin: 6px 0;
+      display: inline-block;
+      font-size: 0.72rem;
+      border: 1px dashed #93c5fd;
+    }
+
+    .tool-card-panduan {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tool-card-panduan:hover {
+      transform: translateY(-3px);
+      border-color: #93c5fd;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12);
+    }
+  </style>
+</head>
+
+<body class="bg-background flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in"
+  id="main-body">
+
+  <!-- Wrapper Sidebar & Tombol Toggle -->
+  <div class="relative flex z-20">
+    <!-- Sidebar Editor -->
+    <aside id="sidebar"
+      class="w-64 bg-brand text-white flex flex-col shadow-2xl transition-all duration-300 ease-in-out h-full overflow-hidden shrink-0">
+      <div class="p-6 border-b border-gray-800/60">
+        <h1 class="text-xl font-bold tracking-widest">INTERNAL SYS</h1>
+        <p class="text-xs text-gray-400 mt-1" id="user-role-badge">EDITOR PUSAT</p>
+      </div>
+
+      <nav class="flex-1 px-4 space-y-2 mt-4">
+        <a href="#" id="nav-dashboard"
+          class="block py-2.5 px-4 bg-blue-900/50 rounded-xl text-sm text-blue-200 transition-all hover:translate-x-1">Workflow
+          Video</a>
+        <a href="#" id="nav-crud"
+          class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Kelola
+          Data Planning</a>
+        <a href="#" id="nav-panduan"
+          class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Panduan
+          Editing Video</a>
+        <a href="#"
+          class="block py-2.5 px-4 hover:bg-gray-800 rounded-xl text-sm text-gray-300 transition-all hover:translate-x-1">Media
+          Converter</a>
+      </nav>
+
+      <div class="p-4">
+        <button id="logout-btn"
+          class="w-full text-left py-2.5 px-4 hover:bg-red-900/40 rounded-xl text-sm text-red-300 transition-all duration-200">
+          Log out &rarr;
+        </button>
+      </div>
+    </aside>
+
+    <!-- Tombol Toggle Panah -->
+    <button id="sidebar-toggle"
+      class="absolute -right-4 top-6 bg-brand hover:bg-gray-800 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform duration-300 focus:outline-none z-30"
+      title="Buka/Tutup Menu">
+      <svg id="toggle-icon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Area Konten Utama -->
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+    <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 sticky top-0">
+      <h2 class="text-xl font-semibold text-gray-800">Dashboard Editor</h2>
+
+      <div class="flex items-center gap-3">
+        <div
+          class="w-9 h-9 rounded-full bg-brand flex items-center justify-center text-white font-bold text-sm shadow-md"
+          id="avatar-initial">?</div>
+        <span class="text-sm font-medium text-gray-700 hidden sm:inline" id="user-name">Memuat...</span>
+      </div>
+    </header>
+
+    <div class="p-8 space-y-6 max-w-7xl w-full mx-auto">
+
+      <!-- ============ VIEW: DASHBOARD ============ -->
+      <div id="view-dashboard" class="space-y-6">
+        <!-- BANNER DIAGNOSTIK (muncul otomatis kalau data gagal/kosong) -->
+        <div id="diagnostic-banner"
+          class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm">
+          <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+          <p id="diagnostic-message" class="text-rose-600"></p>
+        </div>
+
+        <!-- HEADER + FILTER -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-800" id="welcome-title">Selamat Datang</h3>
+            <p class="text-sm text-gray-500 mt-1">Ringkasan alur kerja editing video dari data Planning Editor.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div class="flex flex-col">
+                <label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Filter Bulan</label>
+                <select id="filter-bulan"
+                  class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                  <option value="all">Semua Bulan</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+              <div class="flex flex-col">
+                <label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Filter Editor</label>
+                <select id="filter-editor"
+                  class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                  <option value="all">Semua Editor</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KARTU STATISTIK -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-3">🎬
+            </div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Ready to Edit</p>
+            <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-ready">0</h4>
+            <p class="text-[11px] text-gray-400 mt-1">Skenario sudah siap, menunggu diedit</p>
+          </div>
+          <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3">
+              ✂️
+            </div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Sedang WIP</p>
+            <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-wip">0</h4>
+            <p class="text-[11px] text-gray-400 mt-1">Video dalam proses pengeditan</p>
+          </div>
+          <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div
+              class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3">
+              ✅
+            </div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Berhasil Diedit</p>
+            <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-done">0</h4>
+            <p class="text-[11px] text-gray-400 mt-1">Total video berstatus Done</p>
+          </div>
+          <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div
+              class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-3">
+              📝</div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Transkrip Siap</p>
+            <h4 class="text-3xl font-black text-gray-800 mt-1" id="card-transkrip">0</h4>
+            <p class="text-[11px] text-gray-400 mt-1">Menunggu dibuatkan skenario</p>
+          </div>
+        </div>
+
+        <!-- GRAFIK -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] lg:col-span-2">
+            <h4 class="text-sm font-bold text-gray-800 mb-1">Video Berhasil Diedit per Editor</h4>
+            <p class="text-xs text-gray-400 mb-3">Jumlah video berstatus <span class="font-semibold">Done</span> yang
+              dikerjakan tiap editor</p>
+            <div class="h-[280px]">
+              <canvas id="chartEditor"></canvas>
+            </div>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] flex flex-col">
+            <h4 class="text-sm font-bold text-gray-800 mb-1">Distribusi Status Alur Kerja</h4>
+            <p class="text-xs text-gray-400 mb-3">Transkrip &rarr; Skenario &rarr; WIP &rarr; Done</p>
+            <div class="flex-1 relative flex items-center justify-center">
+              <canvas id="chartStatus"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- TARGET PENCAPAIAN BULANAN -->
+        <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="text-sm font-bold text-gray-800">Target Pencapaian Bulanan</h4>
+            <span class="text-[11px] text-gray-400" id="target-bulan-label">Bulan Berjalan</span>
+          </div>
+          <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span
+              class="font-semibold">12
+              video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan lain.</p>
+          <div id="target-grid" class="max-w-sm">
+            <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
+          </div>
+        </div>
+
+        <!-- LEADERBOARD & PRIORITAS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h4 class="text-sm font-bold text-gray-800 mb-1">Papan Peringkat Editor</h4>
+            <p class="text-xs text-gray-400 mb-4">Berdasarkan jumlah video Done (sesuai filter aktif)</p>
+            <div id="leaderboard-list" class="space-y-3">
+              <p class="text-sm text-gray-400 text-center py-6">Memuat data...</p>
+            </div>
+          </div>
+
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 overflow-hidden flex flex-col">
+            <div class="p-6 pb-3">
+              <h4 class="text-sm font-bold text-gray-800 mb-1">Prioritas Pengerjaan Terdekat</h4>
+              <p class="text-xs text-gray-400">Video Ready to Edit &amp; WIP diurutkan dari due date paling dekat</p>
+            </div>
+            <div class="overflow-x-auto max-h-[360px] overflow-y-auto px-2 pb-2">
+              <table class="w-full text-left border-collapse">
+                <thead class="sticky top-0 bg-white z-10">
+                  <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                    <th class="py-3 px-4">Judul Video</th>
+                    <th class="py-3 px-4">Editor</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4">Due Date</th>
+                    <th class="py-3 px-4">Sisa Waktu</th>
+                  </tr>
+                </thead>
+                <tbody id="priority-body" class="text-sm text-gray-700 divide-y divide-gray-50">
+                  <tr>
+                    <td colspan="5" class="text-center py-8 text-gray-400">Memuat data...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: DASHBOARD ============ -->
+
+      <!-- ============ VIEW: CRUD PLANNING EDITOR ============ -->
+      <div id="view-crud" class="hidden space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-800">Kelola Data Planning Editor</h3>
+            <p class="text-sm text-gray-500 mt-1">Tambah, ubah, dan hapus data langsung dari tabel Planning_Editor.</p>
+          </div>
+          <button id="btn-tambah-data"
+            class="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md self-start md:self-auto">
+            + Tambah Data
+          </button>
+        </div>
+
+        <div id="crud-no-id-warning"
+          class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs">
+          ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Edit &amp; Hapus tetap bisa dipakai, tapi sistem
+          mencocokkan baris berdasarkan <b>kombinasi semua kolom</b> — kalau ada dua baris yang datanya persis sama
+          di semua kolom, keduanya akan ikut berubah/terhapus bersamaan. Untuk keamanan penuh, sebaiknya tambahkan
+          kolom <code>id</code> unik (primary key) di tabel Supabase.
+        </div>
+
+        <!-- FILTER TABEL CRUD -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                </path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-purple-600 uppercase tracking-widest">Status Edit</label>
+              <select id="crud-filter-status-edit"
+                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Status</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Status Upload</label>
+              <select id="crud-filter-status-upload"
+                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Status</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Editor</label>
+              <select id="crud-filter-editor"
+                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Editor</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Bulan</label>
+              <select id="crud-filter-bulan"
+                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Bulan</option>
+              </select>
+            </div>
+          </div>
+
+          <span id="crud-filter-count" class="text-xs font-semibold text-gray-400 ml-auto"></span>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="overflow-x-auto max-h-[560px] overflow-y-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead class="sticky top-0 bg-white z-10">
+                <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                  <th class="py-3 px-4">Bulan</th>
+                  <th class="py-3 px-4">Tahun</th>
+                  <th class="py-3 px-4">Judul Video</th>
+                  <th class="py-3 px-4">Editor</th>
+                  <th class="py-3 px-4">Status Edit</th>
+                  <th class="py-3 px-4">Due Date</th>
+                  <th class="py-3 px-4">Target Upload</th>
+                  <th class="py-3 px-4">Status Upload</th>
+                  <th class="py-3 px-4">Musim</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="crud-body" class="divide-y divide-gray-50 text-gray-700">
+                <tr>
+                  <td colspan="10" class="text-center py-8 text-gray-400">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: CRUD PLANNING EDITOR ============ -->
+
+    </div>
+  </main>
+
+  <!-- ============ MODAL FORM CRUD ============ -->
+  <div id="crud-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+        <h4 id="crud-modal-title" class="text-lg font-bold text-gray-800">Tambah Data</h4>
+        <button id="crud-modal-close" type="button"
+          class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+      </div>
+      <form id="crud-form" class="p-6 space-y-4">
+        <input type="hidden" id="crud-field-id">
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Bulan</label>
+          <select id="crud-field-bulan"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+            <option value="">- Pilih Bulan -</option>
+            <option value="Januari">Januari</option>
+            <option value="Februari">Februari</option>
+            <option value="Maret">Maret</option>
+            <option value="April">April</option>
+            <option value="Mei">Mei</option>
+            <option value="Juni">Juni</option>
+            <option value="Juli">Juli</option>
+            <option value="Agustus">Agustus</option>
+            <option value="September">September</option>
+            <option value="Oktober">Oktober</option>
+            <option value="November">November</option>
+            <option value="Desember">Desember</option>
+          </select>
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tahun</label>
+          <input id="crud-field-tahun" type="text" placeholder="2026"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
+          <input id="crud-field-judul" type="text" required
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
+          <input id="crud-field-editor" type="text"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Edit</label>
+          <select id="crud-field-statusEdit"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+            <option value="Transkrip Siap">Transkrip Siap</option>
+            <option value="Skenario Siap">Skenario Siap</option>
+            <option value="WIP">WIP</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date</label>
+          <input id="crud-field-dueDate" type="date"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Target Upload</label>
+          <input id="crud-field-targetUpload" type="text"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Upload</label>
+          <input id="crud-field-statusUpload" type="text"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div class="crud-field">
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Musim</label>
+          <input id="crud-field-musim" type="text"
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
+        </div>
+
+        <div id="crud-form-error" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3">
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" id="crud-cancel-btn"
+            class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100">Batal</button>
+          <button type="submit" id="crud-save-btn"
+            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- ============ /MODAL FORM CRUD ============ -->
+
+  <script>
+    Chart.register(ChartDataLabels);
+
+    const SUPABASE_URL = 'https://ybedibzzdbudwitiriso.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const NAMA_TABEL_PLANNING = 'Planning_Editor';
+
+    // Target pencapaian tetap: 12 video Done per bulan
+    const TARGET_KONSTAN = 12;
+
+    // Urutan bulan kalender untuk sorting yang benar (bukan alfabetis)
+    const URUTAN_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    let listPlanningGlobal = [];
+    let planningRawGlobal = []; // data mentah (nama kolom asli Supabase) dipakai oleh menu CRUD
+    let chartEditor = null;
+    let chartStatus = null;
+
+    // Peta nama kolom logis -> nama kolom asli di Supabase (dideteksi otomatis)
+    let COLUMN_MAP = {
+      id: null, bulan: null, tahun: null, statusEdit: null, editor: null,
+      judul: null, dueDate: null, targetUpload: null, statusUpload: null, musim: null
+    };
+
+    // --- Helper: ambil field dengan beberapa kemungkinan nama kolom (spasi/underscore/casing) ---
+    function getField(item, ...keys) {
+      for (const k of keys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return String(item[k]).trim();
+        }
+      }
+      return null;
+    }
+
+    // Menyamakan status yang penulisannya tidak konsisten di sumber data
+    function normalizeStatus(raw) {
+      if (!raw) return null;
+      const s = raw.trim();
+      if (['Siap Diskenario', '1. Siap Di Skenario', 'Skenario Siap'].includes(s)) return 'Skenario Siap';
+      return s;
+    }
+
+    // Deteksi nama kolom asli di tabel Supabase (case-insensitive) agar CRUD tetap jalan
+    // walaupun nama kolom berbeda-beda (spasi/underscore/huruf besar-kecil).
+    function detectColumns(sampleRow) {
+      const keys = Object.keys(sampleRow || {});
+      function cariKolom(...kandidat) {
+        for (const c of kandidat) {
+          const found = keys.find(k => k.toLowerCase() === c.toLowerCase());
+          if (found) return found;
+        }
+        return null;
+      }
+      COLUMN_MAP.id = cariKolom('id', 'Id', 'ID', 'uuid');
+      COLUMN_MAP.bulan = cariKolom('Bulan', 'bulan');
+      COLUMN_MAP.tahun = cariKolom('Tahun', 'tahun');
+      COLUMN_MAP.statusEdit = cariKolom('Status Edit', 'Status_Edit', 'status_edit');
+      COLUMN_MAP.editor = cariKolom('Editor', 'editor');
+      COLUMN_MAP.judul = cariKolom('Judul Video', 'Judul_Video', 'judul_video', 'judul');
+      COLUMN_MAP.dueDate = cariKolom('Due Date', 'Due_Date', 'due_date');
+      COLUMN_MAP.targetUpload = cariKolom('Target Upload', 'Target_Upload', 'target_upload');
+      COLUMN_MAP.statusUpload = cariKolom('Status Upload', 'Status_Upload', 'status_upload');
+      COLUMN_MAP.musim = cariKolom('Musim', 'musim');
+    }
+
+    const storedUser = localStorage.getItem('data_user');
+    if (!storedUser) {
+      window.location.href = 'login.html';
+    } else {
+      const user = JSON.parse(storedUser);
+      const role = (user.role || 'editor').toLowerCase();
+
+      if (role === 'cabang') {
+        window.location.href = 'cabang-dashboard.html';
+      }
+
+      const namaUser = user.nama_user || 'User';
+      document.getElementById('user-name').innerText = namaUser;
+      document.getElementById('avatar-initial').innerText = namaUser.charAt(0).toUpperCase();
+      document.getElementById('welcome-title').innerText = `Dashboard Editor - Halo, ${namaUser}`;
+      document.getElementById('user-role-badge').innerText = `ID: ${user.id_user} (EDITOR)`;
+
+      document.getElementById('main-body').classList.remove('opacity-0');
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const toggleIcon = document.getElementById('toggle-icon');
+
+    toggleBtn.addEventListener('click', () => {
+      if (sidebar.classList.contains('w-64')) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-0');
+        toggleIcon.style.transform = 'rotate(180deg)';
+      } else {
+        sidebar.classList.remove('w-0');
+        sidebar.classList.add('w-64');
+        toggleIcon.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('data_user');
+      window.location.href = 'login.html';
+    });
+
+    // ===================== NAVIGASI ANTAR MENU =====================
+    function tampilkanView(view) {
+      const isDashboard = view === 'dashboard';
+      document.getElementById('view-dashboard').classList.toggle('hidden', !isDashboard);
+      document.getElementById('view-crud').classList.toggle('hidden', isDashboard);
+
+      const navDash = document.getElementById('nav-dashboard');
+      const navCrud = document.getElementById('nav-crud');
+
+      navDash.classList.toggle('bg-blue-900/50', isDashboard);
+      navDash.classList.toggle('text-blue-200', isDashboard);
+      navDash.classList.toggle('text-gray-300', !isDashboard);
+
+      navCrud.classList.toggle('bg-blue-900/50', !isDashboard);
+      navCrud.classList.toggle('text-blue-200', !isDashboard);
+      navCrud.classList.toggle('text-gray-300', isDashboard);
+    }
+
+    document.getElementById('nav-dashboard').addEventListener('click', (e) => {
+      e.preventDefault();
+      tampilkanView('dashboard');
+    });
+
+    document.getElementById('nav-crud').addEventListener('click', (e) => {
+      e.preventDefault();
+      tampilkanView('crud');
+    });
+
+    // ===================== AMBIL DATA SUPABASE =====================
+    async function ambilDataPlanning() {
+      const { data, error } = await db.from(NAMA_TABEL_PLANNING).select('*');
+      if (error) {
+        console.error('SUPABASE ERROR (Planning_Editor):', error);
+        tampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_PLANNING}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat, nama tabel salah, atau RLS (Row Level Security) belum mengizinkan akses baca untuk anon key.`);
+        return [];
+      }
+      console.log(`[Planning_Editor] ${data ? data.length : 0} baris diterima dari Supabase.`);
+      if (data && data.length > 0) {
+        console.log('[Planning_Editor] Contoh nama kolom baris pertama:', Object.keys(data[0]));
+      }
+      return data || [];
+    }
+
+    function tampilkanDiagnostik(pesan) {
+      const banner = document.getElementById('diagnostic-banner');
+      const msg = document.getElementById('diagnostic-message');
+      msg.innerText = pesan;
+      banner.classList.remove('hidden');
+    }
+
+    function sembunyikanDiagnostik() {
+      document.getElementById('diagnostic-banner').classList.add('hidden');
+    }
+
+    // ===================== UTAMA =====================
+    async function muatDashboard() {
+      sembunyikanDiagnostik();
+      const rawPlanning = await ambilDataPlanning();
+      planningRawGlobal = rawPlanning;
+
+      if (rawPlanning.length > 0) {
+        detectColumns(rawPlanning[0]);
+      }
+
+      if (rawPlanning.length === 0) {
+        // Diagnostik sudah ditampilkan oleh ambilDataPlanning() jika ada error.
+        // Kalau tidak ada error tapi tetap 0 baris, berarti tabelnya memang kosong.
+        const banner = document.getElementById('diagnostic-banner');
+        if (banner.classList.contains('hidden')) {
+          tampilkanDiagnostik(`Tabel "${NAMA_TABEL_PLANNING}" berhasil diakses tapi tidak berisi data (0 baris). Pastikan data sudah diimpor ke tabel ini di Supabase.`);
+        }
+        renderSemua();
+        renderCrudTable();
+        return;
+      }
+
+      // Normalisasi & buang baris kosong (tanpa Bulan / Judul Video) - khusus untuk dashboard
+      listPlanningGlobal = rawPlanning.map(item => {
+        const bulan = getField(item, 'Bulan', 'bulan');
+        const judul = getField(item, 'Judul Video', 'Judul_Video', 'judul_video', 'judul');
+        if (!bulan || !judul) return null;
+        return {
+          bulan,
+          tahun: getField(item, 'Tahun', 'tahun'),
+          statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
+          editor: getField(item, 'Editor', 'editor'),
+          judul,
+          dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
+          targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
+          statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
+          musim: getField(item, 'Musim', 'musim'),
+        };
+      }).filter(Boolean);
+
+      if (listPlanningGlobal.length === 0) {
+        const kolomAsli = Object.keys(rawPlanning[0]).join(', ');
+        tampilkanDiagnostik(`Tabel "${NAMA_TABEL_PLANNING}" berisi ${rawPlanning.length} baris, tapi tidak ada satupun yang berhasil dibaca karena nama kolom tidak cocok. Kolom yang terdeteksi di Supabase: [${kolomAsli}]. Buka Console browser (F12) untuk detail lengkap.`);
+      }
+
+      populateFilters();
+      renderSemua();
+      renderCrudTable();
+    }
+
+    function populateFilters() {
+      const selectBulan = document.getElementById('filter-bulan');
+      const selectEditor = document.getElementById('filter-editor');
+      const curBulan = selectBulan.value || 'all';
+      const curEditor = selectEditor.value || 'all';
+
+      const bulanSet = new Set(listPlanningGlobal.map(i => i.bulan));
+      const bulanSorted = Array.from(bulanSet).sort((a, b) => {
+        const ia = URUTAN_BULAN.indexOf(a);
+        const ib = URUTAN_BULAN.indexOf(b);
+        if (ia === -1 && ib === -1) return a.localeCompare(b);
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+
+      selectBulan.innerHTML = '<option value="all">Semua Bulan</option>';
+      bulanSorted.forEach(b => {
+        selectBulan.innerHTML += `<option value="${b}" ${b === curBulan ? 'selected' : ''}>${b}</option>`;
+      });
+
+      const editorSet = new Set(listPlanningGlobal
+        .map(i => i.editor)
+        .filter(e => e && e.toLowerCase() !== 'all editor'));
+
+      selectEditor.innerHTML = '<option value="all">Semua Editor</option>';
+      Array.from(editorSet).sort().forEach(e => {
+        selectEditor.innerHTML += `<option value="${e}" ${e === curEditor ? 'selected' : ''}>${e}</option>`;
+      });
+    }
+
+    document.getElementById('filter-bulan').addEventListener('change', renderSemua);
+    document.getElementById('filter-editor').addEventListener('change', renderSemua);
+
+    function getFilteredData() {
+      const bulanFilter = document.getElementById('filter-bulan').value;
+      const editorFilter = document.getElementById('filter-editor').value;
+
+      return listPlanningGlobal.filter(item => {
+        if (bulanFilter !== 'all' && item.bulan !== bulanFilter) return false;
+        if (editorFilter !== 'all' && item.editor !== editorFilter) return false;
+        return true;
+      });
+    }
+
+    function renderSemua() {
+      const filtered = getFilteredData();
+      renderKartuStatistik(filtered);
+      renderChartEditor(filtered);
+      renderChartStatus(filtered);
+      renderLeaderboard(filtered);
+      renderPriorityTable(filtered);
+      renderTargetBulanan();
+    }
+
+    function renderKartuStatistik(data) {
+      const ready = data.filter(i => i.statusEdit === 'Skenario Siap').length;
+      const wip = data.filter(i => i.statusEdit === 'WIP').length;
+      const done = data.filter(i => i.statusEdit === 'Done').length;
+      const transkrip = data.filter(i => i.statusEdit === 'Transkrip Siap').length;
+
+      document.getElementById('card-ready').innerText = ready;
+      document.getElementById('card-wip').innerText = wip;
+      document.getElementById('card-done').innerText = done;
+      document.getElementById('card-transkrip').innerText = transkrip;
+    }
+
+    function renderChartEditor(data) {
+      const doneData = data.filter(i => i.statusEdit === 'Done' && i.editor && i.editor.toLowerCase() !== 'all editor');
+      const rekap = {};
+      doneData.forEach(i => { rekap[i.editor] = (rekap[i.editor] || 0) + 1; });
+
+      const labels = Object.keys(rekap).sort((a, b) => rekap[b] - rekap[a]);
+      const values = labels.map(l => rekap[l]);
+      const colors = ['#2563eb', '#0d9488', '#f59e0b', '#8b5cf6', '#ef4444', '#0891b2', '#65a30d'];
+
+      const ctx = document.getElementById('chartEditor').getContext('2d');
+      if (chartEditor) chartEditor.destroy();
+
+      if (labels.length === 0) {
+        chartEditor = null;
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        return;
+      }
+
+      chartEditor = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Video Done',
+            data: values,
+            backgroundColor: labels.map((_, idx) => colors[idx % colors.length]),
+            borderRadius: 8,
+            borderSkipped: false,
+            maxBarThickness: 50
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(22,23,36,0.9)', padding: 12, cornerRadius: 10 },
+            datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0, color: '#94a3b8' }, grid: { color: 'rgba(226,232,240,0.6)' } },
+            x: { ticks: { color: '#64748b' }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderChartStatus(data) {
+      const urutanStatus = ['Transkrip Siap', 'Skenario Siap', 'WIP', 'Done'];
+      const warnaStatus = { 'Transkrip Siap': '#8b5cf6', 'Skenario Siap': '#2563eb', 'WIP': '#f59e0b', 'Done': '#10b981' };
+
+      const rekap = {};
+      urutanStatus.forEach(s => rekap[s] = 0);
+      data.forEach(i => {
+        if (rekap.hasOwnProperty(i.statusEdit)) rekap[i.statusEdit]++;
+      });
+
+      const labels = urutanStatus.filter(s => rekap[s] > 0);
+      const values = labels.map(s => rekap[s]);
+      const colors = labels.map(s => warnaStatus[s]);
+
+      const ctx = document.getElementById('chartStatus').getContext('2d');
+      if (chartStatus) chartStatus.destroy();
+
+      if (labels.length === 0) {
+        chartStatus = null;
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        return;
+      }
+
+      chartStatus = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
+            tooltip: { backgroundColor: 'rgba(22,23,36,0.9)', padding: 12, cornerRadius: 10 },
+            datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, formatter: v => v }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    function renderLeaderboard(data) {
+      const container = document.getElementById('leaderboard-list');
+      const doneData = data.filter(i => i.statusEdit === 'Done' && i.editor && i.editor.toLowerCase() !== 'all editor');
+      const rekap = {};
+      doneData.forEach(i => { rekap[i.editor] = (rekap[i.editor] || 0) + 1; });
+
+      const ranking = Object.entries(rekap).sort((a, b) => b[1] - a[1]);
+
+      if (ranking.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Belum ada video Done untuk filter ini.</p>';
+        return;
+      }
+
+      const medali = ['🥇', '🥈', '🥉'];
+      container.innerHTML = ranking.map(([nama, jumlah], idx) => `
+        <div class="flex items-center justify-between p-3 rounded-xl ${idx === 0 ? 'bg-blue-50/70' : 'bg-gray-50'}">
+          <div class="flex items-center gap-3">
+            <span class="text-lg w-6 text-center">${medali[idx] || '🎞️'}</span>
+            <span class="text-sm font-semibold text-gray-700">${nama}</span>
+          </div>
+          <span class="text-sm font-black text-gray-800">${jumlah} <span class="text-[10px] font-medium text-gray-400">video</span></span>
+        </div>
+      `).join('');
+    }
+
+    function renderPriorityTable(data) {
+      const tbody = document.getElementById('priority-body');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const relevan = data.filter(i => ['WIP', 'Skenario Siap'].includes(i.statusEdit) && i.dueDate);
+
+      const withDate = relevan.map(i => {
+        const d = new Date(i.dueDate);
+        return { ...i, dueDateObj: isNaN(d) ? null : d };
+      }).filter(i => i.dueDateObj !== null);
+
+      withDate.sort((a, b) => a.dueDateObj - b.dueDateObj);
+
+      if (withDate.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Tidak ada video WIP / Ready to Edit dengan due date untuk filter ini.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = withDate.map(item => {
+        const diffDays = Math.round((item.dueDateObj - today) / 86400000);
+        let sisaLabel, sisaClass;
+        if (diffDays < 0) {
+          sisaLabel = `Lewat ${Math.abs(diffDays)} hari`;
+          sisaClass = 'bg-rose-50 text-rose-600 border border-rose-200';
+        } else if (diffDays === 0) {
+          sisaLabel = 'Jatuh tempo hari ini';
+          sisaClass = 'bg-amber-50 text-amber-600 border border-amber-200';
+        } else if (diffDays <= 3) {
+          sisaLabel = `${diffDays} hari lagi`;
+          sisaClass = 'bg-amber-50 text-amber-600 border border-amber-200';
+        } else {
+          sisaLabel = `${diffDays} hari lagi`;
+          sisaClass = 'bg-slate-100 text-slate-600 border border-slate-200';
+        }
+
+        const statusBadge = item.statusEdit === 'WIP'
+          ? '<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">WIP</span>'
+          : '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">Ready</span>';
+
+        return `
+          <tr class="priority-row transition-colors">
+            <td class="py-3 px-4 max-w-xs truncate font-medium text-gray-700" title="${item.judul}">${item.judul}</td>
+            <td class="py-3 px-4 text-gray-600">${item.editor || '-'}</td>
+            <td class="py-3 px-4">${statusBadge}</td>
+            <td class="py-3 px-4 text-gray-500 text-xs">${item.dueDate}</td>
+            <td class="py-3 px-4"><span class="badge-pill ${sisaClass}">${sisaLabel}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getBulanBerjalan() {
+      return URUTAN_BULAN[new Date().getMonth()];
+    }
+
+    function renderTargetBulanan() {
+      const container = document.getElementById('target-grid');
+      const label = document.getElementById('target-bulan-label');
+
+      const bulanTersedia = Array.from(new Set(listPlanningGlobal
+        .filter(i => URUTAN_BULAN.includes(i.bulan))
+        .map(i => i.bulan)));
+
+      if (bulanTersedia.length === 0) {
+        label.innerText = '';
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Belum ada data bulan yang bisa ditampilkan.</p>';
+        return;
+      }
+
+      const filterBulan = document.getElementById('filter-bulan').value;
+      let bulanTarget = filterBulan !== 'all' ? filterBulan : getBulanBerjalan();
+
+      let bulanFallback = false;
+      if (!bulanTersedia.includes(bulanTarget)) {
+        bulanFallback = true;
+        const terurut = bulanTersedia.slice().sort((a, b) => URUTAN_BULAN.indexOf(a) - URUTAN_BULAN.indexOf(b));
+        bulanTarget = terurut[terurut.length - 1];
+      }
+
+      const doneCount = listPlanningGlobal.filter(i => i.bulan === bulanTarget && i.statusEdit === 'Done').length;
+      const tahunTarget = (listPlanningGlobal.find(i => i.bulan === bulanTarget) || {}).tahun || '';
+
+      const persen = Math.min(100, Math.round((doneCount / TARGET_KONSTAN) * 100));
+      const tercapai = doneCount >= TARGET_KONSTAN;
+      const barColor = tercapai ? 'bg-emerald-500' : 'bg-blue-600';
+      const badge = tercapai
+        ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Tercapai (DONE)</span>'
+        : `<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Kurang ${TARGET_KONSTAN - doneCount} video lagi</span>`;
+
+      label.innerText = filterBulan === 'all'
+        ? (bulanFallback ? `Bulan Berjalan (data terbaru: ${bulanTarget})` : 'Bulan Berjalan')
+        : 'Sesuai Filter Bulan';
+
+      container.innerHTML = `
+        <div class="relative p-5 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
+          <p class="text-sm font-bold text-gray-800">${bulanTarget} ${tahunTarget}</p>
+          <div class="flex items-end gap-1.5 mt-2 mb-3">
+            <span class="text-3xl font-black text-gray-800">${doneCount}</span>
+            <span class="text-sm text-gray-400 font-semibold mb-1">/ ${TARGET_KONSTAN} video</span>
+          </div>
+          <div class="progress-track w-full h-2.5 rounded-full overflow-hidden mb-3">
+            <div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div>
+          </div>
+          ${badge}
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '-';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    const CRUD_WARNA_STATUS_EDIT = {
+      'Transkrip Siap': 'bg-purple-50 text-purple-600 border border-purple-200',
+      'Skenario Siap': 'bg-blue-50 text-blue-600 border border-blue-200',
+      'WIP': 'bg-amber-50 text-amber-600 border border-amber-200',
+      'Done': 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+    };
+
+    function badgeStatusEdit(raw) {
+      const norm = normalizeStatus(raw);
+      if (!norm) return '<span class="text-gray-300">-</span>';
+      const cls = CRUD_WARNA_STATUS_EDIT[norm] || 'bg-slate-100 text-slate-600 border border-slate-200';
+      return `<span class="badge-pill ${cls}">${escapeHtml(norm)}</span>`;
+    }
+
+    function badgeStatusUpload(raw) {
+      if (!raw) return '<span class="text-gray-300">-</span>';
+      const v = raw.toLowerCase();
+      let cls = 'bg-slate-100 text-slate-600 border border-slate-200';
+      if (v.includes('sudah') || v.includes('done') || v.includes('upload') && !v.includes('belum')) {
+        cls = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+      } else if (v.includes('belum') || v.includes('pending') || v.includes('proses')) {
+        cls = 'bg-amber-50 text-amber-600 border border-amber-200';
+      }
+      return `<span class="badge-pill ${cls}">${escapeHtml(raw)}</span>`;
+    }
+
+    function populateCrudFilters() {
+      const selStatusEdit = document.getElementById('crud-filter-status-edit');
+      const selStatusUpload = document.getElementById('crud-filter-status-upload');
+      const selEditor = document.getElementById('crud-filter-editor');
+      const selBulan = document.getElementById('crud-filter-bulan');
+
+      const curStatusEdit = selStatusEdit.value || 'all';
+      const curStatusUpload = selStatusUpload.value || 'all';
+      const curEditor = selEditor.value || 'all';
+      const curBulan = selBulan.value || 'all';
+
+      const ambilNilai = (key) => COLUMN_MAP[key]
+        ? planningRawGlobal.map(i => i[COLUMN_MAP[key]]).filter(v => v !== null && v !== undefined && String(v).trim() !== '')
+        : [];
+
+
+      const statusEditSet = new Set(ambilNilai('statusEdit').map(v => normalizeStatus(v)).filter(Boolean));
+      const urutanStatus = ['Transkrip Siap', 'Skenario Siap', 'WIP', 'Done'];
+      const statusEditSorted = Array.from(statusEditSet).sort((a, b) => {
+        const ia = urutanStatus.indexOf(a), ib = urutanStatus.indexOf(b);
+        if (ia === -1 && ib === -1) return a.localeCompare(b);
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+      selStatusEdit.innerHTML = '<option value="all">Semua Status</option>' +
+        statusEditSorted.map(s => `<option value="${escapeHtml(s)}" ${s === curStatusEdit ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+
+      const statusUploadSet = new Set(ambilNilai('statusUpload'));
+      selStatusUpload.innerHTML = '<option value="all">Semua Status</option>' +
+        Array.from(statusUploadSet).sort().map(s => `<option value="${escapeHtml(s)}" ${s === curStatusUpload ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+
+      const editorSet = new Set(ambilNilai('editor').filter(e => e.toLowerCase() !== 'all editor'));
+      selEditor.innerHTML = '<option value="all">Semua Editor</option>' +
+        Array.from(editorSet).sort().map(e => `<option value="${escapeHtml(e)}" ${e === curEditor ? 'selected' : ''}>${escapeHtml(e)}</option>`).join('');
+
+      const bulanSet = new Set(ambilNilai('bulan'));
+      const bulanSorted = Array.from(bulanSet).sort((a, b) => {
+        const ia = URUTAN_BULAN.indexOf(a), ib = URUTAN_BULAN.indexOf(b);
+        if (ia === -1 && ib === -1) return a.localeCompare(b);
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+      selBulan.innerHTML = '<option value="all">Semua Bulan</option>' +
+        bulanSorted.map(b => `<option value="${escapeHtml(b)}" ${b === curBulan ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
+    }
+
+    function renderCrudTable() {
+      const warn = document.getElementById('crud-no-id-warning');
+      warn.classList.toggle('hidden', !!COLUMN_MAP.id);
+      populateCrudFilters();
+      gambarBarisCrud();
+    }
+
+    ['crud-filter-status-edit', 'crud-filter-status-upload', 'crud-filter-editor', 'crud-filter-bulan'].forEach(id => {
+      document.getElementById(id).addEventListener('change', gambarBarisCrud);
+    });
+
+    function gambarBarisCrud() {
+      const tbody = document.getElementById('crud-body');
+      const countLabel = document.getElementById('crud-filter-count');
+
+      if (!planningRawGlobal || planningRawGlobal.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
+        countLabel.innerText = '';
+        return;
+      }
+
+      const fStatusEdit = document.getElementById('crud-filter-status-edit').value;
+      const fStatusUpload = document.getElementById('crud-filter-status-upload').value;
+      const fEditor = document.getElementById('crud-filter-editor').value;
+      const fBulan = document.getElementById('crud-filter-bulan').value;
+
+      const barisTerfilter = planningRawGlobal
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => {
+          if (fStatusEdit !== 'all' && normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
+          if (fStatusUpload !== 'all' && (COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
+          if (fEditor !== 'all' && (COLUMN_MAP.editor ? item[COLUMN_MAP.editor] : null) !== fEditor) return false;
+          if (fBulan !== 'all' && (COLUMN_MAP.bulan ? item[COLUMN_MAP.bulan] : null) !== fBulan) return false;
+          return true;
+        });
+
+      countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${planningRawGlobal.length} baris`;
+
+      if (barisTerfilter.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>';
+        return;
+      }
+
+      const val = (item, key) => COLUMN_MAP[key] ? escapeHtml(item[COLUMN_MAP[key]]) : '-';
+
+      tbody.innerHTML = barisTerfilter.map(({ item, idx }) => {
+
+        const rid = idx;
+
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3 px-4">${val(item, 'bulan')}</td>
+            <td class="py-3 px-4">${val(item, 'tahun')}</td>
+            <td class="py-3 px-4 max-w-[220px] truncate" title="${val(item, 'judul')}">${val(item, 'judul')}</td>
+            <td class="py-3 px-4">${val(item, 'editor')}</td>
+            <td class="py-3 px-4">${badgeStatusEdit(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null)}</td>
+            <td class="py-3 px-4 text-xs">${val(item, 'dueDate')}</td>
+            <td class="py-3 px-4 text-xs">${val(item, 'targetUpload')}</td>
+            <td class="py-3 px-4">${badgeStatusUpload(COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null)}</td>
+            <td class="py-3 px-4">${val(item, 'musim')}</td>
+            <td class="py-3 px-4 text-right whitespace-nowrap">
+              <button class="btn-crud-edit text-blue-600 hover:underline text-xs font-bold mr-3"
+                data-rid="${rid}">Edit</button>
+              <button class="btn-crud-hapus text-rose-600 hover:underline text-xs font-bold"
+                data-rid="${rid}">Hapus</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.btn-crud-edit').forEach(btn => {
+        btn.addEventListener('click', () => bukaModalEdit(btn.dataset.rid));
+      });
+      tbody.querySelectorAll('.btn-crud-hapus').forEach(btn => {
+        btn.addEventListener('click', () => hapusDataCrud(btn.dataset.rid));
+      });
+    }
+
+
+    let kriteriaEditAktif = null;
+
+    function resetFormCrud() {
+      document.getElementById('crud-form').reset();
+      document.getElementById('crud-field-id').value = '';
+      document.getElementById('crud-form-error').classList.add('hidden');
+      kriteriaEditAktif = null;
+    }
+
+    function bukaModalTambah() {
+      resetFormCrud();
+      document.getElementById('crud-modal-title').innerText = 'Tambah Data';
+      document.getElementById('crud-modal').classList.remove('hidden');
+    }
+
+    function cariRawItem(rid) {
+      return planningRawGlobal[Number(rid)];
+    }
+
+    function buatKriteriaBaris(rawItem) {
+      if (COLUMN_MAP.id) {
+        return { [COLUMN_MAP.id]: rawItem[COLUMN_MAP.id] };
+      }
+      const kriteria = {};
+      Object.keys(rawItem).forEach(k => {
+        if (rawItem[k] !== undefined) kriteria[k] = rawItem[k];
+      });
+      return kriteria;
+    }
+
+    function bukaModalEdit(rid) {
+      const item = cariRawItem(rid);
+      if (!item) return;
+
+      resetFormCrud();
+      document.getElementById('crud-modal-title').innerText = 'Ubah Data';
+      document.getElementById('crud-field-id').value = rid;
+      kriteriaEditAktif = buatKriteriaBaris(item);
+
+      document.getElementById('crud-field-bulan').value = COLUMN_MAP.bulan ? (item[COLUMN_MAP.bulan] || '') : '';
+      document.getElementById('crud-field-tahun').value = COLUMN_MAP.tahun ? (item[COLUMN_MAP.tahun] || '') : '';
+      document.getElementById('crud-field-judul').value = COLUMN_MAP.judul ? (item[COLUMN_MAP.judul] || '') : '';
+      document.getElementById('crud-field-editor').value = COLUMN_MAP.editor ? (item[COLUMN_MAP.editor] || '') : '';
+      document.getElementById('crud-field-statusEdit').value = COLUMN_MAP.statusEdit ? (normalizeStatus(item[COLUMN_MAP.statusEdit]) || 'Transkrip Siap') : 'Transkrip Siap';
+      document.getElementById('crud-field-dueDate').value = COLUMN_MAP.dueDate ? (item[COLUMN_MAP.dueDate] || '') : '';
+      document.getElementById('crud-field-targetUpload').value = COLUMN_MAP.targetUpload ? (item[COLUMN_MAP.targetUpload] || '') : '';
+      document.getElementById('crud-field-statusUpload').value = COLUMN_MAP.statusUpload ? (item[COLUMN_MAP.statusUpload] || '') : '';
+      document.getElementById('crud-field-musim').value = COLUMN_MAP.musim ? (item[COLUMN_MAP.musim] || '') : '';
+
+      document.getElementById('crud-modal').classList.remove('hidden');
+    }
+
+    function tutupModalCrud() {
+      document.getElementById('crud-modal').classList.add('hidden');
+    }
+
+    async function hapusDataCrud(rid) {
+      const item = cariRawItem(rid);
+      if (!item) return;
+
+      const pesanKonfirmasi = COLUMN_MAP.id
+        ? 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.'
+        : 'Yakin ingin menghapus data ini? Karena tabel belum punya kolom id unik, penghapusan dicocokkan dari seluruh kolom baris ini — kalau ada baris lain yang datanya identik persis, baris itu ikut terhapus. Lanjutkan?';
+      if (!confirm(pesanKonfirmasi)) return;
+
+      const kriteria = buatKriteriaBaris(item);
+      const { error } = await db.from(NAMA_TABEL_PLANNING).delete().match(kriteria);
+      if (error) {
+        alert('Gagal menghapus data: ' + error.message);
+        return;
+      }
+      await muatDashboard();
+      tampilkanView('crud');
+    }
+
+    async function simpanFormCrud(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('crud-form-error');
+      errBox.classList.add('hidden');
+
+      const payload = {};
+      if (COLUMN_MAP.bulan) payload[COLUMN_MAP.bulan] = document.getElementById('crud-field-bulan').value;
+      if (COLUMN_MAP.tahun) payload[COLUMN_MAP.tahun] = document.getElementById('crud-field-tahun').value;
+      if (COLUMN_MAP.judul) payload[COLUMN_MAP.judul] = document.getElementById('crud-field-judul').value;
+      if (COLUMN_MAP.editor) payload[COLUMN_MAP.editor] = document.getElementById('crud-field-editor').value;
+      if (COLUMN_MAP.statusEdit) payload[COLUMN_MAP.statusEdit] = document.getElementById('crud-field-statusEdit').value;
+      if (COLUMN_MAP.dueDate) payload[COLUMN_MAP.dueDate] = document.getElementById('crud-field-dueDate').value;
+      if (COLUMN_MAP.targetUpload) payload[COLUMN_MAP.targetUpload] = document.getElementById('crud-field-targetUpload').value;
+      if (COLUMN_MAP.statusUpload) payload[COLUMN_MAP.statusUpload] = document.getElementById('crud-field-statusUpload').value;
+      if (COLUMN_MAP.musim) payload[COLUMN_MAP.musim] = document.getElementById('crud-field-musim').value;
+
+      const judulVal = document.getElementById('crud-field-judul').value.trim();
+      if (!judulVal) {
+        errBox.innerText = 'Judul Video wajib diisi.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      if (!COLUMN_MAP.judul) {
+        errBox.innerText = 'Kolom "Judul Video" tidak terdeteksi di tabel Supabase, data tidak bisa disimpan.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const idVal = document.getElementById('crud-field-id').value;
+      let error;
+      if (idVal !== '' && kriteriaEditAktif) {
+        // Mode ubah data: cocokkan pakai id (kalau ada) atau kombinasi semua kolom asli baris ini
+        ({ error } = await db.from(NAMA_TABEL_PLANNING).update(payload).match(kriteriaEditAktif));
+      } else {
+        ({ error } = await db.from(NAMA_TABEL_PLANNING).insert([payload]));
+      }
+
+      if (error) {
+        errBox.innerText = 'Gagal menyimpan data: ' + error.message;
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      tutupModalCrud();
+      await muatDashboard();
+      tampilkanView('crud');
+    }
+
+    document.getElementById('btn-tambah-data').addEventListener('click', bukaModalTambah);
+    document.getElementById('crud-modal-close').addEventListener('click', tutupModalCrud);
+    document.getElementById('crud-cancel-btn').addEventListener('click', tutupModalCrud);
+    document.getElementById('crud-form').addEventListener('submit', simpanFormCrud);
+    document.getElementById('crud-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'crud-modal') tutupModalCrud();
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await muatDashboard();
+    });
+  </script>
+</body>
+
+</html>

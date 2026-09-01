@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Cabang - Sistem Internal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js untuk Grafik Interaktif -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js Plugin DataLabels untuk menampilkan angka langsung di atas bar -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <!-- Supabase Client JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Font Awesome untuk ikon pada kartu Panduan Take Video -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#0F172A',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Styling Glassmorphism Minimalis & Clean dengan Animasi Halus */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.04);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.07);
+    }
+
+    .glass-sidebar {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-modal {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      animation: modalPopup 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalPopup {
+      0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    body {
+      background: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    /* Interactive Hover & Transition Effects */
+    .interactive-btn {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .interactive-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .interactive-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* Estetik Custom Dropdown & Animated Filter Component */
+    .custom-filter-wrapper {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .custom-filter-box {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.95));
+      backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.06);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-filter-box:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 6px 24px -2px rgba(99, 102, 241, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .custom-filter-box:focus-within {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      transform: translateY(-1px);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(15, 23, 42, 0.15);
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(15, 23, 42, 0.3);
+    }
+
+    /* ===== Styling Tab Panduan Take Video (disesuaikan dengan tema terang dashboard) ===== */
+    .panduan-step-card {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .panduan-step-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .panduan-step-card.contrast-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(220, 38, 38, 0.04));
+      border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+      border-top: 4px solid #f59e0b !important;
+    }
+
+    .panduan-step-card .panduan-step-number {
+      background: #0F172A;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      transition: all 0.4s ease;
+    }
+
+    .panduan-step-card.contrast-card .panduan-step-number {
+      background: #f59e0b;
+      width: 30px;
+      height: 30px;
+      font-size: 0.8rem;
+    }
+
+    .panduan-step-card:hover .panduan-step-number {
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+      transform: scale(1.08);
+    }
+
+    .panduan-step-card.contrast-card:hover .panduan-step-number {
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .panduan-link-list {
+      list-style: none;
+    }
+
+    .panduan-link-list li {
+      margin-bottom: 0.85rem;
+    }
+
+    .panduan-link-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .panduan-link-list a {
+      text-decoration: none;
+      color: #475569;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      padding: 6px 8px;
+      margin: 0 -8px;
+    }
+
+    .panduan-link-list a:hover {
+      color: #1e293b;
+      background: rgba(99, 102, 241, 0.06);
+      transform: translateX(4px);
+    }
+
+    .panduan-step-idx {
+      font-weight: 800;
+      color: #6366f1;
+      min-width: 18px;
+      flex-shrink: 0;
+    }
+
+    .contrast-card .panduan-step-idx {
+      color: #f59e0b;
+    }
+
+    .panduan-highlight-link {
+      background: rgba(99, 102, 241, 0.07) !important;
+      border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    }
+
+    .panduan-highlight-link:hover {
+      background: rgba(99, 102, 241, 0.14) !important;
+      border-color: rgba(99, 102, 241, 0.4) !important;
+    }
+
+    .panduan-highlight-link .panduan-step-text {
+      color: #1e293b !important;
+      font-weight: 700 !important;
+    }
+
+    .panduan-dropdown-trigger i.panduan-chevron {
+      transition: transform 0.3s ease;
+      font-size: 0.75rem;
+      margin-top: 4px;
+      color: #94a3b8;
+    }
+
+    .panduan-dropdown-trigger.active-trigger i.panduan-chevron {
+      transform: rotate(180deg);
+      color: #6366f1;
+    }
+
+    .panduan-submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+      padding-left: 1.4rem;
+      margin-top: 0.25rem;
+      border-left: 2px dashed #e2e8f0;
+    }
+
+    .panduan-submenu.active {
+      max-height: 1000px;
+      transition: max-height 1s ease-in-out;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+
+<body class="flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in text-slate-800"
+  id="main-body">
+
+  <!-- Wrapper Sidebar & Tombol Toggle -->
+  <div class="relative flex z-20">
+    <!-- Sidebar Cabang Glassmorphism -->
+    <aside id="sidebar"
+      class="w-72 glass-sidebar text-white flex flex-col shadow-2xl transition-all duration-300 ease-in-out h-full overflow-hidden shrink-0">
+      <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-indigo-400 shadow-sm">
+          IS</div>
+        <div>
+          <h1 class="text-base font-bold tracking-wider text-slate-100">INTERNAL SYS</h1>
+          <p class="text-[10px] tracking-widest text-slate-400 font-medium mt-0.5" id="user-role-badge">PERWAKILAN
+            CABANG</p>
+        </div>
+      </div>
+
+      <nav class="flex-1 px-4 space-y-2 mt-6">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard"
+          class="w-full flex items-center gap-3.5 text-left py-3 px-4 bg-indigo-600 rounded-2xl text-sm font-medium text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02]">
+          <svg class="w-5 h-5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+          Grafik & Statistik
+        </button>
+        <button onclick="switchTab('evaluasi')" id="nav-evaluasi"
+          class="w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+            </path>
+          </svg>
+          Hasil Evaluasi
+        </button>
+        <button onclick="switchTab('panduan')" id="nav-panduan"
+          class="w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+            </path>
+          </svg>
+          Panduan Take Video
+        </button>
+      </nav>
+
+      <div class="p-4">
+        <button id="logout-btn"
+          class="w-full flex items-center gap-3 py-3 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-2xl text-sm font-medium transition-all duration-200 border border-rose-500/20 interactive-btn">
+          <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          Log out &rarr;
+        </button>
+      </div>
+    </aside>
+
+    <!-- Tombol Toggle Panah -->
+    <button id="sidebar-toggle"
+      class="absolute -right-4 top-7 bg-slate-900 hover:bg-slate-800 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform duration-300 focus:outline-none z-30 interactive-btn"
+      title="Buka/Tutup Menu">
+      <svg id="toggle-icon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Area Konten Utama -->
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+    <header
+      class="glass-card mx-8 mt-6 rounded-3xl px-8 py-4 flex justify-between items-center z-10 sticky top-6 shadow-sm">
+      <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        Dashboard Cabang <span class="text-slate-400 font-normal hidden sm:inline">| Seksi Desain Promosi</span>
+      </h2>
+
+      <div
+        class="flex items-center gap-3 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-sm transition-transform hover:scale-105">
+        <div
+          class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-sm"
+          id="avatar-initial">?</div>
+        <span class="text-sm font-semibold text-slate-700 hidden sm:inline" id="user-name">Memuat...</span>
+      </div>
+    </header>
+
+    <!-- KONTEN TAB 1: DASHBOARD & GRAFIK -->
+    <div id="tab-dashboard" class="p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div
+        class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+        <div>
+          <h3 class="text-2xl font-black text-slate-900 tracking-tight" id="welcome-title">Statistik Kiriman Cabang</h3>
+          <p class="text-sm text-slate-500 mt-1">Visualisasi data jumlah kiriman video per cabang secara konsisten.</p>
+        </div>
+
+        <!-- Filter Estetik & Beranimasi untuk Bulan & Cabang di Dashboard -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Widget Filter Berdasarkan Cabang (Estetik & Interaktif) -->
+          <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+            <div
+              class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang</label>
+              <select id="filter-cabang-dashboard"
+                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Cabang Aktif</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Filter Bulan -->
+          <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+            <div
+              class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter Bulan</label>
+              <select id="filter-bulan"
+                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Bulan</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KARTU-KARTU STATISTIK -->
+      <div class="space-y-4">
+        <!-- Kartu Utama Kumulatif -->
+        <div
+          class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center border-2 border-indigo-500/20 bg-gradient-to-b from-indigo-500/5 via-white to-transparent transition-all duration-300 hover:scale-[1.01]">
+          <div
+            class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-indigo-600/30 mb-3 animate-bounce">
+            📦</div>
+          <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Total Keseluruhan Kiriman Cabang
+            (Kumulatif)</p>
+          <h4 class="text-4xl md:text-5xl font-black text-slate-900 mt-1" id="card-total-kiriman">0</h4>
+        </div>
+
+        <!-- 4 Kartu Segmen Berjejer Sama Besar & Rata Tengah -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div
+            class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center transition-all duration-300 hover:translate-y-[-4px]">
+            <div
+              class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+              ✅</div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Berhasil Diedit (DONE)</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="card-done">0</h4>
+          </div>
+          <div
+            class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center transition-all duration-300 hover:translate-y-[-4px]">
+            <div
+              class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+              ⏳</div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sedang WIP</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="card-wip">0</h4>
+          </div>
+          <div
+            class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center transition-all duration-300 hover:translate-y-[-4px]">
+            <div
+              class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+              ❌</div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Video Reject</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="card-reject">0</h4>
+          </div>
+          <div
+            class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center transition-all duration-300 hover:translate-y-[-4px]">
+            <div
+              class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+              🎞️</div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Video Footage</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="card-footage">0</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- TREN KIRIMAN VIDEO PER BULAN (SELURUH CABANG, REALTIME) -->
+      <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
+          <div>
+            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              Tren Kiriman Video per Bulan (Seluruh Cabang)
+              <span
+                class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+              </span>
+            </h4>
+            <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 video/bulan per cabang. Grafik ini mengikuti
+              Filter Cabang di atas, namun menampilkan seluruh bulan yang ada datanya (tidak terpengaruh Filter Bulan).
+            </p>
+          </div>
+          <span id="trend-bulan-berjalan-badge"
+            class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">Memuat
+            status bulan berjalan...</span>
+        </div>
+        <div class="h-[300px] mt-3">
+          <canvas id="chartTrendBulanan"></canvas>
+        </div>
+      </div>
+
+      <!-- CONTAINER 2 GRAFIK -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm lg:col-span-2">
+          <h4 class="text-sm font-bold text-slate-800 mb-2">Grafik Jumlah Kiriman Per Cabang</h4>
+          <div class="h-[340px]">
+            <canvas id="chartKiriman"></canvas>
+          </div>
+        </div>
+        <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm flex flex-col">
+          <h4 class="text-sm font-bold text-slate-800 mb-2">Distribusi Grade Evaluasi</h4>
+          <div class="flex-1 relative flex items-center justify-center">
+            <canvas id="chartGrade"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- KONTEN TAB 2: HASIL EVALUASI -->
+    <div id="tab-evaluasi" class="p-8 space-y-6 max-w-7xl w-full mx-auto hidden">
+      <div
+        class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+        <div>
+          <h3 class="text-2xl font-black text-slate-900 tracking-tight">Hasil Evaluasi & Alternatif Solusi</h3>
+          <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade per cabang.</p>
+        </div>
+
+        <!-- Filter Berdasarkan Cabang yang Estetik, Interaktif, dan Beranimasi -->
+        <div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer w-full md:w-auto">
+          <div
+            class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+              </path>
+            </svg>
+          </div>
+          <div class="flex flex-col flex-1">
+            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang
+              Spesifik</label>
+            <select id="filter-evaluasi-cabang"
+              class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+              <option value="all">Semua Cabang</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ringkasan Kartu Evaluasi -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div
+          class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:translate-y-[-4px]">
+          <div
+            class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            📋</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Evaluasi</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="eval-total">0</h4>
+          </div>
+        </div>
+        <div
+          class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:translate-y-[-4px]">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            🏢</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cabang Terdaftar</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="eval-cabang-count">0</h4>
+          </div>
+        </div>
+        <div
+          class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:translate-y-[-4px]">
+          <div
+            class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            ⭐</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Data</p>
+            <h4 class="text-xl font-black text-slate-900 mt-0.5" id="eval-grade-info">Aktif</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Hasil Evaluasi Responsif -->
+      <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+        <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+              <tr class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <th class="py-4 px-5 bg-slate-100">ID</th>
+                <th class="py-4 px-5 bg-slate-100">Cabang</th>
+                <th class="py-4 px-5 bg-slate-100">File / Sumber Video</th>
+                <th class="py-4 px-5 bg-slate-100">Evaluasi</th>
+                <th class="py-4 px-5 bg-slate-100">Alternatif Solusi</th>
+                <th class="py-4 px-5 bg-slate-100">Grade / Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-evaluasi-body" class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
+              <tr>
+                <td colspan="6" class="text-center py-8 text-slate-400">Memuat data evaluasi...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- KONTEN TAB 3: PANDUAN TAKE VIDEO -->
+    <div id="tab-panduan" class="p-8 space-y-6 max-w-7xl w-full mx-auto hidden">
+      <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
+        <span
+          class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-extrabold uppercase tracking-widest border border-indigo-100 mb-3">SOP
+          &amp; Alur Kerja</span>
+        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Langkah Membuat Skenario &amp; Guidance
+          Pembuatan Video</h3>
+        <p class="text-sm text-slate-500 mt-1.5 max-w-2xl">Ikuti langkah-langkah di bawah ini untuk memastikan
+          kualitas konten video sesuai dengan skenario yang sudah ditentukan.</p>
+      </div>
+
+      <!-- Tampilan Grid Panduan -->
+      <div id="panduan-guidance-view">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- CARD: PLANNING VIDEO (WAJIB DIISI) - MELEBAR PENUH -->
+          <div class="glass-card panduan-step-card contrast-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-amber-500/20">
+              <div class="panduan-step-number"><i class="fas fa-exclamation"></i></div>
+              <h4 class="text-base font-extrabold text-slate-900">Planning Video (Wajib Diisi)</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li>
+                <a class="panduan-embed-link"
+                  data-url="https://docs.google.com/spreadsheets/d/1OTXYRf4NQ-AJnRgA0gCDAlZqSWrQJ7_3RntxwSStMiU/edit?usp=sharing">
+                  <span class="panduan-step-idx">!</span>
+                  <span>Buka dan isi spreadsheet planning video yang telah disediakan untuk merencanakan konten
+                    Anda.</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- CARD A: PERSIAPAN PROSEDUR -->
+          <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+              <div class="panduan-step-number">A</div>
+              <h4 class="text-base font-extrabold text-slate-900">Persiapan Prosedur</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/document/d/1TCPOzs3LN7j5LbUnmh4CNhfPp4yhDmAZ7B_Qu2JBWqI/edit">
+                  <span class="panduan-step-idx">1.</span> Download form customer profile (Tuliskan data customer
+                  sesuai form)</a></li>
+              <li>
+                <a href="https://share.gemini.google/q6JnEg8iCuh9" target="_blank" class="panduan-highlight-link">
+                  <span class="panduan-step-idx">2.</span>
+                  <span class="panduan-step-text">Membuat Skenario Berdasarkan Form Customer Profile Dengan Gemini
+                    AI</span>
+                  <i class="fas fa-external-link-alt mt-1 text-indigo-500"></i>
+                </a>
+              </li>
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/document/d/1LGn4ekHsu0zO-SpzY_BJYWAFHJhbEHMX6Z9BjJcRudk/edit">
+                  <span class="panduan-step-idx">3.</span> Download form persetujuan konsumen (Wajib bermaterai)</a>
+              </li>
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/document/d/1EhtEGqR1B7xXNXOddNxmZd7FIAFXvifBpb1a-XB2Lw0/edit">
+                  <span class="panduan-step-idx">4.</span> Download ceklist peralatan yang diperlukan sebelum rekam
+                  video</a></li>
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/document/d/1eYd3bIu3RlN4Oc1ilwHtHGD0nFHaKp3oFL6Vh-uae9A/edit">
+                  <span class="panduan-step-idx">5.</span> Ceklist video yang wajib direkam</a></li>
+            </ul>
+          </div>
+
+          <!-- CARD B: PANDUAN SHOOTING VIDEO -->
+          <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+              <div class="panduan-step-number">B</div>
+              <h4 class="text-base font-extrabold text-slate-900">Panduan Shooting Video</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li><a class="panduan-embed-link" data-url="Panduan_Rekam_Wawancara.html">
+                  <span class="panduan-step-idx">6.</span> Panduan rekam video wawancara</a></li>
+              <li>
+                <a class="panduan-dropdown-trigger" onclick="togglePanduanDropdown(event)"
+                  style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                  <span style="display:flex; gap:10px;">
+                    <span class="panduan-step-idx">7.</span> Panduan rekam video lahan
+                  </span>
+                  <i class="fas fa-chevron-down panduan-chevron"></i>
+                </a>
+                <ul class="panduan-submenu panduan-link-list" id="panduan-submenu-7">
+                  <li><a class="panduan-embed-link" data-url="Lahan_Kering.html"><span class="panduan-step-idx">-</span>
+                      Lahan Kering</a></li>
+                  <li><a class="panduan-embed-link" data-url="Lahan_Basah.html"><span class="panduan-step-idx">-</span>
+                      Lahan Basah</a></li>
+                  <li><a class="panduan-embed-link" data-url="Guludan_Lebar.html"><span
+                        class="panduan-step-idx">-</span> Guludan Lebar</a></li>
+                  <li><a class="panduan-embed-link" data-url="Guludan_Sempit.html"><span
+                        class="panduan-step-idx">-</span> Guludan Sempit</a></li>
+                  <li><a class="panduan-embed-link" data-url="Detail_Part.html"><span class="panduan-step-idx">-</span>
+                      Detail Part</a></li>
+                  <li><a class="panduan-embed-link" data-url="Sebelum_Olah.html"><span class="panduan-step-idx">-</span>
+                      Lahan Sebelum Diolah</a></li>
+                  <li><a class="panduan-embed-link" data-url="Saat_Olah.html"><span class="panduan-step-idx">-</span>
+                      Lahan Saat Diolah</a></li>
+                  <li><a class="panduan-embed-link" data-url="Setelah_Olah.html"><span class="panduan-step-idx">-</span>
+                      Lahan Setelah Diolah</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
+          <!-- CARD C: REFERENSI METODE SHOOTING -->
+          <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+              <div class="panduan-step-number">C</div>
+              <h4 class="text-base font-extrabold text-slate-900">Referensi Metode Shooting</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li><a href="https://youtu.be/1hG3oNzwTLA?si=zKDphyTSLD4Vw-me" target="_blank">
+                  <span class="panduan-step-idx">8.</span> Panduan / video tutorial cara merekam video dengan
+                  menggunakan handphone supaya stabil.</a></li>
+              <li><a href="https://youtu.be/7fUi9sIu7rs?si=cBgta4xReNobOWEQ" target="_blank">
+                  <span class="panduan-step-idx">9.</span> Panduan angle video - video yang bisa dijadikan sebagai
+                  referensi pada saat take video lahan</a></li>
+            </ul>
+          </div>
+
+          <!-- CARD D: DISTRIBUSI PENGIRIMAN VIDEO -->
+          <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+              <div class="panduan-step-number">D</div>
+              <h4 class="text-base font-extrabold text-slate-900">Distribusi Pengiriman Video Ke Pusat</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li><a class="panduan-embed-link" data-url="Penamaan_Folder.html">
+                  <span class="panduan-step-idx">10.</span> Ketentuan umum pengiriman dan penamaan folder resource
+                  video.</a></li>
+            </ul>
+          </div>
+
+          <!-- CARD E: MONITORING HASIL VIDEO CABANG -->
+          <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+              <div class="panduan-step-number">E</div>
+              <h4 class="text-base font-extrabold text-slate-900">Monitoring Hasil Video Cabang</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/spreadsheets/d/1hqbyAvXOeRzG1TFrJndSuophvUEr5QRUd0DvRmVTwvQ/edit">
+                  <span class="panduan-step-idx">11.</span> Laporan rekap video tahun 2026 yang diupdate secara
+                  real-time.</a></li>
+            </ul>
+          </div>
+
+          <!-- CARD F: EVALUASI KONTEN -->
+          <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+            <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+              <div class="panduan-step-number">F</div>
+              <h4 class="text-base font-extrabold text-slate-900">Evaluasi Konten</h4>
+            </div>
+            <ul class="panduan-link-list">
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/spreadsheets/d/1wrKNz8fiZbWht82gEd0THJ-1chltvAZzxKbLLKYiYd8/edit">
+                  <span class="panduan-step-idx">12.</span> Spreadsheet evaluasi rekaman video cabang terupdate.</a>
+              </li>
+              <li><a class="panduan-embed-link"
+                  data-url="https://docs.google.com/spreadsheets/d/10bmeFhc9B7txKCxfJS3eObRDPEnRSQmYwUQvdyuU5zI/edit">
+                  <span class="panduan-step-idx">13.</span> Report bulanan kiriman video cabang periode 2026.</a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tampilan Workspace (iframe embed dokumen) -->
+      <div id="panduan-workspace-view" class="hidden">
+        <button onclick="tutupPanduanWorkspace()"
+          class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn mb-4">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+          </svg>
+          Kembali ke Panduan
+        </button>
+        <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200 h-[70vh]">
+          <iframe id="panduan-iframe" src="" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    Chart.register(ChartDataLabels);
+
+    const SUPABASE_URL = 'https://ybedibzzdbudwitiriso.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const NAMA_TABEL = 'Kiriman_Cabang';
+
+    let listDataGlobal = [];
+    let listEvaluasiGlobal = [];
+    let myChart = null;
+    let myGradeChart = null;
+    let myTrendChart = null;
+
+    // Target: 2 video/bulan per cabang
+    const TARGET_PER_CABANG_PER_BULAN = 2;
+    const NAMA_BULAN_MAP = {
+      '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April', '05': 'Mei', '06': 'Juni',
+      '07': 'Juli', '08': 'Agustus', '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+    };
+
+    // Ambil tahun & bulan dari 8 digit awal nama file (format YYYYMMDD...)
+    function getYearMonthFromItem(item) {
+      const textSumber = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '';
+      if (textSumber.length >= 8) {
+        const potentialDate = textSumber.substring(0, 8);
+        if (!isNaN(potentialDate)) {
+          const year = potentialDate.substring(0, 4);
+          const month = potentialDate.substring(4, 6);
+          const monthNum = parseInt(month, 10);
+          const yearNum = parseInt(year, 10);
+          if (monthNum >= 1 && monthNum <= 12 && yearNum >= 2000 && yearNum <= 2100) {
+            return { year, month, key: `${year}-${month}` };
+          }
+        }
+      }
+      return null;
+    }
+
+    function getBulanBerjalanKey() {
+      const now = new Date();
+      const y = String(now.getFullYear());
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      return `${y}-${m}`;
+    }
+
+    const storedUser = localStorage.getItem('data_user');
+    if (!storedUser) {
+      window.location.href = 'login.html';
+    } else {
+      const user = JSON.parse(storedUser);
+      const role = (user.role || 'editor').toLowerCase();
+      if (role === 'editor') {
+        window.location.href = 'editor-dashboard.html';
+      }
+      const namaUser = user.nama_user || 'User';
+      document.getElementById('user-name').innerText = namaUser;
+      document.getElementById('avatar-initial').innerText = namaUser.charAt(0).toUpperCase();
+      document.getElementById('welcome-title').innerText = `Statistik Kiriman Cabang - Halo, ${namaUser}`;
+      document.getElementById('user-role-badge').innerText = `ID: ${user.id_user} (CABANG)`;
+      document.getElementById('main-body').classList.remove('opacity-0');
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const toggleIcon = document.getElementById('toggle-icon');
+
+    toggleBtn.addEventListener('click', () => {
+      if (sidebar.classList.contains('w-72')) {
+        sidebar.classList.remove('w-72');
+        sidebar.classList.add('w-0');
+        sidebar.classList.remove('px-4', 'p-6');
+        toggleIcon.style.transform = 'rotate(180deg)';
+      } else {
+        sidebar.classList.remove('w-0');
+        sidebar.classList.add('w-72');
+        toggleIcon.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    function switchTab(tabName) {
+      const tabDashboard = document.getElementById('tab-dashboard');
+      const tabEvaluasi = document.getElementById('tab-evaluasi');
+      const tabPanduan = document.getElementById('tab-panduan');
+
+      const navDashboard = document.getElementById('nav-dashboard');
+      const navEvaluasi = document.getElementById('nav-evaluasi');
+      const navPanduan = document.getElementById('nav-panduan');
+
+      const activeClass = "w-full flex items-center gap-3.5 text-left py-3 px-4 bg-indigo-600 rounded-2xl text-sm font-medium text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02]";
+      const inactiveClass = "w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]";
+
+      tabDashboard.classList.add('hidden');
+      tabEvaluasi.classList.add('hidden');
+      tabPanduan.classList.add('hidden');
+      navDashboard.className = inactiveClass;
+      navEvaluasi.className = inactiveClass;
+      navPanduan.className = inactiveClass;
+
+      if (tabName === 'dashboard') {
+        tabDashboard.classList.remove('hidden');
+        navDashboard.className = activeClass;
+        renderDashboardAndChart();
+      } else if (tabName === 'evaluasi') {
+        tabEvaluasi.classList.remove('hidden');
+        navEvaluasi.className = activeClass;
+        muatDataEvaluasi();
+      } else if (tabName === 'panduan') {
+        tabPanduan.classList.remove('hidden');
+        navPanduan.className = activeClass;
+        tutupPanduanWorkspace();
+      }
+    }
+
+    /* ===== Fungsi Tab Panduan Take Video ===== */
+    function togglePanduanDropdown(event) {
+      event.preventDefault();
+      const trigger = event.currentTarget;
+      const submenu = document.getElementById('panduan-submenu-7');
+      submenu.classList.toggle('active');
+      trigger.classList.toggle('active-trigger');
+    }
+
+    function bukaPanduanWorkspace(targetUrl) {
+      document.getElementById('panduan-iframe').src = targetUrl;
+      document.getElementById('panduan-guidance-view').classList.add('hidden');
+      document.getElementById('panduan-workspace-view').classList.remove('hidden');
+    }
+
+    function tutupPanduanWorkspace() {
+      document.getElementById('panduan-iframe').src = '';
+      document.getElementById('panduan-workspace-view').classList.add('hidden');
+      document.getElementById('panduan-guidance-view').classList.remove('hidden');
+    }
+
+    document.querySelectorAll('.panduan-embed-link').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetUrl = this.getAttribute('data-url');
+        bukaPanduanWorkspace(targetUrl);
+      });
+    });
+
+    async function ambilDataSupabase() {
+      const { data, error } = await db.from(NAMA_TABEL).select('*');
+      if (error) {
+        console.error('SUPABASE ERROR:', error.message);
+        return [];
+      }
+      return data || [];
+    }
+
+    // Nama fungsi dipertahankan (dipakai di banyak tempat) tapi sekarang langsung mengambil dari Kiriman_Cabang
+    async function ambilDataEvaluasiSupabase() {
+      return await ambilDataSupabase();
+    }
+
+    const COLOR_PALETTE = [
+      '#4f46e5', '#db2777', '#0284c7', '#16a34a', '#d97706', '#7c3aed', '#0d9488', '#dc2626', '#475569', '#9333ea'
+    ];
+
+    function isDataCabangValid(item) {
+      const c = item.Cabang || item.cabang;
+      if (!c) return false;
+      const cleanC = c.trim().toLowerCase();
+      if (cleanC === 'non cabang' || cleanC === 'pusat' || cleanC === '-' || cleanC === '') {
+        return false;
+      }
+      return true;
+    }
+
+    async function renderDashboardAndChart() {
+      listEvaluasiGlobal = await ambilDataEvaluasiSupabase();
+      const dataCabangOnly = listEvaluasiGlobal.filter(item => isDataCabangValid(item));
+
+      // Populate Filter Cabang Dashboard
+      const selectFilterCabangDash = document.getElementById('filter-cabang-dashboard');
+      let currentCabangVal = selectFilterCabangDash.value;
+      let setCabang = new Set();
+      dataCabangOnly.forEach(item => {
+        setCabang.add((item.Cabang || item.cabang).trim());
+      });
+      const labelsCabang = Array.from(setCabang).sort();
+
+      selectFilterCabangDash.innerHTML = `<option value="all">Semua Cabang Aktif (${labelsCabang.length})</option>`;
+      labelsCabang.forEach(c => {
+        const selectedAttr = (c === currentCabangVal) ? 'selected' : '';
+        selectFilterCabangDash.innerHTML += `<option value="${c}" ${selectedAttr}>${c}</option>`;
+      });
+
+      const filterBulanVal = document.getElementById('filter-bulan').value;
+      const selectedCabangFilter = selectFilterCabangDash.value;
+
+      let filteredData = dataCabangOnly;
+
+      // Filter berdasarkan Cabang
+      if (selectedCabangFilter !== 'all') {
+        filteredData = filteredData.filter(item => {
+          const c = (item.Cabang || item.cabang || '').trim();
+          return c === selectedCabangFilter;
+        });
+      }
+
+      // Filter berdasarkan Bulan
+      if (filterBulanVal !== 'all') {
+        filteredData = filteredData.filter(item => {
+          const textSumber = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '';
+          if (textSumber.length >= 6) {
+            const potentialDate = textSumber.substring(0, 8);
+            if (!isNaN(potentialDate)) {
+              return potentialDate.substring(4, 6) === filterBulanVal;
+            }
+          }
+          return false;
+        });
+      }
+
+      const rekapCabang = {};
+      labelsCabang.forEach(c => rekapCabang[c] = 0);
+
+      let countDone = 0;
+      let countWip = 0;
+      let countReject = 0;
+      let countFootage = 0;
+      const gradeCounts = {};
+
+      filteredData.forEach(item => {
+        const namaCabang = (item.Cabang || item.cabang).trim();
+        if (rekapCabang.hasOwnProperty(namaCabang)) {
+          rekapCabang[namaCabang]++;
+        }
+
+        const segmen = (item.Segmen || item.segmen || '').trim().toUpperCase();
+        if (segmen.includes('DONE')) countDone++;
+        else if (segmen.includes('WIP') || segmen.includes('WAITING')) countWip++;
+        else if (segmen.includes('REJECT') || segmen.includes('TOLAK')) countReject++;
+        else if (segmen.includes('FOOTAGE')) countFootage++;
+
+        let grade = (item.Grade || item.grade || 'Belum Dinilai').trim();
+        gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
+      });
+
+      const totalKiriman = filteredData.length;
+
+      document.getElementById('card-total-kiriman').innerText = totalKiriman;
+      document.getElementById('card-done').innerText = countDone;
+      document.getElementById('card-wip').innerText = countWip;
+      document.getElementById('card-reject').innerText = countReject;
+      document.getElementById('card-footage').innerText = countFootage;
+
+      let chartLabels = labelsCabang;
+      let chartValues = labelsCabang.map(c => rekapCabang[c]);
+
+      if (selectedCabangFilter !== 'all') {
+        chartLabels = [selectedCabangFilter];
+        chartValues = [rekapCabang[selectedCabangFilter] || 0];
+      }
+
+      const barColors = chartLabels.map((_, index) => COLOR_PALETTE[index % COLOR_PALETTE.length]);
+
+      const ctx = document.getElementById('chartKiriman').getContext('2d');
+      if (myChart) myChart.destroy();
+
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: 'Jumlah Kiriman',
+            data: chartValues,
+            backgroundColor: barColors,
+            borderRadius: 8,
+            borderSkipped: false,
+            barThickness: 'flex',
+            maxBarThickness: 45
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 },
+            datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 }, formatter: (v) => v }
+          },
+          scales: {
+            y: { beginAtZero: true, suggestedMax: 10, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
+            x: { ticks: { color: '#64748b' }, grid: { display: false } }
+          }
+        }
+      });
+
+      const gradeLabels = Object.keys(gradeCounts);
+      const gradeValues = Object.values(gradeCounts);
+      const gradeColors = ['#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6', '#cbd5e1'];
+
+      const ctxGrade = document.getElementById('chartGrade').getContext('2d');
+      if (myGradeChart) myGradeChart.destroy();
+
+      myGradeChart = new Chart(ctxGrade, {
+        type: 'doughnut',
+        data: {
+          labels: gradeLabels,
+          datasets: [{
+            data: gradeValues,
+            backgroundColor: gradeColors.slice(0, gradeLabels.length),
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
+            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 },
+            datalabels: { display: false }
+          },
+          cutout: '65%'
+        }
+      });
+
+      renderTrendBulanan(dataCabangOnly, selectedCabangFilter, labelsCabang.length);
+    }
+
+    function renderTrendBulanan(dataCabangOnly, selectedCabangFilter, jumlahCabangAktif) {
+      let dataUntukTrend = dataCabangOnly;
+      if (selectedCabangFilter !== 'all') {
+        dataUntukTrend = dataCabangOnly.filter(item => (item.Cabang || item.cabang || '').trim() === selectedCabangFilter);
+      }
+
+      const rekapBulan = {};
+      dataUntukTrend.forEach(item => {
+        const ym = getYearMonthFromItem(item);
+        if (!ym) return;
+        rekapBulan[ym.key] = (rekapBulan[ym.key] || 0) + 1;
+      });
+
+      const sortedKeys = Object.keys(rekapBulan).sort();
+
+      const targetPerBulan = selectedCabangFilter === 'all'
+        ? TARGET_PER_CABANG_PER_BULAN * Math.max(jumlahCabangAktif, 1)
+        : TARGET_PER_CABANG_PER_BULAN;
+
+      const labels = sortedKeys.map(k => {
+        const [y, m] = k.split('-');
+        return `${NAMA_BULAN_MAP[m] || m} ${y}`;
+      });
+      const values = sortedKeys.map(k => rekapBulan[k]);
+      const barColors = values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1');
+      const targetLine = sortedKeys.map(() => targetPerBulan);
+
+      // Badge status bulan berjalan (atau bulan terbaru yang tersedia kalau bulan berjalan belum ada datanya)
+      const badgeEl = document.getElementById('trend-bulan-berjalan-badge');
+      const bulanBerjalanKey = getBulanBerjalanKey();
+      const keyUntukBadge = sortedKeys.includes(bulanBerjalanKey) ? bulanBerjalanKey : sortedKeys[sortedKeys.length - 1];
+
+      if (!keyUntukBadge) {
+        badgeEl.innerText = 'Belum ada data bulan untuk ditampilkan';
+        badgeEl.className = 'shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200';
+      } else {
+        const [by, bm] = keyUntukBadge.split('-');
+        const namaBulanBadge = `${NAMA_BULAN_MAP[bm] || bm} ${by}`;
+        const nilaiBadge = rekapBulan[keyUntukBadge] || 0;
+        const tercapaiBadge = nilaiBadge >= targetPerBulan;
+        const labelBB = keyUntukBadge === bulanBerjalanKey ? 'Bulan Berjalan' : 'Data Terbaru';
+        badgeEl.innerText = `${labelBB}: ${namaBulanBadge} — ${nilaiBadge}/${targetPerBulan} video${tercapaiBadge ? ' ✔ Tercapai' : ''}`;
+        badgeEl.className = `shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border ${tercapaiBadge ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
+      }
+
+      const ctxTrend = document.getElementById('chartTrendBulanan').getContext('2d');
+      if (myTrendChart) myTrendChart.destroy();
+
+      if (sortedKeys.length === 0) {
+        myTrendChart = null;
+        ctxTrend.clearRect(0, 0, ctxTrend.canvas.width, ctxTrend.canvas.height);
+        return;
+      }
+
+      myTrendChart = new Chart(ctxTrend, {
+        data: {
+          labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Jumlah Kiriman',
+              data: values,
+              backgroundColor: barColors,
+              borderRadius: 8,
+              borderSkipped: false,
+              maxBarThickness: 46,
+              order: 2
+            },
+            {
+              type: 'line',
+              label: `Target (${targetPerBulan} video/bulan)`,
+              data: targetLine,
+              borderColor: '#f59e0b',
+              borderDash: [6, 4],
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0,
+              order: 1,
+              datalabels: { display: false }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
+            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 },
+            datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
+            x: { ticks: { color: '#64748b' }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    document.getElementById('filter-bulan').addEventListener('change', () => {
+      renderDashboardAndChart();
+    });
+
+    document.getElementById('filter-cabang-dashboard').addEventListener('change', () => {
+      renderDashboardAndChart();
+    });
+
+    async function muatDataEvaluasi() {
+      listEvaluasiGlobal = await ambilDataEvaluasiSupabase();
+
+      const selectFilterEval = document.getElementById('filter-evaluasi-cabang');
+      let currentSelected = selectFilterEval.value;
+
+      let setCabangEval = new Set();
+      listEvaluasiGlobal.forEach(item => {
+        const c = item.Cabang || item.cabang;
+        if (c) setCabangEval.add(c.trim());
+      });
+
+      selectFilterEval.innerHTML = `<option value="all">Semua Cabang (${listEvaluasiGlobal.length})</option>`;
+      Array.from(setCabangEval).sort().forEach(c => {
+        const selectedAttr = (c === currentSelected) ? 'selected' : '';
+        selectFilterEval.innerHTML += `<option value="${c}" ${selectedAttr}>${c}</option>`;
+      });
+
+      renderTabelEvaluasi(selectFilterEval.value);
+    }
+
+    function renderTabelEvaluasi(selectedCabang) {
+      const tbodyEval = document.getElementById('tabel-evaluasi-body');
+
+      let filteredEval = listEvaluasiGlobal;
+      if (selectedCabang !== 'all') {
+        filteredEval = listEvaluasiGlobal.filter(item => {
+          const c = (item.Cabang || item.cabang || '').trim();
+          return c === selectedCabang;
+        });
+      }
+
+      const totalEval = filteredEval.length;
+      let setCabangUnik = new Set();
+      filteredEval.forEach(item => {
+        if (item.Cabang || item.cabang) setCabangUnik.add((item.Cabang || item.cabang).trim());
+      });
+
+      document.getElementById('eval-total').innerText = totalEval;
+      document.getElementById('eval-cabang-count').innerText = setCabangUnik.size;
+      document.getElementById('eval-grade-info').innerText = totalEval > 0 ? 'Tersedia' : '-';
+
+      if (filteredEval.length === 0) {
+        tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data evaluasi untuk cabang ini.</td></tr>`;
+        return;
+      }
+
+      tbodyEval.innerHTML = '';
+      filteredEval.forEach((item, index) => {
+        const idEval = item.id || index;
+        const cabang = item.Cabang || item.cabang || '-';
+        const fileVideo = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-';
+        const evaluasi = item.Evaluasi || item.evaluasi || '-';
+        const alternatifSolusi = item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '-';
+        const grade = item.Grade || item.grade || '-';
+
+        let badgeGrade = 'bg-slate-100 text-slate-700 border-slate-200';
+        const gUpper = String(grade).toUpperCase();
+        if (gUpper.includes('A')) {
+          badgeGrade = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        } else if (gUpper.includes('B')) {
+          badgeGrade = 'bg-amber-50 text-amber-700 border-amber-200';
+        } else if (gUpper.includes('C') || gUpper.includes('D')) {
+          badgeGrade = 'bg-rose-50 text-rose-700 border-rose-200';
+        }
+
+        tbodyEval.innerHTML += `
+          <tr class="hover:bg-slate-50/80 transition-all duration-200">
+            <td class="py-4 px-5 font-mono text-xs text-slate-400">#${idEval}</td>
+            <td class="py-4 px-5 font-bold text-slate-800">${cabang}</td>
+            <td class="py-4 px-5 text-slate-700 font-medium max-w-xs truncate" title="${fileVideo}">${fileVideo}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-sm">${evaluasi}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-sm">${alternatifSolusi}</td>
+            <td class="py-4 px-5 whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeGrade}">${grade !== '-' ? grade : 'Normal'}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    document.getElementById('filter-evaluasi-cabang').addEventListener('change', (e) => {
+      renderTabelEvaluasi(e.target.value);
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('data_user');
+      window.location.href = 'login.html';
+    });
+
+    // ===================== REALTIME: auto-update saat data berubah dari mana saja =====================
+    db.channel('realtime-cabang-dashboard')
+      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL }, (payload) => {
+        console.log('[Realtime] Perubahan terdeteksi pada tabel Kiriman_Cabang:', payload);
+        renderDashboardAndChart();
+        if (!document.getElementById('tab-evaluasi').classList.contains('hidden')) muatDataEvaluasi();
+      })
+      .subscribe((status) => {
+        console.log('[Realtime] Status koneksi channel Kiriman_Cabang:', status);
+      });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await renderDashboardAndChart();
+    });
+  </script>
+</body>
+
+</html>
