@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penamaan Folder Resource | Quick Video</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --mineral-green: #41B3A3;
+            --slate-dark: #0f172a;
+            --glass-white: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            text-decoration: none;
+            background: var(--glass-white);
+            border: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            border-radius: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--mineral-green); transform: translateX(-5px); }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        header { text-align: center; margin-bottom: 50px; }
+        header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        header span { color: var(--mineral-green); }
+
+        /* Grid Utama */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+        }
+
+        .card h3 {
+            color: var(--mineral-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px;
+        }
+
+        /* Ketentuan List */
+        .ketentuan-list { list-style: none; }
+        .ketentuan-list li {
+            background: var(--glass-white);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .ketentuan-list li strong { color: white; font-size: 0.95rem; }
+        .ketentuan-list li span { color: var(--text-muted); font-size: 0.85rem; }
+
+        /* Format Folder Card */
+        .format-card {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(65, 179, 163, 0.1), rgba(0, 89, 255, 0.05));
+            text-align: center;
+            border: 2px dashed var(--mineral-green);
+        }
+
+        .format-display {
+            background: #000;
+            padding: 20px;
+            border-radius: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            color: var(--mineral-green);
+            margin: 20px 0;
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+
+        .example-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Tag Label */
+        .tag-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .tag {
+            background: var(--mineral-green);
+            color: var(--slate-dark);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        @media (max-width: 800px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .format-card { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="Guidance_Video.html" class="back-btn">
+        <i class="fas fa-chevron-left"></i> Kembali
+    </a>
+
+    <div class="container">
+        <header>
+            <h1>Penamaan <span>Folder Resource</span></h1>
+            <p style="color: var(--text-muted);">Standarisasi pengiriman video agar proses editing lebih cepat dan terstruktur.</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="card">
+                <h3><i class="fas fa-file-video"></i> Standar File Video</h3>
+                <ul class="ketentuan-list">
+                    <li>
+                        <strong>Format File</strong>
+                        <span>Gunakan format .MP4 atau .MOV (H.264) untuk keseimbangan kualitas dan ukuran.</span>
+                    </li>
+                    <li>
+                        <strong>Resolusi Minimal</strong>
+                        <span>Minimal Full HD (1080p). Gunakan 4K jika memungkinkan untuk hasil profesional.</span>
+                    </li>
+                    <li>
+                        <strong>Aspek Rasio</strong>
+                        <span>16:9 (Landscape) untuk YouTube/Presentasi. 9:16 (Portrait) untuk TikTok/Reels/Shorts.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-tags"></i> Kategori & Jenis Lahan</h3>
+                <div style="margin-bottom: 20px;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">KATEGORI KEGIATAN:</p>
+                    <div class="tag-container">
+                        <div class="tag">Testimoni Pembeli</div>
+                        <div class="tag">Demo Unit</div>
+                        <div class="tag">Lainnya (Video Tambahan)</div>
+                    </div>
+                </div>
+                <div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">JENIS LAHAN:</p>
+                    <div class="tag-container">
+                        <span class="tag" style="background: #2d5a27; color: white;">Lahan Basah</span>
+                        <span class="tag" style="background: #a67c52; color: white;">Lahan Kering</span>
+                        <span class="tag" style="background: #5a4033; color: white;">Lahan Dalam</span>
+                        <span class="tag" style="background: #d4af37; color: white;">Bekas Combine</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card format-card">
+                <h3><i class="fas fa-i-cursor"></i> Format Penamaan Folder</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Wajib diikuti agar file tidak tertukar di server:</p>
+                
+                <div class="format-display">
+                    [Tanggal] [Kegiatan] [Jenis Lahan] - [Nama Pembeli], [Lokasi]
+                </div>
+
+                <div class="example-box">
+                    <strong>Contoh:</strong> 251212 Testimoni Pembeli Quick Boxer Rotary Lahan Basah - P.Bambang, Pamekasan
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

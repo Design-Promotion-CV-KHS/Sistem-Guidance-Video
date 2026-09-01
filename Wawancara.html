@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Rekam Video Wawancara | Quick Video Guidance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #41B3A3;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(at top right, #1e293b 0%, #0f172a 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-green);
+            transform: translateX(-5px);
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .header-title h1 {
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .header-title span {
+            color: var(--primary-green);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            max-width: 1300px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .video-container {
+            background: black;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 4px solid var(--glass-border);
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .details-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .info-card h3 {
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .keterangan-list {
+            list-style: none;
+        }
+
+        .keterangan-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        .keterangan-list li i {
+            color: var(--primary-green);
+            margin-top: 4px;
+        }
+
+        .angle-guide {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 25px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .angle-img-container {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .angle-img-container img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="Panduan_Rekam_Lahan.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Kembali
+    </a>
+
+    <div class="header-title">
+        <h1>Panduan Rekam <span>Wawancara</span></h1>
+        <p style="color: #94a3b8;">Referensi visual pengambilan video testimoni dan wawancara</p>
+    </div>
+
+    <div class="main-grid">
+        <div class="video-container">
+            <video controls poster="WThumb.png">
+                <source src="W.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="details-panel">
+            <div class="info-card">
+                <h3><i class="fas fa-list-check"></i> Keterangan Video</h3>
+                <ul class="keterangan-list">
+                    <li><i class="fas fa-sun"></i> <span>Pastikan wajah narasumber (pembeli) terpapar cahaya dengan
+                            terang.</span></li>
+                    <li><i class="fas fa-ban"></i> <span>Hindari posisi membelakangi sumber cahaya (Backlight).</span>
+                    </li>
+                    <li><i class="fas fa-microphone"></i> <span>Wajib gunakan mikrofon eksternal jika tersedia.</span>
+                    </li>
+                    <li><i class="fas fa-video"></i> <span>Medium Close-Up: Rekam narasumber dari dada ke atas.</span>
+                    </li>
+                    <li><i class="fas fa-comments"></i> <span>Ajak ngobrol santai terlebih dahulu. Jangan langsung
+                            menodong pertanyaan agar konsumen nyaman dan tidak kaku.</span></li>
+                    <li><i class="fas fa-file-invoice-dollar"></i> <span>Jika membahas sisi ekonomis atau perbandingan
+                            biaya, wajib sebutkan angka/nominal nyata.</span></li>
+                </ul>
+            </div>
+
+            <div class="angle-guide">
+                <h3><i class="fas fa-camera"></i> Panduan Sudut Pandang</h3>
+                <p style="font-size: 0.85rem; color: #94a3b8;">Objek unit berada di samping dan terdapat narasumber
+                    berada di samping unit.</p>
+                <div class="angle-img-container">
+                    <img src="SPW.png" alt="Panduan Sudut Pandang Wawancara">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

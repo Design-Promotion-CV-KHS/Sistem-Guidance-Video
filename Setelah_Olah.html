@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lahan Setelah Diolah | Quick Video Guidance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary-green: #41B3A3;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --electric-blue: #0059FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(at top right, #1e293b 0%, #0f172a 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.4s;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-green);
+            transform: scale(1.05);
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-title h1 {
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .header-title span {
+            color: var(--primary-green);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        .photo-container {
+            position: relative;
+            background: #000;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 4px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 16 / 9;
+        }
+
+        .photo-display {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-overlay {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .nav-btn {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            pointer-events: auto;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-green);
+            color: var(--dark-bg);
+            transform: scale(1.1);
+        }
+
+        .details-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            min-height: 180px;
+        }
+
+        .info-card h3 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .keterangan-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .shot-label {
+            display: inline-block;
+            background: var(--electric-blue);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="Guidance_Video.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Kembali
+    </a>
+
+    <div class="header-title animate__animated animate__fadeIn">
+        <h1>Lahan <span>Setelah Diolah</span></h1>
+        <p style="color: #94a3b8;">Panduan pengambilan gambar hasil pengolahan tanah</p>
+    </div>
+
+    <div class="main-grid">
+        <div class="photo-container animate__animated animate__zoomIn" id="photoWrapper">
+            <img src="SO5.png" alt="Lahan Setelah Diolah" class="photo-display" id="mainPhoto">
+            <div class="nav-overlay">
+                <button class="nav-btn" onclick="prevPhoto()"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-btn" onclick="nextPhoto()"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="details-panel" id="textWrapper">
+            <div class="info-card animate__animated animate__fadeInUp">
+                <div class="shot-label" id="shotLabel">Lahan Setelah Diolah (Wide Shot)</div>
+                <h3><i class="fas fa-check-double"></i> Keterangan</h3>
+                <p class="keterangan-text" id="keteranganTop">
+                    Ambil shot yang menunjukkan bagian lahan yang sudah diolah secara luas dan utuh.
+                </p>
+            </div>
+
+            <div class="info-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <h3><i class="fas fa-microscope"></i> Catatan Detail</h3>
+                <p class="keterangan-text" id="fokusText">
+                    Wide shot lahan setelah diolah menunjukkan lahan secara luas yang telah diolah.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slideData = [
+            {
+                img: "SO5.png",
+                label: "Lahan Setelah Diolah (Wide Shot)",
+                keterangan: "Ambil shot yang menunjukkan bagian lahan yang sudah diolah secara luas dan utuh.",
+                fokus: "Wide shot lahan setelah diolah menunjukkan lahan secara luas yang telah diolah."
+            },
+            {
+                img: "SO6.png",
+                label: "Close Up",
+                keterangan: "Fokus pada tekstur tanah yang sudah halus/siap tanam. Rekam dari dekat atau video dari dekat tanah yang sudah diolah.",
+                fokus: "Gunakan close up shoot untuk memperlihatkan detail dari part yang sedang bekerja (tekstur tanah)."
+            }
+        ];
+
+        let currentIndex = 0;
+
+        function updateContent() {
+            const textWrapper = document.getElementById('textWrapper');
+            const infoCards = textWrapper.querySelectorAll('.info-card');
+            const photoDisplay = document.getElementById('mainPhoto');
+
+            // Update Konten (Foto ganti instan tanpa animasi wrapper)
+            const currentData = slideData[currentIndex];
+            photoDisplay.src = currentData.img;
+
+            document.getElementById('shotLabel').innerText = currentData.label;
+            document.getElementById('keteranganTop').innerText = currentData.keterangan;
+            document.getElementById('fokusText').innerText = currentData.fokus;
+
+            // Reset dan Jalankan Animasi hanya pada kartu teks
+            infoCards.forEach(card => {
+                card.classList.remove('animate__fadeInUp');
+                void card.offsetWidth; // Trigger reflow
+                card.classList.add('animate__fadeInUp');
+            });
+        }
+
+        function nextPhoto() {
+            currentIndex = (currentIndex + 1) % slideData.length;
+            updateContent();
+        }
+
+        function prevPhoto() {
+            currentIndex = (currentIndex - 1 + slideData.length) % slideData.length;
+            updateContent();
+        }
+    </script>
+</body>
+
+</html>

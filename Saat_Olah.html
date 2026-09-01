@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lahan Saat Diolah | Quick Video Guidance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary-green: #41B3A3;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --electric-blue: #0059FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(at top right, #1e293b 0%, #0f172a 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        /* Tombol Kembali - Fleksibel & Responsif */
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.4s;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-green);
+            transform: scale(1.05);
+        }
+
+        .header-title {
+            text-align: center;
+            margin-top: 40px; /* Jarak aman dari tombol back di HP */
+            margin-bottom: 40px;
+        }
+
+        .header-title h1 {
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .header-title span {
+            color: var(--primary-green);
+        }
+
+        /* Grid Utama */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 30px;
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        /* CONTAINER GALERI UTAMA */
+        .photo-container {
+            position: relative;
+            background: #000;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 4px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-display {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Overlay Navigasi Tombol */
+        .nav-overlay {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .nav-btn {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            pointer-events: auto;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-green);
+            color: var(--dark-bg);
+            transform: scale(1.1);
+        }
+
+        /* Panel Deskripsi Kanan */
+        .details-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-card h3 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .keterangan-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .shot-label {
+            align-self: flex-start;
+            display: inline-block;
+            background: var(--electric-blue);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* MEDIA QUERIES (RESPONSIF TABLET & HP) */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            .header-title h1 { font-size: 2rem; }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .back-btn {
+                position: static;
+                margin-bottom: 20px;
+                align-self: flex-start;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .header-title {
+                margin-top: 0;
+                margin-bottom: 30px;
+                text-align: left;
+                width: 100%;
+            }
+
+            .header-title h1 {
+                font-size: 1.75rem;
+            }
+
+            .photo-container {
+                border-radius: 20px;
+                border-width: 2px;
+            }
+
+            .nav-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 0.9rem;
+            }
+
+            .info-card {
+                padding: 20px;
+                border-radius: 20px;
+                min-height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="Guidance_Video.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Kembali
+    </a>
+
+    <div class="header-title animate__animated animate__fadeIn">
+        <h1>Lahan <span>Saat Diolah</span></h1>
+        <p style="color: #94a3b8;">Panduan pengambilan gambar unit saat beroperasi</p>
+    </div>
+
+    <div class="main-grid">
+        <div class="photo-container animate__animated animate__zoomIn" id="photoWrapper">
+            <img src="SO3.png" alt="Lahan Saat Diolah" class="photo-display" id="mainPhoto">
+            <div class="nav-overlay">
+                <button class="nav-btn" onclick="prevPhoto()" aria-label="Foto Sebelumnya"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-btn" onclick="nextPhoto()" aria-label="Foto Selanjutnya"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="details-panel" id="textWrapper">
+            <div class="info-card animate__animated animate__fadeInUp">
+                <div class="shot-label" id="shotLabel">Aksi Penuh (Wide Shot)</div>
+                <h3><i class="fas fa-video"></i> Keterangan</h3>
+                <p class="keterangan-text" id="keteranganTop">
+                    Tunjukkan unit alat berat/mesin secara utuh sedang bergerak dan mengolah lahan.
+                </p>
+            </div>
+
+            <div class="info-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <h3><i class="fas fa-lightbulb"></i> Catatan Operator</h3>
+                <p class="keterangan-text" id="catatanText">
+                    Wide shot fokus pada take dari sedikit jauh sehingga memperlihatkan objek sawah secara luas.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slideData = [
+            {
+                img: "SO3.png",
+                label: "Aksi Penuh (Wide Shot)",
+                keterangan: "Tunjukkan unit alat berat/mesin secara utuh sedang bergerak dan mengolah lahan.",
+                catatan: "Wide shot fokus pada take dari sedikit jauh sehingga memperlihatkan objek sawah secara luas."
+            },
+            {
+                img: "SO4.png",
+                label: "Aksi Lebih Dekat (Medium Shot)",
+                keterangan: "Fokus pada bagian unit yang bersentuhan dengan tanah (contoh: rotary sedang berputar). Tunjukkan efek pengolahan yang terjadi.",
+                catatan: "Medium Shot fokus pada keseluruhan bagian unit tetapi tidak terlalu jauh."
+            },
+        ];
+
+        let currentIndex = 0;
+
+        function updateContent() {
+            const textWrapper = document.getElementById('textWrapper');
+            const infoCards = textWrapper.querySelectorAll('.info-card');
+            const photoDisplay = document.getElementById('mainPhoto');
+
+            const currentData = slideData[currentIndex];
+            photoDisplay.src = currentData.img;
+
+            // Memperbarui teks konten di dalam card
+            document.getElementById('shotLabel').innerText = currentData.label;
+            document.getElementById('keter

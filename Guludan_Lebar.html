@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guludan Lebar | Quick Video Guidance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #41B3A3;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(at top right, #1e293b 0%, #0f172a 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        /* Tombol Kembali - Responsif untuk HP */
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            text-decoration: none;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .back-btn:hover { background: var(--primary-green); transform: translateX(-5px); }
+
+        .header-title {
+            text-align: center;
+            margin-top: 40px; /* Memberi ruang untuk tombol back di mobile */
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+        .header-title h1 { font-size: 2.5rem; letter-spacing: -1px; margin-bottom: 10px; }
+        .header-title span { color: var(--primary-green); }
+
+        /* Grid Utama */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 30px;
+            max-width: 1300px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* KOTAK UTAMA (Menyatukan Video & Sudut Pandang) */
+        .video-visual-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Container Video di dalam kotak */
+        .video-container {
+            background: black;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+        video { width: 100%; display: block; }
+
+        .video-overlay-info {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Bagian Panduan di bawah video */
+        .angle-guide-section {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 20px;
+        }
+        .angle-guide-section h3 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .angle-video-container {
+            background: black;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        .angle-video-container video { max-width: 100%; height: auto; border-radius: 10px; }
+
+        /* Panel Keterangan Kiri/Kanan */
+        .details-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+        }
+        .info-card h3 {
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .keterangan-list { list-style: none; }
+        .keterangan-list li {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .keterangan-list li:last-child { margin-bottom: 0; }
+        .keterangan-list li i { color: var(--primary-green); margin-top: 4px; font-size: 1rem; }
+
+        /* MEDIA QUERIES (RESPONSIF HP & TABLET) */
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; gap: 25px; }
+            .header-title h1 { font-size: 2rem; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 20px 15px; }
+            
+            .back-btn { 
+                position: static; 
+                margin-bottom: 20px; 
+                align-self: flex-start;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .header-title { margin-top: 0; margin-bottom: 30px; text-align: left; width: 100%; }
+            .header-title h1 { font-size: 1.75rem; }
+            
+            .video-visual-card { padding: 15px; gap: 15px; border-radius: 20px; }
+            .info-card { padding: 20px; border-radius: 20px; }
+            
+            .video-overlay-info { font-size: 0.75rem; bottom: 10px; left: 10px; right: 10px; text-align: center; }
+            .angle-video-container { padding: 8px; margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="Guidance_Video.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Kembali
+    </a>
+
+    <div class="header-title">
+        <h1>Contoh Rekaman <span>Guludan Lebar</span></h1>
+        <p style="color: #94a3b8;">Referensi visual pengambilan footage untuk bedengan tanah yang luas</p>
+    </div>
+
+    <div class="main-grid">
+        
+        <div class="video-visual-card">
+            <div class="video-container">
+                <video controls autoplay muted loop playsinline poster="GLTHUMB.png">
+                    <source src="GL.mp4" type="video/mp4">
+                    Browser Anda tidak mendukung tag video.
+                </video>
+                <div class="video-overlay-info">
+                    <i class="fas fa-info-circle"></i> Referensi: Pengolahan Guludan Lebar - Unit Boxer
+                </div>
+            </div>
+
+            <div class="angle-guide-section">
+                <h3><i class="fas fa-camera"></i> Panduan Sudut Pandang</h3>
+                <p style="font-size: 0.85rem; color: #94a3b8;">Kamera di bawah mendekati tanah untuk memperlihatkan guludan yang lebar.</p>
+                <div class="angle-video-container">
+                    <video controls autoplay muted loop playsinline>
+                        <source src="AngleGL.mp4" type="video/mp4">
+                        Browser Anda tidak mendukung tag video.
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <div class="details-panel">
+            <div class="info-card">
+                <h3><i class="fas fa-list-check"></i> Keterangan Video</h3>
+                <ul class="keterangan-list">
+                    <li><i class="fas fa-video"></i> <span><strong>Footage Stabil:</strong> Kunci pergerakan kamera agar detail kerataan tanah terlihat jelas.</span></li>
+                    <li><i class="fas fa-down-long"></i> <span><strong>Fokus pada Low Angle:</strong> Posisi kamera mendekati tanah agar guludan terlihat luas/lebar.</span></li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> <span><strong>Hindari High Angle:</strong> Jangan merekam dari sudut pandang tinggi karena akan membuat guludan terlihat sempit.</span></li>
+                    <li><i class="fas fa-hand-pointer"></i> <span><strong>Pergerakan Halus:</strong> Jika harus pan, lakukan dengan sangat lambat.</span></li>
+                    <li><i class="fas fa-magic"></i> <span><strong>Resolusi Tajam:</strong> Gunakan 1080p ke atas agar tekstur tanah yang sudah diolah terlihat presisi.</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
