@@ -708,9 +708,23 @@
            Konten detail tidak lagi dibatasi max-width dan iframe mengisi
            area kerja yang tersedia di bawah header dashboard.
         ================================================================ */
-        #tab-workflow-tools {
+        /* ================================================================
+           FULL WIDTH SEMUA TAB DASHBOARD
+           Semua halaman dibuat selebar area kerja seperti Workflow Editing.
+           Tidak lagi dibatasi max-width / mx-auto.
+        ================================================================ */
+        #tab-overview,
+        #tab-cabang-crud,
+        #tab-cabang-evaluasi,
+        #tab-editor-crud,
+        #tab-workflow-tools,
+        #tab-panduan,
+        #tab-tools {
             max-width: none !important;
             width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            box-sizing: border-box;
         }
 
         #tab-panduan {
@@ -831,7 +845,7 @@
 </div>
 </header>
 <!-- ============ TAB: OVERVIEW ADMIN ============ -->
-<div class="p-8 space-y-7 max-w-7xl w-full mx-auto" id="tab-overview">
+<div class="p-8 space-y-7 w-full" id="tab-overview">
 <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 <div>
 <h3 class="text-2xl font-black text-slate-900 tracking-tight" id="ov-welcome-title">Ringkasan
@@ -1170,7 +1184,7 @@
 </div>
 </div>
 <!-- ============ TAB: CABANG - CRUD ============ -->
-<div class="p-8 space-y-6 max-w-7xl w-full mx-auto hidden" id="tab-cabang-crud">
+<div class="p-8 space-y-6 w-full hidden" id="tab-cabang-crud">
 <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
 <div>
 <h3 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Data Evaluasi &amp; Sumber Video
@@ -1227,7 +1241,7 @@
 </div>
 </div>
 <!-- ============ TAB: CABANG - HASIL EVALUASI ============ -->
-<div class="p-8 space-y-6 max-w-7xl w-full mx-auto hidden" id="tab-cabang-evaluasi">
+<div class="p-8 space-y-6 w-full hidden" id="tab-cabang-evaluasi">
 <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
 <div>
 <h3 class="text-2xl font-black text-slate-900 tracking-tight">Hasil Evaluasi &amp; Alternatif Solusi
@@ -1300,7 +1314,7 @@
 </div>
 </div>
 <!-- ============ TAB: EDITOR - CRUD PLANNING ============ -->
-<div class="p-8 space-y-6 max-w-7xl w-full mx-auto hidden" id="tab-editor-crud">
+<div class="p-8 space-y-6 w-full hidden" id="tab-editor-crud">
 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 <div>
 <h3 class="text-2xl font-bold text-gray-800">Kelola Data Planning Editor</h3>
@@ -1535,7 +1549,7 @@
             </div>
         </div>
 
-        <div class="p-8 space-y-7 max-w-7xl w-full mx-auto hidden" id="tab-tools">
+        <div class="p-8 space-y-7 w-full hidden" id="tab-tools">
 <div class="wf-header">
 <div class="wf-badge"><i class="fas fa-wand-magic-sparkles"></i> AI Production</div>
 <h1>Pusat Tools AI Production</h1>
