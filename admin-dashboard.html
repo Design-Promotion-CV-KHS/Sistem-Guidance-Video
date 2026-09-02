@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
@@ -1208,6 +1207,22 @@
 </select>
 </div>
 </div>
+<!-- ==== BARU: Filter Status/Segmen (Waiting List, Footage, dll) ==== -->
+<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer flex-1 md:flex-none">
+<div class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-inner">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+</path>
+</svg>
+</div>
+<div class="flex flex-col">
+<label class="text-[9px] font-extrabold text-emerald-600 uppercase tracking-widest">Filter
+                                Status</label>
+<select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5" id="cb-filter-crud-segmen">
+<option value="all">Semua Status</option>
+</select>
+</div>
+</div>
 <button class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn flex-1 md:flex-none justify-center" onclick="cbBukaModalForm()">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
@@ -1938,6 +1953,22 @@
             return null;
         }
 
+        // ==== BARU: Sortir array data berdasarkan kolom ID yang terdeteksi ====
+        // Dipakai supaya urutan baris di tabel selalu konsisten (ascending berdasarkan ID),
+        // tidak lagi mengikuti urutan acak bawaan Supabase.
+        function cbSortDataById(dataArray) {
+            return dataArray.slice().sort((a, b) => {
+                const idA = getRowIdInfo(a);
+                const idB = getRowIdInfo(b);
+                if (!idA && !idB) return 0;
+                if (!idA) return 1;
+                if (!idB) return -1;
+                const na = Number(idA.value), nb = Number(idB.value);
+                if (!isNaN(na) && !isNaN(nb)) return na - nb; // urut angka jika ID numerik
+                return String(idA.value).localeCompare(String(idB.value)); // fallback urut teks
+            });
+        }
+
         let currentActiveTab = 'overview';
 
         /* ================= AUTH / ROLE GATE (khusus admin) ================= */
@@ -2033,7 +2064,8 @@
                 console.error('SUPABASE ERROR (Kiriman_Cabang):', error.message);
                 return [];
             }
-            return data || [];
+            // ==== BARU: urutkan berdasarkan ID sebelum dipakai di seluruh tabel/grafik ====
+            return cbSortDataById(data || []);
         }
 
         async function ambilDataPlanning() {
@@ -2241,6 +2273,7 @@
 
         async function cbMuatDataTabel() {
             cbListEvaluasiGlobal = await ambilDataEvaluasiSupabase();
+
             const selectFilterCrud = document.getElementById('cb-filter-crud-cabang');
             let currentCrudVal = selectFilterCrud.value;
             let setCabangCrud = new Set();
@@ -2251,17 +2284,34 @@
                 const selectedAttr = (c === currentCrudVal) ? 'selected' : '';
                 selectFilterCrud.innerHTML += `<option value="${c}" ${selectedAttr}>${c}</option>`;
             });
-            cbRenderTabelCrud(selectFilterCrud.value);
+
+            // ==== BARU: isi opsi Filter Status/Segmen dari nilai unik yang benar-benar ada di data ====
+            const selectFilterSegmen = document.getElementById('cb-filter-crud-segmen');
+            let currentSegmenVal = selectFilterSegmen.value || 'all';
+            let setSegmenCrud = new Set();
+            cbListEvaluasiGlobal.forEach(item => { const s = item.Segmen || item.segmen; if (s) setSegmenCrud.add(s.trim()); });
+
+            selectFilterSegmen.innerHTML = `<option value="all">Semua Status</option>`;
+            Array.from(setSegmenCrud).sort().forEach(s => {
+                const selectedAttr = (s === currentSegmenVal) ? 'selected' : '';
+                selectFilterSegmen.innerHTML += `<option value="${s}" ${selectedAttr}>${s}</option>`;
+            });
+
+            cbRenderTabelCrud(selectFilterCrud.value, selectFilterSegmen.value);
         }
 
-        function cbRenderTabelCrud(selectedCabang = 'all') {
+        function cbRenderTabelCrud(selectedCabang = 'all', selectedSegmen = 'all') {
             const tbody = document.getElementById('cb-tabel-body');
             let dataToRender = cbListEvaluasiGlobal;
             if (selectedCabang !== 'all') {
-                dataToRender = cbListEvaluasiGlobal.filter(item => (item.Cabang || item.cabang || '').trim() === selectedCabang);
+                dataToRender = dataToRender.filter(item => (item.Cabang || item.cabang || '').trim() === selectedCabang);
+            }
+            // ==== BARU: terapkan filter Status/Segmen ====
+            if (selectedSegmen !== 'all') {
+                dataToRender = dataToRender.filter(item => (item.Segmen || item.segmen || '').trim() === selectedSegmen);
             }
             if (dataToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data untuk cabang ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
@@ -2286,7 +2336,16 @@
           </tr>`;
             });
         }
-        document.getElementById('cb-filter-crud-cabang').addEventListener('change', (e) => cbRenderTabelCrud(e.target.value));
+
+        // ==== BARU: kedua dropdown filter (Cabang & Status) saling melengkapi saat dipilih ====
+        document.getElementById('cb-filter-crud-cabang').addEventListener('change', (e) => {
+            const segmenVal = document.getElementById('cb-filter-crud-segmen').value;
+            cbRenderTabelCrud(e.target.value, segmenVal);
+        });
+        document.getElementById('cb-filter-crud-segmen').addEventListener('change', (e) => {
+            const cabangVal = document.getElementById('cb-filter-crud-cabang').value;
+            cbRenderTabelCrud(cabangVal, e.target.value);
+        });
 
         async function cbMuatDataEvaluasi() {
             cbListEvaluasiGlobal = await ambilDataEvaluasiSupabase();
@@ -2675,9 +2734,6 @@
             labelEl.innerText = `Minggu ini: ${edFormatTglSingkat(senin)} — ${edFormatTglSingkat(minggu)}`;
 
             const namaEditorSet = new Set(data.map(i => i.editor).filter(e => e && e.toLowerCase() !== 'all editor'));
-            if (namaEditorSet.length === 0 && namaEditorSet.size === 0) {
-                // no-op guard, handled below
-            }
             if (namaEditorSet.size === 0) {
                 container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung target mingguannya untuk filter ini.</p>';
                 return;
