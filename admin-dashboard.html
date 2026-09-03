@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Dashboard Admin - Sistem Internal</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<script>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard Admin - Sistem Internal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -18,7 +19,7 @@
             }
         }
     </script>
-<style>
+    <style>
         .glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
@@ -434,8 +435,8 @@
             margin: 0;
         }
 
-        #tab-workflow-tools .wf-workflow-list > li,
-        #tab-tools .wf-workflow-list > li {
+        #tab-workflow-tools .wf-workflow-list>li,
+        #tab-tools .wf-workflow-list>li {
             font-size: .79rem;
             color: #475569;
             margin: 0 0 12px;
@@ -445,13 +446,13 @@
             overflow-wrap: anywhere;
         }
 
-        #tab-workflow-tools .wf-workflow-list > li:last-child,
-        #tab-tools .wf-workflow-list > li:last-child {
+        #tab-workflow-tools .wf-workflow-list>li:last-child,
+        #tab-tools .wf-workflow-list>li:last-child {
             margin-bottom: 0;
         }
 
-        #tab-workflow-tools .wf-workflow-list > li::before,
-        #tab-tools .wf-workflow-list > li::before {
+        #tab-workflow-tools .wf-workflow-list>li::before,
+        #tab-tools .wf-workflow-list>li::before {
             content: attr(data-num) ".";
             position: absolute;
             left: 0;
@@ -572,8 +573,8 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
-        #tab-workflow-tools .wf-tools-grid > a,
-        #tab-tools .wf-tools-grid > a {
+        #tab-workflow-tools .wf-tools-grid>a,
+        #tab-tools .wf-tools-grid>a {
             text-decoration: none;
             display: flex;
             min-width: 0;
@@ -657,6 +658,7 @@
         }
 
         @media (max-width: 1100px) {
+
             #tab-workflow-tools .wf-workflow-grid,
             #tab-tools .wf-workflow-grid {
                 grid-template-columns: 1fr;
@@ -669,6 +671,7 @@
         }
 
         @media (max-width: 640px) {
+
             #tab-workflow-tools,
             #tab-tools {
                 padding-left: 1.25rem;
@@ -701,7 +704,7 @@
         #tab-tools .wf-category-label:first-of-type {
             margin-top: .25rem;
         }
-    
+
         /* ================================================================
            FULL WIDTH WORKSPACE UNTUK SUB-MENU WORKFLOW & PANDUAN
            Konten detail tidak lagi dibatasi max-width dan iframe mengisi
@@ -716,6 +719,7 @@
         #tab-cabang-crud,
         #tab-cabang-evaluasi,
         #tab-editor-crud,
+        #tab-user-crud,
         #tab-workflow-tools,
         #tab-panduan,
         #tab-tools {
@@ -753,11 +757,12 @@
 
         /* Saat detail panduan terbuka, header panduan tidak mengambil ruang
            berlebihan; tombol kembali tetap terlihat di bagian atas. */
-        #panduan-workspace-view > button {
+        #panduan-workspace-view>button {
             margin-bottom: 12px;
         }
 
         @media (max-width: 768px) {
+
             #tab-workflow-tools,
             #tab-panduan {
                 padding: 1rem !important;
@@ -769,673 +774,879 @@
                 height: calc(100vh - 170px);
             }
         }
-</style>
+    </style>
 </head>
-<body class="flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in text-slate-800" id="main-body">
-<!-- Sidebar -->
-<div class="relative flex z-20">
-<aside class="w-72 glass-sidebar text-white flex flex-col shadow-2xl transition-all duration-300 ease-in-out h-full overflow-hidden shrink-0" id="sidebar">
-<div class="p-6 border-b border-slate-800 flex items-center gap-3">
-<div class="w-10 h-10 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-indigo-400 shadow-sm">
+
+<body class="flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in text-slate-800"
+    id="main-body">
+    <!-- Sidebar -->
+    <div class="relative flex z-20">
+        <aside
+            class="w-72 glass-sidebar text-white flex flex-col shadow-2xl transition-all duration-300 ease-in-out h-full overflow-hidden shrink-0"
+            id="sidebar">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-indigo-400 shadow-sm">
                     IS</div>
-<div>
-<h1 class="text-base font-bold tracking-wider text-slate-100">INTERNAL SYS</h1>
-<p class="text-[10px] tracking-widest text-slate-400 font-medium mt-0.5" id="user-role-badge">ADMIN
+                <div>
+                    <h1 class="text-base font-bold tracking-wider text-slate-100">INTERNAL SYS</h1>
+                    <p class="text-[10px] tracking-widest text-slate-400 font-medium mt-0.5" id="user-role-badge">ADMIN
                     </p>
-</div>
-</div>
-<nav class="flex-1 px-4 space-y-1.5 mt-6 overflow-y-auto">
-<p class="px-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Ringkasan</p>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-overview" onclick="switchTab('overview')">
-<i class="fas fa-chart-pie w-5 text-center"></i> Ringkasan Admin
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-1.5 mt-6 overflow-y-auto">
+                <p class="px-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Ringkasan</p>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-overview" onclick="switchTab('overview')">
+                    <i class="fas fa-chart-pie w-5 text-center"></i> Ringkasan Admin
                 </button>
-<p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data
+                <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data
                     Cabang</p>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-cabang-crud" onclick="switchTab('cabang-crud')">
-<i class="fas fa-table w-5 text-center"></i> Kelola Data Cabang
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-cabang-crud" onclick="switchTab('cabang-crud')">
+                    <i class="fas fa-table w-5 text-center"></i> Kelola Data Cabang
                 </button>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-cabang-evaluasi" onclick="switchTab('cabang-evaluasi')">
-<i class="fas fa-clipboard-check w-5 text-center"></i> Hasil Evaluasi
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-cabang-evaluasi" onclick="switchTab('cabang-evaluasi')">
+                    <i class="fas fa-clipboard-check w-5 text-center"></i> Hasil Evaluasi
                 </button>
-<p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data
+                <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data
                     Editor</p>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-editor-crud" onclick="switchTab('editor-crud')">
-<i class="fas fa-list-check w-5 text-center"></i> Kelola Planning Editor
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-editor-crud" onclick="switchTab('editor-crud')">
+                    <i class="fas fa-list-check w-5 text-center"></i> Kelola Planning Editor
                 </button>
-<p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance</p>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-workflow-tools" onclick="switchTab('workflow-tools')">
-<i class="fas fa-diagram-project w-5 text-center"></i> Workflow Editing
+                <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance
+                </p>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-workflow-tools" onclick="switchTab('workflow-tools')">
+                    <i class="fas fa-diagram-project w-5 text-center"></i> Workflow Editing
                 </button>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-panduan" onclick="switchTab('panduan')">
-<i class="fas fa-book w-5 text-center"></i> Panduan Take Video
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-panduan" onclick="switchTab('panduan')">
+                    <i class="fas fa-book w-5 text-center"></i> Panduan Take Video
                 </button>
-<p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Tools</p>
-<button class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]" id="nav-tools" onclick="switchTab('tools')">
-<i class="fas fa-wand-magic-sparkles w-5 text-center"></i> Tools AI Production
+                <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Tools</p>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-tools" onclick="switchTab('tools')">
+                    <i class="fas fa-wand-magic-sparkles w-5 text-center"></i> Tools AI Production
                 </button>
-</nav>
-<div class="p-4">
-<button class="w-full flex items-center gap-3 py-3 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-2xl text-sm font-medium transition-all duration-200 border border-rose-500/20 interactive-btn" id="logout-btn">
-<svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
+                <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                    Administrasi</p>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-user-crud" onclick="switchTab('user-crud')">
+                    <i class="fas fa-users-gear w-5 text-center"></i> Kelola User &amp; Role
+                </button>
+            </nav>
+            <div class="p-4">
+                <button
+                    class="w-full flex items-center gap-3 py-3 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-2xl text-sm font-medium transition-all duration-200 border border-rose-500/20 interactive-btn"
+                    id="logout-btn">
+                    <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                        </path>
+                    </svg>
                     Log out →
                 </button>
-</div>
-</aside>
-<button class="absolute -right-4 top-7 bg-slate-900 hover:bg-slate-800 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform duration-300 focus:outline-none z-30 interactive-btn" id="sidebar-toggle" title="Buka/Tutup Menu">
-<svg class="w-4 h-4 transition-transform duration-300" fill="none" id="toggle-icon" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-</svg>
-</button>
-</div>
-<!-- Konten Utama -->
-<main class="flex-1 flex flex-col h-screen overflow-y-auto">
-<header class="glass-card mx-8 mt-6 rounded-3xl px-8 py-4 flex justify-between items-center z-10 sticky top-6 shadow-sm">
-<h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+        </aside>
+        <button
+            class="absolute -right-4 top-7 bg-slate-900 hover:bg-slate-800 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform duration-300 focus:outline-none z-30 interactive-btn"
+            id="sidebar-toggle" title="Buka/Tutup Menu">
+            <svg class="w-4 h-4 transition-transform duration-300" fill="none" id="toggle-icon" stroke="currentColor"
+                viewbox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+            </svg>
+        </button>
+    </div>
+    <!-- Konten Utama -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header
+            class="glass-card mx-8 mt-6 rounded-3xl px-8 py-4 flex justify-between items-center z-10 sticky top-6 shadow-sm">
+            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Dashboard Admin <span class="text-slate-400 font-normal hidden sm:inline" id="header-subtitle">|
                     Ringkasan Seluruh Data</span>
-</h2>
-<div class="flex items-center gap-3 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-sm transition-transform hover:scale-105">
-<div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-sm" id="avatar-initial">?</div>
-<span class="text-sm font-semibold text-slate-700 hidden sm:inline" id="user-name">Memuat...</span>
-</div>
-</header>
-<!-- ============ TAB: OVERVIEW ADMIN ============ -->
-<div class="p-8 space-y-7 w-full" id="tab-overview">
-<div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-<div>
-<h3 class="text-2xl font-black text-slate-900 tracking-tight" id="ov-welcome-title">Ringkasan
+            </h2>
+            <div
+                class="flex items-center gap-3 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-sm transition-transform hover:scale-105">
+                <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-sm"
+                    id="avatar-initial">?</div>
+                <span class="text-sm font-semibold text-slate-700 hidden sm:inline" id="user-name">Memuat...</span>
+            </div>
+        </header>
+        <!-- ============ TAB: OVERVIEW ADMIN ============ -->
+        <div class="p-8 space-y-7 w-full" id="tab-overview">
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight" id="ov-welcome-title">Ringkasan
                         Seluruh Sistem</h3>
-<p class="text-sm text-slate-500 mt-1">Satu layar untuk memantau seluruh data — mulai dari kiriman
+                    <p class="text-sm text-slate-500 mt-1">Satu layar untuk memantau seluruh data — mulai dari kiriman
                         video cabang sampai proses pengeditan oleh tim editor.</p>
-</div>
-<div class="flex items-center gap-2 text-[11px] font-bold text-slate-400 shrink-0">
-<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Data diperbarui otomatis
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-bold text-slate-400 shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Data diperbarui otomatis
                     dari database
                 </div>
-</div>
-<!-- ===== SECTION: DATA CABANG ===== -->
-<div class="flex items-center gap-3 px-1">
-<div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shadow-md shadow-indigo-600/30">
+            </div>
+            <!-- ===== SECTION: DATA CABANG ===== -->
+            <div class="flex items-center gap-3 px-1">
+                <div
+                    class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shadow-md shadow-indigo-600/30">
                     🏢</div>
-<div>
-<h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Data Cabang</h4>
-<p class="text-[11px] text-slate-400">Grafik &amp; statistik kiriman video dari seluruh cabang</p>
-</div>
-</div>
-<div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
-<div>
-<h3 class="text-2xl font-black text-slate-900 tracking-tight" id="cb-welcome-title">Statistik
+                <div>
+                    <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Data Cabang</h4>
+                    <p class="text-[11px] text-slate-400">Grafik &amp; statistik kiriman video dari seluruh cabang</p>
+                </div>
+            </div>
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight" id="cb-welcome-title">Statistik
                         Kiriman Cabang</h3>
-<p class="text-sm text-slate-500 mt-1">Visualisasi data jumlah kiriman video per cabang secara
+                    <p class="text-sm text-slate-500 mt-1">Visualisasi data jumlah kiriman video per cabang secara
                         konsisten.</p>
-</div>
-<div class="flex flex-wrap items-center gap-3">
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
-<div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
-<svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter
                                 Cabang</label>
-<select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5" id="cb-filter-cabang-dashboard">
-<option value="all">Semua Cabang Aktif</option>
-</select>
-</div>
-</div>
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
-<div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="cb-filter-cabang-dashboard">
+                                <option value="all">Semua Cabang Aktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter
                                 Bulan</label>
-<select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5" id="cb-filter-bulan">
-<option value="all">Semua Bulan</option>
-<option value="01">Januari</option>
-<option value="02">Februari</option>
-<option value="03">Maret</option>
-<option value="04">April</option>
-<option value="05">Mei</option>
-<option value="06">Juni</option>
-<option value="07">Juli</option>
-<option value="08">Agustus</option>
-<option value="09">September</option>
-<option value="10">Oktober</option>
-<option value="11">November</option>
-<option value="12">Desember</option>
-</select>
-</div>
-</div>
-</div>
-</div>
-<div class="space-y-4">
-<div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center border-2 border-indigo-500/20 bg-gradient-to-b from-indigo-500/5 via-white to-transparent">
-<div class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-indigo-600/30 mb-3">
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="cb-filter-bulan">
+                                <option value="all">Semua Bulan</option>
+                                <option value="01">Januari</option>
+                                <option value="02">Februari</option>
+                                <option value="03">Maret</option>
+                                <option value="04">April</option>
+                                <option value="05">Mei</option>
+                                <option value="06">Juni</option>
+                                <option value="07">Juli</option>
+                                <option value="08">Agustus</option>
+                                <option value="09">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div
+                    class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center border-2 border-indigo-500/20 bg-gradient-to-b from-indigo-500/5 via-white to-transparent">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-indigo-600/30 mb-3">
                         📦</div>
-<p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Total Keseluruhan
+                    <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Total Keseluruhan
                         Kiriman Cabang (Kumulatif)</p>
-<h4 class="text-4xl md:text-5xl font-black text-slate-900 mt-1" id="cb-card-total-kiriman">0</h4>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-<div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
-<div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+                    <h4 class="text-4xl md:text-5xl font-black text-slate-900 mt-1" id="cb-card-total-kiriman">0</h4>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
                             ✅</div>
-<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Berhasil Diedit (DONE)
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Berhasil Diedit (DONE)
                         </p>
-<h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-done">0</h4>
-</div>
-<div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
-<div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-done">0</h4>
+                    </div>
+                    <div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
                             ⏳</div>
-<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sedang WIP</p>
-<h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-wip">0</h4>
-</div>
-<div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
-<div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sedang WIP</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-wip">0</h4>
+                    </div>
+                    <div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
                             ❌</div>
-<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Video Reject</p>
-<h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-reject">0</h4>
-</div>
-<div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
-<div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Video Reject</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-reject">0</h4>
+                    </div>
+                    <div class="glass-card p-5 rounded-3xl shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xl shadow-inner mb-2">
                             🎞️</div>
-<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Video Footage</p>
-<h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-footage">0</h4>
-</div>
-</div>
-</div>
-<!-- TREN KIRIMAN VIDEO PER BULAN (SELURUH CABANG, REALTIME) -->
-<div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
-<div>
-<h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Video Footage</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-card-footage">0</h4>
+                    </div>
+                </div>
+            </div>
+            <!-- TREN KIRIMAN VIDEO PER BULAN (SELURUH CABANG, REALTIME) -->
+            <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                             Tren Kiriman Video per Bulan (Seluruh Cabang)
-                            <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+                            <span
+                                class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
                             </span>
-</h4>
-<p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 video/bulan per cabang. Grafik ini
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 video/bulan per cabang. Grafik ini
                             mengikuti Filter Cabang di atas, namun menampilkan seluruh bulan yang ada datanya (tidak
                             terpengaruh Filter Bulan).</p>
-</div>
-<span class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200" id="cb-trend-bulan-berjalan-badge">Memuat
+                    </div>
+                    <span
+                        class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200"
+                        id="cb-trend-bulan-berjalan-badge">Memuat
                         status bulan berjalan...</span>
-</div>
-<div class="h-[300px] mt-3"><canvas id="cb-chartTrendBulanan"></canvas></div>
-</div>
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-<div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm lg:col-span-2">
-<h4 class="text-sm font-bold text-slate-800 mb-2">Grafik Jumlah Kiriman Per Cabang</h4>
-<div class="h-[340px]"><canvas id="cb-chartKiriman"></canvas></div>
-</div>
-<div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm flex flex-col">
-<h4 class="text-sm font-bold text-slate-800 mb-2">Distribusi Grade Evaluasi</h4>
-<div class="flex-1 relative flex items-center justify-center"><canvas id="cb-chartGrade"></canvas>
-</div>
-</div>
-</div>
-<div class="border-t border-slate-200/70"></div>
-<!-- ===== SECTION: DATA EDITOR ===== -->
-<div class="flex items-center gap-3 px-1">
-<div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm shadow-md shadow-slate-900/20">
+                </div>
+                <div class="h-[300px] mt-3"><canvas id="cb-chartTrendBulanan"></canvas></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm lg:col-span-2">
+                    <h4 class="text-sm font-bold text-slate-800 mb-2">Grafik Jumlah Kiriman Per Cabang</h4>
+                    <div class="h-[340px]"><canvas id="cb-chartKiriman"></canvas></div>
+                </div>
+                <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm flex flex-col">
+                    <h4 class="text-sm font-bold text-slate-800 mb-2">Distribusi Grade Evaluasi</h4>
+                    <div class="flex-1 relative flex items-center justify-center"><canvas id="cb-chartGrade"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-200/70"></div>
+            <!-- ===== SECTION: DATA EDITOR ===== -->
+            <div class="flex items-center gap-3 px-1">
+                <div
+                    class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm shadow-md shadow-slate-900/20">
                     🎬</div>
-<div>
-<h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Data Editor</h4>
-<p class="text-[11px] text-slate-400">Workflow &amp; progres pengeditan video oleh tim editor pusat
+                <div>
+                    <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Data Editor</h4>
+                    <p class="text-[11px] text-slate-400">Workflow &amp; progres pengeditan video oleh tim editor pusat
                     </p>
-</div>
-</div>
-<div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm" id="ed-diagnostic-banner">
-<p class="font-bold mb-1">⚠️ Data tidak tampil</p>
-<p class="text-rose-600" id="ed-diagnostic-message"></p>
-</div>
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-<div>
-<h3 class="text-2xl font-bold text-gray-800" id="ed-welcome-title">Workflow Video Editor</h3>
-<p class="text-sm text-gray-500 mt-1">Ringkasan alur kerja editing video dari data Planning Editor.
+                </div>
+            </div>
+            <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
+                id="ed-diagnostic-banner">
+                <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+                <p class="text-rose-600" id="ed-diagnostic-message"></p>
+            </div>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800" id="ed-welcome-title">Workflow Video Editor</h3>
+                    <p class="text-sm text-gray-500 mt-1">Ringkasan alur kerja editing video dari data Planning Editor.
                     </p>
-</div>
-<div class="flex flex-wrap items-center gap-3">
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Filter
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Filter
                                 Bulan</label>
-<select class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5" id="ed-filter-bulan">
-<option value="all">Semua Bulan</option>
-</select>
-</div>
-</div>
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Filter
+                            <select
+                                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="ed-filter-bulan">
+                                <option value="all">Semua Bulan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Filter
                                 Editor</label>
-<select class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5" id="ed-filter-editor">
-<option value="all">Semua Editor</option>
-</select>
-</div>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-<div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-<div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-3">
+                            <select
+                                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="ed-filter-editor">
+                                <option value="all">Semua Editor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-3">
                         🎬</div>
-<p class="text-xs font-bold uppercase tracking-wider text-gray-400">Ready to Edit</p>
-<h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-ready">0</h4>
-<p class="text-[11px] text-gray-400 mt-1">Skenario sudah siap, menunggu diedit</p>
-</div>
-<div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-<div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Ready to Edit</p>
+                    <h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-ready">0</h4>
+                    <p class="text-[11px] text-gray-400 mt-1">Skenario sudah siap, menunggu diedit</p>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3">
                         ✂️</div>
-<p class="text-xs font-bold uppercase tracking-wider text-gray-400">Sedang WIP</p>
-<h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-wip">0</h4>
-<p class="text-[11px] text-gray-400 mt-1">Video dalam proses pengeditan</p>
-</div>
-<div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-<div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Sedang WIP</p>
+                    <h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-wip">0</h4>
+                    <p class="text-[11px] text-gray-400 mt-1">Video dalam proses pengeditan</p>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3">
                         ✅</div>
-<p class="text-xs font-bold uppercase tracking-wider text-gray-400">Berhasil Diedit</p>
-<h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-done">0</h4>
-<p class="text-[11px] text-gray-400 mt-1">Total video berstatus Done</p>
-</div>
-<div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-<div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Berhasil Diedit</p>
+                    <h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-done">0</h4>
+                    <p class="text-[11px] text-gray-400 mt-1">Total video berstatus Done</p>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-3">
                         📝</div>
-<p class="text-xs font-bold uppercase tracking-wider text-gray-400">Transkrip Siap</p>
-<h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-transkrip">0</h4>
-<p class="text-[11px] text-gray-400 mt-1">Menunggu dibuatkan skenario</p>
-</div>
-</div>
-<!-- ===== SEDANG DIKERJAKAN PER EDITOR (WIP) ===== -->
-<div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-<div class="flex items-center justify-between mb-1">
-<h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Transkrip Siap</p>
+                    <h4 class="text-3xl font-black text-gray-800 mt-1" id="ed-card-transkrip">0</h4>
+                    <p class="text-[11px] text-gray-400 mt-1">Menunggu dibuatkan skenario</p>
+                </div>
+            </div>
+            <!-- ===== SEDANG DIKERJAKAN PER EDITOR (WIP) ===== -->
+            <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-1">
+                    <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
                         Sedang Dikerjakan Editor Saat Ini
-                        <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+                        <span
+                            class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
                         </span>
-</h4>
-</div>
-<p class="text-xs text-gray-400 mb-4">Judul video yang sedang berstatus WIP untuk tiap editor, lengkap
+                    </h4>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Judul video yang sedang berstatus WIP untuk tiap editor, lengkap
                     dengan due date &amp; sisa waktu.</p>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-1" id="ed-wip-grid">
-<p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
-</div>
-</div>
-<!-- ===== TARGET MINGGUAN PER EDITOR (1 ORANG = 1 VIDEO / MINGGU) ===== -->
-<div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
-<h4 class="text-sm font-bold text-gray-800">Target Mingguan Editor</h4>
-<span class="text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200 self-start sm:self-auto" id="ed-week-range-label">Memuat
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-1"
+                    id="ed-wip-grid">
+                    <p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
+                </div>
+            </div>
+            <!-- ===== TARGET MINGGUAN PER EDITOR (1 ORANG = 1 VIDEO / MINGGU) ===== -->
+            <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
+                    <h4 class="text-sm font-bold text-gray-800">Target Mingguan Editor</h4>
+                    <span
+                        class="text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200 self-start sm:self-auto"
+                        id="ed-week-range-label">Memuat
                         minggu berjalan...</span>
-</div>
-<p class="text-xs text-gray-400 mb-5">Target tetap: <span class="font-semibold">1 video Done per editor
+                </div>
+                <p class="text-xs text-gray-400 mb-5">Target tetap: <span class="font-semibold">1 video Done per editor
                         setiap minggu</span> (Senin–Minggu). Dihitung dari due date video berstatus Done.</p>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="ed-weekly-target-grid">
-<p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
-</div>
-</div>
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] lg:col-span-2">
-<h4 class="text-sm font-bold text-gray-800 mb-1">Video Berhasil Diedit per Editor</h4>
-<p class="text-xs text-gray-400 mb-3">Jumlah video berstatus <span class="font-semibold">Done</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="ed-weekly-target-grid">
+                    <p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] lg:col-span-2">
+                    <h4 class="text-sm font-bold text-gray-800 mb-1">Video Berhasil Diedit per Editor</h4>
+                    <p class="text-xs text-gray-400 mb-3">Jumlah video berstatus <span class="font-semibold">Done</span>
                         yang dikerjakan tiap editor</p>
-<div class="h-[280px]"><canvas id="ed-chartEditor"></canvas></div>
-</div>
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] flex flex-col">
-<h4 class="text-sm font-bold text-gray-800 mb-1">Distribusi Status Alur Kerja</h4>
-<p class="text-xs text-gray-400 mb-3">Transkrip → Skenario → WIP → Done</p>
-<div class="flex-1 relative flex items-center justify-center"><canvas id="ed-chartStatus"></canvas>
-</div>
-</div>
-</div>
-<div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-<div class="flex items-center justify-between mb-1">
-<h4 class="text-sm font-bold text-gray-800">Target Pencapaian Bulanan</h4>
-<span class="text-[11px] text-gray-400" id="ed-target-bulan-label">Bulan Berjalan</span>
-</div>
-<p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span class="font-semibold">12 video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan
+                    <div class="h-[280px]"><canvas id="ed-chartEditor"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] flex flex-col">
+                    <h4 class="text-sm font-bold text-gray-800 mb-1">Distribusi Status Alur Kerja</h4>
+                    <p class="text-xs text-gray-400 mb-3">Transkrip → Skenario → WIP → Done</p>
+                    <div class="flex-1 relative flex items-center justify-center"><canvas id="ed-chartStatus"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-1">
+                    <h4 class="text-sm font-bold text-gray-800">Target Pencapaian Bulanan</h4>
+                    <span class="text-[11px] text-gray-400" id="ed-target-bulan-label">Bulan Berjalan</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span
+                        class="font-semibold">12 video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan
                     lain.</p>
-<div class="max-w-sm" id="ed-target-grid">
-<p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
-</div>
-</div>
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-<h4 class="text-sm font-bold text-gray-800 mb-1">Papan Peringkat Editor</h4>
-<p class="text-xs text-gray-400 mb-4">Berdasarkan jumlah video Done (sesuai filter aktif)</p>
-<div class="space-y-3" id="ed-leaderboard-list">
-<p class="text-sm text-gray-400 text-center py-6">Memuat data...</p>
-</div>
-</div>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 overflow-hidden flex flex-col">
-<div class="p-6 pb-3">
-<h4 class="text-sm font-bold text-gray-800 mb-1">Prioritas Pengerjaan Terdekat</h4>
-<p class="text-xs text-gray-400">Video Ready to Edit &amp; WIP diurutkan dari due date paling
+                <div class="max-w-sm" id="ed-target-grid">
+                    <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="text-sm font-bold text-gray-800 mb-1">Papan Peringkat Editor</h4>
+                    <p class="text-xs text-gray-400 mb-4">Berdasarkan jumlah video Done (sesuai filter aktif)</p>
+                    <div class="space-y-3" id="ed-leaderboard-list">
+                        <p class="text-sm text-gray-400 text-center py-6">Memuat data...</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-white rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 overflow-hidden flex flex-col">
+                    <div class="p-6 pb-3">
+                        <h4 class="text-sm font-bold text-gray-800 mb-1">Prioritas Pengerjaan Terdekat</h4>
+                        <p class="text-xs text-gray-400">Video Ready to Edit &amp; WIP diurutkan dari due date paling
                             dekat</p>
-</div>
-<div class="overflow-x-auto max-h-[360px] overflow-y-auto px-2 pb-2">
-<table class="w-full text-left border-collapse">
-<thead class="sticky top-0 bg-white z-10">
-<tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-<th class="py-3 px-4">Judul Video</th>
-<th class="py-3 px-4">Editor</th>
-<th class="py-3 px-4">Status</th>
-<th class="py-3 px-4">Due Date</th>
-<th class="py-3 px-4">Sisa Waktu</th>
-</tr>
-</thead>
-<tbody class="text-sm text-gray-700 divide-y divide-gray-50" id="ed-priority-body">
-<tr>
-<td class="text-center py-8 text-gray-400" colspan="5">Memuat data...</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<!-- ===== NEXT UP: ANTREAN VIDEO BERIKUTNYA ===== -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-<div class="p-6 pb-3">
-<h4 class="text-sm font-bold text-gray-800 mb-1">Berikutnya Diplanningkan untuk Diedit</h4>
-<p class="text-xs text-gray-400">Video dengan skenario siap (belum masuk WIP), diurutkan dari due
+                    </div>
+                    <div class="overflow-x-auto max-h-[360px] overflow-y-auto px-2 pb-2">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-white z-10">
+                                <tr
+                                    class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                                    <th class="py-3 px-4">Judul Video</th>
+                                    <th class="py-3 px-4">Editor</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Due Date</th>
+                                    <th class="py-3 px-4">Sisa Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-gray-700 divide-y divide-gray-50" id="ed-priority-body">
+                                <tr>
+                                    <td class="text-center py-8 text-gray-400" colspan="5">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== NEXT UP: ANTREAN VIDEO BERIKUTNYA ===== -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 pb-3">
+                    <h4 class="text-sm font-bold text-gray-800 mb-1">Berikutnya Diplanningkan untuk Diedit</h4>
+                    <p class="text-xs text-gray-400">Video dengan skenario siap (belum masuk WIP), diurutkan dari due
                         date paling dekat — ini yang akan dikerjakan setelah WIP saat ini selesai</p>
-</div>
-<div class="overflow-x-auto max-h-[340px] overflow-y-auto px-2 pb-2">
-<table class="w-full text-left border-collapse">
-<thead class="sticky top-0 bg-white z-10">
-<tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-<th class="py-3 px-4">Antrean</th>
-<th class="py-3 px-4">Judul Video</th>
-<th class="py-3 px-4">Editor Ditugaskan</th>
-<th class="py-3 px-4">Due Date</th>
-<th class="py-3 px-4">Musim</th>
-</tr>
-</thead>
-<tbody class="text-sm text-gray-700 divide-y divide-gray-50" id="ed-nextup-body">
-<tr>
-<td class="text-center py-8 text-gray-400" colspan="5">Memuat data...</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<!-- ============ TAB: CABANG - CRUD ============ -->
-<div class="p-8 space-y-6 w-full hidden" id="tab-cabang-crud">
-<div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
-<div>
-<h3 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Data Evaluasi &amp; Sumber Video
+                </div>
+                <div class="overflow-x-auto max-h-[340px] overflow-y-auto px-2 pb-2">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-white z-10">
+                            <tr
+                                class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                                <th class="py-3 px-4">Antrean</th>
+                                <th class="py-3 px-4">Judul Video</th>
+                                <th class="py-3 px-4">Editor Ditugaskan</th>
+                                <th class="py-3 px-4">Due Date</th>
+                                <th class="py-3 px-4">Musim</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-gray-700 divide-y divide-gray-50" id="ed-nextup-body">
+                            <tr>
+                                <td class="text-center py-8 text-gray-400" colspan="5">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ============ TAB: CABANG - CRUD ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-cabang-crud">
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Data Evaluasi &amp; Sumber
+                        Video
                     </h3>
-<p class="text-sm text-slate-500 mt-1">Tambah, Ubah, atau Hapus data lengkap evaluasi cabang secara
+                    <p class="text-sm text-slate-500 mt-1">Tambah, Ubah, atau Hapus data lengkap evaluasi cabang secara
                         real-time.</p>
-</div>
-<div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer flex-1 md:flex-none">
-<div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
-<svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div
+                        class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer flex-1 md:flex-none">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter
                                 Cabang</label>
-<select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5" id="cb-filter-crud-cabang">
-<option value="all">Semua Cabang</option>
-</select>
-</div>
-</div>
-<!-- ==== BARU: Filter Status/Segmen (Waiting List, Footage, dll) ==== -->
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer flex-1 md:flex-none">
-<div class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-inner">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-emerald-600 uppercase tracking-widest">Filter
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="cb-filter-crud-cabang">
+                                <option value="all">Semua Cabang</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- ==== BARU: Filter Status/Segmen (Waiting List, Footage, dll) ==== -->
+                    <div
+                        class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer flex-1 md:flex-none">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-emerald-600 uppercase tracking-widest">Filter
                                 Status</label>
-<select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5" id="cb-filter-crud-segmen">
-<option value="all">Semua Status</option>
-</select>
-</div>
-</div>
-<button class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn flex-1 md:flex-none justify-center" onclick="cbBukaModalForm()">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
-</path>
-</svg>
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="cb-filter-crud-segmen">
+                                <option value="all">Semua Status</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button
+                        class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn flex-1 md:flex-none justify-center"
+                        onclick="cbBukaModalForm()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+                            </path>
+                        </svg>
                         Tambah Data Baru
                     </button>
-</div>
-</div>
-<div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-<div class="overflow-x-auto max-h-[550px] overflow-y-auto">
-<table class="w-full text-left border-collapse">
-<thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
-<tr class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-<th class="py-4 px-5 bg-slate-100">ID</th>
-<th class="py-4 px-5 bg-slate-100">Cabang</th>
-<th class="py-4 px-5 bg-slate-100">File / Sumber Video</th>
-<th class="py-4 px-5 bg-slate-100">Segmen</th>
-<th class="py-4 px-5 bg-slate-100">Grade</th>
-<th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="cb-tabel-body">
-<tr>
-<td class="text-center py-8 text-slate-400" colspan="6">Memuat data dari database...
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+                            <tr
+                                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-5 bg-slate-100">ID</th>
+                                <th class="py-4 px-5 bg-slate-100">Cabang</th>
+                                <th class="py-4 px-5 bg-slate-100">File / Sumber Video</th>
+                                <th class="py-4 px-5 bg-slate-100">Segmen</th>
+                                <th class="py-4 px-5 bg-slate-100">Grade</th>
+                                <th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="cb-tabel-body">
+                            <tr>
+                                <td class="text-center py-8 text-slate-400" colspan="6">Memuat data dari database...
                                 </td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<!-- ============ TAB: CABANG - HASIL EVALUASI ============ -->
-<div class="p-8 space-y-6 w-full hidden" id="tab-cabang-evaluasi">
-<div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
-<div>
-<h3 class="text-2xl font-black text-slate-900 tracking-tight">Hasil Evaluasi &amp; Alternatif Solusi
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ============ TAB: CABANG - HASIL EVALUASI ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-cabang-evaluasi">
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Hasil Evaluasi &amp; Alternatif Solusi
                     </h3>
-<p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade per
+                    <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade per
                         cabang.</p>
-</div>
-<div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer w-full md:w-auto">
-<div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col flex-1">
-<label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang
+                </div>
+                <div
+                    class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer w-full md:w-auto">
+                    <div
+                        class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col flex-1">
+                        <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang
                             Spesifik</label>
-<select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5" id="cb-filter-evaluasi-cabang">
-<option value="all">Semua Cabang</option>
-</select>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-<div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                        <select
+                            class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                            id="cb-filter-evaluasi-cabang">
+                            <option value="all">Semua Cabang</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
                         📋</div>
-<div>
-<p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Evaluasi</p>
-<h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-eval-total">0</h4>
-</div>
-</div>
-<div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Evaluasi</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-eval-total">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
                         🏢</div>
-<div>
-<p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cabang Terdaftar</p>
-<h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-eval-cabang-count">0</h4>
-</div>
-</div>
-<div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-<div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cabang Terdaftar</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cb-eval-cabang-count">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
                         ⭐</div>
-<div>
-<p class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Data</p>
-<h4 class="text-xl font-black text-slate-900 mt-0.5" id="cb-eval-grade-info">Aktif</h4>
-</div>
-</div>
-</div>
-<div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-<div class="overflow-x-auto max-h-[550px] overflow-y-auto">
-<table class="w-full text-left border-collapse">
-<thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
-<tr class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-<th class="py-4 px-5 bg-slate-100">ID</th>
-<th class="py-4 px-5 bg-slate-100">Cabang</th>
-<th class="py-4 px-5 bg-slate-100">File / Sumber Video</th>
-<th class="py-4 px-5 bg-slate-100">Evaluasi</th>
-<th class="py-4 px-5 bg-slate-100">Alternatif Solusi</th>
-<th class="py-4 px-5 bg-slate-100">Grade / Status</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="cb-tabel-evaluasi-body">
-<tr>
-<td class="text-center py-8 text-slate-400" colspan="6">Memuat data evaluasi...</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<!-- ============ TAB: EDITOR - CRUD PLANNING ============ -->
-<div class="p-8 space-y-6 w-full hidden" id="tab-editor-crud">
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-<div>
-<h3 class="text-2xl font-bold text-gray-800">Kelola Data Planning Editor</h3>
-<p class="text-sm text-gray-500 mt-1">Tambah, ubah, dan hapus data langsung dari tabel
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Data</p>
+                        <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cb-eval-grade-info">Aktif</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+                            <tr
+                                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-5 bg-slate-100">ID</th>
+                                <th class="py-4 px-5 bg-slate-100">Cabang</th>
+                                <th class="py-4 px-5 bg-slate-100">File / Sumber Video</th>
+                                <th class="py-4 px-5 bg-slate-100">Evaluasi</th>
+                                <th class="py-4 px-5 bg-slate-100">Alternatif Solusi</th>
+                                <th class="py-4 px-5 bg-slate-100">Grade / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
+                            id="cb-tabel-evaluasi-body">
+                            <tr>
+                                <td class="text-center py-8 text-slate-400" colspan="6">Memuat data evaluasi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ============ TAB: EDITOR - CRUD PLANNING ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-editor-crud">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800">Kelola Data Planning Editor</h3>
+                    <p class="text-sm text-gray-500 mt-1">Tambah, ubah, dan hapus data langsung dari tabel
                         Planning_Editor.</p>
-</div>
-<button class="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md self-start md:self-auto interactive-btn" id="ed-btn-tambah-data">
+                </div>
+                <button
+                    class="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md self-start md:self-auto interactive-btn"
+                    id="ed-btn-tambah-data">
                     + Tambah Data
                 </button>
-</div>
-<div class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs" id="ed-crud-no-id-warning">
+            </div>
+            <div class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs"
+                id="ed-crud-no-id-warning">
                 ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Edit &amp; Hapus tetap bisa dipakai, tapi sistem
                 mencocokkan baris berdasarkan <b>kombinasi semua kolom</b> — kalau ada dua baris yang datanya persis
                 sama
                 di semua kolom, keduanya akan ikut berubah/terhapus bersamaan. Untuk keamanan penuh, sebaiknya tambahkan
                 kolom <code>id</code> unik (primary key) di tabel Supabase.
             </div>
-<div class="flex flex-wrap items-center gap-3">
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-purple-600 uppercase tracking-widest">Status
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div
+                        class="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-purple-600 uppercase tracking-widest">Status
                             Edit</label>
-<select class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5" id="ed-crud-filter-status-edit">
-<option value="all">Semua Status</option>
-</select>
-</div>
-</div>
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Status
+                        <select
+                            class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                            id="ed-crud-filter-status-edit">
+                            <option value="all">Semua Status</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Status
                             Upload</label>
-<select class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5" id="ed-crud-filter-status-upload">
-<option value="all">Semua Status</option>
-</select>
-</div>
-</div>
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Editor</label>
-<select class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5" id="ed-crud-filter-editor">
-<option value="all">Semua Editor</option>
-</select>
-</div>
-</div>
-<div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
-<div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-</path>
-</svg>
-</div>
-<div class="flex flex-col">
-<label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Bulan</label>
-<select class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5" id="ed-crud-filter-bulan">
-<option value="all">Semua Bulan</option>
-</select>
-</div>
-</div>
-<span class="text-xs font-semibold text-gray-400 ml-auto" id="ed-crud-filter-count"></span>
-</div>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-<div class="overflow-x-auto max-h-[560px] overflow-y-auto">
-<table class="w-full text-left border-collapse text-sm">
-<thead class="sticky top-0 bg-white z-10">
-<tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-<th class="py-3 px-4">Bulan</th>
-<th class="py-3 px-4">Tahun</th>
-<th class="py-3 px-4">Judul Video</th>
-<th class="py-3 px-4">Editor</th>
-<th class="py-3 px-4">Status Edit</th>
-<th class="py-3 px-4">Due Date</th>
-<th class="py-3 px-4">Target Upload</th>
-<th class="py-3 px-4">Status Upload</th>
-<th class="py-3 px-4">Musim</th>
-<th class="py-3 px-4 text-right">Aksi</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-gray-50 text-gray-700" id="ed-crud-body">
-<tr>
-<td class="text-center py-8 text-gray-400" colspan="10">Memuat data...</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<!-- ============ TAB: PANDUAN TAKE VIDEO ============ -->
-<!-- ============ TAB: WORKFLOW & TOOLS ============ -->
-<div id="tab-workflow-tools" class="p-8 space-y-7 w-full mx-auto hidden">
+                        <select
+                            class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                            id="ed-crud-filter-status-upload">
+                            <option value="all">Semua Status</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Editor</label>
+                        <select
+                            class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                            id="ed-crud-filter-editor">
+                            <option value="all">Semua Editor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Bulan</label>
+                        <select
+                            class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                            id="ed-crud-filter-bulan">
+                            <option value="all">Semua Bulan</option>
+                        </select>
+                    </div>
+                </div>
+                <span class="text-xs font-semibold text-gray-400 ml-auto" id="ed-crud-filter-count"></span>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto max-h-[560px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="sticky top-0 bg-white z-10">
+                            <tr
+                                class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                                <th class="py-3 px-4">Bulan</th>
+                                <th class="py-3 px-4">Tahun</th>
+                                <th class="py-3 px-4">Judul Video</th>
+                                <th class="py-3 px-4">Editor</th>
+                                <th class="py-3 px-4">Status Edit</th>
+                                <th class="py-3 px-4">Due Date</th>
+                                <th class="py-3 px-4">Target Upload</th>
+                                <th class="py-3 px-4">Status Upload</th>
+                                <th class="py-3 px-4">Musim</th>
+                                <th class="py-3 px-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 text-gray-700" id="ed-crud-body">
+                            <tr>
+                                <td class="text-center py-8 text-gray-400" colspan="10">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ============ TAB: KELOLA USER & ROLE ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-user-crud">
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Kelola User &amp; Role</h3>
+                    <p class="text-sm text-slate-500 mt-1">Tambah, ubah password, dan atur role (admin / cabang /
+                        editor)
+                        untuk akun login sistem.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div
+                        class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer flex-1 md:flex-none">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter
+                                Role</label>
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="us-filter-role">
+                                <option value="all">Semua Role</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button
+                        class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn flex-1 md:flex-none justify-center"
+                        id="us-btn-tambah-data">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+                            </path>
+                        </svg>
+                        Tambah User
+                    </button>
+                </div>
+            </div>
+            <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
+                id="us-diagnostic-banner">
+                <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+                <p class="text-rose-600" id="us-diagnostic-message"></p>
+            </div>
+            <div class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs"
+                id="us-crud-no-id-warning">
+                ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Edit &amp; Hapus tetap bisa dipakai, tapi sistem
+                mencocokkan baris berdasarkan <b>kombinasi semua kolom</b>. Untuk keamanan penuh, sebaiknya tambahkan
+                kolom <code>id</code> unik (primary key) di tabel user Supabase.
+            </div>
+            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+                            <tr
+                                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-5 bg-slate-100">ID</th>
+                                <th class="py-4 px-5 bg-slate-100">Username</th>
+                                <th class="py-4 px-5 bg-slate-100">Password</th>
+                                <th class="py-4 px-5 bg-slate-100">Role</th>
+                                <th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="us-tabel-body">
+                            <tr>
+                                <td class="text-center py-8 text-slate-400" colspan="5">Memuat data dari database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ============ TAB: PANDUAN TAKE VIDEO ============ -->
+        <!-- ============ TAB: WORKFLOW & TOOLS ============ -->
+        <div id="tab-workflow-tools" class="p-8 space-y-7 w-full mx-auto hidden">
 
             <div class="wf-header">
                 <div class="wf-badge">SOP & Alur Kerja</div>
@@ -1565,337 +1776,477 @@
         </div>
 
         <div class="p-8 space-y-7 w-full hidden" id="tab-tools">
-<div class="wf-header">
-<div class="wf-badge"><i class="fas fa-wand-magic-sparkles"></i> AI Production</div>
-<h1>Pusat Tools AI Production</h1>
-<p class="wf-subtitle">Kumpulan tools untuk membantu proses produksi video, thumbnail, audio, transkrip, dan kebutuhan kreatif lainnya.</p>
-</div>
-<div class="wf-container">
-<h2 class="wf-section-title">TOOLS AI PRODUCTION</h2>
-<div class="wf-category-label">Thumbnail Kits (Main Focus)</div>
-<div class="wf-tools-grid wf-grid-4">
-<a href="https://gemini.google.com/share/577efcc3902b" target="_blank">
-<div class="wf-tool-card">
-<div class="wf-tool-icon">📰</div>
-<div class="wf-tool-info">
-<h3>Headline Thumbnail</h3>
-<p>Generate ide judul thumbnail yang menarik berdasarkan transkrip wawancara.</p>
-</div>
-</div>
-</a>
-<a href="https://gemini.google.com/share/51c90287c0ce" target="_blank">
-<div class="wf-tool-card">
-<div class="wf-tool-icon">📸</div>
-<div class="wf-tool-info">
-<h3>Advance Thumbnail</h3>
-<p>Optimasi visual dan grading warna thumbnail agar lebih eye-catching.</p>
-</div>
-</div>
-</a>
-<a href="https://gemini.google.com/share/de2492e153ba?skid=583bf20b-8989-4199-becb-22f95514ad16" target="_blank">
-<div class="wf-tool-card">
-<div class="wf-tool-icon">🎨</div>
-<div class="wf-tool-info">
-<h3>Thumbnail Maker</h3>
-<p>Membantu membuat layout, komposisi grafis, dan desain thumbnail secara instan.</p>
-</div>
-</div>
-</a>
-<a href="https://gemini.google.com/share/bf706a2e9c61?skid=f9c43ebf-3644-4122-a1c5-95a7d04ec723" target="_blank">
-<div class="wf-tool-card">
-<div class="wf-tool-icon">🖼️</div>
-<div class="wf-tool-info">
-<h3>Poster Maker</h3>
-<p>Membantu membuat layout, komposisi grafis, dan desain poster promosi secara instan.
+            <div class="wf-header">
+                <div class="wf-badge"><i class="fas fa-wand-magic-sparkles"></i> AI Production</div>
+                <h1>Pusat Tools AI Production</h1>
+                <p class="wf-subtitle">Kumpulan tools untuk membantu proses produksi video, thumbnail, audio, transkrip,
+                    dan kebutuhan kreatif lainnya.</p>
+            </div>
+            <div class="wf-container">
+                <h2 class="wf-section-title">TOOLS AI PRODUCTION</h2>
+                <div class="wf-category-label">Thumbnail Kits (Main Focus)</div>
+                <div class="wf-tools-grid wf-grid-4">
+                    <a href="https://gemini.google.com/share/577efcc3902b" target="_blank">
+                        <div class="wf-tool-card">
+                            <div class="wf-tool-icon">📰</div>
+                            <div class="wf-tool-info">
+                                <h3>Headline Thumbnail</h3>
+                                <p>Generate ide judul thumbnail yang menarik berdasarkan transkrip wawancara.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://gemini.google.com/share/51c90287c0ce" target="_blank">
+                        <div class="wf-tool-card">
+                            <div class="wf-tool-icon">📸</div>
+                            <div class="wf-tool-info">
+                                <h3>Advance Thumbnail</h3>
+                                <p>Optimasi visual dan grading warna thumbnail agar lebih eye-catching.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://gemini.google.com/share/de2492e153ba?skid=583bf20b-8989-4199-becb-22f95514ad16"
+                        target="_blank">
+                        <div class="wf-tool-card">
+                            <div class="wf-tool-icon">🎨</div>
+                            <div class="wf-tool-info">
+                                <h3>Thumbnail Maker</h3>
+                                <p>Membantu membuat layout, komposisi grafis, dan desain thumbnail secara instan.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://gemini.google.com/share/bf706a2e9c61?skid=f9c43ebf-3644-4122-a1c5-95a7d04ec723"
+                        target="_blank">
+                        <div class="wf-tool-card">
+                            <div class="wf-tool-icon">🖼️</div>
+                            <div class="wf-tool-info">
+                                <h3>Poster Maker</h3>
+                                <p>Membantu membuat layout, komposisi grafis, dan desain poster promosi secara instan.
                                 </p>
-</div>
-</div>
-</a>
-</div>
-<div class="wf-category-label">Production &amp; Audio Utilities</div>
-<div class="wf-tools-grid wf-grid-4">
-<a href="https://gemini.google.com/share/55131cc237a2" target="_blank">
-<div class="wf-tool-card small">
-<div class="wf-tool-icon">🎙️</div>
-<div class="wf-tool-info">
-<h3>Audio Generator</h3>
-<p>Mengubah teks menjadi suara (VO) berkualitas tinggi menggunakan Gemini AI.</p>
-</div>
-</div>
-</a>
-<a href="https://docs.google.com/document/d/1tjoO_zQxw3nN4oXH-dUPmbjUNp-EpwCn98BDdAN6R0Q/edit?usp=sharing" target="_blank">
-<div class="wf-tool-card small">
-<div class="wf-tool-icon">💡</div>
-<div class="wf-tool-info">
-<h3>Prompt Thumbnail</h3>
-<p>Library prompt khusus untuk pengolahan visual di Advance Tools.</p>
-</div>
-</div>
-</a>
-<a href="https://gemini.google.com/share/80ce9e695415" target="_blank">
-<div class="wf-tool-card small">
-<div class="wf-tool-icon">✍️</div>
-<div class="wf-tool-info">
-<h3>Generate Transcript</h3>
-<p>Mempercepat konversi audio rekaman lahan menjadi teks transkrip siap pakai.</p>
-</div>
-</div>
-</a>
-<a href="https://podcast.adobe.com/en" target="_blank">
-<div class="wf-tool-card small">
-<div class="wf-tool-icon">🪄</div>
-<div class="wf-tool-info">
-<h3>Audio Enhancer</h3>
-<p>Menghilangkan noise angin atau suara mesin agar vokal terdengar jernih.</p>
-</div>
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="p-8 space-y-6 w-full mx-auto hidden" id="tab-panduan">
-<div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
-<span class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-extrabold uppercase tracking-widest border border-indigo-100 mb-3">SOP
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="wf-category-label">Production &amp; Audio Utilities</div>
+                <div class="wf-tools-grid wf-grid-4">
+                    <a href="https://gemini.google.com/share/55131cc237a2" target="_blank">
+                        <div class="wf-tool-card small">
+                            <div class="wf-tool-icon">🎙️</div>
+                            <div class="wf-tool-info">
+                                <h3>Audio Generator</h3>
+                                <p>Mengubah teks menjadi suara (VO) berkualitas tinggi menggunakan Gemini AI.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://docs.google.com/document/d/1tjoO_zQxw3nN4oXH-dUPmbjUNp-EpwCn98BDdAN6R0Q/edit?usp=sharing"
+                        target="_blank">
+                        <div class="wf-tool-card small">
+                            <div class="wf-tool-icon">💡</div>
+                            <div class="wf-tool-info">
+                                <h3>Prompt Thumbnail</h3>
+                                <p>Library prompt khusus untuk pengolahan visual di Advance Tools.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://gemini.google.com/share/80ce9e695415" target="_blank">
+                        <div class="wf-tool-card small">
+                            <div class="wf-tool-icon">✍️</div>
+                            <div class="wf-tool-info">
+                                <h3>Generate Transcript</h3>
+                                <p>Mempercepat konversi audio rekaman lahan menjadi teks transkrip siap pakai.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://podcast.adobe.com/en" target="_blank">
+                        <div class="wf-tool-card small">
+                            <div class="wf-tool-icon">🪄</div>
+                            <div class="wf-tool-info">
+                                <h3>Audio Enhancer</h3>
+                                <p>Menghilangkan noise angin atau suara mesin agar vokal terdengar jernih.</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="p-8 space-y-6 w-full mx-auto hidden" id="tab-panduan">
+            <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
+                <span
+                    class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-extrabold uppercase tracking-widest border border-indigo-100 mb-3">SOP
                     &amp; Alur Kerja</span>
-<h3 class="text-2xl font-black text-slate-900 tracking-tight">Langkah Membuat Skenario &amp; Guidance
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Langkah Membuat Skenario &amp; Guidance
                     Pembuatan Video</h3>
-<p class="text-sm text-slate-500 mt-1.5 max-w-2xl">Ikuti langkah-langkah di bawah ini untuk memastikan
+                <p class="text-sm text-slate-500 mt-1.5 max-w-2xl">Ikuti langkah-langkah di bawah ini untuk memastikan
                     kualitas konten video sesuai dengan skenario yang sudah ditentukan.</p>
-</div>
-<div id="panduan-guidance-view">
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-<div class="glass-card panduan-step-card contrast-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-amber-500/20">
-<div class="panduan-step-number"><i class="fas fa-exclamation"></i></div>
-<h4 class="text-base font-extrabold text-slate-900">Planning Video (Wajib Diisi)</h4>
-</div>
-<ul class="panduan-link-list">
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/spreadsheets/d/1OTXYRf4NQ-AJnRgA0gCDAlZqSWrQJ7_3RntxwSStMiU/edit?usp=sharing">
-<span class="panduan-step-idx">!</span><span>Buka dan isi spreadsheet planning video
+            </div>
+            <div id="panduan-guidance-view">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card panduan-step-card contrast-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-amber-500/20">
+                            <div class="panduan-step-number"><i class="fas fa-exclamation"></i></div>
+                            <h4 class="text-base font-extrabold text-slate-900">Planning Video (Wajib Diisi)</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/1OTXYRf4NQ-AJnRgA0gCDAlZqSWrQJ7_3RntxwSStMiU/edit?usp=sharing">
+                                    <span class="panduan-step-idx">!</span><span>Buka dan isi spreadsheet planning video
                                         yang telah disediakan untuk merencanakan konten Anda.</span></a></li>
-</ul>
-</div>
-<div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
-<div class="panduan-step-number">A</div>
-<h4 class="text-base font-extrabold text-slate-900">Persiapan Prosedur</h4>
-</div>
-<ul class="panduan-link-list">
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/document/d/1TCPOzs3LN7j5LbUnmh4CNhfPp4yhDmAZ7B_Qu2JBWqI/edit"><span class="panduan-step-idx">1.</span> Download form customer profile (Tuliskan data
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">A</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Persiapan Prosedur</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/document/d/1TCPOzs3LN7j5LbUnmh4CNhfPp4yhDmAZ7B_Qu2JBWqI/edit"><span
+                                        class="panduan-step-idx">1.</span> Download form customer profile (Tuliskan data
                                     customer sesuai form)</a></li>
-<li><a class="panduan-highlight-link" href="https://share.gemini.google/q6JnEg8iCuh9" target="_blank"><span class="panduan-step-idx">2.</span><span class="panduan-step-text">Membuat Skenario Berdasarkan Form Customer Profile
-                                        Dengan Gemini AI</span><i class="fas fa-external-link-alt mt-1 text-indigo-500"></i></a></li>
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/document/d/1LGn4ekHsu0zO-SpzY_BJYWAFHJhbEHMX6Z9BjJcRudk/edit"><span class="panduan-step-idx">3.</span> Download form persetujuan konsumen (Wajib
+                            <li><a class="panduan-highlight-link" href="https://share.gemini.google/q6JnEg8iCuh9"
+                                    target="_blank"><span class="panduan-step-idx">2.</span><span
+                                        class="panduan-step-text">Membuat Skenario Berdasarkan Form Customer Profile
+                                        Dengan Gemini AI</span><i
+                                        class="fas fa-external-link-alt mt-1 text-indigo-500"></i></a></li>
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/document/d/1LGn4ekHsu0zO-SpzY_BJYWAFHJhbEHMX6Z9BjJcRudk/edit"><span
+                                        class="panduan-step-idx">3.</span> Download form persetujuan konsumen (Wajib
                                     bermaterai)</a></li>
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/document/d/1EhtEGqR1B7xXNXOddNxmZd7FIAFXvifBpb1a-XB2Lw0/edit"><span class="panduan-step-idx">4.</span> Download ceklist peralatan yang diperlukan
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/document/d/1EhtEGqR1B7xXNXOddNxmZd7FIAFXvifBpb1a-XB2Lw0/edit"><span
+                                        class="panduan-step-idx">4.</span> Download ceklist peralatan yang diperlukan
                                     sebelum rekam video</a></li>
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/document/d/1eYd3bIu3RlN4Oc1ilwHtHGD0nFHaKp3oFL6Vh-uae9A/edit"><span class="panduan-step-idx">5.</span> Ceklist video yang wajib direkam</a></li>
-</ul>
-</div>
-<div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
-<div class="panduan-step-number">B</div>
-<h4 class="text-base font-extrabold text-slate-900">Panduan Shooting Video</h4>
-</div>
-<ul class="panduan-link-list">
-<li><a class="panduan-embed-link" data-url="Panduan_Rekam_Wawancara.html"><span class="panduan-step-idx">6.</span> Panduan rekam video wawancara</a></li>
-<li>
-<a class="panduan-dropdown-trigger" onclick="togglePanduanDropdown(event)" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-<span style="display:flex; gap:10px;"><span class="panduan-step-idx">7.</span>
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/document/d/1eYd3bIu3RlN4Oc1ilwHtHGD0nFHaKp3oFL6Vh-uae9A/edit"><span
+                                        class="panduan-step-idx">5.</span> Ceklist video yang wajib direkam</a></li>
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">B</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Panduan Shooting Video</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link" data-url="Panduan_Rekam_Wawancara.html"><span
+                                        class="panduan-step-idx">6.</span> Panduan rekam video wawancara</a></li>
+                            <li>
+                                <a class="panduan-dropdown-trigger" onclick="togglePanduanDropdown(event)"
+                                    style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                                    <span style="display:flex; gap:10px;"><span class="panduan-step-idx">7.</span>
                                         Panduan rekam video lahan</span>
-<i class="fas fa-chevron-down panduan-chevron"></i>
-</a>
-<ul class="panduan-submenu panduan-link-list" id="panduan-submenu-7">
-<li><a class="panduan-embed-link" data-url="Lahan_Kering.html"><span class="panduan-step-idx">-</span> Lahan Kering</a></li>
-<li><a class="panduan-embed-link" data-url="Lahan_Basah.html"><span class="panduan-step-idx">-</span> Lahan Basah</a></li>
-<li><a class="panduan-embed-link" data-url="Guludan_Lebar.html"><span class="panduan-step-idx">-</span> Guludan Lebar</a></li>
-<li><a class="panduan-embed-link" data-url="Guludan_Sempit.html"><span class="panduan-step-idx">-</span> Guludan Sempit</a></li>
-<li><a class="panduan-embed-link" data-url="Detail_Part.html"><span class="panduan-step-idx">-</span> Detail Part</a></li>
-<li><a class="panduan-embed-link" data-url="Sebelum_Olah.html"><span class="panduan-step-idx">-</span> Lahan Sebelum Diolah</a></li>
-<li><a class="panduan-embed-link" data-url="Saat_Olah.html"><span class="panduan-step-idx">-</span> Lahan Saat Diolah</a></li>
-<li><a class="panduan-embed-link" data-url="Setelah_Olah.html"><span class="panduan-step-idx">-</span> Lahan Setelah Diolah</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
-<div class="panduan-step-number">C</div>
-<h4 class="text-base font-extrabold text-slate-900">Referensi Metode Shooting</h4>
-</div>
-<ul class="panduan-link-list">
-<li><a href="https://youtu.be/1hG3oNzwTLA?si=zKDphyTSLD4Vw-me" target="_blank"><span class="panduan-step-idx">8.</span> Panduan / video tutorial cara merekam video
+                                    <i class="fas fa-chevron-down panduan-chevron"></i>
+                                </a>
+                                <ul class="panduan-submenu panduan-link-list" id="panduan-submenu-7">
+                                    <li><a class="panduan-embed-link" data-url="Lahan_Kering.html"><span
+                                                class="panduan-step-idx">-</span> Lahan Kering</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Lahan_Basah.html"><span
+                                                class="panduan-step-idx">-</span> Lahan Basah</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Guludan_Lebar.html"><span
+                                                class="panduan-step-idx">-</span> Guludan Lebar</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Guludan_Sempit.html"><span
+                                                class="panduan-step-idx">-</span> Guludan Sempit</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Detail_Part.html"><span
+                                                class="panduan-step-idx">-</span> Detail Part</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Sebelum_Olah.html"><span
+                                                class="panduan-step-idx">-</span> Lahan Sebelum Diolah</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Saat_Olah.html"><span
+                                                class="panduan-step-idx">-</span> Lahan Saat Diolah</a></li>
+                                    <li><a class="panduan-embed-link" data-url="Setelah_Olah.html"><span
+                                                class="panduan-step-idx">-</span> Lahan Setelah Diolah</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">C</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Referensi Metode Shooting</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a href="https://youtu.be/1hG3oNzwTLA?si=zKDphyTSLD4Vw-me" target="_blank"><span
+                                        class="panduan-step-idx">8.</span> Panduan / video tutorial cara merekam video
                                     dengan menggunakan handphone supaya stabil.</a></li>
-<li><a href="https://youtu.be/7fUi9sIu7rs?si=cBgta4xReNobOWEQ" target="_blank"><span class="panduan-step-idx">9.</span> Panduan angle video - video yang bisa
+                            <li><a href="https://youtu.be/7fUi9sIu7rs?si=cBgta4xReNobOWEQ" target="_blank"><span
+                                        class="panduan-step-idx">9.</span> Panduan angle video - video yang bisa
                                     dijadikan sebagai referensi pada saat take video lahan</a></li>
-</ul>
-</div>
-<div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
-<div class="panduan-step-number">D</div>
-<h4 class="text-base font-extrabold text-slate-900">Distribusi Pengiriman Video Ke Pusat
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">D</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Distribusi Pengiriman Video Ke Pusat
                             </h4>
-</div>
-<ul class="panduan-link-list">
-<li><a class="panduan-embed-link" data-url="Penamaan_Folder.html"><span class="panduan-step-idx">10.</span> Ketentuan umum pengiriman dan penamaan
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link" data-url="Penamaan_Folder.html"><span
+                                        class="panduan-step-idx">10.</span> Ketentuan umum pengiriman dan penamaan
                                     folder resource video.</a></li>
-</ul>
-</div>
-<div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
-<div class="panduan-step-number">E</div>
-<h4 class="text-base font-extrabold text-slate-900">Monitoring Hasil Video Cabang</h4>
-</div>
-<ul class="panduan-link-list">
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/spreadsheets/d/1hqbyAvXOeRzG1TFrJndSuophvUEr5QRUd0DvRmVTwvQ/edit"><span class="panduan-step-idx">11.</span> Laporan rekap video tahun 2026 yang diupdate
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">E</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Monitoring Hasil Video Cabang</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/1hqbyAvXOeRzG1TFrJndSuophvUEr5QRUd0DvRmVTwvQ/edit"><span
+                                        class="panduan-step-idx">11.</span> Laporan rekap video tahun 2026 yang diupdate
                                     secara real-time.</a></li>
-</ul>
-</div>
-<div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
-<div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
-<div class="panduan-step-number">F</div>
-<h4 class="text-base font-extrabold text-slate-900">Evaluasi Konten</h4>
-</div>
-<ul class="panduan-link-list">
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/spreadsheets/d/1wrKNz8fiZbWht82gEd0THJ-1chltvAZzxKbLLKYiYd8/edit"><span class="panduan-step-idx">12.</span> Spreadsheet evaluasi rekaman video cabang
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">F</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Evaluasi Konten</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/1wrKNz8fiZbWht82gEd0THJ-1chltvAZzxKbLLKYiYd8/edit"><span
+                                        class="panduan-step-idx">12.</span> Spreadsheet evaluasi rekaman video cabang
                                     terupdate.</a></li>
-<li><a class="panduan-embed-link" data-url="https://docs.google.com/spreadsheets/d/10bmeFhc9B7txKCxfJS3eObRDPEnRSQmYwUQvdyuU5zI/edit"><span class="panduan-step-idx">13.</span> Report bulanan kiriman video cabang periode
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/10bmeFhc9B7txKCxfJS3eObRDPEnRSQmYwUQvdyuU5zI/edit"><span
+                                        class="panduan-step-idx">13.</span> Report bulanan kiriman video cabang periode
                                     2026.</a></li>
-</ul>
-</div>
-</div>
-</div>
-<div class="hidden" id="panduan-workspace-view">
-<button class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn mb-4" onclick="tutupPanduanWorkspace()">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-</svg>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden" id="panduan-workspace-view">
+                <button
+                    class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn mb-4"
+                    onclick="tutupPanduanWorkspace()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2.5"></path>
+                    </svg>
                     Kembali ke Panduan
                 </button>
-<div class="panduan-workspace-shell glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-<iframe allowfullscreen="" class="w-full h-full block" frameborder="0" id="panduan-iframe" src=""></iframe>
-</div>
-</div>
-</div>
-</main>
-<!-- MODAL CRUD CABANG -->
-<div class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all" id="cb-modal-crud">
-<div class="glass-modal rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 max-h-[90vh] flex flex-col">
-<div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
-<h3 class="font-extrabold text-lg text-slate-900" id="cb-modal-title">Tambah Data Evaluasi</h3>
-<button class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 font-bold transition-all" onclick="cbTutupModalForm()">×</button>
-</div>
-<form class="p-6 space-y-4 overflow-y-auto flex-1" id="cb-form-crud-data">
-<input id="cb-edit-id" type="hidden"/>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama
+                <div
+                    class="panduan-workspace-shell glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                    <iframe allowfullscreen="" class="w-full h-full block" frameborder="0" id="panduan-iframe"
+                        src=""></iframe>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- MODAL CRUD CABANG -->
+    <div class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all"
+        id="cb-modal-crud">
+        <div
+            class="glass-modal rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 max-h-[90vh] flex flex-col">
+            <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
+                <h3 class="font-extrabold text-lg text-slate-900" id="cb-modal-title">Tambah Data Evaluasi</h3>
+                <button
+                    class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 font-bold transition-all"
+                    onclick="cbTutupModalForm()">×</button>
+            </div>
+            <form class="p-6 space-y-4 overflow-y-auto flex-1" id="cb-form-crud-data">
+                <input id="cb-edit-id" type="hidden" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama
                             Cabang</label>
-<input class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all" id="cb-input-cabang" placeholder="Contoh: Nganjuk" required="" type="text"/>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Segmen</label>
-<input class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all" id="cb-input-segmen" placeholder="Contoh: DONE / WIP / REJECT / FOOTAGE" required="" type="text"/>
-</div>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">File Direktori
+                        <input
+                            class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
+                            id="cb-input-cabang" placeholder="Contoh: Nganjuk" required="" type="text" />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Segmen</label>
+                        <input
+                            class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
+                            id="cb-input-segmen" placeholder="Contoh: DONE / WIP / REJECT / FOOTAGE" required=""
+                            type="text" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">File Direktori
                         Sumber Video</label>
-<input class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all" id="cb-input-file" placeholder="Contoh: 20260105 Demo Quick Boxer..." required="" type="text"/>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Evaluasi</label>
-<textarea class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all" id="cb-input-evaluasi" placeholder="Tuliskan hasil evaluasi video..." required="" rows="3"></textarea>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alternatif
+                    <input
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
+                        id="cb-input-file" placeholder="Contoh: 20260105 Demo Quick Boxer..." required="" type="text" />
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Evaluasi</label>
+                    <textarea
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
+                        id="cb-input-evaluasi" placeholder="Tuliskan hasil evaluasi video..." required=""
+                        rows="3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alternatif
                         Solusi</label>
-<textarea class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all" id="cb-input-solusi" placeholder="Tuliskan alternatif solusi perbaikan..." required="" rows="3"></textarea>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Grade</label>
-<input class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all" id="cb-input-grade" placeholder="Contoh: Grade B / Grade A" required="" type="text"/>
-</div>
-<div class="flex justify-end gap-3 pt-4 border-t border-slate-200 shrink-0">
-<button class="px-5 py-2.5 rounded-2xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all" onclick="cbTutupModalForm()" type="button">Batal</button>
-<button class="px-6 py-2.5 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 shadow-md transition-all interactive-btn" type="submit">Simpan</button>
-</div>
-</form>
-</div>
-</div>
-<!-- MODAL CRUD EDITOR -->
-<div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="ed-crud-modal">
-<div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-<div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
-<h4 class="text-lg font-bold text-gray-800" id="ed-crud-modal-title">Tambah Data</h4>
-<button class="text-gray-400 hover:text-gray-600 text-xl leading-none" id="ed-crud-modal-close" type="button">×</button>
-</div>
-<form class="p-6 space-y-4" id="ed-crud-form">
-<input id="ed-crud-field-id" type="hidden"/>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Bulan</label>
-<select class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-bulan">
-<option value="">- Pilih Bulan -</option>
-<option value="Januari">Januari</option>
-<option value="Februari">Februari</option>
-<option value="Maret">Maret</option>
-<option value="April">April</option>
-<option value="Mei">Mei</option>
-<option value="Juni">Juni</option>
-<option value="Juli">Juli</option>
-<option value="Agustus">Agustus</option>
-<option value="September">September</option>
-<option value="Oktober">Oktober</option>
-<option value="November">November</option>
-<option value="Desember">Desember</option>
-</select>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tahun</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-tahun" placeholder="2026" type="text"/>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-judul" required="" type="text"/>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-editor" type="text"/>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Edit</label>
-<select class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-statusEdit">
-<option value="Transkrip Siap">Transkrip Siap</option>
-<option value="Skenario Siap">Skenario Siap</option>
-<option value="WIP">WIP</option>
-<option value="Done">Done</option>
-</select>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-dueDate" type="date"/>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Target Upload</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-targetUpload" type="text"/>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Upload</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-statusUpload" type="text"/>
-</div>
-<div>
-<label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Musim</label>
-<input class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" id="ed-crud-field-musim" type="text"/>
-</div>
-<div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3" id="ed-crud-form-error"></div>
-<div class="flex justify-end gap-3 pt-2">
-<button class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100" id="ed-crud-cancel-btn" type="button">Batal</button>
-<button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800" id="ed-crud-save-btn" type="submit">Simpan</button>
-</div>
-</form>
-</div>
-</div>
-<script>
+                    <textarea
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
+                        id="cb-input-solusi" placeholder="Tuliskan alternatif solusi perbaikan..." required=""
+                        rows="3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Grade</label>
+                    <input
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
+                        id="cb-input-grade" placeholder="Contoh: Grade B / Grade A" required="" type="text" />
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 shrink-0">
+                    <button
+                        class="px-5 py-2.5 rounded-2xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all"
+                        onclick="cbTutupModalForm()" type="button">Batal</button>
+                    <button
+                        class="px-6 py-2.5 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 shadow-md transition-all interactive-btn"
+                        type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL CRUD EDITOR -->
+    <div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="ed-crud-modal">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+                <h4 class="text-lg font-bold text-gray-800" id="ed-crud-modal-title">Tambah Data</h4>
+                <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" id="ed-crud-modal-close"
+                    type="button">×</button>
+            </div>
+            <form class="p-6 space-y-4" id="ed-crud-form">
+                <input id="ed-crud-field-id" type="hidden" />
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Bulan</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-bulan">
+                        <option value="">- Pilih Bulan -</option>
+                        <option value="Januari">Januari</option>
+                        <option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option>
+                        <option value="April">April</option>
+                        <option value="Mei">Mei</option>
+                        <option value="Juni">Juni</option>
+                        <option value="Juli">Juli</option>
+                        <option value="Agustus">Agustus</option>
+                        <option value="September">September</option>
+                        <option value="Oktober">Oktober</option>
+                        <option value="November">November</option>
+                        <option value="Desember">Desember</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tahun</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-tahun" placeholder="2026" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-judul" required="" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-editor" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Edit</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-statusEdit">
+                        <option value="Transkrip Siap">Transkrip Siap</option>
+                        <option value="Skenario Siap">Skenario Siap</option>
+                        <option value="WIP">WIP</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-dueDate" type="date" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Target Upload</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-targetUpload" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Upload</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-statusUpload" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Musim</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-musim" type="text" />
+                </div>
+                <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
+                    id="ed-crud-form-error"></div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100"
+                        id="ed-crud-cancel-btn" type="button">Batal</button>
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800"
+                        id="ed-crud-save-btn" type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL CRUD USER -->
+    <div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="us-crud-modal">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+                <h4 class="text-lg font-bold text-gray-800" id="us-crud-modal-title">Tambah User</h4>
+                <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" id="us-crud-modal-close"
+                    type="button">×</button>
+            </div>
+            <form class="p-6 space-y-4" id="us-crud-form">
+                <input id="us-crud-field-id" type="hidden" />
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Username (kolom nama_user)
+                        *</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="us-crud-field-username" required="" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"
+                        id="us-crud-password-label">Password *</label>
+                    <div class="relative mt-1">
+                        <input
+                            class="w-full border border-gray-200 rounded-xl px-3 py-2 pr-10 text-sm outline-none focus:border-blue-400"
+                            id="us-crud-field-password" type="password" />
+                        <button
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                            id="us-crud-toggle-password" type="button">Lihat</button>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-1" id="us-crud-password-hint">Wajib diisi untuk user baru.
+                    </p>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Role *</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="us-crud-field-role" required="">
+                        <option value="admin">Admin</option>
+                        <option value="cabang">Cabang</option>
+                        <option value="editor">Editor</option>
+                    </select>
+                </div>
+                <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
+                    id="us-crud-form-error"></div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100"
+                        id="us-crud-cancel-btn" type="button">Batal</button>
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800"
+                        id="us-crud-save-btn" type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
         Chart.register(ChartDataLabels);
 
         const SUPABASE_URL = 'https://ybedibzzdbudwitiriso.supabase.co';
@@ -2016,12 +2367,13 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'editor-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'editor-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
             'cabang-evaluasi': '| Hasil Evaluasi Cabang',
             'editor-crud': '| Kelola Planning Editor',
+            'user-crud': '| Kelola User & Role',
             'workflow-tools': '| Workflow Editing Video',
             'panduan': '| Panduan Take Video',
             'tools': '| Tools AI Production'
@@ -2043,6 +2395,7 @@
             else if (tabName === 'cabang-crud') cbMuatDataTabel();
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'editor-crud') edMuatDashboard();
+            else if (tabName === 'user-crud') usMuatDataUser();
             else if (tabName === 'panduan') tutupPanduanWorkspace();
             else if (tabName === 'workflow-tools' || tabName === 'tools') { /* static content */ }
         }
@@ -3133,6 +3486,238 @@
         document.getElementById('ed-crud-form').addEventListener('submit', edSimpanFormCrud);
         document.getElementById('ed-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'ed-crud-modal') edTutupModalCrud(); });
 
+        /* ===================================================================
+           BAGIAN KELOLA USER & ROLE (tabel akun login)
+           Semua id memakai prefix "us-"
+           Nama tabel di Supabase: ganti NAMA_TABEL_USER di bawah jika nama
+           tabel akun login di project Supabase Anda berbeda dari 'Users'.
+        =================================================================== */
+        const NAMA_TABEL_USER = 'User';
+        let usListRawGlobal = [];
+        let usCOLUMN_MAP = { id: null, username: null, password: null, role: null };
+        let usKriteriaEditAktif = null;
+
+        function usDetectColumns(sampleRow) {
+            const keys = Object.keys(sampleRow || {});
+            function cariKolom(...kandidat) {
+                for (const c of kandidat) { const found = keys.find(k => k.toLowerCase() === c.toLowerCase()); if (found) return found; }
+                return null;
+            }
+            usCOLUMN_MAP.id = cariKolom('id_user', 'id', 'Id', 'ID', 'uuid');
+            usCOLUMN_MAP.username = cariKolom('nama_user', 'username', 'user_name', 'Username');
+            usCOLUMN_MAP.password = cariKolom('password', 'pass', 'Password');
+            usCOLUMN_MAP.role = cariKolom('role', 'Role');
+        }
+
+        function usTampilkanDiagnostik(pesan) {
+            const banner = document.getElementById('us-diagnostic-banner');
+            document.getElementById('us-diagnostic-message').innerText = pesan;
+            banner.classList.remove('hidden');
+        }
+        function usSembunyikanDiagnostik() { document.getElementById('us-diagnostic-banner').classList.add('hidden'); }
+
+        async function usMuatDataUser() {
+            usSembunyikanDiagnostik();
+            const { data, error } = await db.from(NAMA_TABEL_USER).select('*');
+            if (error) {
+                usTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_USER}": ${error.message} (code: ${error.code || '-'}). Kemungkinan nama tabel akun login di Supabase Anda berbeda — sesuaikan konstanta NAMA_TABEL_USER pada kode.`);
+                usListRawGlobal = [];
+            } else {
+                usListRawGlobal = cbSortDataById(data || []);
+            }
+
+            if (usListRawGlobal.length > 0) usDetectColumns(usListRawGlobal[0]);
+            else if (!error) usTampilkanDiagnostik(`Tabel "${NAMA_TABEL_USER}" berhasil diakses tapi belum berisi data. Klik "Tambah User" untuk membuat akun pertama.`);
+
+            // Toggle peringatan ID baru dilakukan SETELAH deteksi kolom selesai,
+            // supaya usCOLUMN_MAP.id sudah terisi dengan benar sebelum dicek.
+            document.getElementById('us-crud-no-id-warning').classList.toggle('hidden', !usListRawGlobal.length || !!usCOLUMN_MAP.id);
+
+            usPopulateFilterRole();
+            usRenderTabel(document.getElementById('us-filter-role').value);
+        }
+
+        function usPopulateFilterRole() {
+            const select = document.getElementById('us-filter-role');
+            const current = select.value || 'all';
+            const roleSet = new Set();
+            usListRawGlobal.forEach(item => {
+                const r = usCOLUMN_MAP.role ? item[usCOLUMN_MAP.role] : null;
+                if (r) roleSet.add(String(r).trim());
+            });
+            select.innerHTML = '<option value="all">Semua Role</option>';
+            Array.from(roleSet).sort().forEach(r => {
+                select.innerHTML += `<option value="${edEscapeHtml(r)}" ${r === current ? 'selected' : ''}>${edEscapeHtml(r)}</option>`;
+            });
+        }
+        document.getElementById('us-filter-role').addEventListener('change', (e) => usRenderTabel(e.target.value));
+
+        function usBadgeRole(raw) {
+            if (!raw) return '<span class="text-slate-300">-</span>';
+            const r = String(raw).trim().toLowerCase();
+            let cls = 'bg-slate-100 text-slate-600 border-slate-200';
+            if (r === 'admin') cls = 'bg-indigo-50 text-indigo-600 border-indigo-200';
+            else if (r === 'cabang') cls = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+            else if (r === 'editor') cls = 'bg-amber-50 text-amber-600 border-amber-200';
+            return `<span class="px-3 py-1 rounded-full text-xs font-bold border ${cls}">${edEscapeHtml(raw)}</span>`;
+        }
+
+        function usRenderTabel(filterRole = 'all') {
+            const tbody = document.getElementById('us-tabel-body');
+            if (!usListRawGlobal || usListRawGlobal.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Belum ada data user. Klik "Tambah User" untuk membuat akun pertama.</td></tr>`;
+                return;
+            }
+            let dataToRender = usListRawGlobal.map((item, idx) => ({ item, idx }));
+            if (filterRole !== 'all') {
+                dataToRender = dataToRender.filter(({ item }) => String((usCOLUMN_MAP.role ? item[usCOLUMN_MAP.role] : '') || '').trim() === filterRole);
+            }
+            if (dataToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Tidak ada user untuk role ini.</td></tr>`;
+                return;
+            }
+            const val = (item, key) => usCOLUMN_MAP[key] ? item[usCOLUMN_MAP[key]] : null;
+            tbody.innerHTML = dataToRender.map(({ item, idx }) => {
+                const idDisplay = usCOLUMN_MAP.id ? `#${edEscapeHtml(val(item, 'id'))}` : '⚠️ Tanpa ID';
+                const username = edEscapeHtml(val(item, 'username') || '-');
+                const password = val(item, 'password');
+                const passwordMasked = password ? '•'.repeat(Math.min(String(password).length, 10)) : '-';
+                return `
+          <tr class="hover:bg-slate-50/80 transition-all duration-200">
+            <td class="py-4 px-5 font-mono text-xs text-slate-400">${idDisplay}</td>
+            <td class="py-4 px-5 font-bold text-slate-800">${username}</td>
+            <td class="py-4 px-5 font-mono text-xs text-slate-400">${passwordMasked}</td>
+            <td class="py-4 px-5">${usBadgeRole(val(item, 'role'))}</td>
+            <td class="py-4 px-5 text-center space-x-2 whitespace-nowrap">
+              <button data-rid="${idx}" class="us-btn-edit text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Edit</button>
+              <button data-rid="${idx}" class="us-btn-hapus text-rose-600 hover:text-rose-800 font-bold text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Hapus</button>
+            </td>
+          </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('.us-btn-edit').forEach(btn => btn.addEventListener('click', () => usBukaModalEdit(btn.dataset.rid)));
+            tbody.querySelectorAll('.us-btn-hapus').forEach(btn => btn.addEventListener('click', () => usHapusData(btn.dataset.rid)));
+        }
+
+        function usCariRawItem(rid) { return usListRawGlobal[Number(rid)]; }
+        function usBuatKriteriaBaris(rawItem) {
+            if (usCOLUMN_MAP.id) return { [usCOLUMN_MAP.id]: rawItem[usCOLUMN_MAP.id] };
+            const kriteria = {};
+            Object.keys(rawItem).forEach(k => { if (rawItem[k] !== undefined) kriteria[k] = rawItem[k]; });
+            return kriteria;
+        }
+
+        function usResetForm() {
+            document.getElementById('us-crud-form').reset();
+            document.getElementById('us-crud-field-id').value = '';
+            document.getElementById('us-crud-form-error').classList.add('hidden');
+            document.getElementById('us-crud-field-password').type = 'password';
+            document.getElementById('us-crud-toggle-password').innerText = 'Lihat';
+            usKriteriaEditAktif = null;
+        }
+        function usBukaModalTambah() {
+            usResetForm();
+            document.getElementById('us-crud-modal-title').innerText = 'Tambah User';
+            document.getElementById('us-crud-password-label').innerText = 'Password *';
+            document.getElementById('us-crud-password-hint').innerText = 'Wajib diisi untuk user baru.';
+            document.getElementById('us-crud-field-password').required = true;
+            document.getElementById('us-crud-modal').classList.remove('hidden');
+        }
+        function usBukaModalEdit(rid) {
+            const item = usCariRawItem(rid);
+            if (!item) return;
+            usResetForm();
+            document.getElementById('us-crud-modal-title').innerText = 'Ubah User';
+            document.getElementById('us-crud-field-id').value = rid;
+            usKriteriaEditAktif = usBuatKriteriaBaris(item);
+            document.getElementById('us-crud-field-username').value = usCOLUMN_MAP.username ? (item[usCOLUMN_MAP.username] || '') : '';
+            document.getElementById('us-crud-field-role').value = usCOLUMN_MAP.role ? (item[usCOLUMN_MAP.role] || 'cabang') : 'cabang';
+            document.getElementById('us-crud-field-password').value = '';
+            document.getElementById('us-crud-field-password').required = false;
+            document.getElementById('us-crud-password-label').innerText = 'Password';
+            document.getElementById('us-crud-password-hint').innerText = 'Kosongkan jika tidak ingin mengubah password.';
+            document.getElementById('us-crud-modal').classList.remove('hidden');
+        }
+        function usTutupModalCrud() { document.getElementById('us-crud-modal').classList.add('hidden'); }
+
+        document.getElementById('us-btn-tambah-data').addEventListener('click', usBukaModalTambah);
+        document.getElementById('us-crud-modal-close').addEventListener('click', usTutupModalCrud);
+        document.getElementById('us-crud-cancel-btn').addEventListener('click', usTutupModalCrud);
+        document.getElementById('us-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'us-crud-modal') usTutupModalCrud(); });
+        document.getElementById('us-crud-toggle-password').addEventListener('click', () => {
+            const inputPass = document.getElementById('us-crud-field-password');
+            const btn = document.getElementById('us-crud-toggle-password');
+            if (inputPass.type === 'password') { inputPass.type = 'text'; btn.innerText = 'Sembunyikan'; }
+            else { inputPass.type = 'password'; btn.innerText = 'Lihat'; }
+        });
+
+        async function usSimpanForm(e) {
+            e.preventDefault();
+            const errBox = document.getElementById('us-crud-form-error');
+            errBox.classList.add('hidden');
+
+            const usernameVal = document.getElementById('us-crud-field-username').value.trim();
+            const roleVal = document.getElementById('us-crud-field-role').value;
+            const passwordVal = document.getElementById('us-crud-field-password').value;
+            const idVal = document.getElementById('us-crud-field-id').value;
+            const isEdit = idVal !== '' && usKriteriaEditAktif;
+
+            if (!usernameVal) { errBox.innerText = 'Username wajib diisi.'; errBox.classList.remove('hidden'); return; }
+            if (!isEdit && !passwordVal) { errBox.innerText = 'Password wajib diisi untuk user baru.'; errBox.classList.remove('hidden'); return; }
+            if (!usCOLUMN_MAP.username) { errBox.innerText = 'Kolom "nama_user" tidak terdeteksi pada tabel Supabase, data tidak bisa disimpan.'; errBox.classList.remove('hidden'); return; }
+
+            // Cegah nama user duplikat (kecuali baris yang sedang diedit sendiri)
+            const usernameDipakai = usListRawGlobal.some((item, idx) => {
+                if (isEdit && String(idx) === String(idVal)) return false;
+                return usCOLUMN_MAP.username && String(item[usCOLUMN_MAP.username] || '').trim().toLowerCase() === usernameVal.toLowerCase();
+            });
+            if (usernameDipakai) { errBox.innerText = `Username "${usernameVal}" sudah dipakai user lain.`; errBox.classList.remove('hidden'); return; }
+
+            const payload = {};
+            payload[usCOLUMN_MAP.username] = usernameVal;
+            if (usCOLUMN_MAP.role) payload[usCOLUMN_MAP.role] = roleVal;
+            if (usCOLUMN_MAP.password && (passwordVal || !isEdit)) payload[usCOLUMN_MAP.password] = passwordVal;
+
+            let error, data;
+            if (isEdit) {
+                ({ data, error } = await db.from(NAMA_TABEL_USER).update(payload).match(usKriteriaEditAktif).select());
+            } else {
+                ({ data, error } = await db.from(NAMA_TABEL_USER).insert([payload]).select());
+            }
+            if (error) { errBox.innerText = 'Gagal menyimpan data: ' + error.message; errBox.classList.remove('hidden'); return; }
+            if (!data || data.length === 0) {
+                errBox.innerText = `Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_USER}" belum punya policy INSERT/UPDATE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_USER} → RLS.`;
+                errBox.classList.remove('hidden');
+                return;
+            }
+            usTutupModalCrud();
+            await usMuatDataUser();
+        }
+        document.getElementById('us-crud-form').addEventListener('submit', usSimpanForm);
+
+        async function usHapusData(rid) {
+            const item = usCariRawItem(rid);
+            if (!item) return;
+            const usernameTarget = usCOLUMN_MAP.username ? item[usCOLUMN_MAP.username] : '';
+            const storedUserNow = JSON.parse(localStorage.getItem('data_user') || '{}');
+            if (storedUserNow.nama_user && usCOLUMN_MAP.username && String(usernameTarget).trim() === String(storedUserNow.nama_user).trim()) {
+                alert('Tidak bisa menghapus akun yang sedang Anda gunakan untuk login saat ini.');
+                return;
+            }
+            const pesanKonfirmasi = usCOLUMN_MAP.id
+                ? `Yakin ingin menghapus user "${usernameTarget}"? Tindakan ini tidak bisa dibatalkan.`
+                : `Yakin ingin menghapus user "${usernameTarget}"? Karena tabel belum punya kolom id unik, penghapusan dicocokkan dari seluruh kolom baris ini. Lanjutkan?`;
+            if (!confirm(pesanKonfirmasi)) return;
+
+            const kriteria = usBuatKriteriaBaris(item);
+            const { data, error } = await db.from(NAMA_TABEL_USER).delete().match(kriteria).select();
+            if (error) { alert('Gagal menghapus: ' + error.message); return; }
+            if (!data || data.length === 0) {
+                alert(`Data TIDAK terhapus meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_USER}" belum punya policy DELETE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_USER} → RLS.`);
+                return;
+            }
+            await usMuatDataUser();
+        }
 
         function togglePanduanDropdown(event) {
             event.preventDefault();
@@ -3186,4 +3771,5 @@
         });
     </script>
 </body>
+
 </html>
