@@ -1018,7 +1018,7 @@
               <table class="w-full text-left border-collapse">
                 <thead class="sticky top-0 bg-white z-10">
                   <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-                    <th class="py-3 px-4">Judul Video</th>
+                    <th class="py-3 px-4 min-w-[520px]">Judul Video</th>
                     <th class="py-3 px-4">Editor</th>
                     <th class="py-3 px-4">Status</th>
                     <th class="py-3 px-4">Due Date</th>
@@ -2240,7 +2240,19 @@
           <tr class="hover:bg-gray-50">
             <td class="py-3 px-4">${val(item, 'bulan')}</td>
             <td class="py-3 px-4">${val(item, 'tahun')}</td>
-            <td class="py-3 px-4 max-w-[220px] truncate" title="${val(item, 'judul')}">${val(item, 'judul')}</td>
+            <td class="py-3 px-4 min-w-[520px] align-top">
+              <div class="flex items-start gap-2.5">
+                <div class="flex-1 min-w-0 text-sm font-semibold text-gray-700 leading-relaxed whitespace-normal break-words" title="${val(item, 'judul')}">
+                  ${val(item, 'judul')}
+                </div>
+                <button type="button"
+                  class="btn-copy-title shrink-0 w-8 h-8 rounded-lg bg-gray-50 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 flex items-center justify-center transition-all duration-200"
+                  data-title="${escapeHtml(item[COLUMN_MAP.judul] || '')}"
+                  title="Copy judul video" aria-label="Copy judul video">
+                  <i class="fas fa-copy text-xs"></i>
+                </button>
+              </div>
+            </td>
             <td class="py-3 px-4">${val(item, 'editor')}</td>
             <td class="py-3 px-4">${badgeStatusEdit(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null)}</td>
             <td class="py-3 px-4 text-xs">${val(item, 'dueDate')}</td>
@@ -2260,6 +2272,53 @@
       tbody.querySelectorAll('.btn-selesai').forEach(btn => {
         btn.addEventListener('click', () => selesaikanVideo(btn.dataset.rid));
       });
+      tbody.querySelectorAll('.btn-copy-title').forEach(btn => {
+        btn.addEventListener('click', () => copyJudulVideo(btn));
+      });
+    }
+
+    // Menyalin judul video ke clipboard. Disediakan fallback agar tetap bekerja
+    // pada browser/context yang tidak menyediakan navigator.clipboard.
+    async function copyJudulVideo(button) {
+      const title = button.dataset.title || '';
+      if (!title) return;
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(title);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = title;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          textarea.setAttribute('readonly', '');
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+          const copied = document.execCommand('copy');
+          textarea.remove();
+          if (!copied) throw new Error('Clipboard fallback gagal');
+        }
+
+        const icon = button.querySelector('i');
+        const originalIcon = icon ? icon.className : 'fas fa-copy text-xs';
+
+        if (icon) icon.className = 'fas fa-check text-xs';
+        button.classList.remove('bg-gray-50', 'text-gray-400', 'border-gray-200');
+        button.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
+        button.title = 'Judul berhasil disalin';
+
+        setTimeout(() => {
+          if (icon) icon.className = originalIcon;
+          button.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
+          button.classList.add('bg-gray-50', 'text-gray-400', 'border-gray-200');
+          button.title = 'Copy judul video';
+        }, 1200);
+      } catch (error) {
+        console.error('Gagal menyalin judul video:', error);
+        alert('Judul tidak dapat disalin. Silakan copy secara manual.');
+      }
     }
 
     // Menentukan tombol aksi yang tampil di tabel sesuai status edit video saat ini.
