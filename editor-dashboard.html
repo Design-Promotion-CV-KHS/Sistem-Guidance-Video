@@ -758,8 +758,7 @@
   </style>
 </head>
 
-<body class="flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in"
-  id="main-body">
+<body class="flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in" id="main-body">
 
   <!-- Wrapper Sidebar & Tombol Toggle -->
   <div class="relative flex z-20">
@@ -787,7 +786,7 @@
         <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data</p>
         <a href="#" id="nav-crud"
           class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
-          <i class="fas fa-list-check w-5 text-center"></i> Kelola Data Planning
+          <i class="fas fa-list-check w-5 text-center"></i> Kerjakan Video
         </a>
 
         <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance</p>
@@ -1069,21 +1068,18 @@
       <div id="view-crud" class="hidden space-y-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 class="text-2xl font-bold text-gray-800">Kelola Data Planning Editor</h3>
-            <p class="text-sm text-gray-500 mt-1">Tambah, ubah, dan hapus data langsung dari tabel Planning_Editor.</p>
+            <h3 class="text-2xl font-bold text-gray-800">Daftar Video Planning</h3>
+            <p class="text-sm text-gray-500 mt-1">Klik <b>Kerjakan</b> untuk mulai edit (Skenario Siap → WIP), lalu klik
+              <b>Selesai</b> setelah video rampung (WIP → Done).</p>
           </div>
-          <button id="btn-tambah-data"
-            class="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md self-start md:self-auto interactive-btn">
-            + Tambah Data
-          </button>
         </div>
 
         <div id="crud-no-id-warning"
           class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs">
-          ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Edit &amp; Hapus tetap bisa dipakai, tapi sistem
-          mencocokkan baris berdasarkan <b>kombinasi semua kolom</b> — kalau ada dua baris yang datanya persis sama
-          di semua kolom, keduanya akan ikut berubah/terhapus bersamaan. Untuk keamanan penuh, sebaiknya tambahkan
-          kolom <code>id</code> unik (primary key) di tabel Supabase.
+          ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Tombol Kerjakan/Selesai tetap bisa dipakai, tapi
+          sistem mencocokkan baris berdasarkan <b>kombinasi semua kolom</b> — kalau ada dua baris yang datanya
+          persis sama di semua kolom, keduanya akan ikut berubah status bersamaan. Untuk keamanan penuh,
+          sebaiknya tambahkan kolom <code>id</code> unik (primary key) di tabel Supabase.
         </div>
 
         <!-- FILTER TABEL CRUD -->
@@ -1410,104 +1406,6 @@
     </div>
   </main>
 
-  <!-- ============ MODAL FORM CRUD ============ -->
-  <div id="crud-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-    <div class="glass-modal rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-      <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
-        <h4 id="crud-modal-title" class="text-lg font-bold text-gray-800">Tambah Data</h4>
-        <button id="crud-modal-close" type="button"
-          class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
-      </div>
-      <form id="crud-form" class="p-6 space-y-4">
-        <input type="hidden" id="crud-field-id">
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Bulan</label>
-          <select id="crud-field-bulan"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-            <option value="">- Pilih Bulan -</option>
-            <option value="Januari">Januari</option>
-            <option value="Februari">Februari</option>
-            <option value="Maret">Maret</option>
-            <option value="April">April</option>
-            <option value="Mei">Mei</option>
-            <option value="Juni">Juni</option>
-            <option value="Juli">Juli</option>
-            <option value="Agustus">Agustus</option>
-            <option value="September">September</option>
-            <option value="Oktober">Oktober</option>
-            <option value="November">November</option>
-            <option value="Desember">Desember</option>
-          </select>
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tahun</label>
-          <input id="crud-field-tahun" type="text" placeholder="2026"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
-          <input id="crud-field-judul" type="text" required
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
-          <input id="crud-field-editor" type="text"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Edit</label>
-          <select id="crud-field-statusEdit"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-            <option value="Transkrip Siap">Transkrip Siap</option>
-            <option value="Skenario Siap">Skenario Siap</option>
-            <option value="WIP">WIP</option>
-            <option value="Done">Done</option>
-          </select>
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date</label>
-          <input id="crud-field-dueDate" type="date"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Target Upload</label>
-          <input id="crud-field-targetUpload" type="text"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Upload</label>
-          <input id="crud-field-statusUpload" type="text"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div class="crud-field">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Musim</label>
-          <input id="crud-field-musim" type="text"
-            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400">
-        </div>
-
-        <div id="crud-form-error" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3">
-        </div>
-
-        <div class="flex justify-end gap-3 pt-2">
-          <button type="button" id="crud-cancel-btn"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100">Batal</button>
-          <button type="submit" id="crud-save-btn"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  <!-- ============ /MODAL FORM CRUD ============ -->
-
   <script>
     Chart.register(ChartDataLabels);
 
@@ -1617,14 +1515,14 @@
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('data_user');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     });
 
     // ===================== NAVIGASI ANTAR MENU (Media Converter dihapus) =====================
     const ALL_VIEWS = ['dashboard', 'crud', 'workflow', 'tools'];
     const HEADER_SUBTITLE = {
       'dashboard': '| Workflow Video Editor',
-      'crud': '| Kelola Data Planning',
+      'crud': '| Kerjakan Video',
       'workflow': '| Workflow Editing Video',
       'tools': '| Tools AI Production'
     };
@@ -2303,7 +2201,7 @@
       const countLabel = document.getElementById('crud-filter-count');
 
       if (!planningRawGlobal || planningRawGlobal.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Belum ada data.</td></tr>';
         countLabel.innerText = '';
         return;
       }
@@ -2351,37 +2249,40 @@
             <td class="py-3 px-4">${badgeStatusUpload(COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null)}</td>
             <td class="py-3 px-4">${val(item, 'musim')}</td>
             <td class="py-3 px-4 text-right whitespace-nowrap">
-              <button class="btn-crud-edit text-blue-600 hover:underline text-xs font-bold mr-3"
-                data-rid="${rid}">Edit</button>
-              <button class="btn-crud-hapus text-rose-600 hover:underline text-xs font-bold"
-                data-rid="${rid}">Hapus</button>
+              ${renderAksiButton(item, rid)}
             </td>
           </tr>
         `;
       }).join('');
 
-      tbody.querySelectorAll('.btn-crud-edit').forEach(btn => {
-        btn.addEventListener('click', () => bukaModalEdit(btn.dataset.rid));
+      tbody.querySelectorAll('.btn-kerjakan').forEach(btn => {
+        btn.addEventListener('click', () => mulaiKerjakan(btn.dataset.rid));
       });
-      tbody.querySelectorAll('.btn-crud-hapus').forEach(btn => {
-        btn.addEventListener('click', () => hapusDataCrud(btn.dataset.rid));
+      tbody.querySelectorAll('.btn-selesai').forEach(btn => {
+        btn.addEventListener('click', () => selesaikanVideo(btn.dataset.rid));
       });
     }
 
+    // Menentukan tombol aksi yang tampil di tabel sesuai status edit video saat ini.
+    // Editor hanya boleh menjalankan 2 aksi: "Kerjakan" (Skenario Siap -> WIP)
+    // dan "Selesai" (WIP -> Done). Status lain tidak punya aksi (read-only).
+    function renderAksiButton(item, rid) {
+      const status = normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null);
 
-    let kriteriaEditAktif = null;
-
-    function resetFormCrud() {
-      document.getElementById('crud-form').reset();
-      document.getElementById('crud-field-id').value = '';
-      document.getElementById('crud-form-error').classList.add('hidden');
-      kriteriaEditAktif = null;
-    }
-
-    function bukaModalTambah() {
-      resetFormCrud();
-      document.getElementById('crud-modal-title').innerText = 'Tambah Data';
-      document.getElementById('crud-modal').classList.remove('hidden');
+      if (status === 'Skenario Siap') {
+        return `<button class="btn-kerjakan bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all interactive-btn" data-rid="${rid}">
+                  <i class="fas fa-play mr-1"></i>Kerjakan
+                </button>`;
+      }
+      if (status === 'WIP') {
+        return `<button class="btn-selesai bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all interactive-btn" data-rid="${rid}">
+                  <i class="fas fa-check mr-1"></i>Selesai
+                </button>`;
+      }
+      if (status === 'Done') {
+        return '<span class="text-[11px] text-emerald-500 font-semibold">✔ Selesai</span>';
+      }
+      return '<span class="text-[11px] text-gray-300">Menunggu skenario</span>';
     }
 
     function cariRawItem(rid) {
@@ -2399,115 +2300,57 @@
       return kriteria;
     }
 
-    function bukaModalEdit(rid) {
+    // Ubah status video dari "Skenario Siap" menjadi "WIP" (editor mulai mengerjakan).
+    async function mulaiKerjakan(rid) {
       const item = cariRawItem(rid);
-      if (!item) return;
+      if (!item || !COLUMN_MAP.statusEdit) return;
 
-      resetFormCrud();
-      document.getElementById('crud-modal-title').innerText = 'Ubah Data';
-      document.getElementById('crud-field-id').value = rid;
-      kriteriaEditAktif = buatKriteriaBaris(item);
+      const judul = COLUMN_MAP.judul ? item[COLUMN_MAP.judul] : 'video ini';
+      if (!confirm(`Mulai mengerjakan "${judul}"? Status akan berubah menjadi WIP.`)) return;
 
-      document.getElementById('crud-field-bulan').value = COLUMN_MAP.bulan ? (item[COLUMN_MAP.bulan] || '') : '';
-      document.getElementById('crud-field-tahun').value = COLUMN_MAP.tahun ? (item[COLUMN_MAP.tahun] || '') : '';
-      document.getElementById('crud-field-judul').value = COLUMN_MAP.judul ? (item[COLUMN_MAP.judul] || '') : '';
-      document.getElementById('crud-field-editor').value = COLUMN_MAP.editor ? (item[COLUMN_MAP.editor] || '') : '';
-      document.getElementById('crud-field-statusEdit').value = COLUMN_MAP.statusEdit ? (normalizeStatus(item[COLUMN_MAP.statusEdit]) || 'Transkrip Siap') : 'Transkrip Siap';
-      document.getElementById('crud-field-dueDate').value = COLUMN_MAP.dueDate ? (item[COLUMN_MAP.dueDate] || '') : '';
-      document.getElementById('crud-field-targetUpload').value = COLUMN_MAP.targetUpload ? (item[COLUMN_MAP.targetUpload] || '') : '';
-      document.getElementById('crud-field-statusUpload').value = COLUMN_MAP.statusUpload ? (item[COLUMN_MAP.statusUpload] || '') : '';
-      document.getElementById('crud-field-musim').value = COLUMN_MAP.musim ? (item[COLUMN_MAP.musim] || '') : '';
+      const kriteria = buatKriteriaBaris(item);
+      const { data, error } = await db.from(NAMA_TABEL_PLANNING)
+        .update({ [COLUMN_MAP.statusEdit]: 'WIP' })
+        .match(kriteria)
+        .select();
 
-      document.getElementById('crud-modal').classList.remove('hidden');
-    }
-
-    function tutupModalCrud() {
-      document.getElementById('crud-modal').classList.add('hidden');
-    }
-
-    async function hapusDataCrud(rid) {
-      const item = cariRawItem(rid);
-      if (!item) return;
-
-      const pesanKonfirmasi = COLUMN_MAP.id
-        ? 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.'
-        : 'Yakin ingin menghapus data ini? Karena tabel belum punya kolom id unik, penghapusan dicocokkan dari seluruh kolom baris ini — kalau ada baris lain yang datanya identik persis, baris itu ikut terhapus. Lanjutkan?';
-      if (!confirm(pesanKonfirmasi)) return;
-
-      const { data, error } = await db.from(NAMA_TABEL_PLANNING).delete().match(buatKriteriaBaris(item)).select();
       if (error) {
-        alert('Gagal menghapus data: ' + error.message);
+        alert('Gagal mengubah status: ' + error.message);
         return;
       }
       if (!data || data.length === 0) {
-        alert('Data TIDAK terhapus meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy DELETE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.');
+        alert('Status TIDAK berubah meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy UPDATE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.');
         return;
       }
       await muatDashboard();
       tampilkanView('crud');
     }
 
-    async function simpanFormCrud(e) {
-      e.preventDefault();
-      const errBox = document.getElementById('crud-form-error');
-      errBox.classList.add('hidden');
+    // Ubah status video dari "WIP" menjadi "Done" (editor selesai mengerjakan).
+    async function selesaikanVideo(rid) {
+      const item = cariRawItem(rid);
+      if (!item || !COLUMN_MAP.statusEdit) return;
 
-      const payload = {};
-      if (COLUMN_MAP.bulan) payload[COLUMN_MAP.bulan] = document.getElementById('crud-field-bulan').value;
-      if (COLUMN_MAP.tahun) payload[COLUMN_MAP.tahun] = document.getElementById('crud-field-tahun').value;
-      if (COLUMN_MAP.judul) payload[COLUMN_MAP.judul] = document.getElementById('crud-field-judul').value;
-      if (COLUMN_MAP.editor) payload[COLUMN_MAP.editor] = document.getElementById('crud-field-editor').value;
-      if (COLUMN_MAP.statusEdit) payload[COLUMN_MAP.statusEdit] = document.getElementById('crud-field-statusEdit').value;
-      if (COLUMN_MAP.dueDate) payload[COLUMN_MAP.dueDate] = document.getElementById('crud-field-dueDate').value;
-      if (COLUMN_MAP.targetUpload) payload[COLUMN_MAP.targetUpload] = document.getElementById('crud-field-targetUpload').value;
-      if (COLUMN_MAP.statusUpload) payload[COLUMN_MAP.statusUpload] = document.getElementById('crud-field-statusUpload').value;
-      if (COLUMN_MAP.musim) payload[COLUMN_MAP.musim] = document.getElementById('crud-field-musim').value;
+      const judul = COLUMN_MAP.judul ? item[COLUMN_MAP.judul] : 'video ini';
+      if (!confirm(`Tandai "${judul}" sebagai selesai (Done)?`)) return;
 
-      const judulVal = document.getElementById('crud-field-judul').value.trim();
-      if (!judulVal) {
-        errBox.innerText = 'Judul Video wajib diisi.';
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      if (!COLUMN_MAP.judul) {
-        errBox.innerText = 'Kolom "Judul Video" tidak terdeteksi di tabel Supabase, data tidak bisa disimpan.';
-        errBox.classList.remove('hidden');
-        return;
-      }
-
-      const idVal = document.getElementById('crud-field-id').value;
-      let error, data;
-      if (idVal !== '' && kriteriaEditAktif) {
-        // Mode ubah data: cocokkan pakai id (kalau ada) atau kombinasi semua kolom asli baris ini
-        ({ data, error } = await db.from(NAMA_TABEL_PLANNING).update(payload).match(kriteriaEditAktif).select());
-      } else {
-        ({ data, error } = await db.from(NAMA_TABEL_PLANNING).insert([payload]).select());
-      }
+      const kriteria = buatKriteriaBaris(item);
+      const { data, error } = await db.from(NAMA_TABEL_PLANNING)
+        .update({ [COLUMN_MAP.statusEdit]: 'Done' })
+        .match(kriteria)
+        .select();
 
       if (error) {
-        errBox.innerText = 'Gagal menyimpan data: ' + error.message;
-        errBox.classList.remove('hidden');
+        alert('Gagal mengubah status: ' + error.message);
         return;
       }
       if (!data || data.length === 0) {
-        errBox.innerText = 'Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy INSERT/UPDATE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.';
-        errBox.classList.remove('hidden');
+        alert('Status TIDAK berubah meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy UPDATE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.');
         return;
       }
-
-      tutupModalCrud();
       await muatDashboard();
       tampilkanView('crud');
     }
-
-    document.getElementById('btn-tambah-data').addEventListener('click', bukaModalTambah);
-    document.getElementById('crud-modal-close').addEventListener('click', tutupModalCrud);
-    document.getElementById('crud-cancel-btn').addEventListener('click', tutupModalCrud);
-    document.getElementById('crud-form').addEventListener('submit', simpanFormCrud);
-    document.getElementById('crud-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'crud-modal') tutupModalCrud();
-    });
 
     // ===================== REALTIME: auto-update saat data berubah dari mana saja =====================
     db.channel('realtime-editor-dashboard')
