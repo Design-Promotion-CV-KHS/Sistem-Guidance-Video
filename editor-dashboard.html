@@ -1069,8 +1069,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h3 class="text-2xl font-bold text-gray-800">Daftar Video Planning</h3>
-            <p class="text-sm text-gray-500 mt-1">Klik <b>Kerjakan</b> untuk mulai edit (Skenario Siap → WIP), lalu klik
-              <b>Selesai</b> setelah video rampung (WIP → Done).</p>
+            <p class="text-sm text-gray-500 mt-1">Klik <b>Kerjakan</b> untuk mulai edit (Skenario Siap → WIP), lalu klik <b>Selesai</b> setelah video rampung (WIP → Done).</p>
           </div>
         </div>
 
@@ -1476,7 +1475,7 @@
 
     const storedUser = localStorage.getItem('data_user');
     if (!storedUser) {
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
     } else {
       const user = JSON.parse(storedUser);
       const role = (user.role || 'editor').toLowerCase();
