@@ -3337,6 +3337,21 @@
             document.getElementById(id).addEventListener('change', edGambarBarisCrud);
         });
 
+        // Mengurutkan indeks baris berdasarkan Bulan (urutan kalender Januari→Desember) agar tabel
+        // lebih enak dibaca. Baris dengan bulan yang tidak dikenali/kosong ditaruh di paling akhir.
+        function edUrutkanIndeksBerdasarkanBulan(daftarIdx) {
+            return daftarIdx.slice().sort((a, b) => {
+                const bulanA = edCOLUMN_MAP.bulan ? edPlanningRawGlobal[a.idx][edCOLUMN_MAP.bulan] : null;
+                const bulanB = edCOLUMN_MAP.bulan ? edPlanningRawGlobal[b.idx][edCOLUMN_MAP.bulan] : null;
+                const ia = bulanA ? URUTAN_BULAN.indexOf(String(bulanA).trim()) : -1;
+                const ib = bulanB ? URUTAN_BULAN.indexOf(String(bulanB).trim()) : -1;
+                const posA = ia === -1 ? 999 : ia;
+                const posB = ib === -1 ? 999 : ib;
+                if (posA !== posB) return posA - posB;
+                return a.idx - b.idx; // tie-breaker: pertahankan urutan asli data
+            });
+        }
+
         function edGambarBarisCrud() {
             const tbody = document.getElementById('ed-crud-body');
             const countLabel = document.getElementById('ed-crud-filter-count');
@@ -3349,7 +3364,7 @@
             const fEditor = document.getElementById('ed-crud-filter-editor').value;
             const fBulan = document.getElementById('ed-crud-filter-bulan').value;
 
-            const barisTerfilter = edPlanningRawGlobal.map((item, idx) => ({ item, idx })).filter(({ item }) => {
+            let barisTerfilter = edPlanningRawGlobal.map((item, idx) => ({ item, idx })).filter(({ item }) => {
                 if (fStatusEdit !== 'all' && normalizeStatus(edCOLUMN_MAP.statusEdit ? item[edCOLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
                 if (fStatusUpload !== 'all' && (edCOLUMN_MAP.statusUpload ? item[edCOLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
                 if (fEditor !== 'all' && (edCOLUMN_MAP.editor ? item[edCOLUMN_MAP.editor] : null) !== fEditor) return false;
@@ -3357,7 +3372,10 @@
                 return true;
             });
 
-            countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${edPlanningRawGlobal.length} baris`;
+            // Urutkan berdasarkan Bulan supaya tabel lebih enak dibaca (tidak loncat-loncat)
+            barisTerfilter = edUrutkanIndeksBerdasarkanBulan(barisTerfilter);
+
+            countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${edPlanningRawGlobal.length} baris (diurutkan per Bulan)`;
             if (barisTerfilter.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
 
             const val = (item, key) => edCOLUMN_MAP[key] ? edEscapeHtml(item[edCOLUMN_MAP[key]]) : '-';
