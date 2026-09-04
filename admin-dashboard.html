@@ -2049,17 +2049,24 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama
                             Cabang</label>
-                        <input
+                        <select
                             class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
-                            id="cb-input-cabang" placeholder="Contoh: Nganjuk" required="" type="text" />
+                            id="cb-input-cabang" required="">
+                            <option value="">- Pilih Cabang -</option>
+                        </select>
                     </div>
                     <div>
                         <label
                             class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Segmen</label>
-                        <input
+                        <select
                             class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
-                            id="cb-input-segmen" placeholder="Contoh: DONE / WIP / REJECT / FOOTAGE" required=""
-                            type="text" />
+                            id="cb-input-segmen" required="">
+                            <option value="">- Pilih Segmen -</option>
+                            <option value="DONE">DONE</option>
+                            <option value="WIP">WIP</option>
+                            <option value="REJECT">REJECT</option>
+                            <option value="FOOTAGE">FOOTAGE</option>
+                        </select>
                     </div>
                 </div>
                 <div>
@@ -2087,9 +2094,15 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Grade</label>
-                    <input
+                    <select
                         class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
-                        id="cb-input-grade" placeholder="Contoh: Grade B / Grade A" required="" type="text" />
+                        id="cb-input-grade" required="">
+                        <option value="">- Pilih Grade -</option>
+                        <option value="Grade A">Grade A</option>
+                        <option value="Grade B">Grade B</option>
+                        <option value="Grade C">Grade C</option>
+                        <option value="Grade D">Grade D</option>
+                    </select>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 shrink-0">
                     <button
@@ -2134,9 +2147,11 @@
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tahun</label>
-                    <input
+                    <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-tahun" placeholder="2026" type="text" />
+                        id="ed-crud-field-tahun">
+                        <option value="">- Pilih Tahun -</option>
+                    </select>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
@@ -2146,9 +2161,15 @@
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
-                    <input
+                    <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-editor" type="text" />
+                        id="ed-crud-field-editor">
+                        <option value="">- Pilih Editor -</option>
+                        <option value="Bayu">Bayu</option>
+                        <option value="Munir">Munir</option>
+                        <option value="Iis">Iis</option>
+                        <option value="Rafqi">Rafqi</option>
+                    </select>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Edit</label>
@@ -2175,15 +2196,25 @@
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Upload</label>
-                    <input
+                    <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-statusUpload" type="text" />
+                        id="ed-crud-field-statusUpload">
+                        <option value="">- Pilih Status Upload -</option>
+                        <option value="Sudah Upload">Sudah Upload</option>
+                        <option value="Proses Upload">Proses Upload</option>
+                        <option value="Belum Upload">Belum Upload</option>
+                    </select>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Musim</label>
-                    <input
+                    <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-musim" type="text" />
+                        id="ed-crud-field-musim">
+                        <option value="">- Pilih Musim -</option>
+                        <option value="Kemarau">Kemarau</option>
+                        <option value="Hujan">Hujan</option>
+                        <option value="Peralihan">Peralihan</option>
+                    </select>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Link Transkrip (Google Docs)</label>
@@ -2277,6 +2308,24 @@
             '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April', '05': 'Mei', '06': 'Juni',
             '07': 'Juli', '08': 'Agustus', '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
         };
+
+        // ==== BARU: helper umum untuk memastikan sebuah <select> tetap bisa menampilkan
+        // nilai lama dari database walau nilai tersebut belum ada di daftar opsi baku.
+        // Dipakai di semua form CRUD yang barusan diubah dari <input> teks menjadi dropdown,
+        // supaya data lama tidak "hilang tampilannya" hanya karena tidak cocok dengan opsi baku.
+        function setSelectValueEnsureOption(selectEl, value) {
+            if (!selectEl) return;
+            const val = (value === undefined || value === null) ? '' : String(value).trim();
+            if (val === '') { selectEl.value = ''; return; }
+            const sudahAda = Array.from(selectEl.options).some(opt => opt.value === val);
+            if (!sudahAda) {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                selectEl.appendChild(opt);
+            }
+            selectEl.value = val;
+        }
 
         // Ambil tahun & bulan dari 8 digit awal nama file (format YYYYMMDD...)
         function cbGetYearMonthFromItem(item) {
@@ -2469,6 +2518,23 @@
         let cbListEvaluasiGlobal = [];
         let cbMyChart = null;
         let cbMyGradeChart = null;
+
+        // ==== BARU: populate dropdown "Nama Cabang" pada form Tambah/Edit dari daftar
+        // nama cabang yang sudah ada di data (dinamis, mengikuti data Supabase saat ini). ====
+        function cbPopulateCabangOptions() {
+            const select = document.getElementById('cb-input-cabang');
+            if (!select) return;
+            const current = select.value;
+            const cabangSet = new Set();
+            cbListEvaluasiGlobal.forEach(item => {
+                const c = item.Cabang || item.cabang;
+                if (c && String(c).trim()) cabangSet.add(String(c).trim());
+            });
+            const sorted = Array.from(cabangSet).sort();
+            select.innerHTML = '<option value="">- Pilih Cabang -</option>' +
+                sorted.map(c => `<option value="${c.replace(/"/g, '&quot;')}">${c}</option>`).join('');
+            if (current) setSelectValueEnsureOption(select, current);
+        }
 
         async function cbRenderDashboardAndChart() {
             cbListEvaluasiGlobal = await ambilDataEvaluasiSupabase();
@@ -2782,6 +2848,7 @@
             document.getElementById('cb-modal-title').innerText = 'Tambah Data Evaluasi';
             document.getElementById('cb-form-crud-data').reset();
             document.getElementById('cb-edit-id').value = '';
+            cbPopulateCabangOptions();
             const modal = document.getElementById('cb-modal-crud');
             modal.classList.remove('hidden'); modal.classList.add('flex');
         }
@@ -2798,12 +2865,13 @@
             cbCurrentEditIdInfo = idInfo;
             document.getElementById('cb-modal-title').innerText = 'Edit Data Evaluasi';
             document.getElementById('cb-edit-id').value = idInfo.value;
-            document.getElementById('cb-input-cabang').value = item.Cabang || item.cabang || '';
-            document.getElementById('cb-input-segmen').value = item.Segmen || item.segmen || '';
+            cbPopulateCabangOptions();
+            setSelectValueEnsureOption(document.getElementById('cb-input-cabang'), item.Cabang || item.cabang || '');
+            setSelectValueEnsureOption(document.getElementById('cb-input-segmen'), item.Segmen || item.segmen || '');
             document.getElementById('cb-input-file').value = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '';
             document.getElementById('cb-input-evaluasi').value = item.Evaluasi || item.evaluasi || '';
             document.getElementById('cb-input-solusi').value = item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '';
-            document.getElementById('cb-input-grade').value = item.Grade || item.grade || '';
+            setSelectValueEnsureOption(document.getElementById('cb-input-grade'), item.Grade || item.grade || '');
             const modal = document.getElementById('cb-modal-crud');
             modal.classList.remove('hidden'); modal.classList.add('flex');
         }
@@ -3311,6 +3379,28 @@
             return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs font-bold transition-all"><i class="fas ${labelIcon}"></i> ${labelText}</a>`;
         }
 
+        // ==== BARU: populate opsi dropdown Tahun pada form Planning Editor.
+        // Menyediakan rentang tahun berjalan (agar tidak salah ketik) + tetap
+        // mengikutkan nilai tahun lama yang mungkin sudah ada di data. ====
+        function edPopulateTahunOptions() {
+            const select = document.getElementById('ed-crud-field-tahun');
+            if (!select) return;
+            const current = select.value;
+            const tahunSet = new Set();
+            const nowYear = new Date().getFullYear();
+            for (let y = nowYear - 1; y <= nowYear + 2; y++) tahunSet.add(String(y));
+            if (edCOLUMN_MAP.tahun) {
+                edPlanningRawGlobal.forEach(item => {
+                    const t = item[edCOLUMN_MAP.tahun];
+                    if (t !== null && t !== undefined && String(t).trim() !== '') tahunSet.add(String(t).trim());
+                });
+            }
+            const tahunSorted = Array.from(tahunSet).sort();
+            select.innerHTML = '<option value="">- Pilih Tahun -</option>' +
+                tahunSorted.map(t => `<option value="${edEscapeHtml(t)}">${edEscapeHtml(t)}</option>`).join('');
+            if (current) setSelectValueEnsureOption(select, current);
+        }
+
         function edPopulateCrudFilters() {
             const selStatusEdit = document.getElementById('ed-crud-filter-status-edit');
             const selStatusUpload = document.getElementById('ed-crud-filter-status-upload');
@@ -3500,6 +3590,7 @@ function edGambarBarisCrud() {
         }
         function edBukaModalTambah() {
             edResetFormCrud();
+            edPopulateTahunOptions();
             document.getElementById('ed-crud-modal-title').innerText = 'Tambah Data';
             document.getElementById('ed-crud-modal').classList.remove('hidden');
         }
@@ -3514,18 +3605,19 @@ function edGambarBarisCrud() {
             const item = edCariRawItem(rid);
             if (!item) return;
             edResetFormCrud();
+            edPopulateTahunOptions();
             document.getElementById('ed-crud-modal-title').innerText = 'Ubah Data';
             document.getElementById('ed-crud-field-id').value = rid;
             edKriteriaEditAktif = edBuatKriteriaBaris(item);
             document.getElementById('ed-crud-field-bulan').value = edCOLUMN_MAP.bulan ? (item[edCOLUMN_MAP.bulan] || '') : '';
             document.getElementById('ed-crud-field-tahun').value = edCOLUMN_MAP.tahun ? (item[edCOLUMN_MAP.tahun] || '') : '';
             document.getElementById('ed-crud-field-judul').value = edCOLUMN_MAP.judul ? (item[edCOLUMN_MAP.judul] || '') : '';
-            document.getElementById('ed-crud-field-editor').value = edCOLUMN_MAP.editor ? (item[edCOLUMN_MAP.editor] || '') : '';
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-editor'), edCOLUMN_MAP.editor ? (item[edCOLUMN_MAP.editor] || '') : '');
             document.getElementById('ed-crud-field-statusEdit').value = edCOLUMN_MAP.statusEdit ? (normalizeStatus(item[edCOLUMN_MAP.statusEdit]) || 'Transkrip Siap') : 'Transkrip Siap';
             document.getElementById('ed-crud-field-dueDate').value = edCOLUMN_MAP.dueDate ? (item[edCOLUMN_MAP.dueDate] || '') : '';
             document.getElementById('ed-crud-field-targetUpload').value = edCOLUMN_MAP.targetUpload ? (item[edCOLUMN_MAP.targetUpload] || '') : '';
-            document.getElementById('ed-crud-field-statusUpload').value = edCOLUMN_MAP.statusUpload ? (item[edCOLUMN_MAP.statusUpload] || '') : '';
-            document.getElementById('ed-crud-field-musim').value = edCOLUMN_MAP.musim ? (item[edCOLUMN_MAP.musim] || '') : '';
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-statusUpload'), edCOLUMN_MAP.statusUpload ? (item[edCOLUMN_MAP.statusUpload] || '') : '');
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-musim'), edCOLUMN_MAP.musim ? (item[edCOLUMN_MAP.musim] || '') : '');
             document.getElementById('ed-crud-field-transkrip').value = edCOLUMN_MAP.transkrip ? (item[edCOLUMN_MAP.transkrip] || '') : '';
             document.getElementById('ed-crud-field-skenario').value = edCOLUMN_MAP.skenario ? (item[edCOLUMN_MAP.skenario] || '') : '';
             document.getElementById('ed-crud-modal').classList.remove('hidden');
