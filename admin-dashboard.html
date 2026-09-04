@@ -1557,12 +1557,14 @@
                                 <th class="py-3 px-4">Target Upload</th>
                                 <th class="py-3 px-4">Status Upload</th>
                                 <th class="py-3 px-4">Musim</th>
+                                <th class="py-3 px-4">Transkrip</th>
+                                <th class="py-3 px-4">Skenario</th>
                                 <th class="py-3 px-4 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50 text-gray-700" id="ed-crud-body">
                             <tr>
-                                <td class="text-center py-8 text-gray-400" colspan="10">Memuat data...</td>
+                                <td class="text-center py-8 text-gray-400" colspan="12">Memuat data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2182,6 +2184,18 @@
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
                         id="ed-crud-field-musim" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Link Transkrip (Google Docs)</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-transkrip" placeholder="https://docs.google.com/document/d/..." type="url" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Link Skenario (Google Docs)</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-skenario" placeholder="https://docs.google.com/document/d/..." type="url" />
                 </div>
                 <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
                     id="ed-crud-form-error"></div>
@@ -2861,7 +2875,7 @@
         let edPlanningRawGlobal = [];
         let edChartEditor = null;
         let edChartStatus = null;
-        let edCOLUMN_MAP = { id: null, bulan: null, tahun: null, statusEdit: null, editor: null, judul: null, dueDate: null, targetUpload: null, statusUpload: null, musim: null };
+        let edCOLUMN_MAP = { id: null, bulan: null, tahun: null, statusEdit: null, editor: null, judul: null, dueDate: null, targetUpload: null, statusUpload: null, musim: null, transkrip: null, skenario: null };
         let edDataLoaded = false;
 
         function edDetectColumns(sampleRow) {
@@ -2880,6 +2894,8 @@
             edCOLUMN_MAP.targetUpload = cariKolom('Target Upload', 'Target_Upload', 'target_upload');
             edCOLUMN_MAP.statusUpload = cariKolom('Status Upload', 'Status_Upload', 'status_upload');
             edCOLUMN_MAP.musim = cariKolom('Musim', 'musim');
+            edCOLUMN_MAP.transkrip = cariKolom('Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip');
+            edCOLUMN_MAP.skenario = cariKolom('Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario');
         }
 
         function edTampilkanDiagnostik(pesan) {
@@ -2919,6 +2935,8 @@
                     targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
                     statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
                     musim: getField(item, 'Musim', 'musim'),
+                    transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip'),
+                    skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario'),
                 };
             }).filter(Boolean);
 
@@ -3285,6 +3303,13 @@
             else if (v.includes('belum') || v.includes('pending') || v.includes('proses')) cls = 'bg-amber-50 text-amber-600 border border-amber-200';
             return `<span class="badge-pill ${cls}">${edEscapeHtml(raw)}</span>`;
         }
+        // ==== BARU: render link Google Docs (Transkrip / Skenario) menjadi tombol buka ====
+        function edBadgeLinkDoc(raw, labelIcon, labelText) {
+            const url = raw ? String(raw).trim() : '';
+            if (!url) return '<span class="text-gray-300">-</span>';
+            const safeUrl = edEscapeHtml(url);
+            return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs font-bold transition-all"><i class="fas ${labelIcon}"></i> ${labelText}</a>`;
+        }
 
         function edPopulateCrudFilters() {
             const selStatusEdit = document.getElementById('ed-crud-filter-status-edit');
@@ -3402,7 +3427,7 @@ function edGambarBarisCrud() {
             const tbody = document.getElementById('ed-crud-body');
             const countLabel = document.getElementById('ed-crud-filter-count');
             if (!edPlanningRawGlobal || edPlanningRawGlobal.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
                 countLabel.innerText = ''; return;
             }
             const fStatusEdit = document.getElementById('ed-crud-filter-status-edit').value;
@@ -3422,7 +3447,7 @@ function edGambarBarisCrud() {
             barisTerfilter = edUrutkanIndeksBerdasarkanBulan(barisTerfilter);
 
             countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${edPlanningRawGlobal.length} baris (diurutkan per Bulan)`;
-            if (barisTerfilter.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
+            if (barisTerfilter.length === 0) { tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
 
             const val = (item, key) => edCOLUMN_MAP[key] ? edEscapeHtml(item[edCOLUMN_MAP[key]]) : '-';
             tbody.innerHTML = barisTerfilter.map(({ item, idx }) => {
@@ -3452,6 +3477,8 @@ function edGambarBarisCrud() {
             <td class="py-3 px-4 text-xs">${val(item, 'targetUpload')}</td>
             <td class="py-3 px-4">${edBadgeStatusUpload(edCOLUMN_MAP.statusUpload ? item[edCOLUMN_MAP.statusUpload] : null)}</td>
             <td class="py-3 px-4">${val(item, 'musim')}</td>
+            <td class="py-3 px-4">${edBadgeLinkDoc(edCOLUMN_MAP.transkrip ? item[edCOLUMN_MAP.transkrip] : null, 'fa-file-lines', 'Transkrip')}</td>
+            <td class="py-3 px-4">${edBadgeLinkDoc(edCOLUMN_MAP.skenario ? item[edCOLUMN_MAP.skenario] : null, 'fa-file-pen', 'Skenario')}</td>
             <td class="py-3 px-4 text-right whitespace-nowrap">
               <button class="ed-btn-crud-edit text-blue-600 hover:underline text-xs font-bold mr-3" data-rid="${rid}">Edit</button>
               <button class="ed-btn-crud-hapus text-rose-600 hover:underline text-xs font-bold" data-rid="${rid}">Hapus</button>
@@ -3499,6 +3526,8 @@ function edGambarBarisCrud() {
             document.getElementById('ed-crud-field-targetUpload').value = edCOLUMN_MAP.targetUpload ? (item[edCOLUMN_MAP.targetUpload] || '') : '';
             document.getElementById('ed-crud-field-statusUpload').value = edCOLUMN_MAP.statusUpload ? (item[edCOLUMN_MAP.statusUpload] || '') : '';
             document.getElementById('ed-crud-field-musim').value = edCOLUMN_MAP.musim ? (item[edCOLUMN_MAP.musim] || '') : '';
+            document.getElementById('ed-crud-field-transkrip').value = edCOLUMN_MAP.transkrip ? (item[edCOLUMN_MAP.transkrip] || '') : '';
+            document.getElementById('ed-crud-field-skenario').value = edCOLUMN_MAP.skenario ? (item[edCOLUMN_MAP.skenario] || '') : '';
             document.getElementById('ed-crud-modal').classList.remove('hidden');
         }
         function edTutupModalCrud() { document.getElementById('ed-crud-modal').classList.add('hidden'); }
@@ -3536,6 +3565,8 @@ function edGambarBarisCrud() {
             if (edCOLUMN_MAP.targetUpload) payload[edCOLUMN_MAP.targetUpload] = document.getElementById('ed-crud-field-targetUpload').value;
             if (edCOLUMN_MAP.statusUpload) payload[edCOLUMN_MAP.statusUpload] = document.getElementById('ed-crud-field-statusUpload').value;
             if (edCOLUMN_MAP.musim) payload[edCOLUMN_MAP.musim] = document.getElementById('ed-crud-field-musim').value;
+            if (edCOLUMN_MAP.transkrip) payload[edCOLUMN_MAP.transkrip] = document.getElementById('ed-crud-field-transkrip').value;
+            if (edCOLUMN_MAP.skenario) payload[edCOLUMN_MAP.skenario] = document.getElementById('ed-crud-field-skenario').value;
 
             const judulVal = document.getElementById('ed-crud-field-judul').value.trim();
             if (!judulVal) { errBox.innerText = 'Judul Video wajib diisi.'; errBox.classList.remove('hidden'); return; }
