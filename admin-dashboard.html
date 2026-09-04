@@ -3316,33 +3316,98 @@
         function edRenderTargetBulanan() {
             const container = document.getElementById('ed-target-grid');
             const label = document.getElementById('ed-target-bulan-label');
-            const bulanTersedia = Array.from(new Set(edListPlanningGlobal.filter(i => URUTAN_BULAN.includes(i.bulan)).map(i => i.bulan)));
-            if (bulanTersedia.length === 0) { label.innerText = ''; container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Belum ada data bulan yang bisa ditampilkan.</p>'; return; }
 
             const filterBulan = document.getElementById('ed-filter-bulan').value;
-            let bulanTarget = filterBulan !== 'all' ? filterBulan : edGetBulanBerjalan();
+            const filtered = edGetFilteredData();
+
+            // Jika bulan dipilih, target dan jumlah DONE hanya dihitung dari
+            // data pada bulan tersebut serta tetap mengikuti filter editor.
+            let bulanTarget = filterBulan !== 'all'
+                ? filterBulan
+                : edGetBulanBerjalan();
+
+            let dataTarget = filtered.filter(i => i.bulan === bulanTarget);
             let bulanFallback = false;
-            if (!bulanTersedia.includes(bulanTarget)) {
-                bulanFallback = true;
-                const terurut = bulanTersedia.slice().sort((a, b) => URUTAN_BULAN.indexOf(a) - URUTAN_BULAN.indexOf(b));
-                bulanTarget = terurut[terurut.length - 1];
+
+            // Jika "Semua Bulan" dipilih dan bulan berjalan tidak memiliki data,
+            // gunakan bulan terbaru yang memiliki data pada filter aktif.
+            if (filterBulan === 'all' && dataTarget.length === 0) {
+                const bulanTersedia = Array.from(new Set(
+                    filtered
+                        .map(i => i.bulan)
+                        .filter(b => URUTAN_BULAN.includes(b))
+                )).sort((a, b) => URUTAN_BULAN.indexOf(a) - URUTAN_BULAN.indexOf(b));
+
+                if (bulanTersedia.length > 0) {
+                    bulanTarget = bulanTersedia[bulanTersedia.length - 1];
+                    dataTarget = filtered.filter(i => i.bulan === bulanTarget);
+                    bulanFallback = true;
+                }
             }
-            const doneCount = edListPlanningGlobal.filter(i => i.bulan === bulanTarget && i.statusEdit === 'Done').length;
-            const tahunTarget = (edListPlanningGlobal.find(i => i.bulan === bulanTarget) || {}).tahun || '';
+
+            // Tidak ada data sama sekali untuk filter yang sedang aktif.
+            if (dataTarget.length === 0) {
+                label.innerText = filterBulan !== 'all' ? 'Sesuai Filter Bulan' : 'Bulan Berjalan';
+                container.innerHTML = `
+                    <div class="relative p-5 rounded-2xl border border-gray-100 bg-gray-50/50">
+                        <p class="text-sm font-bold text-gray-800">${bulanTarget}</p>
+                        <div class="flex items-end gap-1.5 mt-2 mb-3">
+                            <span class="text-3xl font-black text-gray-800">0</span>
+                            <span class="text-sm text-gray-400 font-semibold mb-1">/ ${TARGET_KONSTAN} video</span>
+                        </div>
+                        <div class="progress-track w-full h-2.5 rounded-full overflow-hidden mb-3">
+                            <div class="progress-fill h-full rounded-full bg-amber-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex items-center justify-between gap-3 flex-wrap">
+                            <span class="badge-pill bg-rose-50 text-rose-600 border border-rose-200">✕ TARGET TIDAK TERCAPAI</span>
+                            <span class="text-xs font-bold text-rose-600">Kurang ${TARGET_KONSTAN} video</span>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            const doneCount = dataTarget.filter(i => i.statusEdit === 'Done').length;
+            const tahunTarget = (dataTarget.find(i => i.bulan === bulanTarget) || {}).tahun || '';
             const persen = Math.min(100, Math.round((doneCount / TARGET_KONSTAN) * 100));
             const tercapai = doneCount >= TARGET_KONSTAN;
-            const barColor = tercapai ? 'bg-emerald-500' : 'bg-blue-600';
+            const kekurangan = Math.max(0, TARGET_KONSTAN - doneCount);
+
+            const barColor = tercapai ? 'bg-emerald-500' : 'bg-amber-500';
+            const borderColor = tercapai ? 'border-emerald-200' : 'border-rose-200';
+            const bgColor = tercapai ? 'bg-emerald-50/40' : 'bg-rose-50/40';
+
             const badge = tercapai
-                ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Tercapai (DONE)</span>'
-                : `<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Kurang ${TARGET_KONSTAN - doneCount} video lagi</span>`;
-            label.innerText = filterBulan === 'all' ? (bulanFallback ? `Bulan Berjalan (data terbaru: ${bulanTarget})` : 'Bulan Berjalan') : 'Sesuai Filter Bulan';
+                ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ TARGET TERCAPAI</span>'
+                : '<span class="badge-pill bg-rose-50 text-rose-600 border border-rose-200">✕ TARGET TIDAK TERCAPAI</span>';
+
+            label.innerText = filterBulan !== 'all'
+                ? 'Sesuai Filter Bulan'
+                : (bulanFallback ? `Bulan Berjalan (data terbaru: ${bulanTarget})` : 'Bulan Berjalan');
+
             container.innerHTML = `
-        <div class="relative p-5 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
-          <p class="text-sm font-bold text-gray-800">${bulanTarget} ${tahunTarget}</p>
-          <div class="flex items-end gap-1.5 mt-2 mb-3"><span class="text-3xl font-black text-gray-800">${doneCount}</span><span class="text-sm text-gray-400 font-semibold mb-1">/ ${TARGET_KONSTAN} video</span></div>
-          <div class="progress-track w-full h-2.5 rounded-full overflow-hidden mb-3"><div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div></div>
-          ${badge}
-        </div>`;
+                <div class="relative p-5 rounded-2xl border ${borderColor} ${bgColor}">
+                    <div class="flex items-center justify-between gap-3 flex-wrap">
+                        <p class="text-sm font-bold text-gray-800">${bulanTarget} ${tahunTarget}</p>
+                        ${badge}
+                    </div>
+
+                    <div class="flex items-end gap-1.5 mt-3 mb-3">
+                        <span class="text-3xl font-black text-gray-800">${doneCount}</span>
+                        <span class="text-sm text-gray-400 font-semibold mb-1">/ ${TARGET_KONSTAN} video</span>
+                    </div>
+
+                    <div class="progress-track w-full h-2.5 rounded-full overflow-hidden mb-3">
+                        <div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 flex-wrap text-xs">
+                        <span class="font-semibold text-gray-500">Pencapaian ${persen}%</span>
+                        ${tercapai
+                            ? `<span class="font-bold text-emerald-600">Target ${TARGET_KONSTAN} video tercapai</span>`
+                            : `<span class="font-bold text-rose-600">Kurang ${kekurangan} video</span>`
+                        }
+                    </div>
+                </div>`;
         }
 
         /* ---------- CRUD Planning Editor ---------- */
