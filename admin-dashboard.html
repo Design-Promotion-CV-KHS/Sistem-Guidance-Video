@@ -707,42 +707,97 @@
         }
 
         /* ================================================================
-           PANDUAN TAKE VIDEO — EMBEDDED CONTENT + MAX WIDTH
-           Konten Panduan tetap berada di area dashboard.
-           Link tidak membuka halaman fullscreen baru.
-           ================================================================ */
+           FULL WIDTH WORKSPACE UNTUK SUB-MENU WORKFLOW & PANDUAN
+           Konten detail tidak lagi dibatasi max-width dan iframe mengisi
+           area kerja yang tersedia di bawah header dashboard.
+        ================================================================ */
+        /* ================================================================
+           FULL WIDTH SEMUA TAB DASHBOARD
+           Semua halaman dibuat selebar area kerja seperti Workflow Editing.
+           Tidak lagi dibatasi max-width / mx-auto.
+        ================================================================ */
+        #tab-overview,
+        #tab-cabang-crud,
+        #tab-cabang-evaluasi,
+        #tab-editor-crud,
+        #tab-user-crud,
+        #tab-workflow-tools,
+        #tab-panduan,
+        #tab-tools {
+            max-width: none !important;
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            box-sizing: border-box;
+        }
 
         #tab-panduan {
-            width: 100% !important;
             max-width: none !important;
-            box-sizing: border-box;
+            width: 100% !important;
         }
 
+        /* ================================================================
+           PANDUAN: MODE WORKSPACE (embed spreadsheet / dokumen / sub-menu)
+           Tujuan: saat sedang menampilkan spreadsheet/dokumen/daftar sub-menu,
+           area kerja mengisi persis sisa tinggi layar (di bawah header) dan
+           TIDAK ikut membuat halaman utama (main) ikut discroll. Yang discroll
+           hanya konten DI DALAM iframe/tabel/daftar itu sendiri, sehingga
+           seluruh isinya selalu terlihat utuh dan tidak "kepotong" saat discroll.
+        ================================================================ */
         #panduan-workspace-view {
             width: 100%;
-            box-sizing: border-box;
+            height: calc(100vh - 132px);
+            display: flex;
+            flex-direction: column;
         }
 
-        .panduan-content-wrapper {
+        /* ================================================================
+           MODE SPREADSHEET FULL WORKSPACE
+           Saat Google Sheets dibuka dari Panduan Take Video, hilangkan
+           padding/card dekoratif agar spreadsheet mengisi penuh area kerja.
+           Berlaku untuk semua link Google Sheets yang dibuka lewat iframe.
+        ================================================================ */
+        #tab-panduan.panduan-spreadsheet-mode {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view {
             width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            box-sizing: border-box;
+            height: calc(100vh - 92px);
         }
 
-        #panduan-workspace-view > .panduan-content-wrapper > button {
-            margin-bottom: 14px;
-        }
-
-        .panduan-embedded-card {
-            width: 100%;
-            height: calc(100vh - 190px);
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view > button {
+            margin: 10px 12px 10px 12px;
+            flex-shrink: 0;
             position: relative;
+            z-index: 2;
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode .panduan-workspace-shell {
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode #panduan-iframe {
+            border-radius: 0;
+        }
+
+        #panduan-workspace-view>button {
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .panduan-workspace-shell {
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            /* penting: agar child flex bisa mengisi & discroll sendiri, bukan mendorong parent melebar */
+            background: #fff;
         }
 
         #panduan-iframe {
@@ -753,12 +808,15 @@
             background: #fff;
         }
 
+        /* Panel daftar sub-menu (mis. "Panduan rekam video lahan") yang tampil
+           menggantikan iframe saat sebuah kategori punya beberapa pilihan link.
+           Dibuat penuh 1 layar seperti iframe, tapi yang discroll hanya daftar
+           di dalamnya saja. */
         #panduan-sublist-panel {
             width: 100%;
             height: 100%;
             overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
+            padding: 8px;
         }
 
         #panduan-sublist-panel .panduan-sublist-item {
@@ -803,32 +861,10 @@
             color: #334155;
         }
 
-        /* Scroll dashboard tetap normal.
-           Scroll internal spreadsheet tetap berada di iframe. */
+        /* Saat mode workspace aktif, main tidak ikut discroll (dikunci lewat JS)
+           supaya area tabel/iframe/daftar selalu terlihat utuh dalam satu layar. */
         main.panduan-scroll-lock {
-            overflow-y: auto !important;
-        }
-
-        /* Desktop besar */
-        @media (min-width: 1600px) {
-            .panduan-content-wrapper {
-                max-width: 1500px;
-            }
-
-            #tab-panduan.panduan-spreadsheet-mode .panduan-content-wrapper {
-                max-width: 1550px;
-            }
-        }
-
-        /* Tablet */
-        @media (max-width: 1024px) {
-            .panduan-content-wrapper {
-                max-width: 100%;
-            }
-
-            .panduan-embedded-card {
-                height: calc(100vh - 175px);
-            }
+            overflow-y: hidden !important;
         }
 
         @media (max-width: 768px) {
@@ -887,11 +923,6 @@
                     class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
                     id="nav-cabang-evaluasi" onclick="switchTab('cabang-evaluasi')">
                     <i class="fas fa-clipboard-check w-5 text-center"></i> Hasil Evaluasi
-                </button>
-                <button
-                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
-                    id="nav-customer-profile" onclick="switchTab('customer-profile')">
-                    <i class="fas fa-id-card w-5 text-center"></i> Customer Profile
                 </button>
                 <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data
                     Editor</p>
@@ -1524,192 +1555,6 @@
                 </div>
             </div>
         </div>
-        <!-- ============ TAB: CUSTOMER PROFILE ============ -->
-        <div class="p-8 space-y-6 w-full hidden" id="tab-customer-profile">
-            <div
-                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
-                <div>
-                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Kelola Customer Profile</h3>
-                    <p class="text-sm text-slate-500 mt-1">Tambah, ubah, dan hapus data customer profile, script
-                        wawancara, dan evaluasi wawancara per cabang secara real-time.</p>
-                </div>
-                <button
-                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn shrink-0"
-                    id="cp-btn-tambah-data">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
-                        </path>
-                    </svg>
-                    Tambah Data Baru
-                </button>
-            </div>
-            <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
-                id="cp-diagnostic-banner">
-                <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
-                <p class="text-rose-600" id="cp-diagnostic-message"></p>
-            </div>
-            <div class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs"
-                id="cp-crud-no-id-warning">
-                ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Edit &amp; Hapus tetap bisa dipakai, tapi sistem
-                mencocokkan baris berdasarkan <b>kombinasi semua kolom</b>. Untuk keamanan penuh, sebaiknya tambahkan
-                kolom <code>id</code> unik (primary key) di tabel Customer_Profile Supabase.
-            </div>
-            <div class="hidden bg-sky-50 border border-sky-200 text-sky-700 rounded-2xl p-4 text-xs"
-                id="cp-no-date-warning">
-                ℹ️ Tidak ditemukan kolom tanggal/waktu (misalnya <code>created_at</code>) pada tabel Customer_Profile,
-                sehingga grafik "Kiriman per Bulan" tidak dapat dikelompokkan per bulan dan menampilkan seluruh data
-                sebagai satu kelompok. Tambahkan kolom tanggal pada tabel agar grafik bulanan berfungsi optimal.
-            </div>
-            <!-- Filter & Ringkasan -->
-            <div
-                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 tracking-tight">Statistik Kiriman Customer Profile
-                    </h3>
-                    <p class="text-sm text-slate-500 mt-1">Target dihitung dari 2 video/bulan per cabang.</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
-                        <div
-                            class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
-                            <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                                <path
-                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter
-                                Cabang</label>
-                            <select
-                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
-                                id="cp-filter-cabang">
-                                <option value="all">Semua Cabang</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
-                        <div
-                            class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                                <path
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter
-                                Bulan</label>
-                            <select
-                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
-                                id="cp-filter-bulan">
-                                <option value="all">Semua Bulan</option>
-                                <option value="01">Januari</option>
-                                <option value="02">Februari</option>
-                                <option value="03">Maret</option>
-                                <option value="04">April</option>
-                                <option value="05">Mei</option>
-                                <option value="06">Juni</option>
-                                <option value="07">Juli</option>
-                                <option value="08">Agustus</option>
-                                <option value="09">September</option>
-                                <option value="10">Oktober</option>
-                                <option value="11">November</option>
-                                <option value="12">Desember</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Kartu ringkas -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
-                        📋</div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Data (Sesuai Filter)
-                        </p>
-                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-total">0</h4>
-                    </div>
-                </div>
-                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
-                        🏢</div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cabang Terdaftar</p>
-                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-cabang-count">0</h4>
-                    </div>
-                </div>
-                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
-                        🎯</div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Bulan Berjalan vs Target
-                        </p>
-                        <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-target-info">-</h4>
-                    </div>
-                </div>
-            </div>
-            <!-- Grafik Tren Bulanan -->
-            <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                            Tren Kiriman Customer Profile per Bulan
-                            <span
-                                class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
-                            </span>
-                        </h4>
-                        <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 video/bulan per cabang. Grafik
-                            ini mengikuti Filter Cabang di atas dan menampilkan seluruh bulan yang ada datanya (tidak
-                            terpengaruh Filter Bulan).</p>
-                    </div>
-                    <span
-                        class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200"
-                        id="cp-trend-bulan-berjalan-badge">Memuat status bulan berjalan...</span>
-                </div>
-                <div class="h-[300px] mt-3"><canvas id="cp-chartTrendBulanan"></canvas></div>
-            </div>
-            <!-- Grafik per cabang -->
-            <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm">
-                <h4 class="text-sm font-bold text-slate-800 mb-2">Jumlah Kiriman Customer Profile per Cabang (Sesuai
-                    Filter Bulan)</h4>
-                <div class="h-[340px]"><canvas id="cp-chartPerCabang"></canvas></div>
-            </div>
-            <!-- Tabel data -->
-            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-                <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
-                            <tr
-                                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                <th class="py-4 px-5 bg-slate-100">ID</th>
-                                <th class="py-4 px-5 bg-slate-100">Cabang</th>
-                                <th class="py-4 px-5 bg-slate-100">Nama</th>
-                                <th class="py-4 px-5 bg-slate-100">Produk</th>
-                                <th class="py-4 px-5 bg-slate-100">Customer Profile</th>
-                                <th class="py-4 px-5 bg-slate-100">Script Wawancara</th>
-                                <th class="py-4 px-5 bg-slate-100">Evaluasi Wawancara</th>
-                                <th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
-                            id="cp-tabel-body">
-                            <tr>
-                                <td class="text-center py-8 text-slate-400" colspan="8">Memuat data dari database...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
         <!-- ============ TAB: EDITOR - CRUD PLANNING ============ -->
         <div class="p-8 space-y-6 w-full hidden" id="tab-editor-crud">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -2235,33 +2080,51 @@
                                     folder resource video.</a></li>
                         </ul>
                     </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">E</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Monitoring Hasil Video Cabang</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/1hqbyAvXOeRzG1TFrJndSuophvUEr5QRUd0DvRmVTwvQ/edit"><span
+                                        class="panduan-step-idx">11.</span> Laporan rekap video tahun 2026 yang diupdate
+                                    secara real-time.</a></li>
+                        </ul>
+                    </div>
+                    <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center gap-3.5 mb-3 pb-3 border-b border-slate-200">
+                            <div class="panduan-step-number">F</div>
+                            <h4 class="text-base font-extrabold text-slate-900">Evaluasi Konten</h4>
+                        </div>
+                        <ul class="panduan-link-list">
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/1wrKNz8fiZbWht82gEd0THJ-1chltvAZzxKbLLKYiYd8/edit"><span
+                                        class="panduan-step-idx">12.</span> Spreadsheet evaluasi rekaman video cabang
+                                    terupdate.</a></li>
+                            <li><a class="panduan-embed-link"
+                                    data-url="https://docs.google.com/spreadsheets/d/10bmeFhc9B7txKCxfJS3eObRDPEnRSQmYwUQvdyuU5zI/edit"><span
+                                        class="panduan-step-idx">13.</span> Report bulanan kiriman video cabang periode
+                                    2026.</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="hidden" id="panduan-workspace-view">
-                <div class="panduan-content-wrapper">
-
-                    <button
-                        class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn"
-                        onclick="tutupPanduanWorkspace()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5"></path>
-                        </svg>
-                        Kembali ke Panduan
-                    </button>
-
-                    <div class="panduan-embedded-card">
-                        <iframe
-                            allowfullscreen=""
-                            frameborder="0"
-                            id="panduan-iframe"
-                            src=""
-                            title="Konten Panduan">
-                        </iframe>
-
-                        <div class="hidden" id="panduan-sublist-panel"></div>
-                    </div>
-
+                <button
+                    class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn mb-4"
+                    onclick="tutupPanduanWorkspace()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2.5"></path>
+                    </svg>
+                    Kembali ke Panduan
+                </button>
+                <div
+                    class="panduan-workspace-shell glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                    <iframe allowfullscreen="" class="w-full h-full block" frameborder="0" id="panduan-iframe"
+                        src=""></iframe>
+                    <div class="hidden" id="panduan-sublist-panel"></div>
                 </div>
             </div>
         </div>
@@ -2287,14 +2150,6 @@
                             class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-indigo-600 outline-none bg-white shadow-sm transition-all"
                             id="cb-input-cabang" required="">
                             <option value="">- Pilih Cabang -</option>
-                            <option value="">Nganjuk</option>
-                            <option value="">Jogja</option>
-                            <option value="">Cianjur</option>
-                            <option value="">Pekanbaru</option>
-                            <option value="">Banjarmasin</option>
-                            <option value="">Bandar Lampung</option>
-                            <option value="">Palu</option>
-                            <option value="">Makassar</option>
                         </select>
                     </div>
                     <div>
@@ -2306,7 +2161,6 @@
                             <option value="">- Pilih Segmen -</option>
                             <option value="DONE">DONE</option>
                             <option value="WIP">WIP</option>
-                            <option value="WAITING LIST">WAITING LIST</option>
                             <option value="REJECT">REJECT</option>
                             <option value="FOOTAGE">FOOTAGE</option>
                         </select>
@@ -2354,65 +2208,6 @@
                     <button
                         class="px-6 py-2.5 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 shadow-md transition-all interactive-btn"
                         type="submit">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- MODAL CRUD CUSTOMER PROFILE -->
-    <div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="cp-crud-modal">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
-                <h4 class="text-lg font-bold text-gray-800" id="cp-crud-modal-title">Tambah Data</h4>
-                <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" id="cp-crud-modal-close"
-                    type="button">×</button>
-            </div>
-            <form class="p-6 space-y-4" id="cp-crud-form">
-                <input id="cp-crud-field-id" type="hidden" />
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Cabang *</label>
-                    <select
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-cabang" required="">
-                        <option value="">- Pilih Cabang -</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nama *</label>
-                    <input
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-nama" required="" type="text" />
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Produk</label>
-                    <input
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-produk" placeholder="Contoh: Quick Boxer" type="text" />
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Customer Profile</label>
-                    <textarea
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-customerProfile" placeholder="Tuliskan profil customer..." rows="3"></textarea>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Script Wawancara</label>
-                    <textarea
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-scriptWawancara" placeholder="Tuliskan script wawancara..." rows="4"></textarea>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Evaluasi Wawancara</label>
-                    <textarea
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-evaluasiWawancara" placeholder="Tuliskan evaluasi wawancara..." rows="3"></textarea>
-                </div>
-                <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
-                    id="cp-crud-form-error"></div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100"
-                        id="cp-crud-cancel-btn" type="button">Batal</button>
-                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800"
-                        id="cp-crud-save-btn" type="submit">Simpan</button>
                 </div>
             </form>
         </div>
@@ -2618,8 +2413,6 @@
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const NAMA_TABEL_KIRIMAN = 'Kiriman_Cabang';
         const NAMA_TABEL_PLANNING = 'Planning_Editor';
-        const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
-        const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
         const TARGET_KONSTAN = 12;
         const URUTAN_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -2751,12 +2544,11 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'editor-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'editor-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
             'cabang-evaluasi': '| Hasil Evaluasi Cabang',
-            'customer-profile': '| Kelola Customer Profile',
             'editor-crud': '| Kelola Planning Editor',
             'user-crud': '| Kelola User & Role',
             'workflow-tools': '| Workflow Editing Video',
@@ -2784,7 +2576,6 @@
             if (tabName === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); }
             else if (tabName === 'cabang-crud') cbMuatDataTabel();
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
-            else if (tabName === 'customer-profile') cpMuatDashboard();
             else if (tabName === 'editor-crud') edMuatDashboard();
             else if (tabName === 'user-crud') usMuatDataUser();
             else if (tabName === 'panduan') tutupPanduanWorkspace();
@@ -3296,476 +3087,6 @@
             alert('Data berhasil dihapus!');
             cbMuatDataTabel();
             if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
-            if (currentActiveTab === 'overview') renderOverview();
-        }
-
-        /* ===================================================================
-           BAGIAN CUSTOMER PROFILE (Customer_Profile)
-           Semua id memakai prefix "cp-"
-           Kolom di Supabase: id, Cabang, Nama, Produk, Customer Profile,
-           Script Wawancara, Evaluasi Wawancara (+ created_at jika ada, dipakai
-           untuk pengelompokan per bulan pada grafik tren).
-        =================================================================== */
-        let cpListGlobal = [];
-        let cpMyTrendChart = null;
-        let cpMyCabangChart = null;
-        let cpDateColumnDetected = null; // nama kolom tanggal yang terdeteksi (created_at, dsb)
-        let cpCurrentEditIdInfo = null;
-
-        // Ambil nilai kolom dengan mencoba beberapa kemungkinan nama (spasi/underscore/kapitalisasi)
-        function cpGetField(item, ...keys) {
-            for (const k of keys) {
-                if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
-                    return String(item[k]);
-                }
-            }
-            return '';
-        }
-
-        function cpGetCabang(item) { return cpGetField(item, 'Cabang', 'cabang'); }
-        function cpGetNama(item) { return cpGetField(item, 'Nama', 'nama'); }
-        function cpGetProduk(item) { return cpGetField(item, 'Produk', 'produk'); }
-        function cpGetCustomerProfile(item) { return cpGetField(item, 'Customer Profile', 'Customer_Profile', 'customer_profile'); }
-        function cpGetScriptWawancara(item) { return cpGetField(item, 'Script Wawancara', 'Script_Wawancara', 'script_wawancara'); }
-        function cpGetEvaluasiWawancara(item) { return cpGetField(item, 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara'); }
-
-        // Deteksi otomatis nama kolom tanggal/waktu yang ada pada baris data (untuk pengelompokan bulan)
-        function cpDetectDateColumn(sampleRow) {
-            if (!sampleRow) { cpDateColumnDetected = null; return; }
-            const kandidat = ['created_at', 'Created_at', 'CreatedAt', 'created At', 'Tanggal', 'tanggal', 'Tanggal_Kirim', 'tanggal_kirim', 'Waktu', 'waktu', 'Timestamp', 'timestamp'];
-            const keys = Object.keys(sampleRow);
-            for (const k of kandidat) {
-                const found = keys.find(x => x.toLowerCase() === k.toLowerCase());
-                if (found) { cpDateColumnDetected = found; return; }
-            }
-            cpDateColumnDetected = null;
-        }
-
-        function cpGetYearMonthFromItem(item) {
-            if (!cpDateColumnDetected) return null;
-            const raw = item[cpDateColumnDetected];
-            if (!raw) return null;
-            const d = new Date(raw);
-            if (isNaN(d)) return null;
-            const year = String(d.getFullYear());
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            return { year, month, key: `${year}-${month}` };
-        }
-
-        async function ambilDataCustomerProfile() {
-            const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).select('*');
-            if (error) {
-                console.error('SUPABASE ERROR (Customer_Profile):', error);
-                return { data: [], error };
-            }
-            return { data: cbSortDataById(data || []), error: null };
-        }
-
-        function cpTampilkanDiagnostik(pesan) {
-            const banner = document.getElementById('cp-diagnostic-banner');
-            document.getElementById('cp-diagnostic-message').innerText = pesan;
-            banner.classList.remove('hidden');
-        }
-        function cpSembunyikanDiagnostik() { document.getElementById('cp-diagnostic-banner').classList.add('hidden'); }
-
-        // ==== populate dropdown Cabang dari data yang sudah ada (dashboard filter + form CRUD) ====
-        function cpPopulateCabangOptionsFilter() {
-            const select = document.getElementById('cp-filter-cabang');
-            const current = select.value || 'all';
-            const cabangSet = new Set();
-            cpListGlobal.forEach(item => { const c = cpGetCabang(item).trim(); if (c) cabangSet.add(c); });
-            const sorted = Array.from(cabangSet).sort();
-            select.innerHTML = `<option value="all">Semua Cabang (${sorted.length})</option>` +
-                sorted.map(c => `<option value="${edEscapeHtml(c)}" ${c === current ? 'selected' : ''}>${edEscapeHtml(c)}</option>`).join('');
-        }
-        function cpPopulateCabangOptionsForm() {
-            const select = document.getElementById('cp-crud-field-cabang');
-            const current = select.value;
-            const cabangSet = new Set();
-            cpListGlobal.forEach(item => { const c = cpGetCabang(item).trim(); if (c) cabangSet.add(c); });
-            const sorted = Array.from(cabangSet).sort();
-            select.innerHTML = '<option value="">- Pilih Cabang -</option>' +
-                sorted.map(c => `<option value="${edEscapeHtml(c)}">${edEscapeHtml(c)}</option>`).join('');
-            if (current) setSelectValueEnsureOption(select, current);
-        }
-
-        document.getElementById('cp-filter-cabang').addEventListener('change', cpRenderSemua);
-        document.getElementById('cp-filter-bulan').addEventListener('change', cpRenderSemua);
-
-        async function cpMuatDashboard() {
-            cpSembunyikanDiagnostik();
-            const { data, error } = await ambilDataCustomerProfile();
-            cpListGlobal = data;
-
-            if (error) {
-                cpTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_CUSTOMER_PROFILE}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat, nama tabel salah, atau RLS belum mengizinkan akses baca untuk anon key.`);
-            } else if (cpListGlobal.length === 0) {
-                cpTampilkanDiagnostik(`Tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" berhasil diakses tapi belum berisi data. Klik "Tambah Data Baru" untuk menambahkan data pertama.`);
-            }
-
-            cpDetectDateColumn(cpListGlobal[0]);
-            document.getElementById('cp-no-date-warning').classList.toggle('hidden', !cpListGlobal.length || !!cpDateColumnDetected);
-
-            const idInfoSample = cpListGlobal.length ? getRowIdInfo(cpListGlobal[0]) : null;
-            document.getElementById('cp-crud-no-id-warning').classList.toggle('hidden', !cpListGlobal.length || !!idInfoSample);
-
-            cpPopulateCabangOptionsFilter();
-            cpRenderSemua();
-        }
-
-        function cpGetFilteredData() {
-            const cabangFilter = document.getElementById('cp-filter-cabang').value;
-            const bulanFilter = document.getElementById('cp-filter-bulan').value;
-            return cpListGlobal.filter(item => {
-                if (cabangFilter !== 'all' && cpGetCabang(item).trim() !== cabangFilter) return false;
-                if (bulanFilter !== 'all') {
-                    const ym = cpGetYearMonthFromItem(item);
-                    if (!ym || ym.month !== bulanFilter) return false;
-                }
-                return true;
-            });
-        }
-
-        function cpRenderSemua() {
-            const filtered = cpGetFilteredData();
-            cpRenderKartuRingkas(filtered);
-            cpRenderTrendBulanan();
-            cpRenderChartPerCabang(filtered);
-            cpRenderTabel(filtered);
-        }
-
-        function cpRenderKartuRingkas(filtered) {
-            document.getElementById('cp-card-total').innerText = filtered.length;
-            const cabangSet = new Set(filtered.map(i => cpGetCabang(i).trim()).filter(Boolean));
-            document.getElementById('cp-card-cabang-count').innerText = cabangSet.size;
-
-            const now = new Date();
-            const bulanBerjalanKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            const dataBulanBerjalan = cpListGlobal.filter(item => {
-                const cabangFilter = document.getElementById('cp-filter-cabang').value;
-                if (cabangFilter !== 'all' && cpGetCabang(item).trim() !== cabangFilter) return false;
-                const ym = cpGetYearMonthFromItem(item);
-                return ym && ym.key === bulanBerjalanKey;
-            });
-            document.getElementById('cp-card-target-info').innerText = cpDateColumnDetected
-                ? `${dataBulanBerjalan.length}/2 video`
-                : '-';
-        }
-
-        function cpRenderTrendBulanan() {
-            const cabangFilter = document.getElementById('cp-filter-cabang').value;
-            let dataUntukTrend = cpListGlobal;
-            if (cabangFilter !== 'all') {
-                dataUntukTrend = dataUntukTrend.filter(item => cpGetCabang(item).trim() === cabangFilter);
-            }
-
-            const jumlahCabangAktif = new Set(cpListGlobal.map(i => cpGetCabang(i).trim()).filter(Boolean)).size || 1;
-            const targetPerBulan = cabangFilter === 'all'
-                ? CB_TARGET_PER_CABANG_PER_BULAN * jumlahCabangAktif
-                : CB_TARGET_PER_CABANG_PER_BULAN;
-
-            const badgeEl = document.getElementById('cp-trend-bulan-berjalan-badge');
-            const ctxTrend = document.getElementById('cp-chartTrendBulanan').getContext('2d');
-            if (cpMyTrendChart) cpMyTrendChart.destroy();
-
-            if (!cpDateColumnDetected) {
-                badgeEl.innerText = 'Kolom tanggal tidak terdeteksi';
-                badgeEl.className = 'shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200';
-                cpMyTrendChart = null;
-                ctxTrend.clearRect(0, 0, ctxTrend.canvas.width, ctxTrend.canvas.height);
-                return;
-            }
-
-            const rekapBulan = {};
-            dataUntukTrend.forEach(item => {
-                const ym = cpGetYearMonthFromItem(item);
-                if (!ym) return;
-                rekapBulan[ym.key] = (rekapBulan[ym.key] || 0) + 1;
-            });
-
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
-            const sortedKeys = [];
-            for (let month = 1; month <= currentMonth; month++) {
-                sortedKeys.push(`${currentYear}-${String(month).padStart(2, '0')}`);
-            }
-            const labels = sortedKeys.map(k => {
-                const [y, m] = k.split('-');
-                return `${CB_NAMA_BULAN_MAP[m] || m} ${y}`;
-            });
-            const values = sortedKeys.map(k => rekapBulan[k] || 0);
-            const barColors = values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1');
-            const targetLine = sortedKeys.map(() => targetPerBulan);
-
-            const bulanBerjalanKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-            const namaBulanBerjalan = CB_NAMA_BULAN_MAP[String(currentMonth).padStart(2, '0')] || String(currentMonth);
-            const nilaiBulanBerjalan = rekapBulan[bulanBerjalanKey] || 0;
-            const tercapai = nilaiBulanBerjalan >= targetPerBulan;
-            badgeEl.innerText = `Bulan Berjalan: ${namaBulanBerjalan} ${currentYear} — ${nilaiBulanBerjalan}/${targetPerBulan} video${tercapai ? ' ✔ Tercapai' : ''}`;
-            badgeEl.className = `shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border ${tercapai ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
-
-            if (sortedKeys.length === 0) { cpMyTrendChart = null; return; }
-
-            cpMyTrendChart = new Chart(ctxTrend, {
-                data: {
-                    labels,
-                    datasets: [
-                        { type: 'bar', label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 46, order: 2 },
-                        { type: 'line', label: `Target (${targetPerBulan} video/bulan)`, data: targetLine, borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false, tension: 0, order: 1, datalabels: { display: false } }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
-                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 },
-                        datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
-                        x: { ticks: { color: '#64748b' }, grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        function cpRenderChartPerCabang(filtered) {
-            const rekap = {};
-            filtered.forEach(item => {
-                const c = cpGetCabang(item).trim();
-                if (!c) return;
-                rekap[c] = (rekap[c] || 0) + 1;
-            });
-            const labels = Object.keys(rekap).sort();
-            const values = labels.map(l => rekap[l]);
-            const barColors = labels.map((_, idx) => COLOR_PALETTE[idx % COLOR_PALETTE.length]);
-
-            const ctx = document.getElementById('cp-chartPerCabang').getContext('2d');
-            if (cpMyCabangChart) cpMyCabangChart.destroy();
-            if (labels.length === 0) { cpMyCabangChart = null; ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); return; }
-            cpMyCabangChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets: [{ label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 45 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 }, datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } }, x: { ticks: { color: '#64748b' }, grid: { display: false } } }
-                }
-            });
-        }
-
-        // ==== BARU: Upload file (PDF/DOCX/JPG/PNG) ke Supabase Storage untuk
-        // field Customer Profile & Script Wawancara ====
-        function cpIsFileUrl(value) {
-            return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
-        }
-
-        function cpGetFileIconInfo(url) {
-            const clean = url.split('?')[0].toLowerCase();
-            if (clean.endsWith('.pdf')) return { icon: 'fa-file-pdf', label: 'Lihat PDF', color: 'text-rose-600 bg-rose-50 border-rose-200 hover:bg-rose-100' };
-            if (clean.endsWith('.doc') || clean.endsWith('.docx')) return { icon: 'fa-file-word', label: 'Lihat Dokumen', color: 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100' };
-            if (clean.endsWith('.jpg') || clean.endsWith('.jpeg') || clean.endsWith('.png')) return { icon: 'fa-image', label: 'Lihat Gambar', color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' };
-            return { icon: 'fa-file', label: 'Lihat File', color: 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100' };
-        }
-
-        // Dipakai di tabel: kalau isinya link file, tampilkan tombol. Kalau teks biasa, tampilkan terpotong seperti biasa.
-        function cpRenderFileOrText(value) {
-            if (cpIsFileUrl(value)) {
-                const info = cpGetFileIconInfo(value);
-                return `<a href="${edEscapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${info.color}"><i class="fas ${info.icon}"></i> ${info.label}</a>`;
-            }
-            return `<span title="${edEscapeHtml(value)}">${edEscapeHtml(cpTruncateText(value))}</span>`;
-        }
-
-        async function cpUploadFileHandler(inputEl, targetTextareaId, statusElId) {
-            const file = inputEl.files && inputEl.files[0];
-            if (!file) return;
-
-            const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
-            const ext = file.name.split('.').pop().toLowerCase();
-            const statusEl = document.getElementById(statusElId);
-
-            if (!allowedExt.includes(ext)) {
-                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, JPG, atau PNG.</span>';
-                inputEl.value = '';
-                return;
-            }
-            if (file.size > 15 * 1024 * 1024) {
-                statusEl.innerHTML = '<span class="text-rose-500">Ukuran file maksimal 15MB.</span>';
-                inputEl.value = '';
-                return;
-            }
-
-            statusEl.innerHTML = '<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload file...</span>';
-
-            const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-            const path = `${Date.now()}_${namaBersih}`;
-
-            const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false });
-            if (error) {
-                statusEl.innerHTML = `<span class="text-rose-500">Gagal upload: ${edEscapeHtml(error.message)}</span>`;
-                inputEl.value = '';
-                return;
-            }
-
-            const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET).getPublicUrl(path);
-            const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
-
-            document.getElementById(targetTextareaId).value = publicUrl;
-            statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> Berhasil: ${edEscapeHtml(file.name)}</span>`;
-            inputEl.value = '';
-        }
-
-        function cpTruncateText(text, maxLen = 60) {
-            if (!text) return '-';
-            const clean = String(text);
-            return clean.length > maxLen ? clean.substring(0, maxLen) + '…' : clean;
-        }
-
-        function cpRenderTabel(filtered) {
-            const tbody = document.getElementById('cp-tabel-body');
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = filtered.map(item => {
-                const idInfo = getRowIdInfo(item);
-                const idDisplay = idInfo ? `#${edEscapeHtml(idInfo.value)}` : '⚠️ Tanpa ID';
-                const cabang = edEscapeHtml(cpGetCabang(item) || '-');
-                const nama = edEscapeHtml(cpGetNama(item) || '-');
-                const produk = edEscapeHtml(cpGetProduk(item) || '-');
-                const profil = cpGetCustomerProfile(item);
-                const script = cpGetScriptWawancara(item);
-                const evaluasi = cpGetEvaluasiWawancara(item);
-                return `
-          <tr class="hover:bg-slate-50/80 transition-all duration-200">
-            <td class="py-4 px-5 font-mono text-xs text-slate-400">${idDisplay}</td>
-            <td class="py-4 px-5 font-bold text-slate-800">${cabang}</td>
-            <td class="py-4 px-5 text-slate-700 font-medium">${nama}</td>
-            <td class="py-4 px-5 text-slate-600">${produk}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(profil)}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(script)}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs truncate" title="${edEscapeHtml(evaluasi)}">${edEscapeHtml(cpTruncateText(evaluasi))}</td>
-            <td class="py-4 px-5 text-center space-x-2 whitespace-nowrap">
-              <button data-rid="${cpListGlobal.indexOf(item)}" class="cp-btn-edit text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Edit</button>
-              <button data-rid="${cpListGlobal.indexOf(item)}" class="cp-btn-hapus text-rose-600 hover:text-rose-800 font-bold text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Hapus</button>
-            </td>
-          </tr>`;
-            }).join('');
-
-            tbody.querySelectorAll('.cp-btn-edit').forEach(btn => btn.addEventListener('click', () => cpBukaModalEdit(btn.dataset.rid)));
-            tbody.querySelectorAll('.cp-btn-hapus').forEach(btn => btn.addEventListener('click', () => cpHapusData(btn.dataset.rid)));
-        }
-
-        function cpCariRawItem(rid) { return cpListGlobal[Number(rid)]; }
-
-        function cpResetForm() {
-            document.getElementById('cp-crud-form').reset();
-            document.getElementById('cp-crud-field-id').value = '';
-            document.getElementById('cp-crud-form-error').classList.add('hidden');
-            document.getElementById('cp-upload-customerProfile-status').innerHTML = '';
-            document.getElementById('cp-upload-scriptWawancara-status').innerHTML = '';
-            cpCurrentEditIdInfo = null;
-        }
-
-        function cpBukaModalTambah() {
-            cpResetForm();
-            cpPopulateCabangOptionsForm();
-            document.getElementById('cp-crud-modal-title').innerText = 'Tambah Data Customer Profile';
-            document.getElementById('cp-crud-modal').classList.remove('hidden');
-        }
-
-        function cpBukaModalEdit(rid) {
-            const item = cpCariRawItem(rid);
-            if (!item) return;
-            cpResetForm();
-            cpPopulateCabangOptionsForm();
-            const idInfo = getRowIdInfo(item);
-            if (!idInfo) {
-                alert('Data ini tidak bisa diedit dengan aman karena tidak ditemukan kolom ID.\n\nKolom yang tersedia pada baris ini: ' + Object.keys(item).join(', ') + '\n\nTambahkan kolom id unik (primary key) pada tabel Customer_Profile di Supabase.');
-                return;
-            }
-            cpCurrentEditIdInfo = idInfo;
-            document.getElementById('cp-crud-modal-title').innerText = 'Ubah Data Customer Profile';
-            document.getElementById('cp-crud-field-id').value = rid;
-            setSelectValueEnsureOption(document.getElementById('cp-crud-field-cabang'), cpGetCabang(item));
-            document.getElementById('cp-crud-field-nama').value = cpGetNama(item);
-            document.getElementById('cp-crud-field-produk').value = cpGetProduk(item);
-            document.getElementById('cp-crud-field-customerProfile').value = cpGetCustomerProfile(item);
-            document.getElementById('cp-crud-field-scriptWawancara').value = cpGetScriptWawancara(item);
-            document.getElementById('cp-crud-field-evaluasiWawancara').value = cpGetEvaluasiWawancara(item);
-            document.getElementById('cp-crud-modal').classList.remove('hidden');
-        }
-
-        function cpTutupModalCrud() { document.getElementById('cp-crud-modal').classList.add('hidden'); }
-
-        document.getElementById('cp-btn-tambah-data').addEventListener('click', cpBukaModalTambah);
-        document.getElementById('cp-crud-modal-close').addEventListener('click', cpTutupModalCrud);
-        document.getElementById('cp-crud-cancel-btn').addEventListener('click', cpTutupModalCrud);
-        document.getElementById('cp-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'cp-crud-modal') cpTutupModalCrud(); });
-
-        document.getElementById('cp-upload-customerProfile').addEventListener('change', function () {
-            cpUploadFileHandler(this, 'cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
-        });
-        document.getElementById('cp-upload-scriptWawancara').addEventListener('change', function () {
-            cpUploadFileHandler(this, 'cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
-        });
-
-        async function cpSimpanForm(e) {
-            e.preventDefault();
-            const errBox = document.getElementById('cp-crud-form-error');
-            errBox.classList.add('hidden');
-
-            const cabangVal = document.getElementById('cp-crud-field-cabang').value.trim();
-            const namaVal = document.getElementById('cp-crud-field-nama').value.trim();
-            if (!cabangVal) { errBox.innerText = 'Cabang wajib dipilih.'; errBox.classList.remove('hidden'); return; }
-            if (!namaVal) { errBox.innerText = 'Nama wajib diisi.'; errBox.classList.remove('hidden'); return; }
-
-            const payload = {
-                Cabang: cabangVal,
-                Nama: namaVal,
-                Produk: document.getElementById('cp-crud-field-produk').value.trim(),
-                'Customer Profile': document.getElementById('cp-crud-field-customerProfile').value,
-                'Script Wawancara': document.getElementById('cp-crud-field-scriptWawancara').value,
-                'Evaluasi Wawancara': document.getElementById('cp-crud-field-evaluasiWawancara').value
-            };
-
-            const idVal = document.getElementById('cp-crud-field-id').value;
-            let error, data;
-            if (idVal !== '' && cpCurrentEditIdInfo) {
-                ({ data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).update(payload).eq(cpCurrentEditIdInfo.key, cpCurrentEditIdInfo.value).select());
-            } else {
-                ({ data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).insert([payload]).select());
-            }
-            if (error) { errBox.innerText = 'Gagal menyimpan data: ' + error.message; errBox.classList.remove('hidden'); return; }
-            if (!data || data.length === 0) {
-                errBox.innerText = `Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy INSERT/UPDATE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_CUSTOMER_PROFILE} → RLS.`;
-                errBox.classList.remove('hidden');
-                return;
-            }
-            cpTutupModalCrud();
-            await cpMuatDashboard();
-            if (currentActiveTab === 'overview') renderOverview();
-        }
-        document.getElementById('cp-crud-form').addEventListener('submit', cpSimpanForm);
-
-        async function cpHapusData(rid) {
-            const item = cpCariRawItem(rid);
-            if (!item) return;
-            const idInfo = getRowIdInfo(item);
-            if (!idInfo) {
-                alert('Tidak bisa menghapus: tidak ditemukan kolom ID pada data ini.\n\nKolom yang tersedia pada baris ini: ' + Object.keys(item).join(', ') + '\n\nTambahkan kolom id unik (primary key) pada tabel Customer_Profile di Supabase.');
-                return;
-            }
-            if (!confirm(`Apakah Anda yakin ingin menghapus data "${cpGetNama(item) || 'ini'}"?`)) return;
-            const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).delete().eq(idInfo.key, idInfo.value).select();
-            if (error) { alert('Gagal menghapus: ' + error.message); return; }
-            if (!data || data.length === 0) {
-                alert(`Data TIDAK terhapus meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy DELETE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_CUSTOMER_PROFILE} → RLS.`);
-                return;
-            }
-            await cpMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
         }
 
@@ -5076,108 +4397,67 @@ function edGambarBarisCrud() {
             await usMuatDataUser();
         }
 
-        /* ================================================================
-           PANDUAN TAKE VIDEO — EMBEDDED CONTENT
-           Link Panduan dibuka di panel embedded dengan max-width.
-           Main dashboard tidak lagi dikunci scroll-nya.
-           ================================================================ */
-
+        // ==== BARU: kunci/lepas scroll pada elemen <main> saat mode workspace panduan
+        // dibuka/ditutup, supaya area shell/iframe/sublist selalu terlihat penuh dalam
+        // satu layar dan yang discroll hanya konten di dalam iframe/daftar itu sendiri. ====
         function bukaPanduanWorkspace(targetUrl) {
             const panduanTab = document.getElementById('tab-panduan');
-            const isSpreadsheet =
-                /docs\.google\.com\/spreadsheets/i.test(String(targetUrl || ''));
+            const isSpreadsheet = /docs\.google\.com\/spreadsheets/i.test(String(targetUrl || ''));
 
             if (panduanTab) {
-                panduanTab.classList.toggle(
-                    'panduan-spreadsheet-mode',
-                    isSpreadsheet
-                );
+                panduanTab.classList.toggle('panduan-spreadsheet-mode', isSpreadsheet);
             }
 
-            const panel = document.getElementById('panduan-sublist-panel');
-            panel.classList.add('hidden');
-            panel.innerHTML = '';
-
+            document.getElementById('panduan-sublist-panel').classList.add('hidden');
+            document.getElementById('panduan-sublist-panel').innerHTML = '';
             const iframe = document.getElementById('panduan-iframe');
             iframe.classList.remove('hidden');
-            iframe.src = targetUrl || '';
-
-            document
-                .getElementById('panduan-guidance-view')
-                .classList.add('hidden');
-
-            document
-                .getElementById('panduan-workspace-view')
-                .classList.remove('hidden');
-
-            // Jangan lock main.
-            // Dashboard tetap memiliki scroll normal.
+            iframe.src = targetUrl;
+            document.getElementById('panduan-guidance-view').classList.add('hidden');
+            document.getElementById('panduan-workspace-view').classList.remove('hidden');
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.add('panduan-scroll-lock');
         }
 
+        // ==== BARU: menampilkan daftar sub-menu (mis. "Panduan rekam video lahan")
+        // sebagai halaman tersendiri di dalam workspace, menggantikan pola accordion
+        // lama yang menyisakan area kosong saat diklik. Setiap item pada daftar ini
+        // tetap membuka kontennya lewat iframe seperti link panduan lainnya. ====
         function bukaPanduanSubList(title, items) {
             const panduanTab = document.getElementById('tab-panduan');
-
-            if (panduanTab) {
-                panduanTab.classList.remove('panduan-spreadsheet-mode');
-            }
+            if (panduanTab) panduanTab.classList.remove('panduan-spreadsheet-mode');
 
             const iframe = document.getElementById('panduan-iframe');
             iframe.classList.add('hidden');
             iframe.src = '';
-
             const panel = document.getElementById('panduan-sublist-panel');
             panel.classList.remove('hidden');
-
             panel.innerHTML = items.map(([label, url], idx) => `
-                <div
-                    class="panduan-sublist-item"
-                    data-url="${edEscapeHtml(url)}">
-                    <div class="panduan-sublist-icon">${idx + 1}</div>
-                    <span class="panduan-sublist-text">
-                        ${edEscapeHtml(label)}
-                    </span>
-                    <i class="fas fa-chevron-right ml-auto text-slate-300"></i>
-                </div>
-            `).join('');
-
+        <div class="panduan-sublist-item" data-url="${edEscapeHtml(url)}">
+          <div class="panduan-sublist-icon">${idx + 1}</div>
+          <span class="panduan-sublist-text">${edEscapeHtml(label)}</span>
+          <i class="fas fa-chevron-right ml-auto text-slate-300"></i>
+        </div>`).join('');
             panel.querySelectorAll('.panduan-sublist-item').forEach(el => {
-                el.addEventListener('click', () => {
-                    bukaPanduanWorkspace(
-                        el.getAttribute('data-url')
-                    );
-                });
+                el.addEventListener('click', () => bukaPanduanWorkspace(el.getAttribute('data-url')));
             });
-
-            document
-                .getElementById('panduan-guidance-view')
-                .classList.add('hidden');
-
-            document
-                .getElementById('panduan-workspace-view')
-                .classList.remove('hidden');
+            document.getElementById('panduan-guidance-view').classList.add('hidden');
+            document.getElementById('panduan-workspace-view').classList.remove('hidden');
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.add('panduan-scroll-lock');
         }
 
         function tutupPanduanWorkspace() {
             const panduanTab = document.getElementById('tab-panduan');
+            if (panduanTab) panduanTab.classList.remove('panduan-spreadsheet-mode');
 
-            if (panduanTab) {
-                panduanTab.classList.remove('panduan-spreadsheet-mode');
-            }
-
-            const iframe = document.getElementById('panduan-iframe');
-            iframe.src = '';
-
-            const panel = document.getElementById('panduan-sublist-panel');
-            panel.classList.add('hidden');
-            panel.innerHTML = '';
-
-            document
-                .getElementById('panduan-workspace-view')
-                .classList.add('hidden');
-
-            document
-                .getElementById('panduan-guidance-view')
-                .classList.remove('hidden');
+            document.getElementById('panduan-iframe').src = '';
+            document.getElementById('panduan-sublist-panel').classList.add('hidden');
+            document.getElementById('panduan-sublist-panel').innerHTML = '';
+            document.getElementById('panduan-workspace-view').classList.add('hidden');
+            document.getElementById('panduan-guidance-view').classList.remove('hidden');
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
         }
         document.querySelectorAll('.panduan-embed-link').forEach(link => {
             link.addEventListener('click', function (e) {
@@ -5199,7 +4479,6 @@ function edGambarBarisCrud() {
             else if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
             else if (currentActiveTab === 'cabang-crud') cbMuatDataTabel();
             else if (currentActiveTab === 'cabang-evaluasi') cbMuatDataEvaluasi();
-            else if (currentActiveTab === 'customer-profile') cpMuatDashboard();
             else if (currentActiveTab === 'editor-dashboard') edMuatDashboard();
             else if (currentActiveTab === 'editor-crud') edMuatDashboard();
         }
@@ -5217,13 +4496,6 @@ function edGambarBarisCrud() {
                 refreshCurrentTab();
             })
             .subscribe((status) => console.log('[Realtime] Status channel Planning_Editor:', status));
-
-        db.channel('realtime-admin-customer-profile')
-            .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CUSTOMER_PROFILE }, (payload) => {
-                console.log('[Realtime] Perubahan pada tabel Customer_Profile:', payload);
-                refreshCurrentTab();
-            })
-            .subscribe((status) => console.log('[Realtime] Status channel Customer_Profile:', status));
 
         window.addEventListener('DOMContentLoaded', async () => {
             switchTab('overview');
