@@ -707,97 +707,42 @@
         }
 
         /* ================================================================
-           FULL WIDTH WORKSPACE UNTUK SUB-MENU WORKFLOW & PANDUAN
-           Konten detail tidak lagi dibatasi max-width dan iframe mengisi
-           area kerja yang tersedia di bawah header dashboard.
-        ================================================================ */
-        /* ================================================================
-           FULL WIDTH SEMUA TAB DASHBOARD
-           Semua halaman dibuat selebar area kerja seperti Workflow Editing.
-           Tidak lagi dibatasi max-width / mx-auto.
-        ================================================================ */
-        #tab-overview,
-        #tab-cabang-crud,
-        #tab-cabang-evaluasi,
-        #tab-editor-crud,
-        #tab-user-crud,
-        #tab-workflow-tools,
-        #tab-panduan,
-        #tab-tools {
-            max-width: none !important;
+           PANDUAN TAKE VIDEO — EMBEDDED CONTENT + MAX WIDTH
+           Konten Panduan tetap berada di area dashboard.
+           Link tidak membuka halaman fullscreen baru.
+           ================================================================ */
+
+        #tab-panduan {
             width: 100% !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
+            max-width: none !important;
             box-sizing: border-box;
         }
 
-        #tab-panduan {
-            max-width: none !important;
-            width: 100% !important;
-        }
-
-        /* ================================================================
-           PANDUAN: MODE WORKSPACE (embed spreadsheet / dokumen / sub-menu)
-           Tujuan: saat sedang menampilkan spreadsheet/dokumen/daftar sub-menu,
-           area kerja mengisi persis sisa tinggi layar (di bawah header) dan
-           TIDAK ikut membuat halaman utama (main) ikut discroll. Yang discroll
-           hanya konten DI DALAM iframe/tabel/daftar itu sendiri, sehingga
-           seluruh isinya selalu terlihat utuh dan tidak "kepotong" saat discroll.
-        ================================================================ */
         #panduan-workspace-view {
             width: 100%;
-            height: calc(100vh - 132px);
-            display: flex;
-            flex-direction: column;
+            box-sizing: border-box;
         }
 
-        /* ================================================================
-           MODE SPREADSHEET FULL WORKSPACE
-           Saat Google Sheets dibuka dari Panduan Take Video, hilangkan
-           padding/card dekoratif agar spreadsheet mengisi penuh area kerja.
-           Berlaku untuk semua link Google Sheets yang dibuka lewat iframe.
-        ================================================================ */
-        #tab-panduan.panduan-spreadsheet-mode {
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view {
+        .panduan-content-wrapper {
             width: 100%;
-            height: calc(100vh - 92px);
+            max-width: 1400px;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
-        #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view > button {
-            margin: 10px 12px 10px 12px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 2;
+        #panduan-workspace-view > .panduan-content-wrapper > button {
+            margin-bottom: 14px;
         }
 
-        #tab-panduan.panduan-spreadsheet-mode .panduan-workspace-shell {
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
+        .panduan-embedded-card {
             width: 100%;
-            flex: 1 1 auto;
-            min-height: 0;
-        }
-
-        #tab-panduan.panduan-spreadsheet-mode #panduan-iframe {
-            border-radius: 0;
-        }
-
-        #panduan-workspace-view>button {
-            margin-bottom: 12px;
-            flex-shrink: 0;
-        }
-
-        .panduan-workspace-shell {
-            width: 100%;
-            flex: 1 1 auto;
-            min-height: 0;
-            /* penting: agar child flex bisa mengisi & discroll sendiri, bukan mendorong parent melebar */
+            height: calc(100vh - 190px);
             background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            position: relative;
         }
 
         #panduan-iframe {
@@ -808,15 +753,12 @@
             background: #fff;
         }
 
-        /* Panel daftar sub-menu (mis. "Panduan rekam video lahan") yang tampil
-           menggantikan iframe saat sebuah kategori punya beberapa pilihan link.
-           Dibuat penuh 1 layar seperti iframe, tapi yang discroll hanya daftar
-           di dalamnya saja. */
         #panduan-sublist-panel {
             width: 100%;
             height: 100%;
             overflow-y: auto;
-            padding: 8px;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         #panduan-sublist-panel .panduan-sublist-item {
@@ -861,10 +803,32 @@
             color: #334155;
         }
 
-        /* Saat mode workspace aktif, main tidak ikut discroll (dikunci lewat JS)
-           supaya area tabel/iframe/daftar selalu terlihat utuh dalam satu layar. */
+        /* Scroll dashboard tetap normal.
+           Scroll internal spreadsheet tetap berada di iframe. */
         main.panduan-scroll-lock {
-            overflow-y: hidden !important;
+            overflow-y: auto !important;
+        }
+
+        /* Desktop besar */
+        @media (min-width: 1600px) {
+            .panduan-content-wrapper {
+                max-width: 1500px;
+            }
+
+            #tab-panduan.panduan-spreadsheet-mode .panduan-content-wrapper {
+                max-width: 1550px;
+            }
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .panduan-content-wrapper {
+                max-width: 100%;
+            }
+
+            .panduan-embedded-card {
+                height: calc(100vh - 175px);
+            }
         }
 
         @media (max-width: 768px) {
@@ -2111,20 +2075,30 @@
                 </div>
             </div>
             <div class="hidden" id="panduan-workspace-view">
-                <button
-                    class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn mb-4"
-                    onclick="tutupPanduanWorkspace()">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2.5"></path>
-                    </svg>
-                    Kembali ke Panduan
-                </button>
-                <div
-                    class="panduan-workspace-shell glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-                    <iframe allowfullscreen="" class="w-full h-full block" frameborder="0" id="panduan-iframe"
-                        src=""></iframe>
-                    <div class="hidden" id="panduan-sublist-panel"></div>
+                <div class="panduan-content-wrapper">
+
+                    <button
+                        class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all interactive-btn"
+                        onclick="tutupPanduanWorkspace()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2.5"></path>
+                        </svg>
+                        Kembali ke Panduan
+                    </button>
+
+                    <div class="panduan-embedded-card">
+                        <iframe
+                            allowfullscreen=""
+                            frameborder="0"
+                            id="panduan-iframe"
+                            src=""
+                            title="Konten Panduan">
+                        </iframe>
+
+                        <div class="hidden" id="panduan-sublist-panel"></div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -4397,67 +4371,108 @@ function edGambarBarisCrud() {
             await usMuatDataUser();
         }
 
-        // ==== BARU: kunci/lepas scroll pada elemen <main> saat mode workspace panduan
-        // dibuka/ditutup, supaya area shell/iframe/sublist selalu terlihat penuh dalam
-        // satu layar dan yang discroll hanya konten di dalam iframe/daftar itu sendiri. ====
+        /* ================================================================
+           PANDUAN TAKE VIDEO — EMBEDDED CONTENT
+           Link Panduan dibuka di panel embedded dengan max-width.
+           Main dashboard tidak lagi dikunci scroll-nya.
+           ================================================================ */
+
         function bukaPanduanWorkspace(targetUrl) {
             const panduanTab = document.getElementById('tab-panduan');
-            const isSpreadsheet = /docs\.google\.com\/spreadsheets/i.test(String(targetUrl || ''));
+            const isSpreadsheet =
+                /docs\.google\.com\/spreadsheets/i.test(String(targetUrl || ''));
 
             if (panduanTab) {
-                panduanTab.classList.toggle('panduan-spreadsheet-mode', isSpreadsheet);
+                panduanTab.classList.toggle(
+                    'panduan-spreadsheet-mode',
+                    isSpreadsheet
+                );
             }
 
-            document.getElementById('panduan-sublist-panel').classList.add('hidden');
-            document.getElementById('panduan-sublist-panel').innerHTML = '';
+            const panel = document.getElementById('panduan-sublist-panel');
+            panel.classList.add('hidden');
+            panel.innerHTML = '';
+
             const iframe = document.getElementById('panduan-iframe');
             iframe.classList.remove('hidden');
-            iframe.src = targetUrl;
-            document.getElementById('panduan-guidance-view').classList.add('hidden');
-            document.getElementById('panduan-workspace-view').classList.remove('hidden');
-            const mainEl = document.querySelector('main');
-            if (mainEl) mainEl.classList.add('panduan-scroll-lock');
+            iframe.src = targetUrl || '';
+
+            document
+                .getElementById('panduan-guidance-view')
+                .classList.add('hidden');
+
+            document
+                .getElementById('panduan-workspace-view')
+                .classList.remove('hidden');
+
+            // Jangan lock main.
+            // Dashboard tetap memiliki scroll normal.
         }
 
-        // ==== BARU: menampilkan daftar sub-menu (mis. "Panduan rekam video lahan")
-        // sebagai halaman tersendiri di dalam workspace, menggantikan pola accordion
-        // lama yang menyisakan area kosong saat diklik. Setiap item pada daftar ini
-        // tetap membuka kontennya lewat iframe seperti link panduan lainnya. ====
         function bukaPanduanSubList(title, items) {
             const panduanTab = document.getElementById('tab-panduan');
-            if (panduanTab) panduanTab.classList.remove('panduan-spreadsheet-mode');
+
+            if (panduanTab) {
+                panduanTab.classList.remove('panduan-spreadsheet-mode');
+            }
 
             const iframe = document.getElementById('panduan-iframe');
             iframe.classList.add('hidden');
             iframe.src = '';
+
             const panel = document.getElementById('panduan-sublist-panel');
             panel.classList.remove('hidden');
+
             panel.innerHTML = items.map(([label, url], idx) => `
-        <div class="panduan-sublist-item" data-url="${edEscapeHtml(url)}">
-          <div class="panduan-sublist-icon">${idx + 1}</div>
-          <span class="panduan-sublist-text">${edEscapeHtml(label)}</span>
-          <i class="fas fa-chevron-right ml-auto text-slate-300"></i>
-        </div>`).join('');
+                <div
+                    class="panduan-sublist-item"
+                    data-url="${edEscapeHtml(url)}">
+                    <div class="panduan-sublist-icon">${idx + 1}</div>
+                    <span class="panduan-sublist-text">
+                        ${edEscapeHtml(label)}
+                    </span>
+                    <i class="fas fa-chevron-right ml-auto text-slate-300"></i>
+                </div>
+            `).join('');
+
             panel.querySelectorAll('.panduan-sublist-item').forEach(el => {
-                el.addEventListener('click', () => bukaPanduanWorkspace(el.getAttribute('data-url')));
+                el.addEventListener('click', () => {
+                    bukaPanduanWorkspace(
+                        el.getAttribute('data-url')
+                    );
+                });
             });
-            document.getElementById('panduan-guidance-view').classList.add('hidden');
-            document.getElementById('panduan-workspace-view').classList.remove('hidden');
-            const mainEl = document.querySelector('main');
-            if (mainEl) mainEl.classList.add('panduan-scroll-lock');
+
+            document
+                .getElementById('panduan-guidance-view')
+                .classList.add('hidden');
+
+            document
+                .getElementById('panduan-workspace-view')
+                .classList.remove('hidden');
         }
 
         function tutupPanduanWorkspace() {
             const panduanTab = document.getElementById('tab-panduan');
-            if (panduanTab) panduanTab.classList.remove('panduan-spreadsheet-mode');
 
-            document.getElementById('panduan-iframe').src = '';
-            document.getElementById('panduan-sublist-panel').classList.add('hidden');
-            document.getElementById('panduan-sublist-panel').innerHTML = '';
-            document.getElementById('panduan-workspace-view').classList.add('hidden');
-            document.getElementById('panduan-guidance-view').classList.remove('hidden');
-            const mainEl = document.querySelector('main');
-            if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
+            if (panduanTab) {
+                panduanTab.classList.remove('panduan-spreadsheet-mode');
+            }
+
+            const iframe = document.getElementById('panduan-iframe');
+            iframe.src = '';
+
+            const panel = document.getElementById('panduan-sublist-panel');
+            panel.classList.add('hidden');
+            panel.innerHTML = '';
+
+            document
+                .getElementById('panduan-workspace-view')
+                .classList.add('hidden');
+
+            document
+                .getElementById('panduan-guidance-view')
+                .classList.remove('hidden');
         }
         document.querySelectorAll('.panduan-embed-link').forEach(link => {
             link.addEventListener('click', function (e) {
