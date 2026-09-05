@@ -1535,7 +1535,7 @@
                 </div>
                 <button
                     class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn shrink-0"
-                    id="cp-btn-tambah-data">
+                    id="cp-btn-tambah-data" type="button">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
                         <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
                         </path>
@@ -3661,11 +3661,18 @@
         function cpCariRawItem(rid) { return cpListGlobal[Number(rid)]; }
 
         function cpResetForm() {
-            document.getElementById('cp-crud-form').reset();
-            document.getElementById('cp-crud-field-id').value = '';
-            document.getElementById('cp-crud-form-error').classList.add('hidden');
-            document.getElementById('cp-upload-customerProfile-status').innerHTML = '';
-            document.getElementById('cp-upload-scriptWawancara-status').innerHTML = '';
+            const form = document.getElementById('cp-crud-form');
+            const fieldId = document.getElementById('cp-crud-field-id');
+            const errorBox = document.getElementById('cp-crud-form-error');
+            const customerProfileStatus = document.getElementById('cp-upload-customerProfile-status');
+            const scriptStatus = document.getElementById('cp-upload-scriptWawancara-status');
+
+            if (form) form.reset();
+            if (fieldId) fieldId.value = '';
+            if (errorBox) errorBox.classList.add('hidden');
+            if (customerProfileStatus) customerProfileStatus.innerHTML = '';
+            if (scriptStatus) scriptStatus.innerHTML = '';
+
             cpCurrentEditIdInfo = null;
         }
 
@@ -3700,24 +3707,29 @@
 
         function cpTutupModalCrud() { document.getElementById('cp-crud-modal').classList.add('hidden'); }
 
-        // Binding Customer Profile dibuat aman: elemen upload bersifat opsional.
-        // Sebelumnya listener langsung ke elemen upload yang tidak ada membuat
-        // JavaScript berhenti dieksekusi sebelum listener tombol Tambah dan Editor terpasang.
-        function cpBindEvent(selector, eventName, handler) {
-            const el = document.querySelector(selector);
-            if (el) el.addEventListener(eventName, handler);
-            return el;
-        }
+        const cpBtnTambahData = document.getElementById('cp-btn-tambah-data');
+        if (cpBtnTambahData) cpBtnTambahData.addEventListener('click', cpBukaModalTambah);
 
-        cpBindEvent('#cp-btn-tambah-data', 'click', cpBukaModalTambah);
-        cpBindEvent('#cp-crud-modal-close', 'click', cpTutupModalCrud);
-        cpBindEvent('#cp-crud-cancel-btn', 'click', cpTutupModalCrud);
-        cpBindEvent('#cp-crud-modal', 'click', (e) => { if (e.target.id === 'cp-crud-modal') cpTutupModalCrud(); });
+        const cpModalClose = document.getElementById('cp-crud-modal-close');
+        if (cpModalClose) cpModalClose.addEventListener('click', cpTutupModalCrud);
 
-        cpBindEvent('#cp-upload-customerProfile', 'change', function () {
+        const cpCancelBtn = document.getElementById('cp-crud-cancel-btn');
+        if (cpCancelBtn) cpCancelBtn.addEventListener('click', cpTutupModalCrud);
+
+        const cpModal = document.getElementById('cp-crud-modal');
+        if (cpModal) cpModal.addEventListener('click', (e) => {
+            if (e.target.id === 'cp-crud-modal') cpTutupModalCrud();
+        });
+
+        // Upload bersifat opsional pada form saat ini. Jangan biarkan elemen upload
+        // yang tidak ada menghentikan seluruh JavaScript Customer Profile.
+        const cpUploadCustomerProfile = document.getElementById('cp-upload-customerProfile');
+        if (cpUploadCustomerProfile) cpUploadCustomerProfile.addEventListener('change', function () {
             cpUploadFileHandler(this, 'cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
         });
-        cpBindEvent('#cp-upload-scriptWawancara', 'change', function () {
+
+        const cpUploadScriptWawancara = document.getElementById('cp-upload-scriptWawancara');
+        if (cpUploadScriptWawancara) cpUploadScriptWawancara.addEventListener('change', function () {
             cpUploadFileHandler(this, 'cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
         });
 
@@ -3821,10 +3833,8 @@
 
         async function edMuatDashboard() {
             edSembunyikanDiagnostik();
-            edDataLoaded = false;
-            try {
-                const { data: rawPlanning, error } = await ambilDataPlanning();
-                edPlanningRawGlobal = Array.isArray(rawPlanning) ? rawPlanning : [];
+            const { data: rawPlanning, error } = await ambilDataPlanning();
+            edPlanningRawGlobal = rawPlanning;
 
             if (error) {
                 edTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_PLANNING}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat, nama tabel salah, atau RLS belum mengizinkan akses baca untuk anon key.`);
@@ -3840,45 +3850,33 @@
             }
 
             edListPlanningGlobal = rawPlanning.map(item => {
-                // Jangan membuang baris hanya karena Bulan/Judul kosong.
-                // Satu baris kosong di satu kolom tetap harus bisa dimonitor dan diedit.
-                const bulan = getField(item, 'Bulan', 'bulan') || '';
-                const judul = getField(item, 'Judul Video', 'Judul_Video', 'judul_video', 'judul') || '';
+                const bulan = getField(item, 'Bulan', 'bulan');
+                const judul = getField(item, 'Judul Video', 'Judul_Video', 'judul_video', 'judul');
+                if (!bulan || !judul) return null;
                 return {
-                    bulan, tahun: getField(item, 'Tahun', 'tahun') || '',
+                    bulan, tahun: getField(item, 'Tahun', 'tahun'),
                     statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
-                    editor: getField(item, 'Editor', 'editor') || '', judul,
-                    produk: getField(item, 'Produk', 'produk') || '',
-                    tema: getField(item, 'Tema', 'tema') || '',
-                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints') || '',
-                    dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date') || '',
-                    targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload') || '',
-                    statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload') || '',
-                    musim: getField(item, 'Musim', 'musim') || '',
-                    transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip') || '',
-                    skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario') || '',
+                    editor: getField(item, 'Editor', 'editor'), judul,
+                    produk: getField(item, 'Produk', 'produk'),
+                    tema: getField(item, 'Tema', 'tema'),
+                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints'),
+                    dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
+                    targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
+                    statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
+                    musim: getField(item, 'Musim', 'musim'),
+                    transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip'),
+                    skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario'),
                 };
-            });
+            }).filter(Boolean);
 
             if (edListPlanningGlobal.length === 0) {
                 const kolomAsli = Object.keys(rawPlanning[0]).join(', ');
                 edTampilkanDiagnostik(`Tabel "${NAMA_TABEL_PLANNING}" berisi ${rawPlanning.length} baris, tapi tidak ada satupun yang berhasil dibaca karena nama kolom tidak cocok. Kolom yang terdeteksi di Supabase: [${kolomAsli}].`);
             }
 
-                edPopulateFilters();
-                edRenderSemua();
-                edRenderCrudTable();
-                edDataLoaded = true;
-            } catch (err) {
-                console.error('[EDITOR] Gagal memuat Planning_Editor:', err);
-                edPlanningRawGlobal = [];
-                edListPlanningGlobal = [];
-                edTampilkanDiagnostik('Gagal memuat data Editor: ' + (err?.message || err));
-                try { edRenderSemua(); } catch (renderErr) { console.error('[EDITOR] Gagal render fallback:', renderErr); }
-                try { edRenderCrudTable(); } catch (renderErr) { console.error('[EDITOR] Gagal render tabel fallback:', renderErr); }
-            } finally {
-                edDataLoaded = true;
-            }
+            edPopulateFilters();
+            edRenderSemua();
+            edRenderCrudTable();
         }
 
         function edPopulateFilters() {
