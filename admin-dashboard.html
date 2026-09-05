@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <script>
         tailwind.config = {
@@ -736,12 +737,12 @@
         }
 
         /* ================================================================
-           PANDUAN: MODE WORKSPACE (embed spreadsheet / dokumen)
-           Tujuan: saat sedang menampilkan spreadsheet/dokumen, area kerja
-           mengisi persis sisa tinggi layar (di bawah header) dan TIDAK ikut
-           membuat halaman utama (main) ikut discroll. Yang discroll hanya
-           konten DI DALAM iframe/tabel itu sendiri, sehingga seluruh tabel
-           selalu terlihat utuh dan tidak "kepotong" saat discroll.
+           PANDUAN: MODE WORKSPACE (embed spreadsheet / dokumen / sub-menu)
+           Tujuan: saat sedang menampilkan spreadsheet/dokumen/daftar sub-menu,
+           area kerja mengisi persis sisa tinggi layar (di bawah header) dan
+           TIDAK ikut membuat halaman utama (main) ikut discroll. Yang discroll
+           hanya konten DI DALAM iframe/tabel/daftar itu sendiri, sehingga
+           seluruh isinya selalu terlihat utuh dan tidak "kepotong" saat discroll.
         ================================================================ */
         #panduan-workspace-view {
             width: 100%;
@@ -771,8 +772,61 @@
             background: #fff;
         }
 
+        /* Panel daftar sub-menu (mis. "Panduan rekam video lahan") yang tampil
+           menggantikan iframe saat sebuah kategori punya beberapa pilihan link.
+           Dibuat penuh 1 layar seperti iframe, tapi yang discroll hanya daftar
+           di dalamnya saja. */
+        #panduan-sublist-panel {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        #panduan-sublist-panel .panduan-sublist-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fff;
+        }
+
+        #panduan-sublist-panel .panduan-sublist-item:last-child {
+            margin-bottom: 0;
+        }
+
+        #panduan-sublist-panel .panduan-sublist-item:hover {
+            border-color: #818cf8;
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateX(4px);
+        }
+
+        #panduan-sublist-panel .panduan-sublist-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        #panduan-sublist-panel .panduan-sublist-text {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
         /* Saat mode workspace aktif, main tidak ikut discroll (dikunci lewat JS)
-           supaya area tabel/iframe selalu terlihat utuh dalam satu layar. */
+           supaya area tabel/iframe/daftar selalu terlihat utuh dalam satu layar. */
         main.panduan-scroll-lock {
             overflow-y: hidden !important;
         }
@@ -1466,11 +1520,23 @@
                     <p class="text-sm text-gray-500 mt-1">Tambah, ubah, dan hapus data langsung dari tabel
                         Planning_Editor.</p>
                 </div>
-                <button
-                    class="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md self-start md:self-auto interactive-btn"
-                    id="ed-btn-tambah-data">
-                    + Tambah Data
-                </button>
+                <div class="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+                    <button
+                        class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md interactive-btn"
+                        id="ed-btn-export-excel" type="button">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button
+                        class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md interactive-btn"
+                        id="ed-btn-export-word" type="button">
+                        <i class="fas fa-file-word"></i> Word
+                    </button>
+                    <button
+                        class="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md interactive-btn"
+                        id="ed-btn-tambah-data">
+                        + Tambah Data
+                    </button>
+                </div>
             </div>
             <div class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs"
                 id="ed-crud-no-id-warning">
@@ -1565,6 +1631,9 @@
                                 <th class="py-3 px-4">Bulan</th>
                                 <th class="py-3 px-4">Tahun</th>
                                 <th class="py-3 px-4">Judul Video</th>
+                                <th class="py-3 px-4">Produk</th>
+                                <th class="py-3 px-4">Tema</th>
+                                <th class="py-3 px-4">Selling Points</th>
                                 <th class="py-3 px-4">Editor</th>
                                 <th class="py-3 px-4">Status Edit</th>
                                 <th class="py-3 px-4">Due Date</th>
@@ -1578,7 +1647,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-50 text-gray-700" id="ed-crud-body">
                             <tr>
-                                <td class="text-center py-8 text-gray-400" colspan="12">Memuat data...</td>
+                                <td class="text-center py-8 text-gray-400" colspan="15">Memuat data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1944,32 +2013,11 @@
                         <ul class="panduan-link-list">
                             <li><a class="panduan-embed-link" data-url="Panduan_Rekam_Wawancara.html"><span
                                         class="panduan-step-idx">6.</span> Panduan rekam video wawancara</a></li>
-                            <li>
-                                <a class="panduan-dropdown-trigger" onclick="togglePanduanDropdown(event)"
-                                    style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-                                    <span style="display:flex; gap:10px;"><span class="panduan-step-idx">7.</span>
-                                        Panduan rekam video lahan</span>
-                                    <i class="fas fa-chevron-down panduan-chevron"></i>
-                                </a>
-                                <ul class="panduan-submenu panduan-link-list" id="panduan-submenu-7">
-                                    <li><a class="panduan-embed-link" data-url="Lahan_Kering.html"><span
-                                                class="panduan-step-idx">-</span> Lahan Kering</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Lahan_Basah.html"><span
-                                                class="panduan-step-idx">-</span> Lahan Basah</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Guludan_Lebar.html"><span
-                                                class="panduan-step-idx">-</span> Guludan Lebar</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Guludan_Sempit.html"><span
-                                                class="panduan-step-idx">-</span> Guludan Sempit</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Detail_Part.html"><span
-                                                class="panduan-step-idx">-</span> Detail Part</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Sebelum_Olah.html"><span
-                                                class="panduan-step-idx">-</span> Lahan Sebelum Diolah</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Saat_Olah.html"><span
-                                                class="panduan-step-idx">-</span> Lahan Saat Diolah</a></li>
-                                    <li><a class="panduan-embed-link" data-url="Setelah_Olah.html"><span
-                                                class="panduan-step-idx">-</span> Lahan Setelah Diolah</a></li>
-                                </ul>
-                            </li>
+                            <li><a class="panduan-sublist-link" href="#" data-title="Panduan rekam video lahan"
+                                    data-items='[["Lahan Kering","Lahan_Kering.html"],["Lahan Basah","Lahan_Basah.html"],["Guludan Lebar","Guludan_Lebar.html"],["Guludan Sempit","Guludan_Sempit.html"],["Detail Part","Detail_Part.html"],["Lahan Sebelum Diolah","Sebelum_Olah.html"],["Lahan Saat Diolah","Saat_Olah.html"],["Lahan Setelah Diolah","Setelah_Olah.html"]]'>
+                                    <span class="panduan-step-idx">7.</span>
+                                    <span>Panduan rekam video lahan</span>
+                                    <i class="fas fa-chevron-right mt-1 text-slate-300"></i></a></li>
                         </ul>
                     </div>
                     <div class="glass-card panduan-step-card p-6 rounded-3xl shadow-sm">
@@ -2042,6 +2090,7 @@
                     class="panduan-workspace-shell glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
                     <iframe allowfullscreen="" class="w-full h-full block" frameborder="0" id="panduan-iframe"
                         src=""></iframe>
+                    <div class="hidden" id="panduan-sublist-panel"></div>
                 </div>
             </div>
         </div>
@@ -2078,7 +2127,6 @@
                             <option value="">- Pilih Segmen -</option>
                             <option value="DONE">DONE</option>
                             <option value="WIP">WIP</option>
-                            <option value="WAITING LIST">WAITING LIST</option>
                             <option value="REJECT">REJECT</option>
                             <option value="FOOTAGE">FOOTAGE</option>
                         </select>
@@ -2173,6 +2221,24 @@
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
                         id="ed-crud-field-judul" required="" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Produk</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-produk" placeholder="Contoh: Quick Boxer" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tema</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-tema" placeholder="Contoh: Testimoni Petani" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Selling Points</label>
+                    <textarea
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-sellingPoints" placeholder="Poin-poin jual utama pada video ini" rows="3"></textarea>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
@@ -2962,7 +3028,7 @@
         let edPlanningRawGlobal = [];
         let edChartEditor = null;
         let edChartStatus = null;
-        let edCOLUMN_MAP = { id: null, bulan: null, tahun: null, statusEdit: null, editor: null, judul: null, dueDate: null, targetUpload: null, statusUpload: null, musim: null, transkrip: null, skenario: null };
+        let edCOLUMN_MAP = { id: null, bulan: null, tahun: null, statusEdit: null, editor: null, judul: null, produk: null, tema: null, sellingPoints: null, dueDate: null, targetUpload: null, statusUpload: null, musim: null, transkrip: null, skenario: null };
         let edDataLoaded = false;
 
         function edDetectColumns(sampleRow) {
@@ -2977,6 +3043,9 @@
             edCOLUMN_MAP.statusEdit = cariKolom('Status Edit', 'Status_Edit', 'status_edit');
             edCOLUMN_MAP.editor = cariKolom('Editor', 'editor');
             edCOLUMN_MAP.judul = cariKolom('Judul Video', 'Judul_Video', 'judul_video', 'judul');
+            edCOLUMN_MAP.produk = cariKolom('Produk', 'produk');
+            edCOLUMN_MAP.tema = cariKolom('Tema', 'tema');
+            edCOLUMN_MAP.sellingPoints = cariKolom('Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints');
             edCOLUMN_MAP.dueDate = cariKolom('Due Date', 'Due_Date', 'due_date');
             edCOLUMN_MAP.targetUpload = cariKolom('Target Upload', 'Target_Upload', 'target_upload');
             edCOLUMN_MAP.statusUpload = cariKolom('Status Upload', 'Status_Upload', 'status_upload');
@@ -3018,6 +3087,9 @@
                     bulan, tahun: getField(item, 'Tahun', 'tahun'),
                     statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
                     editor: getField(item, 'Editor', 'editor'), judul,
+                    produk: getField(item, 'Produk', 'produk'),
+                    tema: getField(item, 'Tema', 'tema'),
+                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints'),
                     dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
                     targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
                     statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
@@ -3655,6 +3727,156 @@
             });
         }
 
+        // ==== BARU: helper terpusat untuk mengambil baris Planning_Editor yang SEDANG
+        // TAMPIL di tabel (sudah difilter sesuai dropdown & diurutkan per Bulan).
+        // Dipakai bersama oleh render tabel dan fitur export Excel/Word supaya hasil
+        // export selalu konsisten dengan apa yang terlihat di layar. ====
+        function edGetBarisTerfilterUrut() {
+            if (!edPlanningRawGlobal || edPlanningRawGlobal.length === 0) return [];
+            const fStatusEdit = document.getElementById('ed-crud-filter-status-edit').value;
+            const fStatusUpload = document.getElementById('ed-crud-filter-status-upload').value;
+            const fEditor = document.getElementById('ed-crud-filter-editor').value;
+            const fBulan = document.getElementById('ed-crud-filter-bulan').value;
+
+            let barisTerfilter = edPlanningRawGlobal.map((item, idx) => ({ item, idx })).filter(({ item }) => {
+                if (fStatusEdit !== 'all' && normalizeStatus(edCOLUMN_MAP.statusEdit ? item[edCOLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
+                if (fStatusUpload !== 'all' && (edCOLUMN_MAP.statusUpload ? item[edCOLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
+                if (fEditor !== 'all' && (edCOLUMN_MAP.editor ? item[edCOLUMN_MAP.editor] : null) !== fEditor) return false;
+                if (fBulan !== 'all' && (edCOLUMN_MAP.bulan ? item[edCOLUMN_MAP.bulan] : null) !== fBulan) return false;
+                return true;
+            });
+            return edUrutkanIndeksBerdasarkanBulan(barisTerfilter);
+        }
+
+        // Ambil nilai satu kolom dari raw item (mengembalikan string kosong bila tidak ada)
+        function edNilaiKolom(item, key) {
+            return edCOLUMN_MAP[key] ? (item[edCOLUMN_MAP[key]] ?? '') : '';
+        }
+
+        /* ---------- Export Excel (.xlsx) ---------- */
+        function edExportExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
+                return;
+            }
+            const baris = edGetBarisTerfilterUrut();
+            if (baris.length === 0) {
+                alert('Tidak ada data untuk diexport pada filter saat ini.');
+                return;
+            }
+
+            const header = ['Bulan', 'Tahun', 'Judul Video', 'Produk', 'Tema', 'Selling Points', 'Editor', 'Status Edit', 'Due Date', 'Target Upload', 'Status Upload', 'Musim', 'Link Transkrip', 'Link Skenario'];
+            const rows = baris.map(({ item }) => ([
+                edNilaiKolom(item, 'bulan'),
+                edNilaiKolom(item, 'tahun'),
+                edNilaiKolom(item, 'judul'),
+                edNilaiKolom(item, 'produk'),
+                edNilaiKolom(item, 'tema'),
+                edNilaiKolom(item, 'sellingPoints'),
+                edNilaiKolom(item, 'editor'),
+                normalizeStatus(edNilaiKolom(item, 'statusEdit')) || '',
+                edNilaiKolom(item, 'dueDate'),
+                edNilaiKolom(item, 'targetUpload'),
+                edNilaiKolom(item, 'statusUpload'),
+                edNilaiKolom(item, 'musim'),
+                edNilaiKolom(item, 'transkrip'),
+                edNilaiKolom(item, 'skenario')
+            ]));
+
+            const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+            // Lebar kolom dibuat proporsional supaya file rapi & mudah dibaca saat dibuka.
+            ws['!cols'] = [
+                { wch: 12 }, { wch: 8 }, { wch: 42 }, { wch: 20 }, { wch: 20 }, { wch: 36 },
+                { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 16 }, { wch: 14 }, { wch: 12 },
+                { wch: 40 }, { wch: 40 }
+            ];
+            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: header.length - 1 } }) };
+            ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Planning Editor');
+
+            const now = new Date();
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            XLSX.writeFile(wb, `Planning_Editor_${stamp}.xlsx`);
+        }
+
+        /* ---------- Export Word (.doc rapi, dapat dibuka langsung oleh Microsoft Word) ---------- */
+        function edExportWord() {
+            const baris = edGetBarisTerfilterUrut();
+            if (baris.length === 0) {
+                alert('Tidak ada data untuk diexport pada filter saat ini.');
+                return;
+            }
+
+            const header = ['Bulan', 'Tahun', 'Judul Video', 'Produk', 'Tema', 'Selling Points', 'Editor', 'Status Edit', 'Due Date', 'Target Upload', 'Status Upload', 'Musim'];
+            const headerHtml = header.map(h => `<th>${edEscapeHtml(h)}</th>`).join('');
+            const rowsHtml = baris.map(({ item }) => {
+                const cells = [
+                    edNilaiKolom(item, 'bulan'), edNilaiKolom(item, 'tahun'), edNilaiKolom(item, 'judul'),
+                    edNilaiKolom(item, 'produk'), edNilaiKolom(item, 'tema'), edNilaiKolom(item, 'sellingPoints'),
+                    edNilaiKolom(item, 'editor'), normalizeStatus(edNilaiKolom(item, 'statusEdit')) || '',
+                    edNilaiKolom(item, 'dueDate'), edNilaiKolom(item, 'targetUpload'), edNilaiKolom(item, 'statusUpload'),
+                    edNilaiKolom(item, 'musim')
+                ];
+                return `<tr>${cells.map(c => `<td>${edEscapeHtml(c) === '-' ? '' : edEscapeHtml(c)}</td>`).join('')}</tr>`;
+            }).join('');
+
+            const now = new Date();
+            const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            // Dibangun sebagai dokumen HTML dengan namespace Word (teknik "Word HTML")
+            // sehingga saat disimpan dengan ekstensi .doc, Microsoft Word membukanya
+            // sebagai dokumen biasa lengkap dengan tabel & styling yang rapi.
+            const htmlDoc = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Planning Editor</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>90</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page { size: A4 landscape; margin: 1.2cm; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
+  h1 { font-size: 18pt; margin-bottom: 2px; color: #0f172a; }
+  .subtitle { font-size: 9.5pt; color: #64748b; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+  th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+</style>
+</head>
+<body>
+  <h1>Data Planning Editor</h1>
+  <p class="subtitle">Diexport pada ${tanggalCetak} &bull; Total ${baris.length} data (mengikuti filter yang sedang aktif)</p>
+  <table>
+    <thead><tr>${headerHtml}</tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</body>
+</html>`;
+
+            const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Planning_Editor_${stamp}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        document.getElementById('ed-btn-export-excel').addEventListener('click', edExportExcel);
+        document.getElementById('ed-btn-export-word').addEventListener('click', edExportWord);
+
         async function edCopyJudulVideo(button) {
     const rid = Number(button.dataset.rid);
     const item = Number.isInteger(rid) && edPlanningRawGlobal ? edPlanningRawGlobal[rid] : null;
@@ -3705,27 +3927,14 @@ function edGambarBarisCrud() {
             const tbody = document.getElementById('ed-crud-body');
             const countLabel = document.getElementById('ed-crud-filter-count');
             if (!edPlanningRawGlobal || edPlanningRawGlobal.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="15" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
                 countLabel.innerText = ''; return;
             }
-            const fStatusEdit = document.getElementById('ed-crud-filter-status-edit').value;
-            const fStatusUpload = document.getElementById('ed-crud-filter-status-upload').value;
-            const fEditor = document.getElementById('ed-crud-filter-editor').value;
-            const fBulan = document.getElementById('ed-crud-filter-bulan').value;
 
-            let barisTerfilter = edPlanningRawGlobal.map((item, idx) => ({ item, idx })).filter(({ item }) => {
-                if (fStatusEdit !== 'all' && normalizeStatus(edCOLUMN_MAP.statusEdit ? item[edCOLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
-                if (fStatusUpload !== 'all' && (edCOLUMN_MAP.statusUpload ? item[edCOLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
-                if (fEditor !== 'all' && (edCOLUMN_MAP.editor ? item[edCOLUMN_MAP.editor] : null) !== fEditor) return false;
-                if (fBulan !== 'all' && (edCOLUMN_MAP.bulan ? item[edCOLUMN_MAP.bulan] : null) !== fBulan) return false;
-                return true;
-            });
-
-            // Urutkan berdasarkan Bulan supaya tabel lebih enak dibaca (tidak loncat-loncat)
-            barisTerfilter = edUrutkanIndeksBerdasarkanBulan(barisTerfilter);
+            const barisTerfilter = edGetBarisTerfilterUrut();
 
             countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${edPlanningRawGlobal.length} baris (diurutkan per Bulan)`;
-            if (barisTerfilter.length === 0) { tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
+            if (barisTerfilter.length === 0) { tbody.innerHTML = '<tr><td colspan="15" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
 
             const val = (item, key) => edCOLUMN_MAP[key] ? edEscapeHtml(item[edCOLUMN_MAP[key]]) : '-';
             tbody.innerHTML = barisTerfilter.map(({ item, idx }) => {
@@ -3749,6 +3958,9 @@ function edGambarBarisCrud() {
         </button>
     </div>
 </td>
+            <td class="py-3 px-4 max-w-[180px] truncate" title="${val(item, 'produk')}">${val(item, 'produk')}</td>
+            <td class="py-3 px-4 max-w-[180px] truncate" title="${val(item, 'tema')}">${val(item, 'tema')}</td>
+            <td class="py-3 px-4 max-w-[240px] truncate" title="${val(item, 'sellingPoints')}">${val(item, 'sellingPoints')}</td>
             <td class="py-3 px-4">${val(item, 'editor')}</td>
             <td class="py-3 px-4">${edBadgeStatusEdit(edCOLUMN_MAP.statusEdit ? item[edCOLUMN_MAP.statusEdit] : null)}</td>
             <td class="py-3 px-4 text-xs">${val(item, 'dueDate')}</td>
@@ -3800,6 +4012,9 @@ function edGambarBarisCrud() {
             document.getElementById('ed-crud-field-bulan').value = edCOLUMN_MAP.bulan ? (item[edCOLUMN_MAP.bulan] || '') : '';
             document.getElementById('ed-crud-field-tahun').value = edCOLUMN_MAP.tahun ? (item[edCOLUMN_MAP.tahun] || '') : '';
             document.getElementById('ed-crud-field-judul').value = edCOLUMN_MAP.judul ? (item[edCOLUMN_MAP.judul] || '') : '';
+            document.getElementById('ed-crud-field-produk').value = edCOLUMN_MAP.produk ? (item[edCOLUMN_MAP.produk] || '') : '';
+            document.getElementById('ed-crud-field-tema').value = edCOLUMN_MAP.tema ? (item[edCOLUMN_MAP.tema] || '') : '';
+            document.getElementById('ed-crud-field-sellingPoints').value = edCOLUMN_MAP.sellingPoints ? (item[edCOLUMN_MAP.sellingPoints] || '') : '';
             setSelectValueEnsureOption(document.getElementById('ed-crud-field-editor'), edCOLUMN_MAP.editor ? (item[edCOLUMN_MAP.editor] || '') : '');
             document.getElementById('ed-crud-field-statusEdit').value = edCOLUMN_MAP.statusEdit ? (normalizeStatus(item[edCOLUMN_MAP.statusEdit]) || 'Transkrip Siap') : 'Transkrip Siap';
             document.getElementById('ed-crud-field-dueDate').value = edCOLUMN_MAP.dueDate ? (item[edCOLUMN_MAP.dueDate] || '') : '';
@@ -3839,6 +4054,9 @@ function edGambarBarisCrud() {
             if (edCOLUMN_MAP.bulan) payload[edCOLUMN_MAP.bulan] = document.getElementById('ed-crud-field-bulan').value;
             if (edCOLUMN_MAP.tahun) payload[edCOLUMN_MAP.tahun] = document.getElementById('ed-crud-field-tahun').value;
             if (edCOLUMN_MAP.judul) payload[edCOLUMN_MAP.judul] = document.getElementById('ed-crud-field-judul').value;
+            if (edCOLUMN_MAP.produk) payload[edCOLUMN_MAP.produk] = document.getElementById('ed-crud-field-produk').value;
+            if (edCOLUMN_MAP.tema) payload[edCOLUMN_MAP.tema] = document.getElementById('ed-crud-field-tema').value;
+            if (edCOLUMN_MAP.sellingPoints) payload[edCOLUMN_MAP.sellingPoints] = document.getElementById('ed-crud-field-sellingPoints').value;
             if (edCOLUMN_MAP.editor) payload[edCOLUMN_MAP.editor] = document.getElementById('ed-crud-field-editor').value;
             if (edCOLUMN_MAP.statusEdit) payload[edCOLUMN_MAP.statusEdit] = document.getElementById('ed-crud-field-statusEdit').value;
             if (edCOLUMN_MAP.dueDate) payload[edCOLUMN_MAP.dueDate] = document.getElementById('ed-crud-field-dueDate').value;
@@ -4109,26 +4327,50 @@ function edGambarBarisCrud() {
             await usMuatDataUser();
         }
 
-        function togglePanduanDropdown(event) {
-            event.preventDefault();
-            const trigger = event.currentTarget;
-            const submenu = document.getElementById('panduan-submenu-7');
-            submenu.classList.toggle('active');
-            trigger.classList.toggle('active-trigger');
-        }
-
         // ==== BARU: kunci/lepas scroll pada elemen <main> saat mode workspace panduan
-        // dibuka/ditutup, supaya area shell/iframe selalu terlihat penuh dalam satu
-        // layar dan yang discroll hanya konten di dalam iframe itu sendiri. ====
+        // dibuka/ditutup, supaya area shell/iframe/sublist selalu terlihat penuh dalam
+        // satu layar dan yang discroll hanya konten di dalam iframe/daftar itu sendiri. ====
         function bukaPanduanWorkspace(targetUrl) {
-            document.getElementById('panduan-iframe').src = targetUrl;
+            document.getElementById('panduan-sublist-panel').classList.add('hidden');
+            document.getElementById('panduan-sublist-panel').innerHTML = '';
+            const iframe = document.getElementById('panduan-iframe');
+            iframe.classList.remove('hidden');
+            iframe.src = targetUrl;
             document.getElementById('panduan-guidance-view').classList.add('hidden');
             document.getElementById('panduan-workspace-view').classList.remove('hidden');
             const mainEl = document.querySelector('main');
             if (mainEl) mainEl.classList.add('panduan-scroll-lock');
         }
+
+        // ==== BARU: menampilkan daftar sub-menu (mis. "Panduan rekam video lahan")
+        // sebagai halaman tersendiri di dalam workspace, menggantikan pola accordion
+        // lama yang menyisakan area kosong saat diklik. Setiap item pada daftar ini
+        // tetap membuka kontennya lewat iframe seperti link panduan lainnya. ====
+        function bukaPanduanSubList(title, items) {
+            const iframe = document.getElementById('panduan-iframe');
+            iframe.classList.add('hidden');
+            iframe.src = '';
+            const panel = document.getElementById('panduan-sublist-panel');
+            panel.classList.remove('hidden');
+            panel.innerHTML = items.map(([label, url], idx) => `
+        <div class="panduan-sublist-item" data-url="${edEscapeHtml(url)}">
+          <div class="panduan-sublist-icon">${idx + 1}</div>
+          <span class="panduan-sublist-text">${edEscapeHtml(label)}</span>
+          <i class="fas fa-chevron-right ml-auto text-slate-300"></i>
+        </div>`).join('');
+            panel.querySelectorAll('.panduan-sublist-item').forEach(el => {
+                el.addEventListener('click', () => bukaPanduanWorkspace(el.getAttribute('data-url')));
+            });
+            document.getElementById('panduan-guidance-view').classList.add('hidden');
+            document.getElementById('panduan-workspace-view').classList.remove('hidden');
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.add('panduan-scroll-lock');
+        }
+
         function tutupPanduanWorkspace() {
             document.getElementById('panduan-iframe').src = '';
+            document.getElementById('panduan-sublist-panel').classList.add('hidden');
+            document.getElementById('panduan-sublist-panel').innerHTML = '';
             document.getElementById('panduan-workspace-view').classList.add('hidden');
             document.getElementById('panduan-guidance-view').classList.remove('hidden');
             const mainEl = document.querySelector('main');
@@ -4138,6 +4380,14 @@ function edGambarBarisCrud() {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
                 bukaPanduanWorkspace(this.getAttribute('data-url'));
+            });
+        });
+        document.querySelectorAll('.panduan-sublist-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const title = this.getAttribute('data-title') || '';
+                const items = JSON.parse(this.getAttribute('data-items') || '[]');
+                bukaPanduanSubList(title, items);
             });
         });
 
