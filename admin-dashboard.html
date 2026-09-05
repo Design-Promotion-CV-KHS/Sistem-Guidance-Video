@@ -735,30 +735,46 @@
             width: 100% !important;
         }
 
+        /* ================================================================
+           PANDUAN: MODE WORKSPACE (embed spreadsheet / dokumen)
+           Tujuan: saat sedang menampilkan spreadsheet/dokumen, area kerja
+           mengisi persis sisa tinggi layar (di bawah header) dan TIDAK ikut
+           membuat halaman utama (main) ikut discroll. Yang discroll hanya
+           konten DI DALAM iframe/tabel itu sendiri, sehingga seluruh tabel
+           selalu terlihat utuh dan tidak "kepotong" saat discroll.
+        ================================================================ */
         #panduan-workspace-view {
             width: 100%;
+            height: calc(100vh - 132px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #panduan-workspace-view>button {
+            margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
         .panduan-workspace-shell {
             width: 100%;
-            height: calc(100vh - 150px);
-            min-height: 620px;
+            flex: 1 1 auto;
+            min-height: 0;
+            /* penting: agar child flex bisa mengisi & discroll sendiri, bukan mendorong parent melebar */
             background: #fff;
         }
 
         #panduan-iframe {
             width: 100%;
             height: 100%;
-            min-height: 620px;
             border: 0;
             display: block;
             background: #fff;
         }
 
-        /* Saat detail panduan terbuka, header panduan tidak mengambil ruang
-           berlebihan; tombol kembali tetap terlihat di bagian atas. */
-        #panduan-workspace-view>button {
-            margin-bottom: 12px;
+        /* Saat mode workspace aktif, main tidak ikut discroll (dikunci lewat JS)
+           supaya area tabel/iframe selalu terlihat utuh dalam satu layar. */
+        main.panduan-scroll-lock {
+            overflow-y: hidden !important;
         }
 
         @media (max-width: 768px) {
@@ -768,10 +784,8 @@
                 padding: 1rem !important;
             }
 
-            .panduan-workspace-shell,
-            #panduan-iframe {
-                min-height: calc(100vh - 170px);
-                height: calc(100vh - 170px);
+            #panduan-workspace-view {
+                height: calc(100vh - 110px);
             }
         }
     </style>
@@ -1201,7 +1215,7 @@
                 <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span
                         class="font-semibold">12 video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan
                     lain.</p>
-                <div class="max-w-sm" id="ed-target-grid">
+                <div class="w-full" id="ed-target-grid">
                     <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
                 </div>
             </div>
@@ -2453,6 +2467,11 @@
             document.getElementById('nav-' + tabName).className = activeNavClass;
             document.getElementById('header-subtitle').innerText = HEADER_SUBTITLE[tabName] || '';
 
+            // Setiap kali pindah tab, pastikan kunci scroll khusus mode panduan-workspace
+            // tidak "nyangkut" dan membuat tab lain tidak bisa discroll.
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
+
             if (tabName === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); }
             else if (tabName === 'cabang-crud') cbMuatDataTabel();
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
@@ -3371,56 +3390,70 @@
                 return dataDenganBulan.filter(item => item.bulanNormal === bulan);
             };
 
-            const buatKartuTarget = (bulan, dataBulan, tampilUtama = false) => {
+            // ==== Kartu ringkas (dipakai untuk riwayat bulan-bulan lain) ====
+            const buatKartuRingkas = (bulan, dataBulan) => {
+                const doneCount = dataBulan.filter(i => i.statusEdit === 'Done').length;
+                const persen = Math.min(100, Math.round((doneCount / target) * 100));
+                const tercapai = doneCount >= target;
+
+                const tahunSet = Array.from(new Set(
+                    dataBulan.map(i => String(i.tahun ?? '').trim()).filter(Boolean)
+                ));
+                const tahunLabel = tahunSet.length ? tahunSet.join(', ') : '';
+
+                const barColor = tercapai ? 'bg-emerald-500' : 'bg-blue-500';
+                const badge = tercapai
+                    ? `<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Tercapai</span>`
+                    : `<span class="badge-pill bg-slate-100 text-slate-500 border border-slate-200">${target - doneCount} lagi</span>`;
+
+                return `
+                    <div class="h-full p-4 rounded-2xl border border-gray-100 bg-white shadow-sm">
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <p class="text-xs font-bold text-gray-700">${edEscapeHtml(bulan)} ${edEscapeHtml(tahunLabel)}</p>
+                            ${badge}
+                        </div>
+                        <div class="flex items-end gap-1.5 mb-2">
+                            <span class="text-xl font-black text-gray-800">${doneCount}</span>
+                            <span class="text-xs text-gray-400 font-semibold mb-0.5">/ ${target} video</span>
+                        </div>
+                        <div class="progress-track w-full h-1.5 rounded-full overflow-hidden">
+                            <div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div>
+                        </div>
+                    </div>`;
+            };
+
+            // ==== Kartu utama (bulan yang sedang disorot) ====
+            const buatKartuUtama = (bulan, dataBulan) => {
                 const doneCount = dataBulan.filter(i => i.statusEdit === 'Done').length;
                 const persen = Math.min(100, Math.round((doneCount / target) * 100));
                 const tercapai = doneCount >= target;
                 const kekurangan = Math.max(0, target - doneCount);
 
                 const tahunSet = Array.from(new Set(
-                    dataBulan
-                        .map(i => String(i.tahun ?? '').trim())
-                        .filter(Boolean)
+                    dataBulan.map(i => String(i.tahun ?? '').trim()).filter(Boolean)
                 ));
-                const tahunLabel = tahunSet.length === 1
-                    ? tahunSet[0]
-                    : tahunSet.length > 1
-                        ? tahunSet.join(', ')
-                        : '';
+                const tahunLabel = tahunSet.length ? tahunSet.join(', ') : '';
 
                 const statusBadge = tercapai
-                    ? `<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ TARGET TERCAPAI</span>`
-                    : `<span class="badge-pill bg-rose-50 text-rose-600 border border-rose-200">✕ TARGET TIDAK TERCAPAI</span>`;
+                    ? `<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Target Tercapai</span>`
+                    : `<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Kurang ${kekurangan} Video</span>`;
 
-                const barColor = tercapai ? 'bg-emerald-500' : 'bg-amber-500';
-                const borderColor = tercapai ? 'border-emerald-200' : 'border-rose-200';
-                const bgColor = tercapai ? 'bg-emerald-50/30' : 'bg-rose-50/30';
+                const barColor = tercapai ? 'bg-emerald-500' : 'bg-blue-600';
 
                 return `
-                    <div class="relative p-5 rounded-2xl border ${borderColor} ${bgColor} ${tampilUtama ? '' : 'h-full'}">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="text-sm font-bold text-gray-800">${edEscapeHtml(bulan)} ${edEscapeHtml(tahunLabel)}</p>
-                                ${!tampilUtama ? `<p class="text-[10px] text-gray-400 mt-0.5">Riwayat pencapaian</p>` : ''}
-                            </div>
+                    <div class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm max-w-sm">
+                        <div class="flex items-center justify-between gap-3 mb-1">
+                            <p class="text-sm font-bold text-gray-800">${edEscapeHtml(bulan)} ${edEscapeHtml(tahunLabel)}</p>
                             ${statusBadge}
                         </div>
-
-                        <div class="flex items-end gap-1.5 mt-3 mb-3">
+                        <div class="flex items-end gap-1.5 mt-2 mb-3">
                             <span class="text-3xl font-black text-gray-800">${doneCount}</span>
                             <span class="text-sm text-gray-400 font-semibold mb-1">/ ${target} video</span>
                         </div>
-
-                        <div class="progress-track w-full h-2.5 rounded-full overflow-hidden mb-3">
+                        <div class="progress-track w-full h-2.5 rounded-full overflow-hidden">
                             <div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div>
                         </div>
-
-                        <div class="flex items-center justify-between gap-3 text-xs">
-                            <span class="font-semibold text-gray-500">Pencapaian ${persen}%</span>
-                            ${tercapai
-                                ? `<span class="font-bold text-emerald-600 text-right">Target tercapai</span>`
-                                : `<span class="font-bold text-rose-600 text-right">Kurang ${kekurangan} video</span>`}
-                        </div>
+                        <p class="text-xs text-gray-400 font-semibold mt-2">Pencapaian ${persen}%</p>
                     </div>`;
             };
 
@@ -3436,7 +3469,7 @@
 
                 if (dataTarget.length === 0) {
                     container.innerHTML = `
-                        <div class="p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                        <div class="p-6 rounded-2xl border border-gray-100 bg-gray-50/50 max-w-sm">
                             <p class="text-sm text-gray-400 text-center">
                                 Tidak ada data untuk bulan ${edEscapeHtml(bulanTarget)}.
                             </p>
@@ -3444,14 +3477,14 @@
                     return;
                 }
 
-                container.innerHTML = buatKartuTarget(bulanTarget, dataTarget, true);
+                container.innerHTML = buatKartuUtama(bulanTarget, dataTarget);
                 return;
             }
 
             // ================================================================
             // MODE 2: Semua Bulan
             // Kartu utama = bulan berjalan.
-            // Di bawahnya = riwayat seluruh bulan yang tersedia.
+            // Di sampingnya (grid) = riwayat seluruh bulan lain yang tersedia.
             // ================================================================
             const bulanBerjalan = edGetBulanBerjalan();
             let bulanUtama = bulanBerjalan;
@@ -3485,19 +3518,14 @@
 
             const riwayatBulan = semuaBulan.filter(b => b !== bulanUtama);
 
-            let html = buatKartuTarget(bulanUtama, dataBulanUtama, true);
+            let html = buatKartuUtama(bulanUtama, dataBulanUtama);
 
             if (riwayatBulan.length > 0) {
                 html += `
                     <div class="mt-5 pt-5 border-t border-gray-100">
-                        <div class="flex items-center justify-between mb-3">
-                            <div>
-                                <p class="text-xs font-extrabold uppercase tracking-wider text-gray-500">Riwayat Pencapaian</p>
-                                <p class="text-[11px] text-gray-400 mt-0.5">Pencapaian bulan sebelumnya tetap dapat dilihat di sini.</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            ${riwayatBulan.map(bulan => buatKartuTarget(bulan, hitungDataBulan(bulan), false)).join('')}
+                        <p class="text-xs font-extrabold uppercase tracking-wider text-gray-400 mb-3">Riwayat Bulan Lain</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            ${riwayatBulan.map(bulan => buatKartuRingkas(bulan, hitungDataBulan(bulan))).join('')}
                         </div>
                     </div>`;
             }
@@ -4087,15 +4115,23 @@ function edGambarBarisCrud() {
             submenu.classList.toggle('active');
             trigger.classList.toggle('active-trigger');
         }
+
+        // ==== BARU: kunci/lepas scroll pada elemen <main> saat mode workspace panduan
+        // dibuka/ditutup, supaya area shell/iframe selalu terlihat penuh dalam satu
+        // layar dan yang discroll hanya konten di dalam iframe itu sendiri. ====
         function bukaPanduanWorkspace(targetUrl) {
             document.getElementById('panduan-iframe').src = targetUrl;
             document.getElementById('panduan-guidance-view').classList.add('hidden');
             document.getElementById('panduan-workspace-view').classList.remove('hidden');
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.add('panduan-scroll-lock');
         }
         function tutupPanduanWorkspace() {
             document.getElementById('panduan-iframe').src = '';
             document.getElementById('panduan-workspace-view').classList.add('hidden');
             document.getElementById('panduan-guidance-view').classList.remove('hidden');
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
         }
         document.querySelectorAll('.panduan-embed-link').forEach(link => {
             link.addEventListener('click', function (e) {
