@@ -2720,10 +2720,15 @@
 
         function cbRenderTrendBulanan(dataCabangOnly, selectedCabangFilter, jumlahCabangAktif) {
             let dataUntukTrend = dataCabangOnly;
+
+            // Terapkan filter cabang
             if (selectedCabangFilter !== 'all') {
-                dataUntukTrend = dataCabangOnly.filter(item => (item.Cabang || item.cabang || '').trim() === selectedCabangFilter);
+                dataUntukTrend = dataCabangOnly.filter(item =>
+                    (item.Cabang || item.cabang || '').trim() === selectedCabangFilter
+                );
             }
 
+            // Rekap jumlah kiriman berdasarkan YYYY-MM
             const rekapBulan = {};
             dataUntukTrend.forEach(item => {
                 const ym = cbGetYearMonthFromItem(item);
@@ -2731,19 +2736,45 @@
                 rekapBulan[ym.key] = (rekapBulan[ym.key] || 0) + 1;
             });
 
-            const sortedKeys = Object.keys(rekapBulan).sort();
+            const dataKeys = Object.keys(rekapBulan).sort();
+
             const targetPerBulan = selectedCabangFilter === 'all'
                 ? CB_TARGET_PER_CABANG_PER_BULAN * Math.max(jumlahCabangAktif, 1)
                 : CB_TARGET_PER_CABANG_PER_BULAN;
 
-            const labels = sortedKeys.map(k => { const [y, m] = k.split('-'); return `${CB_NAMA_BULAN_MAP[m] || m} ${y}`; });
-            const values = sortedKeys.map(k => rekapBulan[k]);
+            // Buat seluruh bulan dari bulan paling awal sampai paling akhir.
+            // Bulan tanpa kiriman tetap dimasukkan dengan nilai 0.
+            let sortedKeys = [];
+            if (dataKeys.length > 0) {
+                const [startYear, startMonth] = dataKeys[0].split('-').map(Number);
+                const [endYear, endMonth] = dataKeys[dataKeys.length - 1].split('-').map(Number);
+
+                const current = new Date(startYear, startMonth - 1, 1);
+                const end = new Date(endYear, endMonth - 1, 1);
+
+                while (current <= end) {
+                    const year = current.getFullYear();
+                    const month = String(current.getMonth() + 1).padStart(2, '0');
+                    sortedKeys.push(`${year}-${month}`);
+                    current.setMonth(current.getMonth() + 1);
+                }
+            }
+
+            const labels = sortedKeys.map(k => {
+                const [y, m] = k.split('-');
+                return `${CB_NAMA_BULAN_MAP[m] || m} ${y}`;
+            });
+
+            // Jika suatu bulan tidak mempunyai data, tampilkan 0.
+            const values = sortedKeys.map(k => rekapBulan[k] || 0);
             const barColors = values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1');
             const targetLine = sortedKeys.map(() => targetPerBulan);
 
             const badgeEl = document.getElementById('cb-trend-bulan-berjalan-badge');
             const bulanBerjalanKey = cbGetBulanBerjalanKey();
-            const keyUntukBadge = sortedKeys.includes(bulanBerjalanKey) ? bulanBerjalanKey : sortedKeys[sortedKeys.length - 1];
+            const keyUntukBadge = sortedKeys.includes(bulanBerjalanKey)
+                ? bulanBerjalanKey
+                : sortedKeys[sortedKeys.length - 1];
 
             if (!keyUntukBadge) {
                 badgeEl.innerText = 'Belum ada data bulan untuk ditampilkan';
@@ -2754,12 +2785,14 @@
                 const nilaiBadge = rekapBulan[keyUntukBadge] || 0;
                 const tercapaiBadge = nilaiBadge >= targetPerBulan;
                 const labelBB = keyUntukBadge === bulanBerjalanKey ? 'Bulan Berjalan' : 'Data Terbaru';
+
                 badgeEl.innerText = `${labelBB}: ${namaBulanBadge} — ${nilaiBadge}/${targetPerBulan} video${tercapaiBadge ? ' ✔ Tercapai' : ''}`;
                 badgeEl.className = `shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border ${tercapaiBadge ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
             }
 
             const ctxTrend = document.getElementById('cb-chartTrendBulanan').getContext('2d');
             if (cbMyTrendChart) cbMyTrendChart.destroy();
+
             if (sortedKeys.length === 0) {
                 cbMyTrendChart = null;
                 ctxTrend.clearRect(0, 0, ctxTrend.canvas.width, ctxTrend.canvas.height);
@@ -2770,20 +2803,64 @@
                 data: {
                     labels,
                     datasets: [
-                        { type: 'bar', label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 46, order: 2 },
-                        { type: 'line', label: `Target (${targetPerBulan} video/bulan)`, data: targetLine, borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false, tension: 0, order: 1, datalabels: { display: false } }
+                        {
+                            type: 'bar',
+                            label: 'Jumlah Kiriman',
+                            data: values,
+                            backgroundColor: barColors,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            maxBarThickness: 46,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: `Target (${targetPerBulan} video/bulan)`,
+                            data: targetLine,
+                            borderColor: '#f59e0b',
+                            borderDash: [6, 4],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0,
+                            order: 1,
+                            datalabels: { display: false }
+                        }
                     ]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
-                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 },
-                        datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } }
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 11, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 10
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#475569',
+                            font: { weight: 'bold', size: 11 }
+                        }
                     },
                     scales: {
-                        y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
-                        x: { ticks: { color: '#64748b' }, grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0, color: '#64748b' },
+                            grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                        },
+                        x: {
+                            ticks: { color: '#64748b' },
+                            grid: { display: false }
+                        }
                     }
                 }
             });
