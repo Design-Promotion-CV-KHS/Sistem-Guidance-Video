@@ -751,6 +751,42 @@
             flex-direction: column;
         }
 
+        /* ================================================================
+           MODE SPREADSHEET FULL WORKSPACE
+           Saat Google Sheets dibuka dari Panduan Take Video, hilangkan
+           padding/card dekoratif agar spreadsheet mengisi penuh area kerja.
+           Berlaku untuk semua link Google Sheets yang dibuka lewat iframe.
+        ================================================================ */
+        #tab-panduan.panduan-spreadsheet-mode {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view {
+            width: 100%;
+            height: calc(100vh - 92px);
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view > button {
+            margin: 10px 12px 10px 12px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode .panduan-workspace-shell {
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        #tab-panduan.panduan-spreadsheet-mode #panduan-iframe {
+            border-radius: 0;
+        }
+
         #panduan-workspace-view>button {
             margin-bottom: 12px;
             flex-shrink: 0;
@@ -840,6 +876,13 @@
 
             #panduan-workspace-view {
                 height: calc(100vh - 110px);
+            }
+            #tab-panduan.panduan-spreadsheet-mode {
+                padding: 0 !important;
+            }
+
+            #tab-panduan.panduan-spreadsheet-mode #panduan-workspace-view {
+                height: calc(100vh - 78px);
             }
         }
     </style>
@@ -1954,15 +1997,6 @@
             </div>
         </div>
         <div class="p-8 space-y-6 w-full mx-auto hidden" id="tab-panduan">
-            <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
-                <span
-                    class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-extrabold uppercase tracking-widest border border-indigo-100 mb-3">SOP
-                    &amp; Alur Kerja</span>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Langkah Membuat Skenario &amp; Guidance
-                    Pembuatan Video</h3>
-                <p class="text-sm text-slate-500 mt-1.5 max-w-2xl">Ikuti langkah-langkah di bawah ini untuk memastikan
-                    kualitas konten video sesuai dengan skenario yang sudah ditentukan.</p>
-            </div>
             <div id="panduan-guidance-view">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="glass-card panduan-step-card contrast-card p-6 rounded-3xl shadow-sm">
@@ -4367,6 +4401,13 @@ function edGambarBarisCrud() {
         // dibuka/ditutup, supaya area shell/iframe/sublist selalu terlihat penuh dalam
         // satu layar dan yang discroll hanya konten di dalam iframe/daftar itu sendiri. ====
         function bukaPanduanWorkspace(targetUrl) {
+            const panduanTab = document.getElementById('tab-panduan');
+            const isSpreadsheet = /docs\.google\.com\/spreadsheets/i.test(String(targetUrl || ''));
+
+            if (panduanTab) {
+                panduanTab.classList.toggle('panduan-spreadsheet-mode', isSpreadsheet);
+            }
+
             document.getElementById('panduan-sublist-panel').classList.add('hidden');
             document.getElementById('panduan-sublist-panel').innerHTML = '';
             const iframe = document.getElementById('panduan-iframe');
@@ -4383,6 +4424,9 @@ function edGambarBarisCrud() {
         // lama yang menyisakan area kosong saat diklik. Setiap item pada daftar ini
         // tetap membuka kontennya lewat iframe seperti link panduan lainnya. ====
         function bukaPanduanSubList(title, items) {
+            const panduanTab = document.getElementById('tab-panduan');
+            if (panduanTab) panduanTab.classList.remove('panduan-spreadsheet-mode');
+
             const iframe = document.getElementById('panduan-iframe');
             iframe.classList.add('hidden');
             iframe.src = '';
@@ -4404,6 +4448,9 @@ function edGambarBarisCrud() {
         }
 
         function tutupPanduanWorkspace() {
+            const panduanTab = document.getElementById('tab-panduan');
+            if (panduanTab) panduanTab.classList.remove('panduan-spreadsheet-mode');
+
             document.getElementById('panduan-iframe').src = '';
             document.getElementById('panduan-sublist-panel').classList.add('hidden');
             document.getElementById('panduan-sublist-panel').innerHTML = '';
