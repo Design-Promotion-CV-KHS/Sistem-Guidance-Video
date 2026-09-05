@@ -1530,7 +1530,8 @@
                 class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
                 <div>
                     <h3 class="text-2xl font-black text-slate-900 tracking-tight">Kelola Customer Profile</h3>
-                    <p class="text-sm text-slate-500 mt-1">Tambah, ubah, dan hapus data customer profile, script wawancara, dan evaluasi wawancara per cabang secara real-time.</p>
+                    <p class="text-sm text-slate-500 mt-1">Tambah, ubah, dan hapus data customer profile, script
+                        wawancara, dan evaluasi wawancara per cabang secara real-time.</p>
                 </div>
                 <button
                     class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn shrink-0"
@@ -3310,7 +3311,6 @@
         let cpMyCabangChart = null;
         let cpDateColumnDetected = null; // nama kolom tanggal yang terdeteksi (created_at, dsb)
         let cpCurrentEditIdInfo = null;
-        let cpCOLUMN_MAP = { id: null, cabang: null, nama: null, produk: null, customerProfile: null, scriptWawancara: null, evaluasiWawancara: null };
 
         // Ambil nilai kolom dengan mencoba beberapa kemungkinan nama (spasi/underscore/kapitalisasi)
         function cpGetField(item, ...keys) {
@@ -3328,44 +3328,6 @@
         function cpGetCustomerProfile(item) { return cpGetField(item, 'Customer Profile', 'Customer_Profile', 'customer_profile'); }
         function cpGetScriptWawancara(item) { return cpGetField(item, 'Script Wawancara', 'Script_Wawancara', 'script_wawancara'); }
         function cpGetEvaluasiWawancara(item) { return cpGetField(item, 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara'); }
-        function cpDetectColumns(sampleRow) {
-            const keys = Object.keys(sampleRow || {});
-            const cariKolom = (...kandidat) => {
-                for (const c of kandidat) {
-                    const found = keys.find(k => k.toLowerCase() === c.toLowerCase());
-                    if (found) return found;
-                }
-                return null;
-            };
-            cpCOLUMN_MAP.id = cariKolom('id', 'Id', 'ID', 'uuid', 'UUID', 'row_id', 'ROW_ID');
-            cpCOLUMN_MAP.cabang = cariKolom('Cabang', 'cabang');
-            cpCOLUMN_MAP.nama = cariKolom('Nama', 'nama', 'Nama Customer', 'nama_customer', 'Customer');
-            cpCOLUMN_MAP.produk = cariKolom('Produk', 'produk');
-            cpCOLUMN_MAP.customerProfile = cariKolom('Customer Profile', 'Customer_Profile', 'customer_profile', 'CustomerProfile');
-            cpCOLUMN_MAP.scriptWawancara = cariKolom('Script Wawancara', 'Script_Wawancara', 'script_wawancara', 'ScriptWawancara');
-            cpCOLUMN_MAP.evaluasiWawancara = cariKolom('Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara', 'EvaluasiWawancara');
-        }
-
-        function cpGetMappedValue(item, key) {
-            const column = cpCOLUMN_MAP[key];
-            if (!column) return '';
-            return item[column] ?? '';
-        }
-
-        function cpBuatPayloadForm() {
-            const payload = {};
-            const set = (key, value) => {
-                if (cpCOLUMN_MAP[key]) payload[cpCOLUMN_MAP[key]] = value;
-            };
-            set('cabang', document.getElementById('cp-crud-field-cabang').value.trim());
-            set('nama', document.getElementById('cp-crud-field-nama').value.trim());
-            set('produk', document.getElementById('cp-crud-field-produk').value.trim());
-            set('customerProfile', document.getElementById('cp-crud-field-customerProfile').value);
-            set('scriptWawancara', document.getElementById('cp-crud-field-scriptWawancara').value);
-            set('evaluasiWawancara', document.getElementById('cp-crud-field-evaluasiWawancara').value);
-            return payload;
-        }
-
 
         // Deteksi otomatis nama kolom tanggal/waktu yang ada pada baris data (untuk pengelompokan bulan)
         function cpDetectDateColumn(sampleRow) {
@@ -3441,11 +3403,10 @@
                 cpTampilkanDiagnostik(`Tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" berhasil diakses tapi belum berisi data. Klik "Tambah Data Baru" untuk menambahkan data pertama.`);
             }
 
-            cpDetectColumns(cpListGlobal[0]);
             cpDetectDateColumn(cpListGlobal[0]);
             document.getElementById('cp-no-date-warning').classList.toggle('hidden', !cpListGlobal.length || !!cpDateColumnDetected);
 
-            const idInfoSample = cpListGlobal.length ? (cpCOLUMN_MAP.id ? { key: cpCOLUMN_MAP.id, value: cpListGlobal[0][cpCOLUMN_MAP.id] } : getRowIdInfo(cpListGlobal[0])) : null;
+            const idInfoSample = cpListGlobal.length ? getRowIdInfo(cpListGlobal[0]) : null;
             document.getElementById('cp-crud-no-id-warning').classList.toggle('hidden', !cpListGlobal.length || !!idInfoSample);
 
             cpPopulateCabangOptionsFilter();
@@ -3720,9 +3681,7 @@
             if (!item) return;
             cpResetForm();
             cpPopulateCabangOptionsForm();
-            const idInfo = cpCOLUMN_MAP.id && item[cpCOLUMN_MAP.id] !== undefined
-                ? { key: cpCOLUMN_MAP.id, value: item[cpCOLUMN_MAP.id] }
-                : getRowIdInfo(item);
+            const idInfo = getRowIdInfo(item);
             if (!idInfo) {
                 alert('Data ini tidak bisa diedit dengan aman karena tidak ditemukan kolom ID.\n\nKolom yang tersedia pada baris ini: ' + Object.keys(item).join(', ') + '\n\nTambahkan kolom id unik (primary key) pada tabel Customer_Profile di Supabase.');
                 return;
@@ -3741,15 +3700,24 @@
 
         function cpTutupModalCrud() { document.getElementById('cp-crud-modal').classList.add('hidden'); }
 
-        document.getElementById('cp-btn-tambah-data').addEventListener('click', cpBukaModalTambah);
-        document.getElementById('cp-crud-modal-close').addEventListener('click', cpTutupModalCrud);
-        document.getElementById('cp-crud-cancel-btn').addEventListener('click', cpTutupModalCrud);
-        document.getElementById('cp-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'cp-crud-modal') cpTutupModalCrud(); });
+        // Binding Customer Profile dibuat aman: elemen upload bersifat opsional.
+        // Sebelumnya listener langsung ke elemen upload yang tidak ada membuat
+        // JavaScript berhenti dieksekusi sebelum listener tombol Tambah dan Editor terpasang.
+        function cpBindEvent(selector, eventName, handler) {
+            const el = document.querySelector(selector);
+            if (el) el.addEventListener(eventName, handler);
+            return el;
+        }
 
-        document.getElementById('cp-upload-customerProfile').addEventListener('change', function () {
+        cpBindEvent('#cp-btn-tambah-data', 'click', cpBukaModalTambah);
+        cpBindEvent('#cp-crud-modal-close', 'click', cpTutupModalCrud);
+        cpBindEvent('#cp-crud-cancel-btn', 'click', cpTutupModalCrud);
+        cpBindEvent('#cp-crud-modal', 'click', (e) => { if (e.target.id === 'cp-crud-modal') cpTutupModalCrud(); });
+
+        cpBindEvent('#cp-upload-customerProfile', 'change', function () {
             cpUploadFileHandler(this, 'cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
         });
-        document.getElementById('cp-upload-scriptWawancara').addEventListener('change', function () {
+        cpBindEvent('#cp-upload-scriptWawancara', 'change', function () {
             cpUploadFileHandler(this, 'cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
         });
 
@@ -3758,45 +3726,33 @@
             const errBox = document.getElementById('cp-crud-form-error');
             errBox.classList.add('hidden');
 
-            if (!cpCOLUMN_MAP.cabang || !cpCOLUMN_MAP.nama) {
-                errBox.innerText = `Kolom wajib Customer Profile tidak terdeteksi. Kolom yang terbaca: ${Object.keys(cpListGlobal[0] || {}).join(', ') || '(belum ada data)'}`;
-                errBox.classList.remove('hidden');
-                return;
-            }
-
             const cabangVal = document.getElementById('cp-crud-field-cabang').value.trim();
             const namaVal = document.getElementById('cp-crud-field-nama').value.trim();
             if (!cabangVal) { errBox.innerText = 'Cabang wajib dipilih.'; errBox.classList.remove('hidden'); return; }
             if (!namaVal) { errBox.innerText = 'Nama wajib diisi.'; errBox.classList.remove('hidden'); return; }
 
-            const payload = cpBuatPayloadForm();
+            const payload = {
+                Cabang: cabangVal,
+                Nama: namaVal,
+                Produk: document.getElementById('cp-crud-field-produk').value.trim(),
+                'Customer Profile': document.getElementById('cp-crud-field-customerProfile').value,
+                'Script Wawancara': document.getElementById('cp-crud-field-scriptWawancara').value,
+                'Evaluasi Wawancara': document.getElementById('cp-crud-field-evaluasiWawancara').value
+            };
+
             const idVal = document.getElementById('cp-crud-field-id').value;
-            let result;
-
+            let error, data;
             if (idVal !== '' && cpCurrentEditIdInfo) {
-                result = await db.from(NAMA_TABEL_CUSTOMER_PROFILE)
-                    .update(payload)
-                    .eq(cpCurrentEditIdInfo.key, cpCurrentEditIdInfo.value)
-                    .select();
+                ({ data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).update(payload).eq(cpCurrentEditIdInfo.key, cpCurrentEditIdInfo.value).select());
             } else {
-                result = await db.from(NAMA_TABEL_CUSTOMER_PROFILE)
-                    .insert([payload])
-                    .select();
+                ({ data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).insert([payload]).select());
             }
-
-            const { data, error } = result;
-            if (error) {
-                console.error('[Customer Profile] SAVE ERROR:', error);
-                errBox.innerText = 'Gagal menyimpan data: ' + error.message;
-                errBox.classList.remove('hidden');
-                return;
-            }
+            if (error) { errBox.innerText = 'Gagal menyimpan data: ' + error.message; errBox.classList.remove('hidden'); return; }
             if (!data || data.length === 0) {
-                errBox.innerText = `Data tidak tersimpan. Periksa RLS INSERT/UPDATE pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" untuk role anon.`;
+                errBox.innerText = `Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy INSERT/UPDATE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_CUSTOMER_PROFILE} → RLS.`;
                 errBox.classList.remove('hidden');
                 return;
             }
-
             cpTutupModalCrud();
             await cpMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
@@ -3806,33 +3762,18 @@
         async function cpHapusData(rid) {
             const item = cpCariRawItem(rid);
             if (!item) return;
-
-            const idInfo = cpCOLUMN_MAP.id && item[cpCOLUMN_MAP.id] !== undefined
-                ? { key: cpCOLUMN_MAP.id, value: item[cpCOLUMN_MAP.id] }
-                : getRowIdInfo(item);
-
+            const idInfo = getRowIdInfo(item);
             if (!idInfo) {
-                alert('Tidak bisa menghapus data ini karena kolom ID unik tidak terdeteksi. Tambahkan kolom id (primary key) pada tabel Customer_Profile agar Edit/Hapus aman digunakan.');
+                alert('Tidak bisa menghapus: tidak ditemukan kolom ID pada data ini.\n\nKolom yang tersedia pada baris ini: ' + Object.keys(item).join(', ') + '\n\nTambahkan kolom id unik (primary key) pada tabel Customer_Profile di Supabase.');
                 return;
             }
-
             if (!confirm(`Apakah Anda yakin ingin menghapus data "${cpGetNama(item) || 'ini'}"?`)) return;
-
-            const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE)
-                .delete()
-                .eq(idInfo.key, idInfo.value)
-                .select();
-
-            if (error) {
-                console.error('[Customer Profile] DELETE ERROR:', error);
-                alert('Gagal menghapus: ' + error.message);
-                return;
-            }
+            const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).delete().eq(idInfo.key, idInfo.value).select();
+            if (error) { alert('Gagal menghapus: ' + error.message); return; }
             if (!data || data.length === 0) {
-                alert(`Data tidak terhapus. Periksa nilai ID (${idInfo.key}=${idInfo.value}) dan RLS DELETE pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" untuk role anon.`);
+                alert(`Data TIDAK terhapus meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy DELETE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_CUSTOMER_PROFILE} → RLS.`);
                 return;
             }
-
             await cpMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
         }
@@ -3855,12 +3796,12 @@
                 return null;
             }
             edCOLUMN_MAP.id = cariKolom('id', 'Id', 'ID', 'uuid');
-            edCOLUMN_MAP.bulan = cariKolom('Bulan', 'bulan', 'Month', 'month');
-            edCOLUMN_MAP.tahun = cariKolom('Tahun', 'tahun', 'Year', 'year');
-            edCOLUMN_MAP.statusEdit = cariKolom('Status Edit', 'Status_Edit', 'status_edit', 'Status', 'status');
-            edCOLUMN_MAP.editor = cariKolom('Editor', 'editor', 'Nama Editor', 'Nama_Editor');
-            edCOLUMN_MAP.judul = cariKolom('Judul Video', 'Judul_Video', 'judul_video', 'judul', 'Judul', 'Title', 'title');
-            edCOLUMN_MAP.produk = cariKolom('Produk', 'produk', 'Product', 'product');
+            edCOLUMN_MAP.bulan = cariKolom('Bulan', 'bulan');
+            edCOLUMN_MAP.tahun = cariKolom('Tahun', 'tahun');
+            edCOLUMN_MAP.statusEdit = cariKolom('Status Edit', 'Status_Edit', 'status_edit');
+            edCOLUMN_MAP.editor = cariKolom('Editor', 'editor');
+            edCOLUMN_MAP.judul = cariKolom('Judul Video', 'Judul_Video', 'judul_video', 'judul');
+            edCOLUMN_MAP.produk = cariKolom('Produk', 'produk');
             edCOLUMN_MAP.tema = cariKolom('Tema', 'tema');
             edCOLUMN_MAP.sellingPoints = cariKolom('Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints');
             edCOLUMN_MAP.dueDate = cariKolom('Due Date', 'Due_Date', 'due_date');
@@ -3880,16 +3821,13 @@
 
         async function edMuatDashboard() {
             edSembunyikanDiagnostik();
-            const { data: rawPlanning, error } = await ambilDataPlanning();
-            edPlanningRawGlobal = rawPlanning;
+            edDataLoaded = false;
+            try {
+                const { data: rawPlanning, error } = await ambilDataPlanning();
+                edPlanningRawGlobal = Array.isArray(rawPlanning) ? rawPlanning : [];
 
             if (error) {
-                edListPlanningGlobal = [];
-                edPlanningRawGlobal = [];
-                edTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_PLANNING}": ${error.message} (code: ${error.code || '-'}). Periksa nama tabel, RLS SELECT, dan izin role anon di Supabase.`);
-                edRenderSemua();
-                edRenderCrudTable();
-                return;
+                edTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_PLANNING}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat, nama tabel salah, atau RLS belum mengizinkan akses baca untuk anon key.`);
             }
 
             if (rawPlanning.length > 0) edDetectColumns(rawPlanning[0]);
@@ -3902,32 +3840,45 @@
             }
 
             edListPlanningGlobal = rawPlanning.map(item => {
-                const bulan = getField(item, 'Bulan', 'bulan', 'Month', 'month') || '';
-                const judul = getField(item, 'Judul Video', 'Judul_Video', 'judul_video', 'judul', 'Judul', 'Title', 'title') || '(Tanpa Judul)';
+                // Jangan membuang baris hanya karena Bulan/Judul kosong.
+                // Satu baris kosong di satu kolom tetap harus bisa dimonitor dan diedit.
+                const bulan = getField(item, 'Bulan', 'bulan') || '';
+                const judul = getField(item, 'Judul Video', 'Judul_Video', 'judul_video', 'judul') || '';
                 return {
-                    bulan, tahun: getField(item, 'Tahun', 'tahun', 'Year', 'year'),
+                    bulan, tahun: getField(item, 'Tahun', 'tahun') || '',
                     statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
-                    editor: getField(item, 'Editor', 'editor'), judul,
-                    produk: getField(item, 'Produk', 'produk'),
-                    tema: getField(item, 'Tema', 'tema'),
-                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints'),
-                    dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
-                    targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
-                    statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
-                    musim: getField(item, 'Musim', 'musim'),
-                    transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip'),
-                    skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario'),
+                    editor: getField(item, 'Editor', 'editor') || '', judul,
+                    produk: getField(item, 'Produk', 'produk') || '',
+                    tema: getField(item, 'Tema', 'tema') || '',
+                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints') || '',
+                    dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date') || '',
+                    targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload') || '',
+                    statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload') || '',
+                    musim: getField(item, 'Musim', 'musim') || '',
+                    transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip') || '',
+                    skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario') || '',
                 };
-            }).filter(Boolean);
+            });
 
             if (edListPlanningGlobal.length === 0) {
                 const kolomAsli = Object.keys(rawPlanning[0]).join(', ');
                 edTampilkanDiagnostik(`Tabel "${NAMA_TABEL_PLANNING}" berisi ${rawPlanning.length} baris, tapi tidak ada satupun yang berhasil dibaca karena nama kolom tidak cocok. Kolom yang terdeteksi di Supabase: [${kolomAsli}].`);
             }
 
-            edPopulateFilters();
-            edRenderSemua();
-            edRenderCrudTable();
+                edPopulateFilters();
+                edRenderSemua();
+                edRenderCrudTable();
+                edDataLoaded = true;
+            } catch (err) {
+                console.error('[EDITOR] Gagal memuat Planning_Editor:', err);
+                edPlanningRawGlobal = [];
+                edListPlanningGlobal = [];
+                edTampilkanDiagnostik('Gagal memuat data Editor: ' + (err?.message || err));
+                try { edRenderSemua(); } catch (renderErr) { console.error('[EDITOR] Gagal render fallback:', renderErr); }
+                try { edRenderCrudTable(); } catch (renderErr) { console.error('[EDITOR] Gagal render tabel fallback:', renderErr); }
+            } finally {
+                edDataLoaded = true;
+            }
         }
 
         function edPopulateFilters() {
