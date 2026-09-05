@@ -2306,6 +2306,7 @@
                             <option value="">- Pilih Segmen -</option>
                             <option value="DONE">DONE</option>
                             <option value="WIP">WIP</option>
+                            <option value="WAITING LIST">WAITING LIST</option>
                             <option value="REJECT">REJECT</option>
                             <option value="FOOTAGE">FOOTAGE</option>
                         </select>
@@ -2618,6 +2619,7 @@
         const NAMA_TABEL_KIRIMAN = 'Kiriman_Cabang';
         const NAMA_TABEL_PLANNING = 'Planning_Editor';
         const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
+        const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
         const TARGET_KONSTAN = 12;
         const URUTAN_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -3553,6 +3555,68 @@
             });
         }
 
+        // ==== BARU: Upload file (PDF/DOCX/JPG/PNG) ke Supabase Storage untuk
+        // field Customer Profile & Script Wawancara ====
+        function cpIsFileUrl(value) {
+            return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+        }
+
+        function cpGetFileIconInfo(url) {
+            const clean = url.split('?')[0].toLowerCase();
+            if (clean.endsWith('.pdf')) return { icon: 'fa-file-pdf', label: 'Lihat PDF', color: 'text-rose-600 bg-rose-50 border-rose-200 hover:bg-rose-100' };
+            if (clean.endsWith('.doc') || clean.endsWith('.docx')) return { icon: 'fa-file-word', label: 'Lihat Dokumen', color: 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100' };
+            if (clean.endsWith('.jpg') || clean.endsWith('.jpeg') || clean.endsWith('.png')) return { icon: 'fa-image', label: 'Lihat Gambar', color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' };
+            return { icon: 'fa-file', label: 'Lihat File', color: 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100' };
+        }
+
+        // Dipakai di tabel: kalau isinya link file, tampilkan tombol. Kalau teks biasa, tampilkan terpotong seperti biasa.
+        function cpRenderFileOrText(value) {
+            if (cpIsFileUrl(value)) {
+                const info = cpGetFileIconInfo(value);
+                return `<a href="${edEscapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${info.color}"><i class="fas ${info.icon}"></i> ${info.label}</a>`;
+            }
+            return `<span title="${edEscapeHtml(value)}">${edEscapeHtml(cpTruncateText(value))}</span>`;
+        }
+
+        async function cpUploadFileHandler(inputEl, targetTextareaId, statusElId) {
+            const file = inputEl.files && inputEl.files[0];
+            if (!file) return;
+
+            const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const statusEl = document.getElementById(statusElId);
+
+            if (!allowedExt.includes(ext)) {
+                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, JPG, atau PNG.</span>';
+                inputEl.value = '';
+                return;
+            }
+            if (file.size > 15 * 1024 * 1024) {
+                statusEl.innerHTML = '<span class="text-rose-500">Ukuran file maksimal 15MB.</span>';
+                inputEl.value = '';
+                return;
+            }
+
+            statusEl.innerHTML = '<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload file...</span>';
+
+            const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const path = `${Date.now()}_${namaBersih}`;
+
+            const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false });
+            if (error) {
+                statusEl.innerHTML = `<span class="text-rose-500">Gagal upload: ${edEscapeHtml(error.message)}</span>`;
+                inputEl.value = '';
+                return;
+            }
+
+            const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET).getPublicUrl(path);
+            const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
+
+            document.getElementById(targetTextareaId).value = publicUrl;
+            statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> Berhasil: ${edEscapeHtml(file.name)}</span>`;
+            inputEl.value = '';
+        }
+
         function cpTruncateText(text, maxLen = 60) {
             if (!text) return '-';
             const clean = String(text);
@@ -3580,8 +3644,8 @@
             <td class="py-4 px-5 font-bold text-slate-800">${cabang}</td>
             <td class="py-4 px-5 text-slate-700 font-medium">${nama}</td>
             <td class="py-4 px-5 text-slate-600">${produk}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs truncate" title="${edEscapeHtml(profil)}">${edEscapeHtml(cpTruncateText(profil))}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs truncate" title="${edEscapeHtml(script)}">${edEscapeHtml(cpTruncateText(script))}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(profil)}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(script)}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs truncate" title="${edEscapeHtml(evaluasi)}">${edEscapeHtml(cpTruncateText(evaluasi))}</td>
             <td class="py-4 px-5 text-center space-x-2 whitespace-nowrap">
               <button data-rid="${cpListGlobal.indexOf(item)}" class="cp-btn-edit text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Edit</button>
@@ -3600,6 +3664,8 @@
             document.getElementById('cp-crud-form').reset();
             document.getElementById('cp-crud-field-id').value = '';
             document.getElementById('cp-crud-form-error').classList.add('hidden');
+            document.getElementById('cp-upload-customerProfile-status').innerHTML = '';
+            document.getElementById('cp-upload-scriptWawancara-status').innerHTML = '';
             cpCurrentEditIdInfo = null;
         }
 
@@ -3638,6 +3704,13 @@
         document.getElementById('cp-crud-modal-close').addEventListener('click', cpTutupModalCrud);
         document.getElementById('cp-crud-cancel-btn').addEventListener('click', cpTutupModalCrud);
         document.getElementById('cp-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'cp-crud-modal') cpTutupModalCrud(); });
+
+        document.getElementById('cp-upload-customerProfile').addEventListener('change', function () {
+            cpUploadFileHandler(this, 'cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
+        });
+        document.getElementById('cp-upload-scriptWawancara').addEventListener('change', function () {
+            cpUploadFileHandler(this, 'cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
+        });
 
         async function cpSimpanForm(e) {
             e.preventDefault();
