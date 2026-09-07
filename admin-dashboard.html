@@ -1136,23 +1136,54 @@
                     🆔</div>
                 <div>
                     <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Data Customer Profile</h4>
-                    <p class="text-[11px] text-slate-400">Jumlah kiriman customer profile &amp; script wawancara per cabang</p>
+                    <p class="text-[11px] text-slate-400">Mengikuti Filter Cabang &amp; Bulan pada Data Cabang di atas — tidak ada filter bulan terpisah.</p>
                 </div>
             </div>
-            <div
-                class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center border-2 border-emerald-500/20 bg-gradient-to-b from-emerald-500/5 via-white to-transparent">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div
-                    class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-emerald-600/30 mb-3">
-                    🆔</div>
-                <p class="text-xs font-extrabold uppercase tracking-widest text-emerald-600">Total Keseluruhan
-                    Kiriman Customer Profile</p>
-                <h4 class="text-4xl md:text-5xl font-black text-slate-900 mt-1" id="ov-cp-card-total">0</h4>
+                    class="glass-card p-6 md:p-7 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center border-2 border-emerald-500/20 bg-gradient-to-b from-emerald-500/5 via-white to-transparent">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-600/30 mb-3">
+                        🆔</div>
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-600">Kiriman Customer Profile</p>
+                    <h4 class="text-4xl font-black text-slate-900 mt-1" id="ov-cp-card-total">0</h4>
+                    <p class="text-[10px] text-slate-400 mt-1" id="ov-cp-filter-info">Sesuai filter di atas</p>
+                </div>
+
+                <div class="glass-card p-6 md:p-7 rounded-3xl shadow-sm flex items-center gap-4 border border-amber-200/70 bg-gradient-to-br from-amber-50/60 to-white">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner shrink-0">
+                        🎯</div>
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Target Bulanan</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-1" id="ov-cp-card-target">0</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">2 customer profile / bulan / cabang</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 md:p-7 rounded-3xl shadow-sm flex items-center gap-4 border border-slate-200/70">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xl shadow-inner shrink-0">
+                        📊</div>
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pencapaian vs Target</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-1" id="ov-cp-card-achievement">-</h4>
+                        <p class="text-[11px] text-slate-400 mt-1" id="ov-cp-card-achievement-label">Belum dihitung</p>
+                    </div>
+                </div>
             </div>
+
             <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm">
-                <h4 class="text-sm font-bold text-slate-800 mb-2">Grafik Jumlah Kiriman Customer Profile per Cabang
-                </h4>
-                <p class="text-xs text-slate-400 mb-2">Seluruh cabang ditampilkan, termasuk yang belum pernah
-                    mengirim data (nilai 0).</p>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Grafik Jumlah Kiriman Customer Profile per Cabang</h4>
+                        <p class="text-xs text-slate-400 mt-1" id="ov-cp-chart-subtitle">Mengikuti Filter Cabang &amp; Bulan di atas.</p>
+                    </div>
+                    <span class="shrink-0 text-[10px] font-extrabold px-3 py-1.5 rounded-full border bg-amber-50 text-amber-600 border-amber-200">
+                        Target: 2 Customer Profile / Bulan / Cabang
+                    </span>
+                </div>
                 <div class="h-[330px]"><canvas id="ov-cp-chartPerCabang"></canvas></div>
             </div>
             <div class="border-t border-slate-200/70"></div>
@@ -2692,6 +2723,10 @@
 
         // Target cabang: 2 video/bulan per cabang, dipakai untuk grafik Tren Kiriman Bulanan
         const CB_TARGET_PER_CABANG_PER_BULAN = 2;
+
+        // Target Customer Profile: 2 customer profile/bulan per cabang.
+        // Jangan gunakan target video di atas untuk metrik Customer Profile.
+        const CP_TARGET_PER_CABANG_PER_BULAN = 2;
         const CB_NAMA_BULAN_MAP = {
             '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April', '05': 'Mei', '06': 'Juni',
             '07': 'Juli', '08': 'Agustus', '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
@@ -2848,7 +2883,7 @@
             const mainEl = document.querySelector('main');
             if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
 
-            if (tabName === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); ovCpRenderChart(); }
+            if (tabName === 'overview') { cbRenderDashboardAndChart().then(() => ovCpRenderChart()); edMuatDashboard(); }
             else if (tabName === 'cabang-crud') cbMuatDataTabel();
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'customer-profile') cpMuatDashboard();
@@ -3023,8 +3058,13 @@
 
             cbRenderTrendBulanan(dataCabangOnly, selectedCabangFilter, labelsCabang.length);
         }
-        document.getElementById('cb-filter-bulan').addEventListener('change', cbRenderDashboardAndChart);
-        document.getElementById('cb-filter-cabang-dashboard').addEventListener('change', cbRenderDashboardAndChart);
+        async function ovRefreshSharedDashboardFilters() {
+            await cbRenderDashboardAndChart();
+            await ovCpRenderChart();
+        }
+
+        document.getElementById('cb-filter-bulan').addEventListener('change', ovRefreshSharedDashboardFilters);
+        document.getElementById('cb-filter-cabang-dashboard').addEventListener('change', ovRefreshSharedDashboardFilters);
 
         let cbMyTrendChart = null;
 
@@ -3525,7 +3565,7 @@
                 return ym && ym.key === bulanBerjalanKey;
             });
             document.getElementById('cp-card-target-info').innerText = cpDateColumnDetected
-                ? `${dataBulanBerjalan.length}/2 video`
+                ? `${dataBulanBerjalan.length}/${CP_TARGET_PER_CABANG_PER_BULAN} customer profile`
                 : '-';
         }
 
@@ -3538,8 +3578,8 @@
 
             const jumlahCabangAktif = new Set(cpListGlobal.map(i => cpGetCabang(i).trim()).filter(Boolean)).size || 1;
             const targetPerBulan = cabangFilter === 'all'
-                ? CB_TARGET_PER_CABANG_PER_BULAN * jumlahCabangAktif
-                : CB_TARGET_PER_CABANG_PER_BULAN;
+                ? CP_TARGET_PER_CABANG_PER_BULAN * jumlahCabangAktif
+                : CP_TARGET_PER_CABANG_PER_BULAN;
 
             const badgeEl = document.getElementById('cp-trend-bulan-berjalan-badge');
             const ctxTrend = document.getElementById('cp-chartTrendBulanan').getContext('2d');
@@ -3579,7 +3619,7 @@
             const namaBulanBerjalan = CB_NAMA_BULAN_MAP[String(currentMonth).padStart(2, '0')] || String(currentMonth);
             const nilaiBulanBerjalan = rekapBulan[bulanBerjalanKey] || 0;
             const tercapai = nilaiBulanBerjalan >= targetPerBulan;
-            badgeEl.innerText = `Bulan Berjalan: ${namaBulanBerjalan} ${currentYear} — ${nilaiBulanBerjalan}/${targetPerBulan} video${tercapai ? ' ✔ Tercapai' : ''}`;
+            badgeEl.innerText = `Bulan Berjalan: ${namaBulanBerjalan} ${currentYear} — ${nilaiBulanBerjalan}/${targetPerBulan} customer profile${tercapai ? ' ✔ Tercapai' : ''}`;
             badgeEl.className = `shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border ${tercapai ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
 
             if (sortedKeys.length === 0) { cpMyTrendChart = null; return; }
@@ -3589,7 +3629,7 @@
                     labels,
                     datasets: [
                         { type: 'bar', label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 46, order: 2 },
-                        { type: 'line', label: `Target (${targetPerBulan} video/bulan)`, data: targetLine, borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false, tension: 0, order: 1, datalabels: { display: false } }
+                        { type: 'line', label: `Target (${targetPerBulan} customer profile/bulan)`, data: targetLine, borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false, tension: 0, order: 1, datalabels: { display: false } }
                     ]
                 },
                 options: {
@@ -3635,36 +3675,202 @@
             });
         }
 
-        // ==== BARU: Grafik & total kiriman Customer Profile di tab Ringkasan Admin (Overview) ====
+        // ==== Customer Profile di tab Ringkasan Admin (Overview) ====
+        // Mengikuti SATU filter utama di Data Cabang:
+        // - cb-filter-cabang
+        // - cb-filter-bulan
+        // Tidak ada filter bulan standalone di section Customer Profile.
         let ovCpChart = null;
+
+        function ovCpGetSharedFilters() {
+            const cabangEl = document.getElementById('cb-filter-cabang-dashboard');
+            const bulanEl = document.getElementById('cb-filter-bulan');
+
+            return {
+                cabang: cabangEl ? String(cabangEl.value || 'all').trim() : 'all',
+                bulan: bulanEl ? String(bulanEl.value || 'all').trim() : 'all'
+            };
+        }
+
+        function ovCpGetTargetPerMonth(cabangFilter) {
+            // Target = 2 Customer Profile per bulan per cabang.
+            return cabangFilter !== 'all'
+                ? CP_TARGET_PER_CABANG_PER_BULAN
+                : CP_TARGET_PER_CABANG_PER_BULAN * MASTER_DAFTAR_CABANG.length;
+        }
+
+        function ovCpFormatFilterLabel(filters) {
+            const bulanMap = {
+                '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April',
+                '05': 'Mei', '06': 'Juni', '07': 'Juli', '08': 'Agustus',
+                '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+            };
+            const cabangLabel = filters.cabang === 'all' ? 'Semua Cabang' : filters.cabang;
+            const bulanLabel = filters.bulan === 'all' ? 'Semua Bulan' : (bulanMap[filters.bulan] || filters.bulan);
+            return `${cabangLabel} • ${bulanLabel}`;
+        }
+
         async function ovCpRenderChart() {
             const totalEl = document.getElementById('ov-cp-card-total');
+            const targetEl = document.getElementById('ov-cp-card-target');
+            const achievementEl = document.getElementById('ov-cp-card-achievement');
+            const achievementLabelEl = document.getElementById('ov-cp-card-achievement-label');
+            const filterInfoEl = document.getElementById('ov-cp-filter-info');
+            const subtitleEl = document.getElementById('ov-cp-chart-subtitle');
             const canvasEl = document.getElementById('ov-cp-chartPerCabang');
-            if (!totalEl || !canvasEl) return; // elemen belum ada di DOM (misal saat load pertama)
 
-            const { data } = await ambilDataCustomerProfile();
-            totalEl.innerText = data.length;
+            if (!totalEl || !canvasEl) return;
 
+            const { data, error } = await ambilDataCustomerProfile();
+            if (error) {
+                totalEl.innerText = '0';
+                if (targetEl) targetEl.innerText = '-';
+                if (achievementEl) achievementEl.innerText = '-';
+                if (achievementLabelEl) achievementLabelEl.innerText = 'Gagal mengambil data';
+                return;
+            }
+
+            // Pastikan kolom tanggal terdeteksi juga ketika overview dibuka langsung,
+            // tanpa harus masuk dulu ke tab Customer Profile.
+            cpDetectDateColumn(data && data.length ? data[0] : null);
+
+            const filters = ovCpGetSharedFilters();
+
+            const filteredData = (data || []).filter(item => {
+                if (filters.cabang !== 'all' && cpGetCabang(item).trim() !== filters.cabang) {
+                    return false;
+                }
+
+                if (filters.bulan !== 'all') {
+                    const ym = cpGetYearMonthFromItem(item);
+                    if (!ym || ym.month !== filters.bulan) return false;
+                }
+
+                return true;
+            });
+
+            totalEl.innerText = filteredData.length;
+
+            // Target dihitung berdasarkan filter cabang.
+            // Jika satu cabang dipilih = 2 CP/bulan.
+            // Jika semua cabang = 2 CP x jumlah cabang master.
+            const targetPerMonth = ovCpGetTargetPerMonth(filters.cabang);
+
+            // Saat filter bulan spesifik dipilih, pencapaian membandingkan
+            // data bulan tersebut dengan target bulan tersebut.
+            // Saat "Semua Bulan", kartu tetap informatif dengan membandingkan
+            // bulan berjalan terhadap target bulan berjalan.
+            let achievementValue = filteredData.length;
+            let achievementTarget = targetPerMonth;
+            let achievementPeriodLabel = filters.bulan === 'all' ? 'Bulan berjalan' : ovCpFormatFilterLabel(filters);
+
+            if (filters.bulan === 'all' && cpDateColumnDetected) {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+
+                achievementValue = filteredData.filter(item => {
+                    const ym = cpGetYearMonthFromItem(item);
+                    return ym && ym.key === `${currentYear}-${currentMonth}`;
+                }).length;
+
+                achievementPeriodLabel = 'Bulan berjalan';
+            }
+
+            if (targetEl) {
+                targetEl.innerText = `${achievementTarget} CP`;
+            }
+
+            const achievementPercent = achievementTarget > 0
+                ? Math.round((achievementValue / achievementTarget) * 100)
+                : 0;
+
+            if (achievementEl) {
+                achievementEl.innerText = `${achievementValue}/${achievementTarget} CP`;
+                achievementEl.className =
+                    `text-2xl font-black mt-1 ${achievementValue >= achievementTarget ? 'text-emerald-600' : 'text-slate-900'}`;
+            }
+
+            if (achievementLabelEl) {
+                achievementLabelEl.innerText =
+                    `${achievementPercent}% • ${achievementPeriodLabel}${achievementValue >= achievementTarget ? ' • ✔ Tercapai' : ''}`;
+                achievementLabelEl.className =
+                    `text-[11px] mt-1 ${achievementValue >= achievementTarget ? 'text-emerald-600 font-bold' : 'text-slate-400'}`;
+            }
+
+            const filterLabel = ovCpFormatFilterLabel(filters);
+            if (filterInfoEl) filterInfoEl.innerText = filterLabel;
+            if (subtitleEl) subtitleEl.innerText = `Data yang ditampilkan: ${filterLabel}. Target: 2 Customer Profile / bulan / cabang.`;
+
+            // Rekap per cabang berdasarkan data yang SUDAH difilter.
             const rekap = {};
             MASTER_DAFTAR_CABANG.forEach(c => rekap[c] = 0);
-            data.forEach(item => {
+
+            filteredData.forEach(item => {
                 const c = cpGetCabang(item).trim();
                 if (!c) return;
                 rekap[c] = (rekap[c] || 0) + 1;
             });
-            const labels = Object.keys(rekap).sort();
-            const values = labels.map(l => rekap[l]);
+
+            let labels = Object.keys(rekap).sort();
+            let values = labels.map(l => rekap[l]);
+
+            // Jika satu cabang dipilih, cukup tampilkan cabang tersebut.
+            if (filters.cabang !== 'all') {
+                labels = [filters.cabang];
+                values = [rekap[filters.cabang] || 0];
+            }
+
             const barColors = values.map(v => v > 0 ? '#10b981' : '#cbd5e1');
 
             const ctx = canvasEl.getContext('2d');
             if (ovCpChart) ovCpChart.destroy();
+
             ovCpChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels, datasets: [{ label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 45 }] },
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Customer Profile',
+                        data: values,
+                        backgroundColor: barColors,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        maxBarThickness: 45
+                    }]
+                },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 }, datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } }, x: { ticks: { color: '#64748b' }, grid: { display: false } } }
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: (context) => ` ${context.parsed.y} Customer Profile`
+                            }
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#475569',
+                            font: { weight: 'bold', size: 11 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: Math.max(4, CP_TARGET_PER_CABANG_PER_BULAN + 1),
+                            ticks: { precision: 0, color: '#64748b' },
+                            grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                        },
+                        x: {
+                            ticks: { color: '#64748b' },
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
@@ -5359,7 +5565,7 @@ function edGambarBarisCrud() {
         });
 
         function refreshCurrentTab() {
-            if (currentActiveTab === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); ovCpRenderChart(); }
+            if (currentActiveTab === 'overview') { cbRenderDashboardAndChart().then(() => ovCpRenderChart()); edMuatDashboard(); }
             else if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
             else if (currentActiveTab === 'cabang-crud') cbMuatDataTabel();
             else if (currentActiveTab === 'cabang-evaluasi') cbMuatDataEvaluasi();
