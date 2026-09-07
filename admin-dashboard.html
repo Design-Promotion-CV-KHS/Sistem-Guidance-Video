@@ -1129,6 +1129,33 @@
                 </div>
             </div>
             <div class="border-t border-slate-200/70"></div>
+            <!-- ===== SECTION: DATA CUSTOMER PROFILE ===== -->
+            <div class="flex items-center gap-3 px-1">
+                <div
+                    class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-md shadow-emerald-600/30">
+                    🆔</div>
+                <div>
+                    <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Data Customer Profile</h4>
+                    <p class="text-[11px] text-slate-400">Jumlah kiriman customer profile &amp; script wawancara per cabang</p>
+                </div>
+            </div>
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center border-2 border-emerald-500/20 bg-gradient-to-b from-emerald-500/5 via-white to-transparent">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-emerald-600/30 mb-3">
+                    🆔</div>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-emerald-600">Total Keseluruhan
+                    Kiriman Customer Profile</p>
+                <h4 class="text-4xl md:text-5xl font-black text-slate-900 mt-1" id="ov-cp-card-total">0</h4>
+            </div>
+            <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm">
+                <h4 class="text-sm font-bold text-slate-800 mb-2">Grafik Jumlah Kiriman Customer Profile per Cabang
+                </h4>
+                <p class="text-xs text-slate-400 mb-2">Seluruh cabang ditampilkan, termasuk yang belum pernah
+                    mengirim data (nilai 0).</p>
+                <div class="h-[330px]"><canvas id="ov-cp-chartPerCabang"></canvas></div>
+            </div>
+            <div class="border-t border-slate-200/70"></div>
             <!-- ===== SECTION: DATA EDITOR ===== -->
             <div class="flex items-center gap-3 px-1">
                 <div
@@ -2821,7 +2848,7 @@
             const mainEl = document.querySelector('main');
             if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
 
-            if (tabName === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); }
+            if (tabName === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); ovCpRenderChart(); }
             else if (tabName === 'cabang-crud') cbMuatDataTabel();
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'customer-profile') cpMuatDashboard();
@@ -3582,6 +3609,7 @@
 
         function cpRenderChartPerCabang(filtered) {
             const rekap = {};
+            MASTER_DAFTAR_CABANG.forEach(c => rekap[c] = 0);
             filtered.forEach(item => {
                 const c = cpGetCabang(item).trim();
                 if (!c) return;
@@ -3589,7 +3617,9 @@
             });
             const labels = Object.keys(rekap).sort();
             const values = labels.map(l => rekap[l]);
-            const barColors = labels.map((_, idx) => COLOR_PALETTE[idx % COLOR_PALETTE.length]);
+            const barColors = values.map(v => v > 0
+                ? COLOR_PALETTE[labels.indexOf(labels.find(l => rekap[l] === v)) % COLOR_PALETTE.length]
+                : '#cbd5e1');
 
             const ctx = document.getElementById('cp-chartPerCabang').getContext('2d');
             if (cpMyCabangChart) cpMyCabangChart.destroy();
@@ -3604,6 +3634,42 @@
                 }
             });
         }
+
+        // ==== BARU: Grafik & total kiriman Customer Profile di tab Ringkasan Admin (Overview) ====
+        let ovCpChart = null;
+        async function ovCpRenderChart() {
+            const totalEl = document.getElementById('ov-cp-card-total');
+            const canvasEl = document.getElementById('ov-cp-chartPerCabang');
+            if (!totalEl || !canvasEl) return; // elemen belum ada di DOM (misal saat load pertama)
+
+            const { data } = await ambilDataCustomerProfile();
+            totalEl.innerText = data.length;
+
+            const rekap = {};
+            MASTER_DAFTAR_CABANG.forEach(c => rekap[c] = 0);
+            data.forEach(item => {
+                const c = cpGetCabang(item).trim();
+                if (!c) return;
+                rekap[c] = (rekap[c] || 0) + 1;
+            });
+            const labels = Object.keys(rekap).sort();
+            const values = labels.map(l => rekap[l]);
+            const barColors = values.map(v => v > 0 ? '#10b981' : '#cbd5e1');
+
+            const ctx = canvasEl.getContext('2d');
+            if (ovCpChart) ovCpChart.destroy();
+            ovCpChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 45 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 }, datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } }, x: { ticks: { color: '#64748b' }, grid: { display: false } } }
+                }
+            });
+        }
+
+        // ==== Upload file (PDF/DOCX/JPG/PNG) ke Supabase Storage untuk
 
         // ==== Upload file (PDF/DOCX/JPG/PNG) ke Supabase Storage untuk
         // field Customer Profile & Script Wawancara ====
@@ -5293,7 +5359,7 @@ function edGambarBarisCrud() {
         });
 
         function refreshCurrentTab() {
-            if (currentActiveTab === 'overview') renderOverview();
+            if (currentActiveTab === 'overview') { cbRenderDashboardAndChart(); edMuatDashboard(); ovCpRenderChart(); }
             else if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
             else if (currentActiveTab === 'cabang-crud') cbMuatDataTabel();
             else if (currentActiveTab === 'cabang-evaluasi') cbMuatDataEvaluasi();
