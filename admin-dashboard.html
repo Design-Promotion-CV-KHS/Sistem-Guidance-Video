@@ -2553,7 +2553,7 @@
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-judul" required="" type="text" />
+                        id="ed-crud-field-judul" required type="text" />
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Produk</label>
@@ -2574,10 +2574,10 @@
                         id="ed-crud-field-sellingPoints" placeholder="Poin-poin jual utama pada video ini" rows="3"></textarea>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Editor *</label>
                     <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-editor">
+                        id="ed-crud-field-editor" required>
                         <option value="">- Pilih Editor -</option>
                         <option value="Bayu">Bayu</option>
                         <option value="Munir">Munir</option>
@@ -2597,16 +2597,16 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Due Date *</label>
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-dueDate" type="date" />
+                        id="ed-crud-field-dueDate" required type="date" />
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Target Upload</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tanggal Upload *</label>
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-targetUpload" type="text" />
+                        id="ed-crud-field-targetUpload" required type="date" />
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Upload</label>
@@ -2640,6 +2640,10 @@
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
                         id="ed-crud-field-skenario" placeholder="https://docs.google.com/document/d/..." type="url" />
+                </div>
+                <div class="text-[11px] text-slate-400 bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <span class="font-semibold text-slate-600">Wajib diisi:</span> Judul Video, Editor, Due Date, dan Tanggal Upload.
+                    Produk, Tema, Selling Points, Status Upload, Musim, Transkrip, dan Skenario dapat dikosongkan dan dilengkapi nanti.
                 </div>
                 <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
                     id="ed-crud-form-error"></div>
@@ -4884,7 +4888,7 @@
                 return;
             }
 
-            const header = ['Bulan', 'Tahun', 'Judul Video', 'Produk', 'Tema', 'Selling Points', 'Editor', 'Status Edit', 'Due Date', 'Target Upload', 'Status Upload', 'Musim', 'Link Transkrip', 'Link Skenario'];
+            const header = ['Bulan', 'Tahun', 'Judul Video', 'Produk', 'Tema', 'Selling Points', 'Editor', 'Status Edit', 'Due Date', 'Tanggal Upload', 'Status Upload', 'Musim', 'Link Transkrip', 'Link Skenario'];
             const rows = baris.map(({ item }) => ([
                 edNilaiKolom(item, 'bulan'),
                 edNilaiKolom(item, 'tahun'),
@@ -5186,7 +5190,24 @@ function edGambarBarisCrud() {
             if (edCOLUMN_MAP.skenario) payload[edCOLUMN_MAP.skenario] = document.getElementById('ed-crud-field-skenario').value;
 
             const judulVal = document.getElementById('ed-crud-field-judul').value.trim();
-            if (!judulVal) { errBox.innerText = 'Judul Video wajib diisi.'; errBox.classList.remove('hidden'); return; }
+            const editorVal = document.getElementById('ed-crud-field-editor').value.trim();
+            const dueDateVal = document.getElementById('ed-crud-field-dueDate').value;
+            const targetUploadVal = document.getElementById('ed-crud-field-targetUpload').value;
+
+            // Field inti yang wajib: Judul Video, Editor, Due Date, dan Tanggal Upload.
+            // Field lain seperti Produk, Tema, Selling Points, Transkrip, dan Skenario sengaja fleksibel.
+            const fieldWajib = [
+                [judulVal, 'Judul Video wajib diisi.'],
+                [editorVal, 'Editor wajib dipilih.'],
+                [dueDateVal, 'Due Date wajib diisi.'],
+                [targetUploadVal, 'Tanggal Upload wajib diisi.']
+            ];
+            const fieldKosong = fieldWajib.find(([value]) => !value);
+            if (fieldKosong) {
+                errBox.innerText = fieldKosong[1];
+                errBox.classList.remove('hidden');
+                return;
+            }
             if (!edCOLUMN_MAP.judul) { errBox.innerText = 'Kolom "Judul Video" tidak terdeteksi di tabel Supabase, data tidak bisa disimpan.'; errBox.classList.remove('hidden'); return; }
 
             const idVal = document.getElementById('ed-crud-field-id').value;
