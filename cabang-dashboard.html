@@ -693,12 +693,22 @@
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
                 </span>
               </h4>
-              <p class="text-xs text-slate-400 mt-1">Ringkasan Customer Profile seluruh cabang. Buka menu Customer Profile untuk melihat &amp; memfilter per cabang.</p>
+              <p class="text-xs text-slate-400 mt-1">Menampilkan capaian Customer Profile sesuai <b>Filter Cabang</b> dan <b>Filter Bulan</b> di atas. Pilih cabang untuk melihat kiriman cabang tersebut secara langsung.</p>
             </div>
-            <button type="button" onclick="switchTab('customer-profile')"
-              class="text-[11px] font-bold px-3 py-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition">
-              Lihat Detail Customer Profile &rarr;
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="dash-cp-filter-branch-badge"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-extrabold">
+                <i class="fas fa-building"></i> Semua Cabang
+              </span>
+              <span id="dash-cp-filter-month-badge"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-extrabold">
+                <i class="fas fa-calendar"></i> Bulan Berjalan
+              </span>
+              <button type="button" onclick="switchTab('customer-profile')"
+                class="text-[11px] font-bold px-3 py-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition">
+                Lihat Detail &rarr;
+              </button>
+            </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
             <div class="rounded-2xl border border-slate-200 bg-white/70 p-5">
@@ -714,7 +724,16 @@
               <h4 class="text-3xl font-black text-slate-900 mt-1" id="dash-cp-target">2</h4>
             </div>
           </div>
-          <div class="h-[280px]"><canvas id="dash-cp-trend"></canvas></div>
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Capaian per bulan • Filter mengikuti dashboard
+            </p>
+            <span id="dash-cp-target-status"
+              class="shrink-0 text-[10px] font-extrabold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
+              Memuat status target...
+            </span>
+          </div>
+          <div class="h-[300px]"><canvas id="dash-cp-trend"></canvas></div>
         </div>
       </div>
 
@@ -1486,46 +1505,113 @@
 
       const allCp = branchCpData.length ? branchCpData : await ambilDataCustomerProfileSupabase();
 
+      // Gunakan FILTER UTAMA dashboard yang berada di bagian atas halaman.
+      // Jadi kartu + grafik Customer Profile selalu ikut berubah ketika
+      // Filter Cabang / Filter Bulan diubah.
+      const branchFilterEl = document.getElementById('filter-cabang-dashboard');
+      const monthFilterEl = document.getElementById('filter-bulan');
+      const selectedBranch = branchFilterEl?.value || 'all';
+      const selectedMonth = monthFilterEl?.value || 'all';
+
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth() + 1;
-      const currentKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-      const monthCount = allCp.filter(item => cpDashboardGetYearMonth(item) === currentKey).length;
 
-      const jumlahCabangAktif = new Set(allCp.map(item => cpDashboardGetBranch(item).trim()).filter(Boolean)).size;
-      const targetBulanIni = CP_TARGET_PER_CABANG_PER_BULAN * Math.max(jumlahCabangAktif, MASTER_DAFTAR_CABANG.length);
+      const branchName = selectedBranch === 'all' ? 'Semua Cabang' : selectedBranch;
+      const periodMonth = selectedMonth !== 'all' ? Number(selectedMonth) : currentMonth;
+      const periodKey = `${currentYear}-${String(periodMonth).padStart(2, '0')}`;
+      const periodName = NAMA_BULAN_MAP[String(periodMonth).padStart(2, '0')] || String(periodMonth);
 
-      totalEl.innerText = allCp.length;
+      // Filter Customer Profile berdasarkan cabang yang dipilih.
+      const filteredCp = allCp.filter(item => {
+        const itemBranch = cpDashboardGetBranch(item).trim();
+        if (selectedBranch !== 'all' && itemBranch !== selectedBranch) return false;
+
+        const ym = cpDashboardGetYearMonth(item);
+        if (!ym) return false;
+        return Number(ym.split('-')[0]) === currentYear;
+      });
+
+      // Total pada kartu mengikuti cabang yang dipilih.
+      // Jika bulan tertentu dipilih, total juga mengikuti bulan tersebut.
+      const periodData = filteredCp.filter(item => {
+        return cpDashboardGetYearMonth(item) === periodKey;
+      });
+
+      const targetPerBulan = selectedBranch === 'all'
+        ? CP_TARGET_PER_CABANG_PER_BULAN * MASTER_DAFTAR_CABANG.length
+        : CP_TARGET_PER_CABANG_PER_BULAN;
+
+      const monthCount = periodData.length;
+
+      totalEl.innerText = selectedMonth === 'all'
+        ? filteredCp.length
+        : monthCount;
       monthEl.innerText = monthCount;
-      targetEl.innerText = targetBulanIni;
+      targetEl.innerText = targetPerBulan;
+
+      // Perjelas filter aktif langsung di kartu.
+      const branchBadge = document.getElementById('dash-cp-filter-branch-badge');
+      const monthBadge = document.getElementById('dash-cp-filter-month-badge');
+
+      if (branchBadge) {
+        branchBadge.innerHTML = `<i class="fas fa-building"></i> ${cpBranchEscape(branchName)}`;
+        branchBadge.title = selectedBranch === 'all'
+          ? `Target ${MASTER_DAFTAR_CABANG.length} cabang`
+          : `Target ${CP_TARGET_PER_CABANG_PER_BULAN} Customer Profile`;
+      }
+
+      if (monthBadge) {
+        monthBadge.innerHTML = `<i class="fas fa-calendar"></i> ${selectedMonth === 'all' ? `s.d. ${periodName} ${currentYear}` : `${periodName} ${currentYear}`}`;
+      }
+
+      // Grafik:
+      // - Filter Bulan = Semua -> Januari s.d. bulan berjalan.
+      // - Filter Bulan tertentu -> hanya bulan tersebut.
+      // - Filter Cabang -> hanya data cabang tersebut.
+      const startMonth = selectedMonth === 'all' ? 1 : periodMonth;
+      const endMonth = selectedMonth === 'all' ? currentMonth : periodMonth;
 
       const monthMap = {};
-      allCp.forEach(item => {
+      filteredCp.forEach(item => {
         const ym = cpDashboardGetYearMonth(item);
         if (ym) monthMap[ym] = (monthMap[ym] || 0) + 1;
       });
 
       const keys = [];
-      for (let m = 1; m <= currentMonth; m++) {
+      for (let m = startMonth; m <= endMonth; m++) {
         keys.push(`${currentYear}-${String(m).padStart(2, '0')}`);
       }
+
       const labels = keys.map(k => {
         const [y, m] = k.split('-');
         return `${NAMA_BULAN_MAP[m] || m} ${y}`;
       });
       const values = keys.map(k => monthMap[k] || 0);
-      const targetLine = keys.map(() => targetBulanIni);
+      const targetLine = keys.map(() => targetPerBulan);
+
+      const statusEl = document.getElementById('dash-cp-target-status');
+      if (statusEl) {
+        const tercapai = monthCount >= targetPerBulan;
+        statusEl.innerText = `${periodName} ${currentYear}: ${monthCount}/${targetPerBulan} ${tercapai ? '✓ Tercapai' : '— Belum tercapai'}`;
+        statusEl.className = `shrink-0 text-[10px] font-extrabold px-3 py-1.5 rounded-full border ${tercapai
+          ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+          : 'bg-amber-50 text-amber-600 border-amber-200'}`;
+      }
 
       if (dashCustomerProfileChart) dashCustomerProfileChart.destroy();
+
       dashCustomerProfileChart = new Chart(canvas.getContext('2d'), {
         data: {
           labels,
           datasets: [
             {
               type: 'bar',
-              label: 'Customer Profile',
+              label: selectedBranch === 'all'
+                ? 'Customer Profile seluruh cabang'
+                : `Customer Profile ${selectedBranch}`,
               data: values,
-              backgroundColor: values.map(v => v >= targetBulanIni ? '#10b981' : '#6366f1'),
+              backgroundColor: values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1'),
               borderRadius: 8,
               borderSkipped: false,
               maxBarThickness: 46,
@@ -1533,28 +1619,88 @@
             },
             {
               type: 'line',
-              label: `Target (${targetBulanIni}/bulan, seluruh cabang)`,
+              label: `Target ${targetPerBulan} Customer Profile/bulan`,
               data: targetLine,
               borderColor: '#f59e0b',
-              borderDash: [6, 4],
-              borderWidth: 2,
-              pointRadius: 0,
+              borderDash: [7, 5],
+              borderWidth: 2.5,
+              pointRadius: 3,
+              pointHoverRadius: 5,
               fill: false,
               tension: 0,
-              order: 1
+              order: 1,
+              datalabels: {
+                display: true,
+                align: 'top',
+                offset: 4,
+                color: '#b45309',
+                font: { size: 10, weight: '800' },
+                formatter: (value) => value
+              }
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          layout: {
+            padding: { top: 28, right: 12, bottom: 8, left: 8 }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
           plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
-            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 }
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                padding: 16,
+                font: { size: 11, weight: '700' }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              padding: 12,
+              cornerRadius: 10,
+              displayColors: true
+            },
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'top',
+              offset: 5,
+              clamp: true,
+              clip: false,
+              color: '#334155',
+              font: { size: 11, weight: '800' },
+              formatter: (value) => value
+            }
           },
           scales: {
-            y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
-            x: { ticks: { color: '#64748b' }, grid: { display: false } }
+            y: {
+              beginAtZero: true,
+              suggestedMax: Math.max(
+                targetPerBulan + 2,
+                Math.max(...values, 0) + 3
+              ),
+              ticks: {
+                precision: 0,
+                color: '#64748b',
+                padding: 6
+              },
+              grid: { color: 'rgba(226, 232, 240, 0.6)' }
+            },
+            x: {
+              ticks: {
+                color: '#475569',
+                font: { size: 10, weight: '700' },
+                padding: 8,
+                maxRotation: 0,
+                minRotation: 0
+              },
+              grid: { display: false }
+            }
           }
         }
       });
@@ -1852,12 +1998,14 @@
       });
     }
 
-    document.getElementById('filter-bulan').addEventListener('change', () => {
-      renderDashboardAndChart();
+    document.getElementById('filter-bulan').addEventListener('change', async () => {
+      await renderDashboardAndChart();
+      await renderCustomerProfileDashboardStats();
     });
 
-    document.getElementById('filter-cabang-dashboard').addEventListener('change', () => {
-      renderDashboardAndChart();
+    document.getElementById('filter-cabang-dashboard').addEventListener('change', async () => {
+      await renderDashboardAndChart();
+      await renderCustomerProfileDashboardStats();
     });
 
     async function muatDataEvaluasi() {
