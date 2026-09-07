@@ -527,6 +527,12 @@
           </svg>
           Hasil Evaluasi
         </button>
+        <button onclick="switchTab('customer-profile')" id="nav-customer-profile"
+          class="relative w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
+          <i class="fas fa-id-card w-5 text-center text-slate-400"></i>
+          <span>Customer Profile</span>
+          <span id="cp-branch-badge" class="hidden ml-auto min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-black items-center justify-center">0</span>
+        </button>
         <button onclick="switchTab('panduan')" id="nav-panduan"
           class="w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
           <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -826,6 +832,74 @@
       </div>
     </div>
 
+    <!-- KONTEN TAB 3: CUSTOMER PROFILE CABANG - VIEW ONLY -->
+    <div id="tab-customer-profile" class="p-8 space-y-6 w-full hidden">
+      <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest">
+              <i class="fas fa-id-card"></i> Customer Profile
+            </span>
+            <h3 class="text-2xl font-black text-slate-900 mt-3">Customer Profile</h3>
+            <p class="text-sm text-slate-500 mt-1 max-w-2xl">
+              Di halaman ini Anda hanya dapat <b>melihat data Customer Profile</b> milik cabang Anda.
+              Data diinput dan dikelola oleh Admin.
+            </p>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-200 px-5 py-4 min-w-[190px]">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Cabang Anda</p>
+            <p id="cp-branch-name" class="text-lg font-black text-indigo-600 mt-1">Memuat...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5">
+          <div class="w-10 h-10 rounded-2xl bg-white text-indigo-600 flex items-center justify-center mb-3 shadow-sm"><i class="fas fa-eye"></i></div>
+          <p class="text-xs font-black text-slate-800">Lihat Data</p>
+          <p class="text-[11px] text-slate-500 mt-1">Customer Profile yang tersedia akan ditampilkan di bawah.</p>
+        </div>
+        <div class="rounded-3xl border border-emerald-100 bg-emerald-50/70 p-5">
+          <div class="w-10 h-10 rounded-2xl bg-white text-emerald-600 flex items-center justify-center mb-3 shadow-sm"><i class="fas fa-building"></i></div>
+          <p class="text-xs font-black text-slate-800">Data Cabang</p>
+          <p class="text-[11px] text-slate-500 mt-1">Yang ditampilkan hanya data sesuai cabang pada akun Anda.</p>
+        </div>
+        <div class="rounded-3xl border border-amber-100 bg-amber-50/70 p-5">
+          <div class="w-10 h-10 rounded-2xl bg-white text-amber-600 flex items-center justify-center mb-3 shadow-sm"><i class="fas fa-lock"></i></div>
+          <p class="text-xs font-black text-slate-800">Mode Lihat</p>
+          <p class="text-[11px] text-slate-500 mt-1">Tidak ada upload, edit, atau hapus di sisi cabang.</p>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-3xl overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h4 class="text-base font-black text-slate-900">Daftar Customer Profile</h4>
+            <p class="text-xs text-slate-400 mt-1">Data Customer Profile yang sudah dimasukkan Admin akan tampil di sini.</p>
+          </div>
+          <button onclick="muatCustomerProfileCabang()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition interactive-btn">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[900px] text-left border-collapse">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr class="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <th class="py-4 px-5 whitespace-nowrap">No</th>
+                <th class="py-4 px-5 whitespace-nowrap">Nama Customer</th>
+                <th class="py-4 px-5 whitespace-nowrap">Produk</th>
+                <th class="py-4 px-5 whitespace-nowrap">Tanggal</th>
+                <th class="py-4 px-5 whitespace-nowrap">Customer Profile</th>
+              </tr>
+            </thead>
+            <tbody id="cp-branch-list" class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
+              <tr><td colspan="5" class="text-center py-10 text-slate-400">Memuat data Customer Profile...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- KONTEN TAB 3: PANDUAN TAKE VIDEO -->
     <div id="tab-panduan" class="p-8 space-y-6 w-full hidden">
       <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
@@ -990,6 +1064,10 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const NAMA_TABEL = 'Kiriman_Cabang';
+    const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
+    let currentBranchUser = {};
+    let currentBranchName = '';
+    let branchCpData = [];
 
     let listDataGlobal = [];
     let listEvaluasiGlobal = [];
@@ -1039,15 +1117,21 @@
       window.location.href = 'login.html';
     } else {
       const user = JSON.parse(storedUser);
+      currentBranchUser = user || {};
       const role = (user.role || 'editor').toLowerCase();
+      currentBranchName = String(user.cabang || user.nama_cabang || user.branch || user.nama_user || '').trim();
       if (role === 'editor') {
         window.location.href = 'editor-dashboard.html';
+      } else if (role !== 'cabang') {
+        window.location.href = 'login.html';
       }
       const namaUser = user.nama_user || 'User';
       document.getElementById('user-name').innerText = namaUser;
       document.getElementById('avatar-initial').innerText = namaUser.charAt(0).toUpperCase();
       document.getElementById('welcome-title').innerText = `Statistik Kiriman Cabang - Halo, ${namaUser}`;
       document.getElementById('user-role-badge').innerText = `ID: ${user.id_user} (CABANG)`;
+      const cpBranchNameEl = document.getElementById('cp-branch-name');
+      if (cpBranchNameEl) cpBranchNameEl.innerText = currentBranchName || 'Cabang Anda';
       document.getElementById('main-body').classList.remove('opacity-0');
     }
 
@@ -1072,9 +1156,11 @@
       const tabDashboard = document.getElementById('tab-dashboard');
       const tabEvaluasi = document.getElementById('tab-evaluasi');
       const tabPanduan = document.getElementById('tab-panduan');
+      const tabCustomerProfile = document.getElementById('tab-customer-profile');
 
       const navDashboard = document.getElementById('nav-dashboard');
       const navEvaluasi = document.getElementById('nav-evaluasi');
+      const navCustomerProfile = document.getElementById('nav-customer-profile');
       const navPanduan = document.getElementById('nav-panduan');
 
       const activeClass = "w-full flex items-center gap-3.5 text-left py-3 px-4 bg-indigo-600 rounded-2xl text-sm font-medium text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02]";
@@ -1083,8 +1169,10 @@
       tabDashboard.classList.add('hidden');
       tabEvaluasi.classList.add('hidden');
       tabPanduan.classList.add('hidden');
+      tabCustomerProfile.classList.add('hidden');
       navDashboard.className = inactiveClass;
       navEvaluasi.className = inactiveClass;
+      navCustomerProfile.className = inactiveClass;
       navPanduan.className = inactiveClass;
 
       if (tabName === 'dashboard') {
@@ -1095,6 +1183,10 @@
         tabEvaluasi.classList.remove('hidden');
         navEvaluasi.className = activeClass;
         muatDataEvaluasi();
+      } else if (tabName === 'customer-profile') {
+        tabCustomerProfile.classList.remove('hidden');
+        navCustomerProfile.className = activeClass;
+        muatCustomerProfileCabang();
       } else if (tabName === 'panduan') {
         tabPanduan.classList.remove('hidden');
         navPanduan.className = activeClass;
@@ -1546,7 +1638,110 @@
       window.location.href = 'index.html';
     });
 
+    /* ================================================================
+       CUSTOMER PROFILE — MODE CABANG (VIEW ONLY)
+       Cabang hanya dapat melihat Customer Profile milik cabangnya.
+       Tidak ada fungsi upload / insert / edit / delete di sisi cabang.
+    ================================================================ */
+    function cpBranchEscape(value) {
+      return String(value ?? '').replace(/[&<>\'"]/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[char]));
+    }
+
+    function cpBranchFileButton(url, label = 'Buka File') {
+      const value = String(url || '').trim();
+      if (!value) {
+        return '<span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-bold"><i class="fas fa-file-circle-xmark"></i> Tidak tersedia</span>';
+      }
+      return `<a href="${cpBranchEscape(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-black hover:bg-indigo-100 transition"><i class="fas fa-arrow-up-right-from-square"></i>${cpBranchEscape(label)}</a>`;
+    }
+
+    async function muatCustomerProfileCabang() {
+      const list = document.getElementById('cp-branch-list');
+      if (!list || !currentBranchName) return;
+
+      list.innerHTML = `
+        <tr><td colspan="5" class="text-center py-10 text-slate-400">
+          <i class="fas fa-spinner fa-spin mr-2"></i> Memuat data Customer Profile...
+        </td></tr>`;
+
+      let { data, error } = await db
+        .from(NAMA_TABEL_CUSTOMER_PROFILE)
+        .select('*')
+        .eq('Cabang', currentBranchName)
+        .order('created_at', { ascending: false });
+
+      // Jika created_at belum tersedia, ambil data tanpa pengurutan.
+      if (error) {
+        const fallback = await db
+          .from(NAMA_TABEL_CUSTOMER_PROFILE)
+          .select('*')
+          .eq('Cabang', currentBranchName);
+        data = fallback.data || [];
+        error = fallback.error || null;
+      }
+
+      if (error) {
+        list.innerHTML = `
+          <tr><td colspan="5" class="text-center py-10">
+            <div class="inline-flex flex-col items-center gap-2 text-rose-500">
+              <i class="fas fa-circle-exclamation text-2xl"></i>
+              <span class="text-xs font-bold">Gagal memuat Customer Profile.</span>
+              <span class="text-[11px] text-slate-400">${cpBranchEscape(error.message)}</span>
+            </div>
+          </td></tr>`;
+        return;
+      }
+
+      branchCpData = data || [];
+
+      if (!branchCpData.length) {
+        list.innerHTML = `
+          <tr><td colspan="5" class="text-center py-12">
+            <div class="flex flex-col items-center">
+              <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                <i class="fas fa-id-card text-xl"></i>
+              </div>
+              <p class="text-sm font-black text-slate-600">Belum ada Customer Profile</p>
+              <p class="text-xs text-slate-400 mt-1">Data Customer Profile dari Admin akan tampil di sini.</p>
+            </div>
+          </td></tr>`;
+        return;
+      }
+
+      list.innerHTML = branchCpData.map((item, index) => {
+        const nama = item.Nama || item.nama || '-';
+        const produk = item.Produk || item.produk || '-';
+        const tanggal = item.Tanggal || item.tanggal || '-';
+        const profil = item['Customer Profile'] || item.Customer_Profile || item.customer_profile || '';
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-4 px-5 text-xs font-mono text-slate-400">${index + 1}</td>
+            <td class="py-4 px-5"><span class="font-black text-slate-800">${cpBranchEscape(nama)}</span></td>
+            <td class="py-4 px-5 text-slate-600">${cpBranchEscape(produk)}</td>
+            <td class="py-4 px-5 whitespace-nowrap text-slate-600">${cpBranchEscape(tanggal)}</td>
+            <td class="py-4 px-5">${cpBranchFileButton(profil, 'Lihat Customer Profile')}</td>
+          </tr>`;
+      }).join('');
+    }
+
     // ===================== REALTIME: auto-update saat data berubah dari mana saja =====================
+    db.channel('realtime-cabang-customer-profile')
+      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CUSTOMER_PROFILE }, async () => {
+        await muatCustomerProfileCabang();
+        await cpBranchLoadNotifications();
+      })
+      .subscribe((status) => console.log('[Realtime] Status Customer Profile cabang:', status));
+
+    db.channel('realtime-cabang-notifikasi')
+      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_NOTIFIKASI }, async () => {
+        await muatCustomerProfileCabang();
+        await cpBranchLoadNotifications();
+      })
+      .subscribe((status) => console.log('[Realtime] Status Notifikasi cabang:', status));
+
     db.channel('realtime-cabang-dashboard')
       .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL }, (payload) => {
         console.log('[Realtime] Perubahan terdeteksi pada tabel Kiriman_Cabang:', payload);
@@ -1558,7 +1753,12 @@
       });
 
     window.addEventListener('DOMContentLoaded', async () => {
+      const today = new Date();
+      const dateEl = document.getElementById('cp-branch-tanggal');
+      if (dateEl) dateEl.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       await renderDashboardAndChart();
+      await muatCustomerProfileCabang();
+      await cpBranchLoadNotifications();
     });
   </script>
 </body>
