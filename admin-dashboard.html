@@ -4364,17 +4364,27 @@
             }).join('');
         }
 
-        /* ---------- Target Mingguan Editor (1 video/minggu/editor) ---------- */
-        function edGetAwalAkhirMinggu(refDate) {
+        /* ---------- Target Mingguan Editor: berbasis tanggal 1 bulan, bukan Senin ---------- */
+        function edGetMingguBulan(refDate) {
             const d = new Date(refDate);
             d.setHours(0, 0, 0, 0);
-            const hari = d.getDay(); // 0 = Minggu, 1 = Senin, ...
-            const offsetKeSenin = hari === 0 ? -6 : 1 - hari;
-            const senin = new Date(d);
-            senin.setDate(d.getDate() + offsetKeSenin);
-            const minggu = new Date(senin);
-            minggu.setDate(senin.getDate() + 6);
-            return { senin, minggu };
+            const tahun = d.getFullYear();
+            const bulan = d.getMonth();
+            const awalBulan = new Date(tahun, bulan, 1);
+            const akhirBulan = new Date(tahun, bulan + 1, 0);
+            const mingguList = [];
+            let mulai = new Date(awalBulan);
+            let nomor = 1;
+            while (mulai <= akhirBulan) {
+                const selesai = new Date(mulai);
+                selesai.setDate(mulai.getDate() + 6);
+                if (selesai > akhirBulan) selesai.setTime(akhirBulan.getTime());
+                mingguList.push({ nomor, mulai: new Date(mulai), selesai: new Date(selesai) });
+                nomor++;
+                mulai = new Date(selesai);
+                mulai.setDate(selesai.getDate() + 1);
+            }
+            return mingguList;
         }
         function edFormatTglSingkat(d) {
             return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
@@ -4383,41 +4393,58 @@
         function edRenderWeeklyTarget(data) {
             const container = document.getElementById('ed-weekly-target-grid');
             const labelEl = document.getElementById('ed-week-range-label');
-            const { senin, minggu } = edGetAwalAkhirMinggu(new Date());
-            labelEl.innerText = `Minggu ini: ${edFormatTglSingkat(senin)} — ${edFormatTglSingkat(minggu)}`;
-
+            const refDate = new Date();
+            const mingguList = edGetMingguBulan(refDate);
             const namaEditorSet = new Set(data.map(i => i.editor).filter(e => e && e.toLowerCase() !== 'all editor'));
-            if (namaEditorSet.size === 0) {
+
+            const namaEditorSorted = Array.from(namaEditorSet).sort();
+            const TARGET_MINGGUAN = 1;
+            const bulanLabel = refDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            labelEl.innerText = `Periode ${bulanLabel}: tanggal 1 — ${edFormatTglSingkat(mingguList[mingguList.length - 1].selesai)}`;
+
+            if (namaEditorSorted.length === 0) {
                 container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung target mingguannya untuk filter ini.</p>';
                 return;
             }
 
-            const namaEditorSorted = Array.from(namaEditorSet).sort();
-            const TARGET_MINGGUAN = 1;
-
-            container.innerHTML = namaEditorSorted.map(editorName => {
-                const doneMingguIni = data.filter(i => {
-                    if (i.editor !== editorName || i.statusEdit !== 'Done') return false;
-                    const d = edParseTanggal(i.dueDate);
-                    if (!d) return false;
-                    return d >= senin && d <= minggu;
-                }).length;
-                const wipAktif = data.filter(i => i.editor === editorName && i.statusEdit === 'WIP').length;
-                const tercapai = doneMingguIni >= TARGET_MINGGUAN;
-                const persen = Math.min(100, Math.round((doneMingguIni / TARGET_MINGGUAN) * 100));
-                const barColor = tercapai ? 'bg-emerald-500' : (wipAktif > 0 ? 'bg-blue-600' : 'bg-amber-500');
-                const statusBadge = tercapai
-                    ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Target Tercapai</span>'
-                    : (wipAktif > 0
-                        ? '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">Sedang Dikerjakan</span>'
-                        : '<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Belum Mulai</span>');
-                return `
-          <div class="p-4 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
-            <p class="text-sm font-bold text-gray-800 truncate mb-2">${editorName}</p>
-            <div class="flex items-end gap-1.5 mb-2"><span class="text-2xl font-black text-gray-800">${doneMingguIni}</span><span class="text-xs text-gray-400 font-semibold mb-0.5">/ ${TARGET_MINGGUAN} video minggu ini</span></div>
-            <div class="progress-track w-full h-2 rounded-full overflow-hidden mb-3"><div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div></div>
-            ${statusBadge}
-          </div>`;
+            // Satu baris = satu minggu. Urutan selalu dimulai dari tanggal 1.
+            container.className = 'space-y-4';
+            container.innerHTML = mingguList.map(minggu => {
+                const isMingguBerjalan = refDate >= minggu.mulai && refDate <= minggu.selesai;
+                const editorCards = namaEditorSorted.map(editorName => {
+                    const doneMinggu = data.filter(i => {
+                        if (i.editor !== editorName || i.statusEdit !== 'Done') return false;
+                        const d = edParseTanggal(i.dueDate);
+                        if (!d) return false;
+                        d.setHours(0, 0, 0, 0);
+                        return d >= minggu.mulai && d <= minggu.selesai;
+                    }).length;
+                    const wipAktif = data.filter(i => i.editor === editorName && i.statusEdit === 'WIP').length;
+                    const tercapai = doneMinggu >= TARGET_MINGGUAN;
+                    const persen = Math.min(100, Math.round((doneMinggu / TARGET_MINGGUAN) * 100));
+                    const barColor = tercapai ? 'bg-emerald-500' : (wipAktif > 0 ? 'bg-blue-600' : 'bg-amber-500');
+                    const statusBadge = tercapai
+                        ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Tercapai</span>'
+                        : (wipAktif > 0
+                            ? '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">WIP</span>'
+                            : '<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Belum</span>');
+                    return `<div class="p-4 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
+                        <p class="text-sm font-bold text-gray-800 truncate mb-2">${editorName}</p>
+                        <div class="flex items-end gap-1.5 mb-2"><span class="text-2xl font-black text-gray-800">${doneMinggu}</span><span class="text-xs text-gray-400 font-semibold mb-0.5">/ 1 video</span></div>
+                        <div class="progress-track w-full h-2 rounded-full overflow-hidden mb-3"><div class="progress-fill h-full rounded-full ${barColor}" style="width:${persen}%"></div></div>
+                        ${statusBadge}
+                    </div>`;
+                }).join('');
+                return `<div class="rounded-2xl border ${isMingguBerjalan ? 'border-blue-200 bg-blue-50/20' : 'border-gray-100 bg-white'} p-4 md:p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-sm font-black text-gray-800">Minggu ${minggu.nomor}</span>
+                            ${isMingguBerjalan ? '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">Minggu berjalan</span>' : ''}
+                        </div>
+                        <span class="text-xs font-semibold text-gray-400">${edFormatTglSingkat(minggu.mulai)} — ${edFormatTglSingkat(minggu.selesai)}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">${editorCards}</div>
+                </div>`;
             }).join('');
         }
 
