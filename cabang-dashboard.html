@@ -223,21 +223,6 @@
       color: #f59e0b;
     }
 
-    .panduan-highlight-link {
-      background: rgba(99, 102, 241, 0.07) !important;
-      border: 1px solid rgba(99, 102, 241, 0.2) !important;
-    }
-
-    .panduan-highlight-link:hover {
-      background: rgba(99, 102, 241, 0.14) !important;
-      border-color: rgba(99, 102, 241, 0.4) !important;
-    }
-
-    .panduan-highlight-link .panduan-step-text {
-      color: #1e293b !important;
-      font-weight: 700 !important;
-    }
-
     .panduan-dropdown-trigger i.panduan-chevron {
       transition: transform 0.3s ease;
       font-size: 0.75rem;
@@ -853,22 +838,44 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5">
-          <div class="w-10 h-10 rounded-2xl bg-white text-indigo-600 flex items-center justify-center mb-3 shadow-sm"><i class="fas fa-eye"></i></div>
-          <p class="text-xs font-black text-slate-800">Lihat Data</p>
-          <p class="text-[11px] text-slate-500 mt-1">Customer Profile yang tersedia akan ditampilkan di bawah.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">📋</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Customer Profile</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-total">0</h4>
+          </div>
         </div>
-        <div class="rounded-3xl border border-emerald-100 bg-emerald-50/70 p-5">
-          <div class="w-10 h-10 rounded-2xl bg-white text-emerald-600 flex items-center justify-center mb-3 shadow-sm"><i class="fas fa-building"></i></div>
-          <p class="text-xs font-black text-slate-800">Data Cabang</p>
-          <p class="text-[11px] text-slate-500 mt-1">Yang ditampilkan hanya data sesuai cabang pada akun Anda.</p>
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">🎯</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Bulan Berjalan vs Target</p>
+            <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-target-info">-</h4>
+          </div>
         </div>
-        <div class="rounded-3xl border border-amber-100 bg-amber-50/70 p-5">
-          <div class="w-10 h-10 rounded-2xl bg-white text-amber-600 flex items-center justify-center mb-3 shadow-sm"><i class="fas fa-lock"></i></div>
-          <p class="text-xs font-black text-slate-800">Mode Lihat</p>
-          <p class="text-[11px] text-slate-500 mt-1">Tidak ada upload, edit, atau hapus di sisi cabang.</p>
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">📅</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Data Terbaru</p>
+            <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-latest">-</h4>
+          </div>
         </div>
+      </div>
+
+      <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
+          <div>
+            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              Tren Kiriman Customer Profile per Bulan
+              <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+              </span>
+            </h4>
+            <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 Customer Profile / bulan untuk cabang Anda.</p>
+          </div>
+          <span id="cp-trend-bulan-berjalan-badge" class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">Memuat status bulan berjalan...</span>
+        </div>
+        <div class="h-[300px] mt-3"><canvas id="cp-chartTrendBulanan"></canvas></div>
       </div>
 
       <div class="glass-card rounded-3xl overflow-hidden shadow-sm">
@@ -890,10 +897,12 @@
                 <th class="py-4 px-5 whitespace-nowrap">Produk</th>
                 <th class="py-4 px-5 whitespace-nowrap">Tanggal</th>
                 <th class="py-4 px-5 whitespace-nowrap">Customer Profile</th>
+                <th class="py-4 px-5 whitespace-nowrap">Script Wawancara</th>
+                <th class="py-4 px-5 whitespace-nowrap">Evaluasi Wawancara</th>
               </tr>
             </thead>
             <tbody id="cp-branch-list" class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
-              <tr><td colspan="5" class="text-center py-10 text-slate-400">Memuat data Customer Profile...</td></tr>
+              <tr><td colspan="7" class="text-center py-10 text-slate-400">Memuat data Customer Profile...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1056,7 +1065,6 @@
       </div>
     </div>
   </main>
-
   <script>
     Chart.register(ChartDataLabels);
 
@@ -1066,9 +1074,13 @@
     const NAMA_TABEL = 'Kiriman_Cabang';
     // Tabel Customer Profile di Supabase — sumber data utama halaman ini.
     const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
+    // Target: 2 Customer Profile / bulan untuk cabang.
+    const CP_TARGET_PER_CABANG_PER_BULAN = 2;
     let currentBranchUser = {};
     let currentBranchName = '';
     let branchCpData = [];
+    let branchCpDateColumnDetected = null;
+    let branchCpTrendChart = null;
 
     let listDataGlobal = [];
     let listEvaluasiGlobal = [];
@@ -1643,6 +1655,13 @@
        CUSTOMER PROFILE — MODE CABANG (VIEW ONLY)
        Cabang hanya dapat melihat Customer Profile milik cabangnya.
        Tidak ada fungsi upload / insert / edit / delete di sisi cabang.
+
+       Pengambilan & pembacaan data sekarang memakai pola yang SAMA
+       dengan Dashboard Admin (select('*') ke seluruh tabel lalu dibaca
+       lewat getter yang toleran terhadap variasi nama kolom), supaya
+       data yang muncul konsisten dengan yang admin lihat. Cabang hanya
+       menyaring hasilnya sesuai cabang akun yang sedang login, dan
+       tetap 100% read-only (tanpa tombol tambah/ubah/hapus/upload).
     ================================================================ */
     function cpBranchEscape(value) {
       return String(value ?? '').replace(/[&<>\'"]/g, (char) => ({
@@ -1650,19 +1669,77 @@
       }[char]));
     }
 
+    // ==== Getter field yang toleran terhadap variasi nama kolom Supabase,
+    // sama seperti fungsi cpGetXxx() pada Dashboard Admin. ====
+    function cpBranchGetField(item, ...keys) {
+      for (const k of keys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return String(item[k]);
+        }
+      }
+      return '';
+    }
+    function cpBranchGetCabang(item) { return cpBranchGetField(item, 'Cabang', 'cabang', 'Nama Cabang', 'nama_cabang'); }
+    function cpBranchGetNama(item) { return cpBranchGetField(item, 'Nama', 'nama'); }
+    function cpBranchGetProduk(item) { return cpBranchGetField(item, 'Produk', 'produk'); }
+    function cpBranchGetCustomerProfile(item) { return cpBranchGetField(item, 'Customer Profile', 'Customer_Profile', 'customer_profile'); }
+    function cpBranchGetScriptWawancara(item) { return cpBranchGetField(item, 'Script Wawancara', 'Script_Wawancara', 'script_wawancara'); }
+    function cpBranchGetEvaluasiWawancara(item) { return cpBranchGetField(item, 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara'); }
+    function cpBranchGetTanggal(item) { return cpBranchGetField(item, 'Tanggal', 'tanggal'); }
+
+    // Deteksi otomatis nama kolom tanggal/waktu yang ada pada baris data (untuk grafik tren bulanan)
+    function cpBranchDetectDateColumn(sampleRow) {
+      if (!sampleRow) { branchCpDateColumnDetected = null; return; }
+      const kandidat = ['Tanggal', 'tanggal', 'created_at', 'Created_at', 'CreatedAt', 'Tanggal_Kirim', 'tanggal_kirim', 'Waktu', 'waktu', 'Timestamp', 'timestamp'];
+      const keys = Object.keys(sampleRow);
+      for (const k of kandidat) {
+        const found = keys.find(x => x.toLowerCase() === k.toLowerCase());
+        if (found) { branchCpDateColumnDetected = found; return; }
+      }
+      branchCpDateColumnDetected = null;
+    }
+
+    function cpBranchGetYearMonthFromItem(item) {
+      if (!branchCpDateColumnDetected) return null;
+      const raw = item[branchCpDateColumnDetected];
+      if (!raw) return null;
+      const d = new Date(raw);
+      if (isNaN(d)) return null;
+      const year = String(d.getFullYear());
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      return { year, month, key: `${year}-${month}` };
+    }
+
+    function cpBranchIsFileUrl(value) {
+      return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+    }
+
+    function cpBranchGetFileIconInfo(url) {
+      const clean = url.split('?')[0].toLowerCase();
+      if (clean.endsWith('.pdf')) return { icon: 'fa-file-pdf', label: 'Lihat PDF', color: 'text-rose-700 bg-rose-50 border-rose-100 hover:bg-rose-100' };
+      if (clean.endsWith('.doc') || clean.endsWith('.docx')) return { icon: 'fa-file-word', label: 'Lihat Dokumen', color: 'text-blue-700 bg-blue-50 border-blue-100 hover:bg-blue-100' };
+      if (clean.endsWith('.jpg') || clean.endsWith('.jpeg') || clean.endsWith('.png')) return { icon: 'fa-image', label: 'Lihat Gambar', color: 'text-emerald-700 bg-emerald-50 border-emerald-100 hover:bg-emerald-100' };
+      return { icon: 'fa-file', label: 'Lihat File', color: 'text-indigo-700 bg-indigo-50 border-indigo-100 hover:bg-indigo-100' };
+    }
+
     function cpBranchFileButton(url, label = 'Buka File') {
       const value = String(url || '').trim();
       if (!value) {
         return '<span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-bold"><i class="fas fa-file-circle-xmark"></i> Tidak tersedia</span>';
       }
-      return `<a href="${cpBranchEscape(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-black hover:bg-indigo-100 transition"><i class="fas fa-arrow-up-right-from-square"></i>${cpBranchEscape(label)}</a>`;
+      if (cpBranchIsFileUrl(value)) {
+        const info = cpBranchGetFileIconInfo(value);
+        return `<a href="${cpBranchEscape(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-black transition ${info.color}"><i class="fas ${info.icon}"></i> ${info.label}</a>`;
+      }
+      // Data lama yang berupa teks bebas (bukan link file) tetap ditampilkan sebagai teks.
+      return `<span class="text-slate-600" title="${cpBranchEscape(value)}">${cpBranchEscape(value.length > 60 ? value.substring(0, 60) + '…' : value)}</span>`;
     }
 
     async function muatCustomerProfileCabang() {
       const list = document.getElementById('cp-branch-list');
       if (!list) return;
 
-      const colspan = 5;
+      const colspan = 7;
       list.innerHTML = `
         <tr>
           <td colspan="${colspan}" class="text-center py-10 text-slate-400">
@@ -1694,18 +1771,16 @@
         return;
       }
 
-      console.log('[Customer Profile] Mengambil tabel:', NAMA_TABEL_CUSTOMER_PROFILE);
-      console.log('[Customer Profile] Cabang login:', currentBranchName);
-
-      // Jangan langsung memakai .eq('Cabang', ...) karena perbedaan huruf besar/kecil
-      // atau spasi pada data dapat membuat data terlihat kosong.
+      // ==== Ambil SELURUH data Customer_Profile (sama seperti Dashboard Admin),
+      // baru difilter di sisi client sesuai cabang akun yang login. Pendekatan
+      // ini menghindari data "hilang" akibat query .eq() yang terlalu ketat
+      // terhadap variasi huruf besar/kecil, spasi, atau nama kolom cabang. ====
       const { data, error } = await db
         .from(NAMA_TABEL_CUSTOMER_PROFILE)
         .select('*');
 
       if (error) {
         console.error('[Customer Profile] Supabase error:', error);
-
         list.innerHTML = `
           <tr>
             <td colspan="${colspan}" class="text-center py-10">
@@ -1721,29 +1796,18 @@
 
       const semuaData = Array.isArray(data) ? data : [];
 
-      // Filter cabang secara aman: trim + lowercase.
+      // Deteksi kolom tanggal dari data yang sesungguhnya ada, dipakai untuk grafik tren bulanan.
+      cpBranchDetectDateColumn(semuaData[0]);
+
+      // Filter cabang secara aman: trim + lowercase, memakai getter yang sama
+      // dengan Dashboard Admin supaya konsisten membaca variasi nama kolom.
       const targetCabang = currentBranchName.trim().toLowerCase();
+      branchCpData = semuaData.filter(item => cpBranchGetCabang(item).trim().toLowerCase() === targetCabang);
 
-      branchCpData = semuaData.filter(item => {
-        const namaCabang = String(
-          item.Cabang ??
-          item.cabang ??
-          item['Nama Cabang'] ??
-          item.nama_cabang ??
-          ''
-        ).trim().toLowerCase();
-
-        return namaCabang === targetCabang;
-      });
-
-      // Urutkan terbaru jika ada tanggal/created_at.
+      // Urutkan terbaru berdasarkan kolom tanggal yang terdeteksi (kalau ada).
       branchCpData.sort((a, b) => {
-        const dateA = new Date(
-          a.created_at || a.Created_at || a.Tanggal || a.tanggal || 0
-        ).getTime() || 0;
-        const dateB = new Date(
-          b.created_at || b.Created_at || b.Tanggal || b.tanggal || 0
-        ).getTime() || 0;
+        const dateA = branchCpDateColumnDetected ? new Date(a[branchCpDateColumnDetected] || 0).getTime() || 0 : 0;
+        const dateB = branchCpDateColumnDetected ? new Date(b[branchCpDateColumnDetected] || 0).getTime() || 0 : 0;
         return dateB - dateA;
       });
 
@@ -1751,6 +1815,9 @@
         `[Customer Profile] ${semuaData.length} data dari database, ` +
         `${branchCpData.length} data untuk cabang "${currentBranchName}".`
       );
+
+      cpBranchRenderRingkasan();
+      cpBranchRenderTrendBulanan();
 
       if (!branchCpData.length) {
         list.innerHTML = `
@@ -1775,15 +1842,12 @@
       }
 
       list.innerHTML = branchCpData.map((item, index) => {
-        const nama = item.Nama || item.nama || '-';
-        const produk = item.Produk || item.produk || '-';
-        const tanggal = item.Tanggal || item.tanggal || '-';
-
-        const profil =
-          item['Customer Profile'] ??
-          item.Customer_Profile ??
-          item.customer_profile ??
-          '';
+        const nama = cpBranchGetNama(item) || '-';
+        const produk = cpBranchGetProduk(item) || '-';
+        const tanggal = cpBranchGetTanggal(item) || '-';
+        const profil = cpBranchGetCustomerProfile(item);
+        const script = cpBranchGetScriptWawancara(item);
+        const evaluasi = cpBranchGetEvaluasiWawancara(item) || '-';
 
         return `
           <tr class="hover:bg-slate-50/80 transition">
@@ -1794,8 +1858,119 @@
             <td class="py-4 px-5 text-slate-600">${cpBranchEscape(produk)}</td>
             <td class="py-4 px-5 whitespace-nowrap text-slate-600">${cpBranchEscape(tanggal)}</td>
             <td class="py-4 px-5">${cpBranchFileButton(profil, 'Lihat Customer Profile')}</td>
+            <td class="py-4 px-5">${cpBranchFileButton(script, 'Lihat Script')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs" title="${cpBranchEscape(evaluasi)}">${cpBranchEscape(evaluasi)}</td>
           </tr>`;
       }).join('');
+    }
+
+    // ==== Kartu ringkasan: Total, Target bulan berjalan, Data terbaru ====
+    function cpBranchRenderRingkasan() {
+      const totalEl = document.getElementById('cp-card-total');
+      const targetInfoEl = document.getElementById('cp-card-target-info');
+      const latestEl = document.getElementById('cp-card-latest');
+      if (!totalEl) return;
+
+      totalEl.innerText = branchCpData.length;
+
+      if (!branchCpDateColumnDetected) {
+        targetInfoEl.innerText = '-';
+      } else {
+        const bulanBerjalanKey = getBulanBerjalanKey();
+        const jumlahBulanIni = branchCpData.filter(item => {
+          const ym = cpBranchGetYearMonthFromItem(item);
+          return ym && ym.key === bulanBerjalanKey;
+        }).length;
+        targetInfoEl.innerText = `${jumlahBulanIni}/${CP_TARGET_PER_CABANG_PER_BULAN} customer profile`;
+      }
+
+      if (branchCpData.length === 0) {
+        latestEl.innerText = '-';
+      } else if (!branchCpDateColumnDetected) {
+        latestEl.innerText = 'Tanpa tanggal';
+      } else {
+        const tgl = branchCpGetTanggalTampil(branchCpData[0]);
+        latestEl.innerText = tgl || '-';
+      }
+    }
+
+    function branchCpGetTanggalTampil(item) {
+      if (!branchCpDateColumnDetected) return '';
+      const raw = item[branchCpDateColumnDetected];
+      if (!raw) return '';
+      const d = new Date(raw);
+      if (isNaN(d)) return String(raw);
+      return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    // ==== Grafik tren kiriman Customer Profile per bulan, khusus cabang yang login ====
+    function cpBranchRenderTrendBulanan() {
+      const badgeEl = document.getElementById('cp-trend-bulan-berjalan-badge');
+      const ctxTrend = document.getElementById('cp-chartTrendBulanan').getContext('2d');
+      if (branchCpTrendChart) branchCpTrendChart.destroy();
+
+      if (!branchCpDateColumnDetected) {
+        badgeEl.innerText = 'Kolom tanggal tidak terdeteksi pada data';
+        badgeEl.className = 'shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200';
+        branchCpTrendChart = null;
+        ctxTrend.clearRect(0, 0, ctxTrend.canvas.width, ctxTrend.canvas.height);
+        return;
+      }
+
+      const rekapBulan = {};
+      branchCpData.forEach(item => {
+        const ym = cpBranchGetYearMonthFromItem(item);
+        if (!ym) return;
+        rekapBulan[ym.key] = (rekapBulan[ym.key] || 0) + 1;
+      });
+
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const sortedKeys = [];
+      for (let month = 1; month <= currentMonth; month++) {
+        sortedKeys.push(`${currentYear}-${String(month).padStart(2, '0')}`);
+      }
+
+      const labels = sortedKeys.map(k => {
+        const [y, m] = k.split('-');
+        return `${NAMA_BULAN_MAP[m] || m} ${y}`;
+      });
+      const values = sortedKeys.map(k => rekapBulan[k] || 0);
+      const targetPerBulan = CP_TARGET_PER_CABANG_PER_BULAN;
+      const barColors = values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1');
+      const targetLine = sortedKeys.map(() => targetPerBulan);
+
+      const bulanBerjalanKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+      const namaBulanBerjalan = NAMA_BULAN_MAP[String(currentMonth).padStart(2, '0')] || String(currentMonth);
+      const nilaiBulanBerjalan = rekapBulan[bulanBerjalanKey] || 0;
+      const tercapai = nilaiBulanBerjalan >= targetPerBulan;
+      badgeEl.innerText = `Bulan Berjalan: ${namaBulanBerjalan} ${currentYear} — ${nilaiBulanBerjalan}/${targetPerBulan} customer profile${tercapai ? ' ✔ Tercapai' : ''}`;
+      badgeEl.className = `shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border ${tercapai ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
+
+      if (sortedKeys.length === 0) { branchCpTrendChart = null; return; }
+
+      branchCpTrendChart = new Chart(ctxTrend, {
+        data: {
+          labels,
+          datasets: [
+            { type: 'bar', label: 'Jumlah Kiriman', data: values, backgroundColor: barColors, borderRadius: 8, borderSkipped: false, maxBarThickness: 46, order: 2 },
+            { type: 'line', label: `Target (${targetPerBulan} customer profile/bulan)`, data: targetLine, borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false, tension: 0, order: 1, datalabels: { display: false } }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
+            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 },
+            datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
+            x: { ticks: { color: '#64748b' }, grid: { display: false } }
+          }
+        }
+      });
     }
 
     // ===================== REALTIME CUSTOMER PROFILE =====================
@@ -1826,9 +2001,6 @@
       });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const today = new Date();
-      const dateEl = document.getElementById('cp-branch-tanggal');
-      if (dateEl) dateEl.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       await renderDashboardAndChart();
       await muatCustomerProfileCabang();
     });
