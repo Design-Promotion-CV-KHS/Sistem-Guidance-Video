@@ -879,7 +879,7 @@
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
         <div>
           <h3 class="text-xl font-black text-slate-900 tracking-tight">Statistik Kiriman Customer Profile</h3>
-          <p class="text-sm text-slate-500 mt-1">Target dihitung dari 2 customer profile/bulan per cabang.</p>
+          <p class="text-sm text-slate-500 mt-1">Target tetap dihitung dari seluruh 9 cabang: 2 customer profile per cabang setiap bulan (total 18/bulan). Filter hanya mengubah data yang ditampilkan.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
           <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
@@ -954,7 +954,7 @@
             class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
             🎯</div>
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Bulan Berjalan vs Target</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Periode vs Target</p>
             <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-target-info">-</h4>
           </div>
         </div>
@@ -970,9 +970,7 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
               </span>
             </h4>
-            <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 video/bulan per cabang. Grafik
-              ini mengikuti Filter Cabang di atas dan menampilkan seluruh bulan yang ada datanya (tidak
-              terpengaruh Filter Bulan).</p>
+            <p class="text-xs text-slate-400 mt-1">Default menampilkan seluruh bulan pada tahun berjalan. Filter Cabang membatasi data ke cabang yang dipilih, sedangkan Filter Bulan menampilkan bulan tersebut saja. Target: 18 customer profile/bulan untuk semua cabang atau 2 untuk satu cabang.</p>
           </div>
           <span
             class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200"
@@ -982,8 +980,13 @@
       </div>
       <!-- Grafik per cabang -->
       <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm">
-        <h4 class="text-sm font-bold text-slate-800 mb-2">Jumlah Kiriman Customer Profile per Cabang (Sesuai
-          Filter Bulan)</h4>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+          <div>
+            <h4 class="text-sm font-bold text-slate-800">Target Customer Profile per Cabang</h4>
+            <p class="text-xs text-slate-400 mt-0.5">Membandingkan capaian dengan target 2 customer profile per cabang pada periode yang dipilih.</p>
+          </div>
+          <span id="cp-target-status-badge" class="shrink-0 text-[10px] font-extrabold px-2.5 py-1 rounded-full border bg-slate-50 text-slate-500 border-slate-200">Memuat status target...</span>
+        </div>
         <div class="h-[340px]"><canvas id="cp-chartPerCabang"></canvas></div>
       </div>
       <!-- Tabel data -->
@@ -2138,19 +2141,42 @@
       const totalEl = document.getElementById('cp-card-total');
       const targetInfoEl = document.getElementById('cp-card-target-info');
       const countCabangEl = document.getElementById('cp-card-cabang-count');
-      if (totalEl) totalEl.innerText = data.length;
-      const cabangUnik = new Set(data.map(item => cpBranchGetCabang(item).trim()).filter(Boolean));
-      if (countCabangEl) countCabangEl.innerText = cabangUnik.size;
 
       const cabangEl = document.getElementById('cp-filter-cabang');
+      const bulanEl = document.getElementById('cp-filter-bulan');
       const cabangFilter = cabangEl ? cabangEl.value : 'all';
+      const bulanFilter = bulanEl ? bulanEl.value : 'all';
+
+      if (totalEl) totalEl.innerText = data.length;
+
+      // Jumlah cabang tidak boleh bergantung pada siapa yang sudah mengirim.
+      // MASTER_DAFTAR_CABANG adalah sumber target resmi, sehingga cabang
+      // yang belum mengirim tetap ikut dihitung.
+      if (countCabangEl) {
+        countCabangEl.innerText = cabangFilter === 'all' ? MASTER_DAFTAR_CABANG.length : '1';
+      }
+
       const now = new Date();
-      const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const dataUntukBulanIni = cabangFilter === 'all' ? branchCpData : branchCpData.filter(item => cpBranchGetCabang(item).trim() === cabangFilter);
-      const monthCount = dataUntukBulanIni.filter(item => cpBranchGetYearMonthFromItem(item)?.key === currentKey).length;
-      const jumlahCabangAktif = new Set(branchCpData.map(item => cpBranchGetCabang(item).trim()).filter(Boolean)).size || 1;
-      const targetBulanIni = cabangFilter === 'all' ? CP_TARGET_PER_CABANG_PER_BULAN * Math.max(jumlahCabangAktif, 1) : CP_TARGET_PER_CABANG_PER_BULAN;
-      if (targetInfoEl) targetInfoEl.innerText = `${monthCount}/${targetBulanIni} customer profile`;
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const periodMonth = bulanFilter === 'all' ? currentMonth : Number(bulanFilter);
+      const periodKey = `${currentYear}-${String(periodMonth).padStart(2, '0')}`;
+
+      const dataUntukPeriode = branchCpData.filter(item => {
+        if (cabangFilter !== 'all' && cpBranchGetCabang(item).trim() !== cabangFilter) return false;
+        return cpBranchGetYearMonthFromItem(item)?.key === periodKey;
+      });
+
+      const monthCount = dataUntukPeriode.length;
+      const targetPeriode = cabangFilter === 'all'
+        ? CP_TARGET_PER_CABANG_PER_BULAN * MASTER_DAFTAR_CABANG.length
+        : CP_TARGET_PER_CABANG_PER_BULAN;
+
+      if (targetInfoEl) {
+        const monthName = NAMA_BULAN_MAP[String(periodMonth).padStart(2, '0')] || String(periodMonth);
+        targetInfoEl.innerText = `${monthCount}/${targetPeriode} customer profile`;
+        targetInfoEl.title = `${monthName} ${currentYear}`;
+      }
     }
 
     function cpBranchRenderTrendBulanan() {
@@ -2160,40 +2186,56 @@
       if (branchCpTrendChart) branchCpTrendChart.destroy();
 
       const cabangEl = document.getElementById('cp-filter-cabang');
+      const bulanEl = document.getElementById('cp-filter-bulan');
       const cabangFilter = cabangEl ? cabangEl.value : 'all';
-      const dataUntukTrend = cabangFilter === 'all'
-        ? branchCpData
-        : branchCpData.filter(item => cpBranchGetCabang(item).trim() === cabangFilter);
-
-      const jumlahCabangAktif = new Set(branchCpData.map(item => cpBranchGetCabang(item).trim()).filter(Boolean)).size || 1;
-      const targetPerBulan = cabangFilter === 'all'
-        ? CP_TARGET_PER_CABANG_PER_BULAN * jumlahCabangAktif
-        : CP_TARGET_PER_CABANG_PER_BULAN;
+      const bulanFilter = bulanEl ? bulanEl.value : 'all';
 
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth() + 1;
+
+      // Jika bulan dipilih, grafik hanya menampilkan bulan tersebut.
+      // Jika tidak, grafik menampilkan Januari sampai bulan berjalan,
+      // termasuk bulan tanpa kiriman sebagai nilai 0.
+      const selectedMonth = bulanFilter !== 'all' ? Number(bulanFilter) : null;
+      const startMonth = selectedMonth || 1;
+      const endMonth = selectedMonth || currentMonth;
+
+      const dataUntukTrend = cabangFilter === 'all'
+        ? branchCpData
+        : branchCpData.filter(item => cpBranchGetCabang(item).trim() === cabangFilter);
+
+      const targetPerBulan = cabangFilter === 'all'
+        ? CP_TARGET_PER_CABANG_PER_BULAN * MASTER_DAFTAR_CABANG.length
+        : CP_TARGET_PER_CABANG_PER_BULAN;
+
       const monthMap = {};
       dataUntukTrend.forEach(item => {
         const ym = cpBranchGetYearMonthFromItem(item);
-        if (ym) monthMap[ym.key] = (monthMap[ym.key] || 0) + 1;
+        if (ym && Number(ym.year) === currentYear) {
+          monthMap[ym.key] = (monthMap[ym.key] || 0) + 1;
+        }
       });
 
       const keys = [];
-      for (let m = 1; m <= currentMonth; m++) keys.push(`${currentYear}-${String(m).padStart(2, '0')}`);
+      for (let m = startMonth; m <= endMonth; m++) {
+        keys.push(`${currentYear}-${String(m).padStart(2, '0')}`);
+      }
+
       const labels = keys.map(k => {
         const [y, m] = k.split('-');
         return `${NAMA_BULAN_MAP[m] || m} ${y}`;
       });
       const values = keys.map(k => monthMap[k] || 0);
       const targetLine = keys.map(() => targetPerBulan);
-      const currentKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-      const currentCount = monthMap[currentKey] || 0;
-      const tercapai = currentCount >= targetPerBulan;
+
+      const periodKey = `${currentYear}-${String(selectedMonth || currentMonth).padStart(2, '0')}`;
+      const periodCount = monthMap[periodKey] || 0;
+      const periodName = NAMA_BULAN_MAP[String(selectedMonth || currentMonth).padStart(2, '0')] || 'Bulan';
 
       if (badgeEl) {
-        const monthName = NAMA_BULAN_MAP[String(currentMonth).padStart(2, '0')] || String(currentMonth);
-        badgeEl.innerText = `Bulan Berjalan: ${monthName} ${currentYear} — ${currentCount}/${targetPerBulan} customer profile${tercapai ? ' ✔ Tercapai' : ''}`;
+        const tercapai = periodCount >= targetPerBulan;
+        badgeEl.innerText = `${periodName} ${currentYear}: ${periodCount}/${targetPerBulan} customer profile${tercapai ? ' ✔ Tercapai' : ' — Belum Tercapai'}`;
         badgeEl.className = `shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border ${tercapai ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
       }
 
@@ -2202,18 +2244,32 @@
           labels,
           datasets: [
             {
-              type: 'bar', label: 'Customer Profile', data: values,
+              type: 'bar',
+              label: 'Customer Profile',
+              data: values,
               backgroundColor: values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1'),
-              borderRadius: 8, borderSkipped: false, maxBarThickness: 46, order: 2
+              borderRadius: 8,
+              borderSkipped: false,
+              maxBarThickness: 46,
+              order: 2
             },
             {
-              type: 'line', label: `Target (${targetPerBulan} customer profile/bulan)`, data: targetLine,
-              borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false, tension: 0, order: 1
+              type: 'line',
+              label: `Target (${targetPerBulan} customer profile/bulan)`,
+              data: targetLine,
+              borderColor: '#f59e0b',
+              borderDash: [6, 4],
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0,
+              order: 1
             }
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
+          responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
             tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 }
@@ -2228,43 +2284,116 @@
 
     function cpBranchRenderPerCabang(data) {
       const canvas = document.getElementById('cp-chartPerCabang');
+      const badgeEl = document.getElementById('cp-target-status-badge');
       if (!canvas) return;
       if (window.branchCpPerCabangChart) window.branchCpPerCabangChart.destroy();
 
-      // ==== REVISI: tampilkan SEMUA cabang (termasuk yang belum kirim = 0) ====
-      const rekap = {};
-      MASTER_DAFTAR_CABANG.forEach(c => rekap[c] = 0);
-      data.forEach(item => {
+      const cabangEl = document.getElementById('cp-filter-cabang');
+      const bulanEl = document.getElementById('cp-filter-bulan');
+      const cabangFilter = cabangEl ? cabangEl.value : 'all';
+      const bulanFilter = bulanEl ? bulanEl.value : 'all';
+
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+
+      // Jika tidak memilih bulan, status target selalu menggunakan bulan berjalan.
+      // Jika memilih bulan tertentu, status target mengikuti bulan tersebut.
+      const periodMonth = bulanFilter === 'all' ? currentMonth : Number(bulanFilter);
+      const periodKey = `${currentYear}-${String(periodMonth).padStart(2, '0')}`;
+      const periodName = NAMA_BULAN_MAP[String(periodMonth).padStart(2, '0')] || String(periodMonth);
+
+      // Selalu mulai dari 9 cabang master. Cabang tanpa data tetap bernilai 0.
+      const cabangList = cabangFilter === 'all'
+        ? MASTER_DAFTAR_CABANG.slice().sort()
+        : [cabangFilter];
+
+      const actualMap = {};
+      cabangList.forEach(c => actualMap[c] = 0);
+
+      branchCpData.forEach(item => {
         const c = cpBranchGetCabang(item).trim();
-        if (!c) return;
-        rekap[c] = (rekap[c] || 0) + 1;
+        if (!c || !actualMap.hasOwnProperty(c)) return;
+        const ym = cpBranchGetYearMonthFromItem(item);
+        if (!ym || ym.key !== periodKey) return;
+        actualMap[c] += 1;
       });
-      const labels = Object.keys(rekap).sort();
-      const values = labels.map(l => rekap[l]);
-      const barColors = values.map(v => v > 0 ? '#6366f1' : '#cbd5e1');
+
+      const labels = cabangList;
+      const actualValues = labels.map(c => actualMap[c] || 0);
+      const targetValues = labels.map(() => CP_TARGET_PER_CABANG_PER_BULAN);
+      const totalActual = actualValues.reduce((sum, value) => sum + value, 0);
+      const totalTarget = targetValues.reduce((sum, value) => sum + value, 0);
+      const totalTercapai = totalActual >= totalTarget;
+
+      if (badgeEl) {
+        badgeEl.innerText = `${periodName} ${currentYear}: ${totalActual}/${totalTarget} ${totalTercapai ? '✔ Target tercapai' : '— Target belum tercapai'}`;
+        badgeEl.className = `shrink-0 text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${totalTercapai ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`;
+      }
 
       window.branchCpPerCabangChart = new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
           labels,
-          datasets: [{
-            label: 'Customer Profile',
-            data: values,
-            backgroundColor: barColors,
-            borderRadius: 8,
-            borderSkipped: false,
-            maxBarThickness: 55
-          }]
+          datasets: [
+            {
+              label: 'Capaian',
+              data: actualValues,
+              backgroundColor: actualValues.map(v => v >= CP_TARGET_PER_CABANG_PER_BULAN ? '#10b981' : '#ef4444'),
+              borderRadius: 8,
+              borderSkipped: false,
+              maxBarThickness: 42
+            },
+            {
+              label: 'Target',
+              data: targetValues,
+              backgroundColor: '#f59e0b',
+              borderRadius: 8,
+              borderSkipped: false,
+              maxBarThickness: 42
+            }
+          ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
+          responsive: true,
+          maintainAspectRatio: false,
           plugins: {
-            legend: { display: false },
-            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 10 }
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                afterBody: function(items) {
+                  if (!items || !items.length) return '';
+                  const index = items[0].dataIndex;
+                  const actual = actualValues[index] || 0;
+                  return actual >= CP_TARGET_PER_CABANG_PER_BULAN
+                    ? 'Status: ✔ Tercapai'
+                    : 'Status: ✕ Belum tercapai';
+                }
+              }
+            },
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'top',
+              offset: 2,
+              font: { size: 10, weight: '700' },
+              formatter: (value) => value
+            }
           },
           scales: {
-            y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: 'rgba(226, 232, 240, 0.6)' } },
-            x: { ticks: { color: '#64748b' }, grid: { display: false } }
+            y: {
+              beginAtZero: true,
+              suggestedMax: Math.max(3, CP_TARGET_PER_CABANG_PER_BULAN + 1),
+              ticks: { precision: 0, color: '#64748b' },
+              grid: { color: 'rgba(226, 232, 240, 0.6)' }
+            },
+            x: {
+              ticks: { color: '#64748b' },
+              grid: { display: false }
+            }
           }
         }
       });
