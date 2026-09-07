@@ -1346,13 +1346,34 @@
                 </div>
             </div>
             <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-1">
-                    <h4 class="text-sm font-bold text-gray-800">Target Pencapaian Bulanan</h4>
-                    <span class="text-[11px] text-gray-400" id="ed-target-bulan-label">Bulan Berjalan</span>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-800">Target Pencapaian Bulanan</h4>
+                        <span class="text-[11px] text-gray-400" id="ed-target-bulan-label">Bulan Berjalan</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                            Target: <span id="ed-target-current-value">12</span> video/bulan
+                        </span>
+                        <button type="button" onclick="edToggleTargetBulananEditor()" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 text-white text-[11px] font-bold hover:bg-slate-700 transition-colors">
+                            <i class="fas fa-pen"></i> Edit Target
+                        </button>
+                    </div>
                 </div>
-                <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span
-                        class="font-semibold">12 video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan
-                    lain.</p>
+                <div id="ed-target-editor" class="hidden mt-4 mb-5 p-4 rounded-2xl border border-blue-100 bg-blue-50/50">
+                    <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+                        <div class="flex-1 max-w-xs">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Target video per bulan</label>
+                            <input id="ed-target-input" type="number" min="1" max="999" step="1" value="12" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        </div>
+                        <button type="button" onclick="edSimpanTargetBulanan()" class="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-check mr-1"></i> Simpan Target
+                        </button>
+                        <button type="button" onclick="edToggleTargetBulananEditor(false)" class="px-4 py-2.5 rounded-xl bg-white text-slate-600 border border-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors">Batal</button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2">Target ini berlaku untuk perhitungan pencapaian bulanan seluruh editor dan tersimpan di browser.</p>
+                </div>
+                <p class="text-xs text-gray-400 mb-5">Jumlah video <span class="font-semibold">Done</span> dibandingkan target bulanan yang dapat Anda ubah sesuai kebutuhan. Ganti "Filter Bulan" di atas untuk melihat bulan lain.</p>
                 <div class="w-full" id="ed-target-grid">
                     <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
                 </div>
@@ -2736,7 +2757,8 @@
             'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
             'Bandar Lampung', 'Palu', 'Makassar', 'Medan'
         ];
-        const TARGET_KONSTAN = 12;
+        const TARGET_KONSTAN_DEFAULT = 12;
+        const TARGET_BULANAN_STORAGE_KEY = 'dashboard_target_bulanan_editor';
         const URUTAN_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
         // Target cabang: 2 video/bulan per cabang, dipakai untuk grafik Tren Kiriman Bulanan
@@ -4640,6 +4662,45 @@
          * 4. Saat "Semua Bulan", riwayat pencapaian seluruh bulan yang tersedia
          *    juga ditampilkan sehingga pencapaian bulan sebelumnya tetap dapat dilihat.
          */
+        function edGetTargetBulanan() {
+            const saved = Number(localStorage.getItem(TARGET_BULANAN_STORAGE_KEY));
+            return Number.isFinite(saved) && saved > 0 ? Math.floor(saved) : TARGET_KONSTAN_DEFAULT;
+        }
+
+        function edUpdateTargetBulananUI() {
+            const target = edGetTargetBulanan();
+            const valueEl = document.getElementById('ed-target-current-value');
+            const inputEl = document.getElementById('ed-target-input');
+            if (valueEl) valueEl.textContent = target;
+            if (inputEl) inputEl.value = target;
+        }
+
+        function edToggleTargetBulananEditor(show) {
+            const editor = document.getElementById('ed-target-editor');
+            if (!editor) return;
+            const shouldShow = typeof show === 'boolean' ? show : editor.classList.contains('hidden');
+            editor.classList.toggle('hidden', !shouldShow);
+            if (shouldShow) {
+                edUpdateTargetBulananUI();
+                const input = document.getElementById('ed-target-input');
+                if (input) { input.focus(); input.select(); }
+            }
+        }
+
+        function edSimpanTargetBulanan() {
+            const input = document.getElementById('ed-target-input');
+            if (!input) return;
+            const target = Number(input.value);
+            if (!Number.isInteger(target) || target < 1 || target > 999) {
+                alert('Target harus berupa angka bulat antara 1 sampai 999 video per bulan.');
+                return;
+            }
+            localStorage.setItem(TARGET_BULANAN_STORAGE_KEY, String(target));
+            edUpdateTargetBulananUI();
+            edToggleTargetBulananEditor(false);
+            edRenderTargetBulanan();
+        }
+
         function edRenderTargetBulanan() {
             const container = document.getElementById('ed-target-grid');
             const label = document.getElementById('ed-target-bulan-label');
@@ -4648,9 +4709,10 @@
 
             if (!container || !label || !filterBulanEl) return;
 
+            edUpdateTargetBulananUI();
             const filterBulan = String(filterBulanEl.value || 'all').trim();
             const filterEditor = filterEditorEl ? String(filterEditorEl.value || 'all').trim() : 'all';
-            const target = TARGET_KONSTAN;
+            const target = edGetTargetBulanan();
 
             // Normalisasi nama bulan supaya data dari Supabase yang memiliki
             // spasi / perbedaan kapitalisasi tetap cocok dengan filter.
