@@ -2396,6 +2396,13 @@
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
                         id="cp-crud-field-produk" placeholder="Contoh: Quick Boxer" type="text" />
                 </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tanggal Kiriman *</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                        id="cp-crud-field-tanggal" required="" type="date" />
+                    <p class="text-[11px] text-gray-400 mt-1">Isi sesuai tanggal video/wawancara ini dikirim (boleh tanggal sebelumnya).</p>
+                </div>
 
                 <!-- ===== Customer Profile: upload file (PDF/DOCX/JPG/PNG) ===== -->
                 <div>
@@ -3368,6 +3375,7 @@
         function cpGetCustomerProfile(item) { return cpGetField(item, 'Customer Profile', 'Customer_Profile', 'customer_profile'); }
         function cpGetScriptWawancara(item) { return cpGetField(item, 'Script Wawancara', 'Script_Wawancara', 'script_wawancara'); }
         function cpGetEvaluasiWawancara(item) { return cpGetField(item, 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara'); }
+        function cpGetTanggal(item) { return cpGetField(item, 'Tanggal', 'tanggal'); }
 
         // Deteksi otomatis nama kolom tanggal/waktu yang ada pada baris data (untuk pengelompokan bulan)
         function cpDetectDateColumn(sampleRow) {
@@ -3739,6 +3747,9 @@
         function cpBukaModalTambah() {
             cpResetForm();
             cpPopulateCabangOptionsForm();
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('cp-crud-field-tanggal').value = todayStr;
             document.getElementById('cp-crud-modal-title').innerText = 'Tambah Data Customer Profile';
             document.getElementById('cp-crud-modal').classList.remove('hidden');
         }
@@ -3758,6 +3769,7 @@
             document.getElementById('cp-crud-field-id').value = rid;
             setSelectValueEnsureOption(document.getElementById('cp-crud-field-cabang'), cpGetCabang(item));
             document.getElementById('cp-crud-field-nama').value = cpGetNama(item);
+            document.getElementById('cp-crud-field-produk').value = cpGetProduk(item);
             document.getElementById('cp-crud-field-produk').value = cpGetProduk(item);
             document.getElementById('cp-crud-field-customerProfile').value = cpGetCustomerProfile(item);
             document.getElementById('cp-crud-field-scriptWawancara').value = cpGetScriptWawancara(item);
@@ -3804,14 +3816,18 @@
             if (!cabangVal) { errBox.innerText = 'Cabang wajib dipilih.'; errBox.classList.remove('hidden'); return; }
             if (!namaVal) { errBox.innerText = 'Nama wajib diisi.'; errBox.classList.remove('hidden'); return; }
 
+            const tanggalVal = document.getElementById('cp-crud-field-tanggal').value;
+            if (!tanggalVal) { errBox.innerText = 'Tanggal kiriman wajib diisi.'; errBox.classList.remove('hidden'); return; }
+
             const payload = {
                 Cabang: cabangVal,
                 Nama: namaVal,
                 Produk: document.getElementById('cp-crud-field-produk').value.trim(),
+                Tanggal: tanggalVal,
                 'Customer Profile': document.getElementById('cp-crud-field-customerProfile').value,
                 'Script Wawancara': document.getElementById('cp-crud-field-scriptWawancara').value,
                 'Evaluasi Wawancara': document.getElementById('cp-crud-field-evaluasiWawancara').value
-            };
+            };    
 
             const idVal = document.getElementById('cp-crud-field-id').value;
             let error, data;
