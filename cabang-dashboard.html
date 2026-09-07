@@ -872,9 +872,7 @@
       </div>
       <div class="hidden bg-sky-50 border border-sky-200 text-sky-700 rounded-2xl p-4 text-xs"
         id="cp-no-date-warning">
-        ℹ️ Tidak ditemukan kolom tanggal/waktu (misalnya <code>created_at</code>) pada tabel Customer_Profile,
-        sehingga grafik "Kiriman per Bulan" tidak dapat dikelompokkan per bulan dan menampilkan seluruh data
-        sebagai satu kelompok.
+        ℹ️ Kolom tanggal/waktu Customer Profile tidak terdeteksi. Sistem akan membaca kolom <code>Tanggal</code> terlebih dahulu, lalu mencoba variasi nama tanggal/waktu lainnya untuk grafik per bulan.
       </div>
       <!-- Filter & Ringkasan -->
       <div
@@ -1232,6 +1230,70 @@
       return new Date().getMonth() + 1;
     }
 
+    function cpNormalizeBranch(value) {
+      return String(value ?? '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function cpIsGenericBranchValue(value) {
+      const v = cpNormalizeBranch(value);
+      return !v || [
+        'cabang', 'branch', 'user', 'akun cabang', 'cabang anda', '-', 'n/a', 'na'
+      ].includes(v);
+    }
+
+    // Ambil kandidat nama cabang dari data_user. nama_user/username hanya boleh
+    // dipakai bila nilainya benar-benar cocok dengan nama cabang yang ada di database.
+    function cpGetUserBranchCandidates(user) {
+      const keys = [
+        'cabang', 'Cabang', 'nama_cabang', 'Nama Cabang', 'nama cabang',
+        'branch', 'branch_name', 'branchName', 'namaBranch', 'nama_branch',
+        'kode_cabang', 'kodeCabang', 'username', 'user_name', 'nama_user'
+      ];
+      const result = [];
+      for (const key of keys) {
+        const value = String(user?.[key] ?? '').trim();
+        if (value && !result.some(x => cpNormalizeBranch(x) === cpNormalizeBranch(value))) {
+          result.push(value);
+        }
+      }
+      return result;
+    }
+
+    function cpResolveBranchFromUser(user, databaseRows) {
+      const candidates = cpGetUserBranchCandidates(user);
+      const databaseBranches = [...new Set((databaseRows || [])
+        .map(row => cpBranchGetCabang(row))
+        .filter(Boolean)
+        .map(v => String(v).trim()))];
+
+      // Prioritaskan field yang memang bernama cabang.
+      const directKeys = ['cabang', 'Cabang', 'nama_cabang', 'Nama Cabang', 'nama cabang', 'branch', 'branch_name', 'branchName'];
+      for (const key of directKeys) {
+        const value = String(user?.[key] ?? '').trim();
+        if (!cpIsGenericBranchValue(value)) {
+          if (!databaseBranches.length) return value;
+          const match = databaseBranches.find(b => cpNormalizeBranch(b) === cpNormalizeBranch(value));
+          if (match) return match;
+        }
+      }
+
+      // Jika field cabang tidak tersedia, coba username/nama_user/kode cabang,
+      // tetapi hanya jika nilainya persis cocok dengan cabang yang ada di database.
+      if (databaseBranches.length) {
+        for (const candidate of candidates) {
+          if (cpIsGenericBranchValue(candidate)) continue;
+          const match = databaseBranches.find(b => cpNormalizeBranch(b) === cpNormalizeBranch(candidate));
+          if (match) return match;
+        }
+      }
+
+      return '';
+    }
+
     const storedUser = localStorage.getItem('data_user');
     if (!storedUser) {
       window.location.href = 'login.html';
@@ -1239,9 +1301,11 @@
       const user = JSON.parse(storedUser);
       currentBranchUser = user || {};
       const role = (user.role || 'editor').toLowerCase();
-      currentBranchName = String(
-        user.cabang || user.nama_cabang || user.branch || user['Nama Cabang'] || user['nama cabang'] || user.nama_user || ''
-      ).trim();
+      // JANGAN memakai nama_user sebagai nama cabang. Pada akun tertentu nama_user
+      // bernilai umum seperti "Cabang", sehingga sebelumnya sistem salah memfilter
+      // Customer_Profile dengan Cabang = "Cabang". Nama cabang hanya boleh diambil
+      // dari field cabang/branch yang memang menyimpan identitas cabang.
+      currentBranchName = cpResolveBranchFromUser(user, []);
       if (role === 'editor') {
         window.location.href = 'editor-dashboard.html';
       } else if (role !== 'cabang') {
@@ -1309,6 +1373,7 @@
         tabCustomerProfile.classList.remove('hidden');
         navCustomerProfile.className = activeClass;
         cpMuatDashboard();
+        renderCustomerProfileDashboardStats();
       } else if (tabName === 'panduan') {
         tabPanduan.classList.remove('hidden');
         navPanduan.className = activeClass;
@@ -1385,18 +1450,19 @@
     }
 
     function cpDashboardGetBranch(item) {
-      return String(
-        item?.Cabang ?? item?.cabang ?? item?.['Nama Cabang'] ?? item?.nama_cabang ?? ''
-      ).trim();
+      return cpBranchGetCabang(item);
     }
 
     function cpDashboardGetDate(item) {
-      return item?.Tanggal ?? item?.tanggal ?? item?.created_at ?? item?.Created_at ?? item?.CreatedAt ?? item?.Tanggal_Kirim ?? item?.tanggal_kirim ?? null;
+      return cpBranchGetTanggal(item);
     }
 
     function cpDashboardGetYearMonth(item) {
       const raw = cpDashboardGetDate(item);
       if (!raw) return null;
+      const text = String(raw).trim();
+      const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}`;
       const d = new Date(raw);
       if (isNaN(d.getTime())) return null;
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -1410,8 +1476,12 @@
       if (!totalEl || !monthEl || !targetEl || !canvas) return;
 
       const allCp = await ambilDataCustomerProfileSupabase();
-      const targetBranch = String(currentBranchName || '').trim().toLowerCase();
-      const branchData = allCp.filter(item => cpDashboardGetBranch(item).toLowerCase() === targetBranch);
+      const resolvedBranch = cpResolveBranchFromUser(currentBranchUser, allCp);
+      if (resolvedBranch) currentBranchName = resolvedBranch;
+      const targetBranch = cpNormalizeBranch(currentBranchName);
+      const branchData = targetBranch
+        ? allCp.filter(item => cpNormalizeBranch(cpDashboardGetBranch(item)) === targetBranch)
+        : [];
 
       const now = new Date();
       const currentYear = now.getFullYear();
@@ -1914,30 +1984,54 @@
       return cpBranchGetField(item, 'Tanggal', 'tanggal', 'created_at', 'Created_at', 'CreatedAt', 'Tanggal_Kirim', 'tanggal_kirim', 'Waktu', 'waktu', 'Timestamp', 'timestamp');
     }
 
-    function cpBranchDetectDateColumn(sampleRow) {
+    function cpBranchDetectDateColumn(rows) {
       branchCpDateColumnDetected = null;
-      if (!sampleRow) return;
-      const kandidat = ['Tanggal', 'tanggal', 'created_at', 'Created_at', 'CreatedAt', 'Tanggal_Kirim', 'tanggal_kirim', 'Waktu', 'waktu', 'Timestamp', 'timestamp'];
-      const keys = Object.keys(sampleRow);
-      for (const k of kandidat) {
-        const found = keys.find(x => x.toLowerCase() === k.toLowerCase());
+      const list = Array.isArray(rows) ? rows : (rows ? [rows] : []);
+      if (!list.length) return;
+
+      const keys = [...new Set(list.flatMap(row => Object.keys(row || {})))];
+      if (!keys.length) return;
+
+      // Prioritas utama: kolom Tanggal yang terlihat pada tabel Supabase pengguna.
+      const exactPriority = ['Tanggal', 'tanggal', 'created_at', 'Created_at', 'CreatedAt', 'Tanggal_Kirim', 'tanggal_kirim', 'Waktu', 'waktu', 'Timestamp', 'timestamp'];
+      for (const candidate of exactPriority) {
+        const found = keys.find(k => k.toLowerCase() === candidate.toLowerCase());
         if (found) {
           branchCpDateColumnDetected = found;
           return;
         }
       }
+
+      // Fallback: tetap bisa mendeteksi nama seperti "Tanggal Dibuat",
+      // "created date", atau "date_created" tanpa menganggap kolom id sebagai tanggal.
+      const normalized = key => key.toLowerCase().replace(/[\s_-]+/g, '');
+      const found = keys.find(k => {
+        const n = normalized(k);
+        return n.includes('tanggal') || n.includes('createdat') || n.includes('createddate') ||
+               n.includes('datetime') || n.includes('timestamp') || n === 'date';
+      });
+      if (found) branchCpDateColumnDetected = found;
     }
 
     function cpBranchGetYearMonthFromItem(item) {
-      const raw = branchCpDateColumnDetected ? item[branchCpDateColumnDetected] : cpBranchGetTanggal(item);
-      if (!raw) return null;
+      const raw = branchCpDateColumnDetected ? item?.[branchCpDateColumnDetected] : cpBranchGetTanggal(item);
+      if (raw === undefined || raw === null || String(raw).trim() === '') return null;
+
+      const text = String(raw).trim();
+      // Format date SQL PostgreSQL: YYYY-MM-DD atau YYYY-MM-DDTHH:mm:ss...
+      const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        const month = Number(isoMatch[2]);
+        if (month >= 1 && month <= 12) {
+          return { year: isoMatch[1], month: isoMatch[2], key: `${isoMatch[1]}-${isoMatch[2]}` };
+        }
+      }
+
       const d = new Date(raw);
       if (isNaN(d.getTime())) return null;
-      return {
-        year: String(d.getFullYear()),
-        month: String(d.getMonth() + 1).padStart(2, '0'),
-        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-      };
+      const year = String(d.getFullYear());
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      return { year, month, key: `${year}-${month}` };
     }
 
     function cpBranchIsFileUrl(value) {
@@ -2167,9 +2261,20 @@
       }
 
       const semuaData = Array.isArray(data) ? data : [];
-      cpBranchDetectDateColumn(semuaData[0]);
-      const targetCabang = currentBranchName.trim().toLowerCase();
-      branchCpData = semuaData.filter(item => cpBranchGetCabang(item).trim().toLowerCase() === targetCabang);
+
+      // Tentukan cabang setelah database tersedia, sehingga username/nama_user
+      // dapat dicocokkan secara aman dengan daftar Cabang yang benar-benar ada.
+      const resolvedBranch = cpResolveBranchFromUser(currentBranchUser, semuaData);
+      if (resolvedBranch) currentBranchName = resolvedBranch;
+
+      // Deteksi kolom tanggal dari SEMUA baris, bukan hanya baris pertama.
+      // Pada tabel pengguna terdapat kolom "Tanggal" bertipe date.
+      cpBranchDetectDateColumn(semuaData);
+
+      const targetCabang = cpNormalizeBranch(currentBranchName);
+      branchCpData = targetCabang
+        ? semuaData.filter(item => cpNormalizeBranch(cpBranchGetCabang(item)) === targetCabang)
+        : [];
 
       branchCpData.sort((a, b) => {
         const dateA = new Date(cpBranchGetTanggal(a) || 0).getTime() || 0;
@@ -2187,7 +2292,12 @@
           diagnosticMsg.innerText = 'Query berhasil tetapi tabel Customer_Profile tidak mengembalikan baris data.';
         } else if (!branchCpData.length) {
           diagnostic.classList.remove('hidden');
-          diagnosticMsg.innerText = `Data Customer_Profile ditemukan (${semuaData.length} baris), tetapi tidak ada baris dengan Cabang = "${currentBranchName}". Periksa kecocokan nama cabang di data_user dan tabel Customer_Profile.`;
+          const daftarCabang = [...new Set(semuaData.map(item => cpBranchGetCabang(item)).filter(Boolean))];
+          if (!currentBranchName || cpIsGenericBranchValue(currentBranchName)) {
+            diagnosticMsg.innerText = `Data Customer_Profile ditemukan (${semuaData.length} baris), tetapi cabang akun belum dapat ditentukan dari data_user. Cabang yang tersedia di database: ${daftarCabang.join(', ')}.`;
+          } else {
+            diagnosticMsg.innerText = `Data Customer_Profile ditemukan (${semuaData.length} baris), tetapi tidak ada baris dengan Cabang = "${currentBranchName}". Cabang yang tersedia di database: ${daftarCabang.join(', ')}.`;
+          }
         } else {
           diagnostic.classList.add('hidden');
           diagnosticMsg.innerText = '';
@@ -2205,6 +2315,9 @@
         badge.classList.toggle('hidden', branchCpData.length === 0);
         badge.classList.toggle('inline-flex', branchCpData.length > 0);
       }
+
+      // Statistik Customer Profile pada dashboard utama mengikuti data yang sama.
+      await renderCustomerProfileDashboardStats();
     }
 
     async function cpMuatDashboard() {
@@ -2244,6 +2357,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       await renderDashboardAndChart();
       await muatCustomerProfileCabang();
+      await renderCustomerProfileDashboardStats();
     });
   </script>
 </body>
