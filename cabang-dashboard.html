@@ -2071,10 +2071,10 @@
       const cabang = cabangEl ? cabangEl.value : 'all';
       return branchCpData.filter(item => {
         if (cabang !== 'all' && cpBranchGetCabang(item).trim() !== cabang) return false;
-        if (bulan !== 'all') {
-          const ym = cpBranchGetYearMonthFromItem(item);
-          if (!ym || ym.month !== bulan) return false;
-        }
+        const ym = cpBranchGetYearMonthFromItem(item);
+        const currentYear = new Date().getFullYear();
+        if (!ym || Number(ym.year) !== currentYear) return false;
+        if (bulan !== 'all' && ym.month !== bulan) return false;
         return true;
       });
     }
@@ -2245,7 +2245,7 @@
           datasets: [
             {
               type: 'bar',
-              label: 'Customer Profile',
+              label: 'Capaian Customer Profile',
               data: values,
               backgroundColor: values.map(v => v >= targetPerBulan ? '#10b981' : '#6366f1'),
               borderRadius: 8,
@@ -2345,12 +2345,17 @@
               maxBarThickness: 42
             },
             {
-              label: 'Target',
+              type: 'line',
+              label: 'Target (2/cabang)',
               data: targetValues,
-              backgroundColor: '#f59e0b',
-              borderRadius: 8,
-              borderSkipped: false,
-              maxBarThickness: 42
+              borderColor: '#f59e0b',
+              borderDash: [6, 4],
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: false,
+              tension: 0,
+              order: 1
             }
           ]
         },
