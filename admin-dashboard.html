@@ -3305,6 +3305,13 @@
            Kolom di Supabase: id, Cabang, Nama, Produk, Customer Profile,
            Script Wawancara, Evaluasi Wawancara (+ created_at jika ada, dipakai
            untuk pengelompokan per bulan pada grafik tren).
+
+           ==== REVISI ====
+           Kolom "Customer Profile" dan "Script Wawancara" sekarang menyimpan
+           URL FILE (hasil upload ke Supabase Storage bucket
+           SUPABASE_STORAGE_BUCKET), bukan lagi teks bebas. Input pada form
+           berupa <input type="file"> yang otomatis meng-upload file lalu
+           mengisi <input type="hidden"> dengan URL publik hasil upload.
         =================================================================== */
         let cpListGlobal = [];
         let cpMyTrendChart = null;
@@ -3555,7 +3562,7 @@
             });
         }
 
-        // ==== BARU: Upload file (PDF/DOCX/JPG/PNG) ke Supabase Storage untuk
+        // ==== Upload file (PDF/DOCX/JPG/PNG) ke Supabase Storage untuk
         // field Customer Profile & Script Wawancara ====
         function cpIsFileUrl(value) {
             return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
@@ -3569,16 +3576,27 @@
             return { icon: 'fa-file', label: 'Lihat File', color: 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100' };
         }
 
-        // Dipakai di tabel: kalau isinya link file, tampilkan tombol. Kalau teks biasa, tampilkan terpotong seperti biasa.
+        // Dipakai di tabel: kalau isinya link file, tampilkan tombol. Kalau teks biasa (data lama), tampilkan terpotong seperti biasa.
         function cpRenderFileOrText(value) {
             if (cpIsFileUrl(value)) {
                 const info = cpGetFileIconInfo(value);
                 return `<a href="${edEscapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${info.color}"><i class="fas ${info.icon}"></i> ${info.label}</a>`;
             }
+            if (!value) return '<span class="text-slate-300">-</span>';
             return `<span title="${edEscapeHtml(value)}">${edEscapeHtml(cpTruncateText(value))}</span>`;
         }
 
-        async function cpUploadFileHandler(inputEl, targetTextareaId, statusElId) {
+        // ==== BARU: preview file lama pada modal Edit (di bawah input file) ====
+        function cpRenderExistingPreview(value) {
+            if (!value) return '<span class="text-gray-400">Belum ada file diupload.</span>';
+            if (cpIsFileUrl(value)) {
+                const info = cpGetFileIconInfo(value);
+                return `File saat ini: <a href="${edEscapeHtml(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 font-bold ${info.color.split(' ')[0]} hover:underline"><i class="fas ${info.icon}"></i> ${info.label}</a>`;
+            }
+            return `<span class="text-amber-600">Data lama berupa teks (bukan file): "${edEscapeHtml(cpTruncateText(value, 40))}"</span>`;
+        }
+
+        async function cpUploadFileHandler(inputEl, targetHiddenFieldId, statusElId) {
             const file = inputEl.files && inputEl.files[0];
             if (!file) return;
 
@@ -3612,7 +3630,7 @@
             const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET).getPublicUrl(path);
             const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
 
-            document.getElementById(targetTextareaId).value = publicUrl;
+            document.getElementById(targetHiddenFieldId).value = publicUrl;
             statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> Berhasil: ${edEscapeHtml(file.name)}</span>`;
             inputEl.value = '';
         }
@@ -3666,12 +3684,19 @@
             const errorBox = document.getElementById('cp-crud-form-error');
             const customerProfileStatus = document.getElementById('cp-upload-customerProfile-status');
             const scriptStatus = document.getElementById('cp-upload-scriptWawancara-status');
+            const customerProfileExisting = document.getElementById('cp-upload-customerProfile-existing');
+            const scriptExisting = document.getElementById('cp-upload-scriptWawancara-existing');
 
             if (form) form.reset();
             if (fieldId) fieldId.value = '';
             if (errorBox) errorBox.classList.add('hidden');
             if (customerProfileStatus) customerProfileStatus.innerHTML = '';
             if (scriptStatus) scriptStatus.innerHTML = '';
+            if (customerProfileExisting) customerProfileExisting.innerHTML = '';
+            if (scriptExisting) scriptExisting.innerHTML = '';
+
+            document.getElementById('cp-crud-field-customerProfile').value = '';
+            document.getElementById('cp-crud-field-scriptWawancara').value = '';
 
             cpCurrentEditIdInfo = null;
         }
@@ -3702,6 +3727,8 @@
             document.getElementById('cp-crud-field-customerProfile').value = cpGetCustomerProfile(item);
             document.getElementById('cp-crud-field-scriptWawancara').value = cpGetScriptWawancara(item);
             document.getElementById('cp-crud-field-evaluasiWawancara').value = cpGetEvaluasiWawancara(item);
+            document.getElementById('cp-upload-customerProfile-existing').innerHTML = cpRenderExistingPreview(cpGetCustomerProfile(item));
+            document.getElementById('cp-upload-scriptWawancara-existing').innerHTML = cpRenderExistingPreview(cpGetScriptWawancara(item));
             document.getElementById('cp-crud-modal').classList.remove('hidden');
         }
 
@@ -3721,8 +3748,7 @@
             if (e.target.id === 'cp-crud-modal') cpTutupModalCrud();
         });
 
-        // Upload bersifat opsional pada form saat ini. Jangan biarkan elemen upload
-        // yang tidak ada menghentikan seluruh JavaScript Customer Profile.
+        // Upload file untuk Customer Profile & Script Wawancara
         const cpUploadCustomerProfile = document.getElementById('cp-upload-customerProfile');
         if (cpUploadCustomerProfile) cpUploadCustomerProfile.addEventListener('change', function () {
             cpUploadFileHandler(this, 'cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
