@@ -1301,10 +1301,10 @@
       const user = JSON.parse(storedUser);
       currentBranchUser = user || {};
       const role = (user.role || 'editor').toLowerCase();
-      // JANGAN memakai nama_user sebagai nama cabang. Pada akun tertentu nama_user
-      // bernilai umum seperti "Cabang", sehingga sebelumnya sistem salah memfilter
-      // Customer_Profile dengan Cabang = "Cabang". Nama cabang hanya boleh diambil
-      // dari field cabang/branch yang memang menyimpan identitas cabang.
+      // JANGAN memakai nama_user sebagai nama cabang secara langsung di sini.
+      // Resolusi nama cabang yang sebenarnya (termasuk fallback ke nama_user/username)
+      // dilakukan di muatCustomerProfileCabang() SETELAH data Customer_Profile
+      // berhasil diambil dari Supabase — lihat catatan FIX di fungsi tersebut.
       currentBranchName = cpResolveBranchFromUser(user, []);
       if (role === 'editor') {
         window.location.href = 'editor-dashboard.html';
@@ -2236,23 +2236,27 @@
       cpBranchRenderTable(filtered);
     }
 
+    // ================================================================
+    // ==== FIX (revisi): fetch data DULU, baru resolusi nama cabang ====
+    // Sebelumnya, nama cabang ditentukan dari field terbatas
+    // (cabang/nama_cabang/branch/'Nama Cabang'/'nama cabang') SEBELUM
+    // Customer_Profile diambil dari Supabase. Kalau akun login role
+    // "cabang" tidak punya field-field itu (hanya nama_user/username),
+    // proses langsung berhenti dengan pesan "Cabang akun tidak
+    // ditemukan" — walau sebenarnya cpResolveBranchFromUser() bisa
+    // mencocokkan nama_user/username dengan nama Cabang yang ada di
+    // database, ASALKAN diberi kesempatan (yaitu database sudah di-fetch).
+    // Revisi ini memindahkan fetch ke awal supaya fallback tersebut
+    // benar-benar terpakai, sehingga Customer Profile bisa muncul di
+    // Dashboard Cabang persis seperti di Dashboard Admin.
+    // ================================================================
     async function muatCustomerProfileCabang() {
       const list = document.getElementById('cp-tabel-body');
       if (!list) return;
       const colspan = 7;
       list.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Mengambil data Customer Profile dari database...</td></tr>`;
 
-      const branchFromUser = String(
-        currentBranchUser.cabang || currentBranchUser.nama_cabang || currentBranchUser.branch ||
-        currentBranchUser['Nama Cabang'] || currentBranchUser['nama cabang'] || ''
-      ).trim();
-      currentBranchName = branchFromUser || currentBranchName;
-
-      if (!currentBranchName) {
-        list.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-10"><div class="text-rose-500"><i class="fas fa-triangle-exclamation text-2xl"></i><p class="font-bold mt-2">Cabang akun tidak ditemukan.</p><p class="text-xs text-slate-400 mt-1">Pastikan data_user memiliki field cabang.</p></div></td></tr>`;
-        return;
-      }
-
+      // 1) Ambil SEMUA data Customer_Profile terlebih dahulu.
       const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).select('*');
       if (error) {
         console.error('[Customer Profile] Supabase error:', error);
@@ -2262,10 +2266,18 @@
 
       const semuaData = Array.isArray(data) ? data : [];
 
-      // Tentukan cabang setelah database tersedia, sehingga username/nama_user
-      // dapat dicocokkan secara aman dengan daftar Cabang yang benar-benar ada.
+      // 2) BARU tentukan nama cabang, dengan database sebagai referensi.
+      // cpResolveBranchFromUser() akan mencoba field cabang/nama_cabang/branch
+      // dulu, lalu fallback ke username/nama_user HANYA jika nilainya persis
+      // sama dengan salah satu nilai Cabang yang ada di tabel Customer_Profile.
       const resolvedBranch = cpResolveBranchFromUser(currentBranchUser, semuaData);
       if (resolvedBranch) currentBranchName = resolvedBranch;
+
+      if (!currentBranchName) {
+        const daftarCabang = [...new Set(semuaData.map(item => cpBranchGetCabang(item)).filter(Boolean))];
+        list.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-10"><div class="text-rose-500"><i class="fas fa-triangle-exclamation text-2xl"></i><p class="font-bold mt-2">Cabang akun tidak dapat ditentukan.</p><p class="text-xs text-slate-400 mt-1">Pastikan akun login memiliki field cabang, atau nama_user/username persis sama dengan salah satu Cabang berikut: ${cpBranchEscape(daftarCabang.join(', ') || '-')}.</p></div></td></tr>`;
+        return;
+      }
 
       // Deteksi kolom tanggal dari SEMUA baris, bukan hanya baris pertama.
       // Pada tabel pengguna terdapat kolom "Tanggal" bertipe date.
@@ -2293,11 +2305,7 @@
         } else if (!branchCpData.length) {
           diagnostic.classList.remove('hidden');
           const daftarCabang = [...new Set(semuaData.map(item => cpBranchGetCabang(item)).filter(Boolean))];
-          if (!currentBranchName || cpIsGenericBranchValue(currentBranchName)) {
-            diagnosticMsg.innerText = `Data Customer_Profile ditemukan (${semuaData.length} baris), tetapi cabang akun belum dapat ditentukan dari data_user. Cabang yang tersedia di database: ${daftarCabang.join(', ')}.`;
-          } else {
-            diagnosticMsg.innerText = `Data Customer_Profile ditemukan (${semuaData.length} baris), tetapi tidak ada baris dengan Cabang = "${currentBranchName}". Cabang yang tersedia di database: ${daftarCabang.join(', ')}.`;
-          }
+          diagnosticMsg.innerText = `Data Customer_Profile ditemukan (${semuaData.length} baris), tetapi tidak ada baris dengan Cabang = "${currentBranchName}". Cabang yang tersedia di database: ${daftarCabang.join(', ')}.`;
         } else {
           diagnostic.classList.add('hidden');
           diagnosticMsg.innerText = '';
