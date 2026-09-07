@@ -2649,6 +2649,10 @@
         const NAMA_TABEL_PLANNING = 'Planning_Editor';
         const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
         const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
+        const MASTER_DAFTAR_CABANG = [
+            'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
+            'Bandar Lampung', 'Palu', 'Makassar', 'Medan'
+        ];
         const TARGET_KONSTAN = 12;
         const URUTAN_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -3408,7 +3412,7 @@
         function cpPopulateCabangOptionsFilter() {
             const select = document.getElementById('cp-filter-cabang');
             const current = select.value || 'all';
-            const cabangSet = new Set();
+            const cabangSet = new Set(MASTER_DAFTAR_CABANG);
             cpListGlobal.forEach(item => { const c = cpGetCabang(item).trim(); if (c) cabangSet.add(c); });
             const sorted = Array.from(cabangSet).sort();
             select.innerHTML = `<option value="all">Semua Cabang (${sorted.length})</option>` +
@@ -3417,7 +3421,9 @@
         function cpPopulateCabangOptionsForm() {
             const select = document.getElementById('cp-crud-field-cabang');
             const current = select.value;
-            const cabangSet = new Set();
+            // Gabungkan daftar master cabang dengan cabang lain yang mungkin
+            // sudah ada di data (misal nama cabang baru yang belum dimasukkan ke master).
+            const cabangSet = new Set(MASTER_DAFTAR_CABANG);
             cpListGlobal.forEach(item => { const c = cpGetCabang(item).trim(); if (c) cabangSet.add(c); });
             const sorted = Array.from(cabangSet).sort();
             select.innerHTML = '<option value="">- Pilih Cabang -</option>' +
