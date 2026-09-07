@@ -817,92 +817,163 @@
       </div>
     </div>
 
-    <!-- KONTEN TAB 3: CUSTOMER PROFILE CABANG - VIEW ONLY -->
+    <!-- KONTEN TAB 3: CUSTOMER PROFILE - DATA UNIVERSAL SELURUH CABANG (VIEW ONLY UNTUK ROLE CABANG) -->
     <div id="tab-customer-profile" class="p-8 space-y-6 w-full hidden">
-      <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-          <div>
-            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest">
-              <i class="fas fa-id-card"></i> Customer Profile
-            </span>
-            <h3 class="text-2xl font-black text-slate-900 mt-3">Customer Profile</h3>
-            <p class="text-sm text-slate-500 mt-1 max-w-2xl">
-              Di halaman ini Anda hanya dapat <b>melihat data Customer Profile</b> milik cabang Anda.
-              Data diinput dan dikelola oleh Admin.
-            </p>
+      <div
+        class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
+        <div>
+          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest mb-3">
+            <i class="fas fa-id-card"></i> Mode Lihat
+          </span>
+          <h3 class="text-2xl font-black text-slate-900 tracking-tight">Customer Profile - Seluruh Cabang</h3>
+          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Data Customer Profile dari seluruh cabang (data universal, sama seperti yang dilihat Admin). Gunakan Filter Cabang di bawah untuk melihat cabang tertentu. Halaman ini <b>hanya untuk melihat data</b> — tidak ada tambah/ubah/hapus di sisi cabang.</p>
+        </div>
+      </div>
+      <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
+        id="cp-diagnostic-banner">
+        <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+        <p class="text-rose-600" id="cp-diagnostic-message"></p>
+      </div>
+      <div class="hidden bg-sky-50 border border-sky-200 text-sky-700 rounded-2xl p-4 text-xs"
+        id="cp-no-date-warning">
+        ℹ️ Tidak ditemukan kolom tanggal/waktu (misalnya <code>created_at</code>) pada tabel Customer_Profile,
+        sehingga grafik "Kiriman per Bulan" tidak dapat dikelompokkan per bulan dan menampilkan seluruh data
+        sebagai satu kelompok.
+      </div>
+      <!-- Filter & Ringkasan -->
+      <div
+        class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+        <div>
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">Statistik Kiriman Customer Profile</h3>
+          <p class="text-sm text-slate-500 mt-1">Target dihitung dari 2 customer profile/bulan per cabang.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+            <div
+              class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang</label>
+              <select id="cp-filter-cabang"
+                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Cabang</option>
+              </select>
+            </div>
           </div>
-          <div class="rounded-2xl bg-white border border-slate-200 px-5 py-4 min-w-[190px]">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Cabang Anda</p>
-            <p id="cp-branch-name" class="text-lg font-black text-indigo-600 mt-1">Memuat...</p>
+          <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+            <div
+              class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter Bulan</label>
+              <select id="cp-filter-bulan"
+                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Bulan</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
-
+      <!-- Kartu ringkas -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">📋</div>
+          <div
+            class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            📋</div>
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Customer Profile</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Data (Sesuai Filter)</p>
             <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-total">0</h4>
           </div>
         </div>
         <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">🎯</div>
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            🏢</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cabang Terdaftar</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-cabang-count">0</h4>
+          </div>
+        </div>
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div
+            class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            🎯</div>
           <div>
             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Bulan Berjalan vs Target</p>
             <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-target-info">-</h4>
           </div>
         </div>
-        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">📅</div>
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Data Terbaru</p>
-            <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-latest">-</h4>
-          </div>
-        </div>
       </div>
-
+      <!-- Grafik Tren Bulanan -->
       <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
           <div>
             <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
               Tren Kiriman Customer Profile per Bulan
-              <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+              <span
+                class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
               </span>
             </h4>
-            <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 Customer Profile / bulan untuk cabang Anda.</p>
+            <p class="text-xs text-slate-400 mt-1">Target dihitung dari 2 video/bulan per cabang. Grafik
+              ini mengikuti Filter Cabang di atas dan menampilkan seluruh bulan yang ada datanya (tidak
+              terpengaruh Filter Bulan).</p>
           </div>
-          <span id="cp-trend-bulan-berjalan-badge" class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">Memuat status bulan berjalan...</span>
+          <span
+            class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200"
+            id="cp-trend-bulan-berjalan-badge">Memuat status bulan berjalan...</span>
         </div>
         <div class="h-[300px] mt-3"><canvas id="cp-chartTrendBulanan"></canvas></div>
       </div>
-
-      <div class="glass-card rounded-3xl overflow-hidden shadow-sm">
-        <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div>
-            <h4 class="text-base font-black text-slate-900">Daftar Customer Profile</h4>
-            <p class="text-xs text-slate-400 mt-1">Data Customer Profile yang sudah dimasukkan Admin akan tampil di sini.</p>
-          </div>
-          <button onclick="muatCustomerProfileCabang()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition interactive-btn">
-            <i class="fas fa-rotate-right"></i> Refresh
-          </button>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[900px] text-left border-collapse">
-            <thead class="bg-slate-50 border-b border-slate-200">
-              <tr class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                <th class="py-4 px-5 whitespace-nowrap">No</th>
-                <th class="py-4 px-5 whitespace-nowrap">Nama Customer</th>
-                <th class="py-4 px-5 whitespace-nowrap">Produk</th>
-                <th class="py-4 px-5 whitespace-nowrap">Tanggal</th>
-                <th class="py-4 px-5 whitespace-nowrap">Customer Profile</th>
-                <th class="py-4 px-5 whitespace-nowrap">Script Wawancara</th>
-                <th class="py-4 px-5 whitespace-nowrap">Evaluasi Wawancara</th>
+      <!-- Grafik per cabang -->
+      <div class="glass-card p-6 md:p-8 rounded-3xl relative h-[420px] shadow-sm">
+        <h4 class="text-sm font-bold text-slate-800 mb-2">Jumlah Kiriman Customer Profile per Cabang (Sesuai
+          Filter Bulan)</h4>
+        <div class="h-[340px]"><canvas id="cp-chartPerCabang"></canvas></div>
+      </div>
+      <!-- Tabel data -->
+      <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+        <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+              <tr
+                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <th class="py-4 px-5 bg-slate-100">ID</th>
+                <th class="py-4 px-5 bg-slate-100">Cabang</th>
+                <th class="py-4 px-5 bg-slate-100">Nama</th>
+                <th class="py-4 px-5 bg-slate-100">Produk</th>
+                <th class="py-4 px-5 bg-slate-100">Customer Profile</th>
+                <th class="py-4 px-5 bg-slate-100">Script Wawancara</th>
+                <th class="py-4 px-5 bg-slate-100">Evaluasi Wawancara</th>
               </tr>
             </thead>
-            <tbody id="cp-branch-list" class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
-              <tr><td colspan="7" class="text-center py-10 text-slate-400">Memuat data Customer Profile...</td></tr>
+            <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
+              id="cp-tabel-body">
+              <tr>
+                <td class="text-center py-8 text-slate-400" colspan="7">Memuat data dari database...
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -1199,7 +1270,7 @@
       } else if (tabName === 'customer-profile') {
         tabCustomerProfile.classList.remove('hidden');
         navCustomerProfile.className = activeClass;
-        muatCustomerProfileCabang();
+        cpMuatDashboard();
       } else if (tabName === 'panduan') {
         tabPanduan.classList.remove('hidden');
         navPanduan.className = activeClass;
