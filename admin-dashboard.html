@@ -706,6 +706,32 @@
             margin-top: .25rem;
         }
 
+        /* Planning Editor: semua kolom ditampilkan, dengan scroll internal horizontal/vertical. */
+        #ed-crud-table {
+            min-width: max-content;
+        }
+
+        #ed-crud-table th,
+        #ed-crud-table td {
+            white-space: normal;
+        }
+
+        #ed-crud-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            box-shadow: inset 0 -1px 0 #e5e7eb;
+        }
+
+        #ed-crud-table td:last-child,
+        #ed-crud-table th:last-child {
+            position: sticky;
+            right: 0;
+            z-index: 15;
+            background: rgba(255,255,255,.96);
+            box-shadow: -8px 0 14px rgba(15,23,42,.06);
+        }
+
         /* ================================================================
            PANDUAN TAKE VIDEO — EMBEDDED CONTENT + MAX WIDTH
            Konten Panduan tetap berada di area dashboard.
@@ -1915,30 +1941,15 @@
             </div>
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto max-h-[560px] overflow-y-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead class="sticky top-0 bg-white z-10">
-                            <tr
-                                class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-                                <th class="py-3 px-4">Bulan</th>
-                                <th class="py-3 px-4">Tahun</th>
-                                <th class="py-3 px-4">Judul Video</th>
-                                <th class="py-3 px-4">Produk</th>
-                                <th class="py-3 px-4">Tema</th>
-                                <th class="py-3 px-4">Selling Points</th>
-                                <th class="py-3 px-4">Editor</th>
-                                <th class="py-3 px-4">Status Edit</th>
-                                <th class="py-3 px-4">Due Date</th>
-                                <th class="py-3 px-4">Target Upload</th>
-                                <th class="py-3 px-4">Status Upload</th>
-                                <th class="py-3 px-4">Musim</th>
-                                <th class="py-3 px-4">Transkrip</th>
-                                <th class="py-3 px-4">Skenario</th>
-                                <th class="py-3 px-4 text-right">Aksi</th>
+                    <table class="min-w-max w-full text-left border-collapse text-sm" id="ed-crud-table">
+                        <thead class="sticky top-0 bg-white z-10" id="ed-crud-head">
+                            <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                                <th class="py-3 px-4">Memuat kolom...</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50 text-gray-700" id="ed-crud-body">
                             <tr>
-                                <td class="text-center py-8 text-gray-400" colspan="15">Memuat data...</td>
+                                <td class="text-center py-8 text-gray-400">Memuat data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2629,6 +2640,58 @@
                         <option value="Skenario Siap">Skenario Siap</option>
                         <option value="WIP">WIP</option>
                         <option value="Done">Done</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Surat Persetujuan</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-suratPersetujuan" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status Skenario</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-statusSkenario" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Video</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-video">
+                        <option value="">- Pilih -</option>
+                        <option value="true">Ya</option>
+                        <option value="false">Tidak</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Thumbnail</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-thumbnail">
+                        <option value="">- Pilih -</option>
+                        <option value="true">Ya</option>
+                        <option value="false">Tidak</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Approve Dirut</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-approveDirut">
+                        <option value="">Belum</option>
+                        <option value="Belum">Belum</option>
+                        <option value="Sudah">Sudah</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Approve Narasumber</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
+                        id="ed-crud-field-approveNarasumber">
+                        <option value="">Belum</option>
+                        <option value="Belum">Belum</option>
+                        <option value="Sudah">Sudah</option>
                     </select>
                 </div>
                 <div>
@@ -4187,7 +4250,15 @@
         let edPlanningRawGlobal = [];
         let edChartEditor = null;
         let edChartStatus = null;
-        let edCOLUMN_MAP = { id: null, bulan: null, tahun: null, statusEdit: null, editor: null, judul: null, produk: null, tema: null, sellingPoints: null, dueDate: null, targetUpload: null, statusUpload: null, musim: null, transkrip: null, skenario: null };
+        let edCOLUMN_MAP = {
+            id: null, bulan: null, tahun: null, statusEdit: null, suratPersetujuan: null,
+            musim: null, transkrip: null, skenario: null, statusSkenario: null,
+            judul: null, editor: null, dueDate: null, video: null, thumbnail: null,
+            targetUpload: null, approveDirut: null, approveNarasumber: null,
+            statusUpload: null, produk: null, tema: null, sellingPoints: null
+        };
+        // Urutan kolom mengikuti urutan kolom yang dikembalikan Supabase.
+        let edALL_COLUMNS = [];
         let edDataLoaded = false;
 
         function edDetectColumns(sampleRow) {
@@ -4196,21 +4267,28 @@
                 for (const c of kandidat) { const found = keys.find(k => k.toLowerCase() === c.toLowerCase()); if (found) return found; }
                 return null;
             }
+            edALL_COLUMNS = [...keys];
             edCOLUMN_MAP.id = cariKolom('id', 'Id', 'ID', 'uuid');
             edCOLUMN_MAP.bulan = cariKolom('Bulan', 'bulan');
             edCOLUMN_MAP.tahun = cariKolom('Tahun', 'tahun');
             edCOLUMN_MAP.statusEdit = cariKolom('Status Edit', 'Status_Edit', 'status_edit');
-            edCOLUMN_MAP.editor = cariKolom('Editor', 'editor');
-            edCOLUMN_MAP.judul = cariKolom('Judul Video', 'Judul_Video', 'judul_video', 'judul');
-            edCOLUMN_MAP.produk = cariKolom('Produk', 'produk');
-            edCOLUMN_MAP.tema = cariKolom('Tema', 'tema');
-            edCOLUMN_MAP.sellingPoints = cariKolom('Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints');
-            edCOLUMN_MAP.dueDate = cariKolom('Due Date', 'Due_Date', 'due_date');
-            edCOLUMN_MAP.targetUpload = cariKolom('Target Upload', 'Target_Upload', 'target_upload');
-            edCOLUMN_MAP.statusUpload = cariKolom('Status Upload', 'Status_Upload', 'status_upload');
+            edCOLUMN_MAP.suratPersetujuan = cariKolom('Surat Persetujuan', 'Surat_Persetujuan', 'surat_persetujuan');
             edCOLUMN_MAP.musim = cariKolom('Musim', 'musim');
             edCOLUMN_MAP.transkrip = cariKolom('Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip');
             edCOLUMN_MAP.skenario = cariKolom('Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario');
+            edCOLUMN_MAP.statusSkenario = cariKolom('Status Skenario', 'Status_Skenario', 'status_skenario');
+            edCOLUMN_MAP.judul = cariKolom('Judul Video', 'Judul_Video', 'judul_video', 'judul');
+            edCOLUMN_MAP.editor = cariKolom('Editor', 'editor');
+            edCOLUMN_MAP.dueDate = cariKolom('Due Date', 'Due_Date', 'due_date');
+            edCOLUMN_MAP.video = cariKolom('Video', 'video');
+            edCOLUMN_MAP.thumbnail = cariKolom('Thumbnail', 'thumbnail');
+            edCOLUMN_MAP.targetUpload = cariKolom('Target Upload', 'Target_Upload', 'target_upload');
+            edCOLUMN_MAP.approveDirut = cariKolom('Approve Dirut', 'Approve_Dirut', 'approve_dirut');
+            edCOLUMN_MAP.approveNarasumber = cariKolom('Approve Narasumber', 'Approve_Narasumber', 'approve_narasumber', 'Approve Narasumber ');
+            edCOLUMN_MAP.statusUpload = cariKolom('Status Upload', 'Status_Upload', 'status_upload');
+            edCOLUMN_MAP.produk = cariKolom('Produk', 'produk');
+            edCOLUMN_MAP.tema = cariKolom('Tema', 'tema');
+            edCOLUMN_MAP.sellingPoints = cariKolom('Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints');
         }
 
         function edTampilkanDiagnostik(pesan) {
@@ -4245,16 +4323,22 @@
                 return {
                     bulan, tahun: getField(item, 'Tahun', 'tahun'),
                     statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
-                    editor: getField(item, 'Editor', 'editor'), judul,
-                    produk: getField(item, 'Produk', 'produk'),
-                    tema: getField(item, 'Tema', 'tema'),
-                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints'),
-                    dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
-                    targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
-                    statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
+                    suratPersetujuan: getField(item, 'Surat Persetujuan', 'Surat_Persetujuan', 'surat_persetujuan'),
                     musim: getField(item, 'Musim', 'musim'),
                     transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip'),
                     skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario'),
+                    statusSkenario: getField(item, 'Status Skenario', 'Status_Skenario', 'status_skenario'),
+                    editor: getField(item, 'Editor', 'editor'), judul,
+                    dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
+                    video: item[edCOLUMN_MAP.video],
+                    thumbnail: item[edCOLUMN_MAP.thumbnail],
+                    targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
+                    approveDirut: getField(item, 'Approve Dirut', 'Approve_Dirut', 'approve_dirut'),
+                    approveNarasumber: getField(item, 'Approve Narasumber', 'Approve_Narasumber', 'approve_narasumber'),
+                    statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
+                    produk: getField(item, 'Produk', 'produk'),
+                    tema: getField(item, 'Tema', 'tema'),
+                    sellingPoints: getField(item, 'Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints'),
                 };
             }).filter(Boolean);
 
@@ -5208,65 +5292,181 @@
     }
 }
 
-function edGambarBarisCrud() {
+function edNormalisasiNamaKolom(k) {
+            return String(k || '').toLowerCase().replace(/[\s_-]+/g, '');
+        }
+
+        function edIsApprovalColumn(columnName) {
+            const n = edNormalisasiNamaKolom(columnName);
+            return n === 'approvedirut' || n === 'approvenarasumber';
+        }
+
+        function edIsLinkColumn(columnName) {
+            const n = edNormalisasiNamaKolom(columnName);
+            return n === 'transkrip' || n === 'skenario' || n.includes('suratpersetujuan');
+        }
+
+        function edIsBooleanColumn(columnName, value) {
+            const n = edNormalisasiNamaKolom(columnName);
+            return n === 'video' || n === 'thumbnail' || typeof value === 'boolean';
+        }
+
+        function edBadgeBoolean(value) {
+            if (value === true || String(value).toLowerCase() === 'true') {
+                return '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">Ya</span>';
+            }
+            if (value === false || String(value).toLowerCase() === 'false') {
+                return '<span class="badge-pill bg-slate-100 text-slate-500 border border-slate-200">Tidak</span>';
+            }
+            return '<span class="text-gray-300">-</span>';
+        }
+
+        function edBadgeApproval(columnName, raw, rid) {
+            const sudah = String(raw ?? '').trim().toLowerCase() === 'sudah';
+            const label = sudah ? 'Sudah' : 'Belum';
+            const cls = sudah
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100';
+
+            return `<button type="button"
+                class="ed-btn-approval inline-flex items-center justify-center gap-1.5 min-w-[78px] px-3 py-1.5 rounded-lg border text-xs font-extrabold transition-all ${cls}"
+                data-rid="${rid}" data-column="${edEscapeHtml(columnName)}"
+                title="${sudah ? 'Sudah disetujui. Jika ingin mengubah kembali, gunakan tombol Edit.' : 'Klik untuk mengubah menjadi Sudah'}">
+                <i class="fas ${sudah ? 'fa-check' : 'fa-clock'} text-[10px]"></i>${label}
+            </button>`;
+        }
+
+        function edTampilanNilaiKolom(item, columnName, rid) {
+            const raw = item[columnName];
+
+            if (edIsApprovalColumn(columnName)) {
+                return edBadgeApproval(columnName, raw, rid);
+            }
+
+            if (edIsBooleanColumn(columnName, raw)) {
+                return edBadgeBoolean(raw);
+            }
+
+            if (edIsLinkColumn(columnName)) {
+                const url = raw === null || raw === undefined ? '' : String(raw).trim();
+                if (!url) return '<span class="text-gray-300">-</span>';
+                if (/^https?:\/\//i.test(url)) {
+                    return `<a href="${edEscapeHtml(url)}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs font-bold transition-all whitespace-nowrap">
+                        <i class="fas fa-arrow-up-right-from-square text-[10px]"></i>Buka
+                    </a>`;
+                }
+            }
+
+            if (raw === null || raw === undefined || String(raw).trim() === '') {
+                return '<span class="text-gray-300">-</span>';
+            }
+
+            const safe = edEscapeHtml(raw);
+            return `<div class="max-w-[300px] min-w-[90px] whitespace-normal break-words leading-relaxed" title="${safe}">${safe}</div>`;
+        }
+
+        function edBuatHeaderCrud() {
+            const head = document.getElementById('ed-crud-head');
+            if (!head) return;
+
+            const columns = edALL_COLUMNS.length ? edALL_COLUMNS : Object.keys(edPlanningRawGlobal[0] || {});
+            head.innerHTML = `<tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                ${columns.map(c => `<th class="py-3 px-4 whitespace-nowrap bg-white">${edEscapeHtml(c)}</th>`).join('')}
+                <th class="py-3 px-4 text-right whitespace-nowrap bg-white">Aksi</th>
+            </tr>`;
+        }
+
+        function edGambarBarisCrud() {
             const tbody = document.getElementById('ed-crud-body');
             const countLabel = document.getElementById('ed-crud-filter-count');
+            if (!tbody) return;
+
+            edBuatHeaderCrud();
+
             if (!edPlanningRawGlobal || edPlanningRawGlobal.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="15" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>';
-                countLabel.innerText = ''; return;
+                const colspan = (edALL_COLUMNS.length || 1) + 1;
+                tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-8 text-gray-400">Belum ada data. Klik "+ Tambah Data" untuk menambahkan.</td></tr>`;
+                if (countLabel) countLabel.innerText = '';
+                return;
             }
 
             const barisTerfilter = edGetBarisTerfilterUrut();
+            if (countLabel) {
+                countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${edPlanningRawGlobal.length} baris (semua kolom ditampilkan)`;
+            }
 
-            countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${edPlanningRawGlobal.length} baris (diurutkan per Bulan)`;
-            if (barisTerfilter.length === 0) { tbody.innerHTML = '<tr><td colspan="15" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>'; return; }
+            const columns = edALL_COLUMNS.length ? edALL_COLUMNS : Object.keys(edPlanningRawGlobal[0] || {});
+            if (barisTerfilter.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${columns.length + 1}" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>`;
+                return;
+            }
 
-            const val = (item, key) => edCOLUMN_MAP[key] ? edEscapeHtml(item[edCOLUMN_MAP[key]]) : '-';
             tbody.innerHTML = barisTerfilter.map(({ item, idx }) => {
                 const rid = idx;
-                return `
-          <tr class="hover:bg-gray-50">
-            <td class="py-3 px-4">${val(item, 'bulan')}</td>
-            <td class="py-3 px-4">${val(item, 'tahun')}</td>
-            <td class="py-3 px-4 min-w-[520px] align-top">
-    <div class="flex items-start gap-2.5">
-        <div class="flex-1 min-w-0 text-sm font-semibold text-gray-700 leading-relaxed whitespace-normal break-words" title="${val(item, 'judul')}">
-            ${val(item, 'judul')}
-        </div>
-        <button
-            type="button"
-            class="ed-btn-copy-title shrink-0 w-8 h-8 rounded-lg bg-gray-50 hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 flex items-center justify-center transition-all duration-200"
-            data-rid="${rid}"
-            title="Copy judul video"
-            aria-label="Copy judul video">
-            <i class="fas fa-copy text-xs"></i>
-        </button>
-    </div>
-</td>
-            <td class="py-3 px-4 max-w-[180px] truncate" title="${val(item, 'produk')}">${val(item, 'produk')}</td>
-            <td class="py-3 px-4 max-w-[180px] truncate" title="${val(item, 'tema')}">${val(item, 'tema')}</td>
-            <td class="py-3 px-4 max-w-[240px] truncate" title="${val(item, 'sellingPoints')}">${val(item, 'sellingPoints')}</td>
-            <td class="py-3 px-4">${val(item, 'editor')}</td>
-            <td class="py-3 px-4">${edBadgeStatusEdit(edCOLUMN_MAP.statusEdit ? item[edCOLUMN_MAP.statusEdit] : null)}</td>
-            <td class="py-3 px-4 text-xs">${val(item, 'dueDate')}</td>
-            <td class="py-3 px-4 text-xs">${val(item, 'targetUpload')}</td>
-            <td class="py-3 px-4">${edBadgeStatusUpload(edCOLUMN_MAP.statusUpload ? item[edCOLUMN_MAP.statusUpload] : null)}</td>
-            <td class="py-3 px-4">${val(item, 'musim')}</td>
-            <td class="py-3 px-4">${edBadgeLinkDoc(edCOLUMN_MAP.transkrip ? item[edCOLUMN_MAP.transkrip] : null, 'fa-file-lines', 'Transkrip')}</td>
-            <td class="py-3 px-4">${edBadgeLinkDoc(edCOLUMN_MAP.skenario ? item[edCOLUMN_MAP.skenario] : null, 'fa-file-pen', 'Skenario')}</td>
-            <td class="py-3 px-4 text-right whitespace-nowrap">
-              <button class="ed-btn-crud-edit text-blue-600 hover:underline text-xs font-bold mr-3" data-rid="${rid}">Edit</button>
-              <button class="ed-btn-crud-hapus text-rose-600 hover:underline text-xs font-bold" data-rid="${rid}">Hapus</button>
-            </td>
-          </tr>`;
+                return `<tr class="hover:bg-gray-50 align-top">
+                    ${columns.map(column => `<td class="py-3 px-4 align-top min-w-[110px]">${edTampilanNilaiKolom(item, column, rid)}</td>`).join('')}
+                    <td class="py-3 px-4 text-right whitespace-nowrap align-top sticky right-0 bg-white/95 backdrop-blur-sm border-l border-gray-100">
+                        <button class="ed-btn-crud-edit text-blue-600 hover:underline text-xs font-bold mr-3" data-rid="${rid}">Edit</button>
+                        <button class="ed-btn-crud-hapus text-rose-600 hover:underline text-xs font-bold" data-rid="${rid}">Hapus</button>
+                    </td>
+                </tr>`;
             }).join('');
 
-            tbody.querySelectorAll('.ed-btn-crud-edit').forEach(btn => btn.addEventListener('click', () => edBukaModalEdit(btn.dataset.rid)));
-            tbody.querySelectorAll('.ed-btn-crud-hapus').forEach(btn => btn.addEventListener('click', () => edHapusDataCrud(btn.dataset.rid)));
-    tbody.querySelectorAll('.ed-btn-copy-title').forEach(btn => btn.addEventListener('click', () => edCopyJudulVideo(btn)));
+            tbody.querySelectorAll('.ed-btn-crud-edit').forEach(btn =>
+                btn.addEventListener('click', () => edBukaModalEdit(btn.dataset.rid))
+            );
+            tbody.querySelectorAll('.ed-btn-crud-hapus').forEach(btn =>
+                btn.addEventListener('click', () => edHapusDataCrud(btn.dataset.rid))
+            );
+            tbody.querySelectorAll('.ed-btn-approval').forEach(btn =>
+                btn.addEventListener('click', () => edKlikApproval(btn.dataset.rid, btn.dataset.column))
+            );
         }
 
-        let edKriteriaEditAktif = null;
+        async function edKlikApproval(rid, columnName) {
+            const item = edCariRawItem(rid);
+            if (!item || !columnName || !edCOLUMN_MAP.id) {
+                alert('Approval tidak dapat diubah karena kolom ID unik belum terdeteksi.');
+                return;
+            }
+
+            const current = item[columnName];
+            const sudah = String(current ?? '').trim().toLowerCase() === 'sudah';
+
+            // Tombol hanya mengubah Belum/kosong -> Sudah.
+            // Untuk membatalkan salah klik, gunakan tombol Edit.
+            if (sudah) {
+                alert('Status sudah "Sudah". Jika ingin mengubah kembali karena salah klik, gunakan tombol Edit pada baris tersebut.');
+                return;
+            }
+
+            const idValue = item[edCOLUMN_MAP.id];
+            const { data, error } = await db
+                .from(NAMA_TABEL_PLANNING)
+                .update({ [columnName]: 'Sudah' })
+                .eq(edCOLUMN_MAP.id, idValue)
+                .select();
+
+            if (error) {
+                alert(`Gagal memperbarui ${columnName}: ${error.message}`);
+                console.error('SUPABASE APPROVAL UPDATE ERROR:', error);
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                alert(`Status ${columnName} tidak berubah. Pastikan RLS UPDATE pada tabel "${NAMA_TABEL_PLANNING}" mengizinkan role yang sedang digunakan.`);
+                return;
+            }
+
+            item[columnName] = 'Sudah';
+            edGambarBarisCrud();
+
+            await edMuatDashboard();
+            if (currentActiveTab === 'overview') renderOverview();
+        }
+
+                let edKriteriaEditAktif = null;
         function edResetFormCrud() {
             document.getElementById('ed-crud-form').reset();
             document.getElementById('ed-crud-field-id').value = '';
