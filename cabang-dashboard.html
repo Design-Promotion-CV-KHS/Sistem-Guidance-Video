@@ -1064,6 +1064,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const NAMA_TABEL = 'Kiriman_Cabang';
+    // Tabel Customer Profile di Supabase — sumber data utama halaman ini.
     const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
     let currentBranchUser = {};
     let currentBranchName = '';
@@ -1659,54 +1660,117 @@
 
     async function muatCustomerProfileCabang() {
       const list = document.getElementById('cp-branch-list');
-      if (!list || !currentBranchName) return;
+      if (!list) return;
 
+      const colspan = 5;
       list.innerHTML = `
-        <tr><td colspan="5" class="text-center py-10 text-slate-400">
-          <i class="fas fa-spinner fa-spin mr-2"></i> Memuat data Customer Profile...
-        </td></tr>`;
+        <tr>
+          <td colspan="${colspan}" class="text-center py-10 text-slate-400">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Mengambil data Customer Profile dari database...
+          </td>
+        </tr>`;
 
-      let { data, error } = await db
-        .from(NAMA_TABEL_CUSTOMER_PROFILE)
-        .select('*')
-        .eq('Cabang', currentBranchName)
-        .order('created_at', { ascending: false });
+      // Pastikan nama cabang berasal dari akun yang sedang login.
+      const branchFromUser = String(
+        currentBranchUser.cabang ||
+        currentBranchUser.nama_cabang ||
+        currentBranchUser.branch ||
+        ''
+      ).trim();
 
-      // Jika created_at belum tersedia, ambil data tanpa pengurutan.
-      if (error) {
-        const fallback = await db
-          .from(NAMA_TABEL_CUSTOMER_PROFILE)
-          .select('*')
-          .eq('Cabang', currentBranchName);
-        data = fallback.data || [];
-        error = fallback.error || null;
-      }
+      currentBranchName = branchFromUser || currentBranchName;
 
-      if (error) {
+      if (!currentBranchName) {
         list.innerHTML = `
-          <tr><td colspan="5" class="text-center py-10">
-            <div class="inline-flex flex-col items-center gap-2 text-rose-500">
-              <i class="fas fa-circle-exclamation text-2xl"></i>
-              <span class="text-xs font-bold">Gagal memuat Customer Profile.</span>
-              <span class="text-[11px] text-slate-400">${cpBranchEscape(error.message)}</span>
-            </div>
-          </td></tr>`;
+          <tr>
+            <td colspan="${colspan}" class="text-center py-10">
+              <div class="text-rose-500">
+                <i class="fas fa-triangle-exclamation text-2xl"></i>
+                <p class="font-bold mt-2">Cabang akun tidak ditemukan.</p>
+                <p class="text-xs text-slate-400 mt-1">Pastikan data_user memiliki field cabang.</p>
+              </div>
+            </td>
+          </tr>`;
         return;
       }
 
-      branchCpData = data || [];
+      console.log('[Customer Profile] Mengambil tabel:', NAMA_TABEL_CUSTOMER_PROFILE);
+      console.log('[Customer Profile] Cabang login:', currentBranchName);
+
+      // Jangan langsung memakai .eq('Cabang', ...) karena perbedaan huruf besar/kecil
+      // atau spasi pada data dapat membuat data terlihat kosong.
+      const { data, error } = await db
+        .from(NAMA_TABEL_CUSTOMER_PROFILE)
+        .select('*');
+
+      if (error) {
+        console.error('[Customer Profile] Supabase error:', error);
+
+        list.innerHTML = `
+          <tr>
+            <td colspan="${colspan}" class="text-center py-10">
+              <div class="inline-flex flex-col items-center gap-2 text-rose-500">
+                <i class="fas fa-circle-exclamation text-2xl"></i>
+                <span class="text-xs font-bold">Gagal mengambil data Customer Profile dari database.</span>
+                <span class="text-[11px] text-slate-400 max-w-xl">${cpBranchEscape(error.message || 'Unknown error')}</span>
+              </div>
+            </td>
+          </tr>`;
+        return;
+      }
+
+      const semuaData = Array.isArray(data) ? data : [];
+
+      // Filter cabang secara aman: trim + lowercase.
+      const targetCabang = currentBranchName.trim().toLowerCase();
+
+      branchCpData = semuaData.filter(item => {
+        const namaCabang = String(
+          item.Cabang ??
+          item.cabang ??
+          item['Nama Cabang'] ??
+          item.nama_cabang ??
+          ''
+        ).trim().toLowerCase();
+
+        return namaCabang === targetCabang;
+      });
+
+      // Urutkan terbaru jika ada tanggal/created_at.
+      branchCpData.sort((a, b) => {
+        const dateA = new Date(
+          a.created_at || a.Created_at || a.Tanggal || a.tanggal || 0
+        ).getTime() || 0;
+        const dateB = new Date(
+          b.created_at || b.Created_at || b.Tanggal || b.tanggal || 0
+        ).getTime() || 0;
+        return dateB - dateA;
+      });
+
+      console.log(
+        `[Customer Profile] ${semuaData.length} data dari database, ` +
+        `${branchCpData.length} data untuk cabang "${currentBranchName}".`
+      );
 
       if (!branchCpData.length) {
         list.innerHTML = `
-          <tr><td colspan="5" class="text-center py-12">
-            <div class="flex flex-col items-center">
-              <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
-                <i class="fas fa-id-card text-xl"></i>
+          <tr>
+            <td colspan="${colspan}" class="text-center py-12">
+              <div class="flex flex-col items-center">
+                <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                  <i class="fas fa-id-card text-xl"></i>
+                </div>
+                <p class="text-sm font-black text-slate-600">Belum ada Customer Profile</p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Belum ada data Customer Profile untuk cabang
+                  <b>${cpBranchEscape(currentBranchName)}</b>.
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2">
+                  Data diambil langsung dari tabel <b>${cpBranchEscape(NAMA_TABEL_CUSTOMER_PROFILE)}</b>.
+                </p>
               </div>
-              <p class="text-sm font-black text-slate-600">Belum ada Customer Profile</p>
-              <p class="text-xs text-slate-400 mt-1">Data Customer Profile dari Admin akan tampil di sini.</p>
-            </div>
-          </td></tr>`;
+            </td>
+          </tr>`;
         return;
       }
 
@@ -1714,12 +1778,19 @@
         const nama = item.Nama || item.nama || '-';
         const produk = item.Produk || item.produk || '-';
         const tanggal = item.Tanggal || item.tanggal || '-';
-        const profil = item['Customer Profile'] || item.Customer_Profile || item.customer_profile || '';
+
+        const profil =
+          item['Customer Profile'] ??
+          item.Customer_Profile ??
+          item.customer_profile ??
+          '';
 
         return `
           <tr class="hover:bg-slate-50/80 transition">
             <td class="py-4 px-5 text-xs font-mono text-slate-400">${index + 1}</td>
-            <td class="py-4 px-5"><span class="font-black text-slate-800">${cpBranchEscape(nama)}</span></td>
+            <td class="py-4 px-5">
+              <span class="font-black text-slate-800">${cpBranchEscape(nama)}</span>
+            </td>
             <td class="py-4 px-5 text-slate-600">${cpBranchEscape(produk)}</td>
             <td class="py-4 px-5 whitespace-nowrap text-slate-600">${cpBranchEscape(tanggal)}</td>
             <td class="py-4 px-5">${cpBranchFileButton(profil, 'Lihat Customer Profile')}</td>
@@ -1727,20 +1798,22 @@
       }).join('');
     }
 
-    // ===================== REALTIME: auto-update saat data berubah dari mana saja =====================
+    // ===================== REALTIME CUSTOMER PROFILE =====================
+    // Jika tabel Customer_Profile diaktifkan pada Supabase Realtime,
+    // perubahan dari Admin akan otomatis dimuat ulang di sisi Cabang.
     db.channel('realtime-cabang-customer-profile')
-      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CUSTOMER_PROFILE }, async () => {
-        await muatCustomerProfileCabang();
-        await cpBranchLoadNotifications();
-      })
-      .subscribe((status) => console.log('[Realtime] Status Customer Profile cabang:', status));
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: NAMA_TABEL_CUSTOMER_PROFILE },
+        async (payload) => {
+          console.log('[Realtime] Customer Profile berubah:', payload);
+          await muatCustomerProfileCabang();
+        }
+      )
+      .subscribe((status) => {
+        console.log('[Realtime] Status Customer Profile cabang:', status);
+      });
 
-    db.channel('realtime-cabang-notifikasi')
-      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_NOTIFIKASI }, async () => {
-        await muatCustomerProfileCabang();
-        await cpBranchLoadNotifications();
-      })
-      .subscribe((status) => console.log('[Realtime] Status Notifikasi cabang:', status));
 
     db.channel('realtime-cabang-dashboard')
       .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL }, (payload) => {
@@ -1758,7 +1831,6 @@
       if (dateEl) dateEl.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       await renderDashboardAndChart();
       await muatCustomerProfileCabang();
-      await cpBranchLoadNotifications();
     });
   </script>
 </body>
