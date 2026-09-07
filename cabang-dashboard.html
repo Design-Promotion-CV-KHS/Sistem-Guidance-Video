@@ -1807,7 +1807,7 @@
     }
 
     async function muatCustomerProfileCabang() {
-      const list = document.getElementById('cp-branch-list');
+      const list = document.getElementById('cp-tabel-body');
       if (!list) return;
 
       const colspan = 7;
@@ -1913,6 +1913,7 @@
       }
 
       list.innerHTML = branchCpData.map((item, index) => {
+        const cabang = cpBranchGetCabang(item) || '-';
         const nama = cpBranchGetNama(item) || '-';
         const produk = cpBranchGetProduk(item) || '-';
         const tanggal = cpBranchGetTanggal(item) || '-';
@@ -1923,11 +1924,11 @@
         return `
           <tr class="hover:bg-slate-50/80 transition">
             <td class="py-4 px-5 text-xs font-mono text-slate-400">${index + 1}</td>
+            <td class="py-4 px-5 font-bold text-slate-800">${cpBranchEscape(cabang || '-')}</td>
             <td class="py-4 px-5">
               <span class="font-black text-slate-800">${cpBranchEscape(nama)}</span>
             </td>
             <td class="py-4 px-5 text-slate-600">${cpBranchEscape(produk)}</td>
-            <td class="py-4 px-5 whitespace-nowrap text-slate-600">${cpBranchEscape(tanggal)}</td>
             <td class="py-4 px-5">${cpBranchFileButton(profil, 'Lihat Customer Profile')}</td>
             <td class="py-4 px-5">${cpBranchFileButton(script, 'Lihat Script')}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs" title="${cpBranchEscape(evaluasi)}">${cpBranchEscape(evaluasi)}</td>
