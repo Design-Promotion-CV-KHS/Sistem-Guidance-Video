@@ -1655,18 +1655,62 @@
     });
 
     // ===================== AMBIL DATA SUPABASE =====================
+    // Supabase/PostgREST dapat membatasi jumlah baris dalam satu request.
+    // Karena itu data diambil bertahap menggunakan range() sampai semua halaman selesai.
+    async function ambilSemuaBarisSupabase(namaTabel, opsi = {}) {
+      const PAGE_SIZE = 1000;
+      const semuaData = [];
+      let offset = 0;
+      let nomorHalaman = 1;
+
+      while (true) {
+        let query = db.from(namaTabel).select('*');
+
+        if (opsi.orderColumn) {
+          query = query.order(opsi.orderColumn, { ascending: opsi.ascending !== false });
+        }
+
+        const { data, error } = await query.range(offset, offset + PAGE_SIZE - 1);
+
+        if (error) {
+          console.error(`SUPABASE ERROR (${namaTabel}) halaman ${nomorHalaman}:`, error);
+          return { data: semuaData, error };
+        }
+
+        const halaman = data || [];
+        semuaData.push(...halaman);
+
+        console.log(`[${namaTabel}] halaman ${nomorHalaman}: ${halaman.length} baris, total sementara ${semuaData.length}.`);
+
+        // Jika kurang dari PAGE_SIZE, berarti sudah mencapai halaman terakhir.
+        if (halaman.length < PAGE_SIZE) break;
+
+        offset += PAGE_SIZE;
+        nomorHalaman++;
+      }
+
+      return { data: semuaData, error: null };
+    }
+
     async function ambilDataPlanning() {
-      const { data, error } = await db.from(NAMA_TABEL_PLANNING).select('*');
-      if (error) {
+      const result = await ambilSemuaBarisSupabase(NAMA_TABEL_PLANNING, {
+        orderColumn: 'id',
+        ascending: true
+      });
+
+      if (result.error) {
+        const error = result.error;
         console.error('SUPABASE ERROR (Planning_Editor):', error);
-        tampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_PLANNING}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat, nama tabel salah, atau RLS (Row Level Security) belum mengizinkan akses baca untuk anon key.`);
+        tampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_PLANNING}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat, nama tabel salah, kolom id tidak tersedia, atau RLS (Row Level Security) belum mengizinkan akses baca untuk anon key.`);
         return [];
       }
-      console.log(`[Planning_Editor] ${data ? data.length : 0} baris diterima dari Supabase.`);
-      if (data && data.length > 0) {
+
+      const data = result.data || [];
+      console.log(`[Planning_Editor] SEMUA data diterima dari Supabase: ${data.length} baris.`);
+      if (data.length > 0) {
         console.log('[Planning_Editor] Contoh nama kolom baris pertama:', Object.keys(data[0]));
       }
-      return data || [];
+      return data;
     }
 
     function tampilkanDiagnostik(pesan) {
@@ -2536,8 +2580,18 @@
       portraitColumnMap.status = find('status', 'Status', 'status_edit', 'Status Edit', 'Status_Edit');
     }
     async function ambilDataPortrait() {
-      const { data, error } = await db.from(NAMA_TABEL_POTRAIT).select('*').order('id', { ascending: true });
-      return { data: data || [], error };
+      const result = await ambilSemuaBarisSupabase(NAMA_TABEL_POTRAIT, {
+        orderColumn: 'id',
+        ascending: true
+      });
+
+      if (result.error) {
+        console.error('SUPABASE ERROR (Planning_Potrait):', result.error);
+        return { data: result.data || [], error: result.error };
+      }
+
+      console.log(`[Planning_Potrait] SEMUA data diterima dari Supabase: ${result.data.length} baris.`);
+      return { data: result.data || [], error: null };
     }
     function portraitDataSaya() {
       return portraitRawGlobal.filter(item => {
