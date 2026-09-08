@@ -5882,9 +5882,9 @@ function edNormalisasiNamaKolom(k) {
             if (error) {
                 if (message) message.innerText = `Gagal membaca tabel "${NAMA_TABEL_POTRAIT}": ${error.message} (code: ${error.code || '-'})`;
                 if (banner) banner.classList.remove('hidden');
-                ptRenderStats([]); ptRenderCrudTable(); await ptMuatOverview(); return;
+                ptRenderStats([]); ptRenderCrudTable(); if (currentActiveTab === 'overview') await ptMuatOverview(); return;
             }
-            ptPopulateFilterEditor(); ptRenderStats(data); ptRenderCrudTable(); await ptMuatOverview();
+            ptPopulateFilterEditor(); ptRenderStats(data); ptRenderCrudTable(); if (currentActiveTab === 'overview') await ptMuatOverview();
         }
         function ptResetForm() {
             document.getElementById('pt-crud-form').reset();
@@ -6334,7 +6334,7 @@ function edNormalisasiNamaKolom(k) {
         db.channel('realtime-admin-planning-potrait')
             .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_POTRAIT }, (payload) => {
                 console.log('[Realtime] Perubahan pada tabel Planning_Potrait:', payload);
-                ptMuatData();
+                if (currentActiveTab === 'overview' || currentActiveTab === 'portrait-crud') ptMuatData();
             })
             .subscribe((status) => console.log('[Realtime] Status channel Planning_Potrait:', status));
 
