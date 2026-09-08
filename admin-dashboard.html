@@ -5887,8 +5887,6 @@ function edNormalisasiNamaKolom(k) {
                         ${items.map(item => `<div class="border-b border-slate-100 last:border-0 pb-3 last:pb-0"><p class="text-sm font-bold text-slate-800 leading-snug">${ptEscapeHtml(item.judul_video) || '-'}</p><p class="text-[11px] text-slate-400 mt-1">${ptEscapeHtml(item.tema) || 'Tanpa tema'}</p></div>`).join('')}
                     </div>
                 </div>`).join('');
-
-}            
         }
         async function ptMuatData() {
             const banner = document.getElementById('pt-diagnostic-banner'), message = document.getElementById('pt-diagnostic-message');
