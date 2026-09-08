@@ -924,7 +924,12 @@
                 <button
                     class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
                     id="nav-editor-crud" onclick="switchTab('editor-crud')">
-                    <i class="fas fa-list-check w-5 text-center"></i> Kelola Planning Editor
+                    <i class="fas fa-list-check w-5 text-center"></i> Planning Landscape
+                </button>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-portrait-crud" onclick="switchTab('portrait-crud')">
+                    <i class="fas fa-mobile-screen-button w-5 text-center"></i> Planning Potrait
                 </button>
                 <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance
                 </p>
@@ -1468,6 +1473,57 @@
                 </div>
             </div>
         </div>
+        <!-- ===== SECTION: MONITORING VIDEO POTRAIT ===== -->
+        <div class="border-t border-slate-200/70 pt-7"></div>
+        <div class="flex items-center gap-3 px-1">
+            <div class="w-9 h-9 rounded-xl bg-fuchsia-600 text-white flex items-center justify-center text-sm shadow-md shadow-fuchsia-600/30">📱</div>
+            <div>
+                <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Monitoring Video Potrait</h4>
+                <p class="text-[11px] text-slate-400">Pantau progres video potrait dan pembagian pekerjaan editor secara realtime.</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="stat-card bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl mb-2">🎬</div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Potrait</p>
+                <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-ov-total">0</h4>
+            </div>
+            <div class="stat-card bg-white p-5 rounded-3xl shadow-sm border border-amber-100">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-2">✂️</div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sedang WIP</p>
+                <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-ov-wip">0</h4>
+            </div>
+            <div class="stat-card bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <div class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center text-xl mb-2">⏳</div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Belum Dikerjakan</p>
+                <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-ov-belum">0</h4>
+            </div>
+            <div class="stat-card bg-white p-5 rounded-3xl shadow-sm border border-emerald-100">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-2">✅</div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sudah Done</p>
+                <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-ov-done">0</h4>
+            </div>
+        </div>
+        <div class="bg-white p-6 md:p-7 rounded-3xl shadow-sm border border-slate-100">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        Video Potrait yang Sedang Dikerjakan
+                        <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
+                        </span>
+                    </h4>
+                    <p class="text-xs text-slate-400 mt-1">Menampilkan semua video berstatus WIP, dikelompokkan berdasarkan editor.</p>
+                </div>
+                <button type="button" onclick="switchTab('portrait-crud')" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 text-white text-[11px] font-bold hover:bg-slate-700 transition">
+                    <i class="fas fa-list-check"></i> Kelola Planning Potrait
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="pt-ov-wip-grid">
+                <p class="text-sm text-slate-400 text-center py-6 col-span-full">Memuat data...</p>
+            </div>
+        </div>
+
         <!-- ============ TAB: CABANG - CRUD ============ -->
         <div class="p-8 space-y-6 w-full hidden" id="tab-cabang-crud">
             <div
@@ -1833,9 +1889,9 @@
         <div class="p-8 space-y-6 w-full hidden" id="tab-editor-crud">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h3 class="text-2xl font-bold text-gray-800">Kelola Data Planning Editor</h3>
+                    <h3 class="text-2xl font-bold text-gray-800">Planning Landscape</h3>
                     <p class="text-sm text-gray-500 mt-1">Tambah, ubah, dan hapus data langsung dari tabel
-                        Planning_Editor.</p>
+                        Planning_Editor. Planning ini digunakan untuk video landscape.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
                     <button
@@ -1956,6 +2012,80 @@
                 </div>
             </div>
         </div>
+        <!-- ============ TAB: PLANNING POTRAIT - CRUD ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-portrait-crud">
+            <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 shadow-sm">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200 text-[10px] font-extrabold uppercase tracking-widest mb-3">
+                        <i class="fas fa-mobile-screen-button"></i> Video Potrait
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Planning Potrait</h3>
+                    <p class="text-sm text-slate-500 mt-1">Kelola planning video potrait: judul, tema, brief, selling points, editor, dan status editing.</p>
+                </div>
+                <button id="pt-btn-tambah-data" type="button"
+                    class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-5 py-3 rounded-2xl transition-all shadow-md interactive-btn">
+                    <i class="fas fa-plus"></i> Tambah Planning
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600">WIP</p>
+                    <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-card-wip">0</h4>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Belum Edit</p>
+                    <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-card-belum">0</h4>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-600">Done</p>
+                    <h4 class="text-3xl font-black text-slate-900 mt-1" id="pt-card-done">0</h4>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center shrink-0"><i class="fas fa-user text-xs"></i></div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-fuchsia-600 uppercase tracking-widest">Editor</label>
+                        <select id="pt-filter-editor" class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"><option value="all">Semua Editor</option></select>
+                    </div>
+                </div>
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i class="fas fa-bars-progress text-xs"></i></div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-amber-600 uppercase tracking-widest">Status</label>
+                        <select id="pt-filter-status" class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                            <option value="all">Semua Status</option><option value="Belum Edit">Belum Edit</option><option value="WIP">WIP</option><option value="Done">Done</option>
+                        </select>
+                    </div>
+                </div>
+                <span id="pt-filter-count" class="text-xs font-semibold text-slate-400 ml-auto"></span>
+            </div>
+            <div id="pt-diagnostic-banner" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-sm">
+                <p class="font-bold mb-1">⚠️ Data Planning Potrait tidak tampil</p>
+                <p id="pt-diagnostic-message" class="text-rose-600"></p>
+            </div>
+            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                    <table class="min-w-[1050px] w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-slate-100">
+                            <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-5 bg-slate-100">Judul Video</th>
+                                <th class="py-4 px-5 bg-slate-100">Tema</th>
+                                <th class="py-4 px-5 bg-slate-100 min-w-[260px]">Brief</th>
+                                <th class="py-4 px-5 bg-slate-100 min-w-[240px]">Selling Points</th>
+                                <th class="py-4 px-5 bg-slate-100">Editor</th>
+                                <th class="py-4 px-5 bg-slate-100">Status</th>
+                                <th class="py-4 px-5 text-right bg-slate-100 sticky right-0">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pt-crud-body" class="divide-y divide-slate-100 text-sm text-slate-700">
+                            <tr><td colspan="7" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- ============ TAB: KELOLA USER & ROLE ============ -->
         <div class="p-8 space-y-6 w-full hidden" id="tab-user-crud">
             <div
@@ -2754,6 +2884,41 @@
             </form>
         </div>
     </div>
+    <!-- MODAL CRUD PLANNING POTRAIT -->
+    <div class="hidden fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4" id="pt-crud-modal">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
+                <div><p class="text-[10px] font-extrabold uppercase tracking-widest text-fuchsia-600">Planning Potrait</p><h4 class="text-xl font-black text-slate-900 mt-1" id="pt-crud-modal-title">Tambah Planning Potrait</h4></div>
+                <button class="text-slate-400 hover:text-slate-700 text-2xl leading-none" id="pt-crud-modal-close" type="button">×</button>
+            </div>
+            <form class="p-6 space-y-4" id="pt-crud-form">
+                <input id="pt-crud-field-id" type="hidden" />
+                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Judul Video *</label>
+                    <input id="pt-crud-field-judul" required type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" /></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema</label>
+                    <input id="pt-crud-field-tema" type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" /></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Brief</label>
+                    <textarea id="pt-crud-field-brief" rows="5" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 resize-y"></textarea></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Selling Points</label>
+                    <textarea id="pt-crud-field-selling-points" rows="4" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 resize-y"></textarea></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Editor *</label>
+                        <select id="pt-crud-field-editor" required class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none focus:border-fuchsia-400">
+                            <option value="">- Pilih Editor -</option><option value="Munir">Munir</option><option value="Bayu">Bayu</option><option value="Iis">Iis</option><option value="Rafqi">Rafqi</option>
+                        </select></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Status *</label>
+                        <select id="pt-crud-field-status" required class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:border-fuchsia-400">
+                            <option value="Belum Edit">Belum Edit</option><option value="WIP">WIP</option><option value="Done">Done</option>
+                        </select></div>
+                </div>
+                <div id="pt-crud-form-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-3 text-xs font-semibold"></div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" id="pt-crud-cancel-btn" type="button">Batal</button>
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md" id="pt-crud-save-btn" type="submit"><i class="fas fa-check mr-1"></i> Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- MODAL CRUD USER -->
     <div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="us-crud-modal">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -2814,6 +2979,9 @@
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const NAMA_TABEL_KIRIMAN = 'Kiriman_Cabang';
         const NAMA_TABEL_PLANNING = 'Planning_Editor';
+        const NAMA_TABEL_POTRAIT = 'Planning_Potrait';
+        const POTRAIT_EDITORS = ['Munir', 'Bayu', 'Iis', 'Rafqi'];
+        const POTRAIT_STATUSES = ['Belum Edit', 'WIP', 'Done'];
         const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
         const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
         const MASTER_DAFTAR_CABANG = [
@@ -2956,13 +3124,14 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'editor-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'editor-crud', 'portrait-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
             'cabang-evaluasi': '| Hasil Evaluasi Cabang',
             'customer-profile': '| Kelola Customer Profile',
-            'editor-crud': '| Kelola Planning Editor',
+            'editor-crud': '| Planning Landscape',
+            'portrait-crud': '| Planning Potrait',
             'user-crud': '| Kelola User & Role',
             'workflow-tools': '| Workflow Editing Video',
             'panduan': '| Panduan Take Video',
@@ -2991,6 +3160,7 @@
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'customer-profile') cpMuatDashboard();
             else if (tabName === 'editor-crud') edMuatDashboard();
+            else if (tabName === 'portrait-crud') ptMuatData();
             else if (tabName === 'user-crud') usMuatDataUser();
             else if (tabName === 'panduan') tutupPanduanWorkspace();
             else if (tabName === 'workflow-tools' || tabName === 'tools') { /* static content */ }
@@ -5596,6 +5766,189 @@ function edNormalisasiNamaKolom(k) {
         document.getElementById('ed-crud-form').addEventListener('submit', edSimpanFormCrud);
         document.getElementById('ed-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'ed-crud-modal') edTutupModalCrud(); });
 
+
+        /* ===================================================================
+           BAGIAN PLANNING POTRAIT
+           Tabel Supabase: Planning_Potrait
+        =================================================================== */
+        let ptRawGlobal = [];
+        let ptKriteriaEditAktif = null;
+
+        function ptEscapeHtml(value) {
+            if (value === null || value === undefined) return '';
+            return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+        function ptStatusNormal(raw) {
+            const s = String(raw ?? '').trim().toLowerCase();
+            if (s === 'wip') return 'WIP';
+            if (s === 'done' || s === 'sudah done' || s === 'sudah') return 'Done';
+            return 'Belum Edit';
+        }
+        function ptStatusClass(status) {
+            const s = ptStatusNormal(status);
+            if (s === 'WIP') return 'bg-amber-50 text-amber-700 border border-amber-200';
+            if (s === 'Done') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+            return 'bg-slate-100 text-slate-600 border border-slate-200';
+        }
+        function ptStatusButton(status, id) {
+            const normalized = ptStatusNormal(status);
+            const next = normalized === 'Belum Edit' ? 'WIP' : (normalized === 'WIP' ? 'Done' : 'Belum Edit');
+            return `<button type="button" class="pt-status-btn inline-flex items-center justify-center min-w-[100px] px-3 py-1.5 rounded-lg text-[11px] font-extrabold transition ${ptStatusClass(normalized)} hover:opacity-80"
+                data-id="${ptEscapeHtml(id)}" data-next-status="${next}" title="Klik untuk ubah status → ${next}">${normalized}</button>`;
+        }
+        async function ptAmbilData() {
+            const { data, error } = await db.from(NAMA_TABEL_POTRAIT).select('*').order('id', { ascending: true });
+            return { data: data || [], error };
+        }
+        function ptFindItem(id) { return ptRawGlobal.find(i => String(i.id ?? '') === String(id)); }
+        function ptPopulateFilterEditor() {
+            const el = document.getElementById('pt-filter-editor');
+            if (!el) return;
+            const current = el.value || 'all';
+            el.innerHTML = '<option value="all">Semua Editor</option>' + POTRAIT_EDITORS.map(e => `<option value="${ptEscapeHtml(e)}">${ptEscapeHtml(e)}</option>`).join('');
+            if (POTRAIT_EDITORS.includes(current)) el.value = current;
+        }
+        function ptGetFiltered() {
+            const editor = document.getElementById('pt-filter-editor')?.value || 'all';
+            const status = document.getElementById('pt-filter-status')?.value || 'all';
+            return ptRawGlobal.filter(item => (editor === 'all' || String(item.editor || '') === editor) && (status === 'all' || ptStatusNormal(item.status) === status));
+        }
+        function ptRenderStats(data) {
+            const set = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+            set('pt-card-wip', data.filter(i => ptStatusNormal(i.status) === 'WIP').length);
+            set('pt-card-belum', data.filter(i => ptStatusNormal(i.status) === 'Belum Edit').length);
+            set('pt-card-done', data.filter(i => ptStatusNormal(i.status) === 'Done').length);
+        }
+        function ptRenderCrudTable() {
+            const tbody = document.getElementById('pt-crud-body');
+            if (!tbody) return;
+            const data = ptGetFiltered();
+            const count = document.getElementById('pt-filter-count');
+            if (count) count.innerText = `Menampilkan ${data.length} dari ${ptRawGlobal.length} data`;
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-slate-400">Belum ada data Planning Potrait yang sesuai filter.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(item => `<tr class="hover:bg-slate-50/80 align-top">
+                <td class="py-4 px-5 min-w-[250px]"><div class="font-bold text-slate-800 leading-snug">${ptEscapeHtml(item.judul_video) || '-'}</div></td>
+                <td class="py-4 px-5 min-w-[180px]"><div class="max-w-[220px] whitespace-normal break-words">${ptEscapeHtml(item.tema) || '<span class="text-slate-300">-</span>'}</div></td>
+                <td class="py-4 px-5"><div class="max-w-[360px] whitespace-pre-wrap break-words text-slate-600 leading-relaxed">${ptEscapeHtml(item.brief) || '<span class="text-slate-300">-</span>'}</div></td>
+                <td class="py-4 px-5"><div class="max-w-[320px] whitespace-pre-wrap break-words text-slate-600 leading-relaxed">${ptEscapeHtml(item.selling_points) || '<span class="text-slate-300">-</span>'}</div></td>
+                <td class="py-4 px-5 font-bold text-slate-700 whitespace-nowrap">${ptEscapeHtml(item.editor) || '<span class="text-slate-300">-</span>'}</td>
+                <td class="py-4 px-5 whitespace-nowrap">${ptStatusButton(item.status, item.id)}</td>
+                <td class="py-4 px-5 text-right whitespace-nowrap sticky right-0 bg-white/95 backdrop-blur-sm border-l border-slate-100">
+                    <button type="button" class="pt-edit-btn text-blue-600 hover:underline text-xs font-bold mr-3" data-id="${ptEscapeHtml(item.id)}">Edit</button>
+                    <button type="button" class="pt-delete-btn text-rose-600 hover:underline text-xs font-bold" data-id="${ptEscapeHtml(item.id)}">Hapus</button>
+                </td>
+            </tr>`).join('');
+            tbody.querySelectorAll('.pt-status-btn').forEach(btn => btn.addEventListener('click', () => ptUbahStatus(btn.dataset.id, btn.dataset.nextStatus)));
+            tbody.querySelectorAll('.pt-edit-btn').forEach(btn => btn.addEventListener('click', () => ptBukaModalEdit(btn.dataset.id)));
+            tbody.querySelectorAll('.pt-delete-btn').forEach(btn => btn.addEventListener('click', () => ptHapusData(btn.dataset.id)));
+        }
+        async function ptMuatOverview() {
+            const grid = document.getElementById('pt-ov-wip-grid');
+            const { data, error } = await ptAmbilData();
+            if (error) { console.error('SUPABASE ERROR (Planning_Potrait):', error); return; }
+            const set = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+            set('pt-ov-total', data.length);
+            set('pt-ov-wip', data.filter(i => ptStatusNormal(i.status) === 'WIP').length);
+            set('pt-ov-belum', data.filter(i => ptStatusNormal(i.status) === 'Belum Edit').length);
+            set('pt-ov-done', data.filter(i => ptStatusNormal(i.status) === 'Done').length);
+            if (!grid) return;
+            const wipData = data.filter(i => ptStatusNormal(i.status) === 'WIP');
+            if (!wipData.length) { grid.innerHTML = '<p class="text-sm text-slate-400 text-center py-8 col-span-full">Belum ada video potrait yang sedang WIP.</p>'; return; }
+            const grouped = {}; POTRAIT_EDITORS.forEach(e => grouped[e] = []);
+            wipData.forEach(item => { const e = POTRAIT_EDITORS.includes(String(item.editor || '')) ? item.editor : 'Editor lain'; if (!grouped[e]) grouped[e] = []; grouped[e].push(item); });
+            const entries = Object.entries(grouped).filter(([, items]) => items.length > 0);
+            grid.innerHTML = entries.map(([editor, items]) => `
+                <div class="editor-wip-card border border-slate-100 rounded-2xl p-5 bg-gradient-to-b from-white to-slate-50/70">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-fuchsia-600 text-white flex items-center justify-center font-black">${ptEscapeHtml(editor.charAt(0).toUpperCase())}</div>
+                        <div><p class="text-sm font-black text-slate-800">${ptEscapeHtml(editor)}</p><span class="badge-pill bg-amber-50 text-amber-700 border border-amber-200">${items.length} Video WIP</span></div>
+                    </div>
+                    <div class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                        ${items.map(item => `<div class="border-b border-slate-100 last:border-0 pb-3 last:pb-0"><p class="text-sm font-bold text-slate-800 leading-snug">${ptEscapeHtml(item.judul_video) || '-'}</p><p class="text-[11px] text-slate-400 mt-1">${ptEscapeHtml(item.tema) || 'Tanpa tema'}</p></div>`).join('')}
+                    </div>
+                </div>`).join('');
+        }
+        async function ptMuatData() {
+            const banner = document.getElementById('pt-diagnostic-banner'), message = document.getElementById('pt-diagnostic-message');
+            if (banner) banner.classList.add('hidden');
+            const { data, error } = await ptAmbilData(); ptRawGlobal = data;
+            if (error) {
+                if (message) message.innerText = `Gagal membaca tabel "${NAMA_TABEL_POTRAIT}": ${error.message} (code: ${error.code || '-'})`;
+                if (banner) banner.classList.remove('hidden');
+                ptRenderStats([]); ptRenderCrudTable(); await ptMuatOverview(); return;
+            }
+            ptPopulateFilterEditor(); ptRenderStats(data); ptRenderCrudTable(); await ptMuatOverview();
+        }
+        function ptResetForm() {
+            document.getElementById('pt-crud-form').reset();
+            document.getElementById('pt-crud-field-id').value = '';
+            document.getElementById('pt-crud-field-status').value = 'Belum Edit';
+            document.getElementById('pt-crud-form-error').classList.add('hidden');
+            ptKriteriaEditAktif = null;
+        }
+        function ptBukaModalTambah() { ptResetForm(); document.getElementById('pt-crud-modal-title').innerText = 'Tambah Planning Potrait'; document.getElementById('pt-crud-modal').classList.remove('hidden'); }
+        function ptBukaModalEdit(id) {
+            const item = ptFindItem(id); if (!item) return;
+            ptResetForm(); document.getElementById('pt-crud-modal-title').innerText = 'Edit Planning Potrait';
+            document.getElementById('pt-crud-field-id').value = item.id;
+            document.getElementById('pt-crud-field-judul').value = item.judul_video || '';
+            document.getElementById('pt-crud-field-tema').value = item.tema || '';
+            document.getElementById('pt-crud-field-brief').value = item.brief || '';
+            document.getElementById('pt-crud-field-selling-points').value = item.selling_points || '';
+            setSelectValueEnsureOption(document.getElementById('pt-crud-field-editor'), item.editor || '');
+            setSelectValueEnsureOption(document.getElementById('pt-crud-field-status'), ptStatusNormal(item.status));
+            ptKriteriaEditAktif = item.id;
+            document.getElementById('pt-crud-modal').classList.remove('hidden');
+        }
+        function ptTutupModal() { document.getElementById('pt-crud-modal').classList.add('hidden'); }
+        async function ptSimpanForm(e) {
+            e.preventDefault();
+            const err = document.getElementById('pt-crud-form-error'); err.classList.add('hidden');
+            const judul = document.getElementById('pt-crud-field-judul').value.trim(), editor = document.getElementById('pt-crud-field-editor').value;
+            if (!judul) { err.innerText = 'Judul Video wajib diisi.'; err.classList.remove('hidden'); return; }
+            if (!editor) { err.innerText = 'Editor wajib dipilih.'; err.classList.remove('hidden'); return; }
+            const payload = {
+                judul_video: judul,
+                tema: document.getElementById('pt-crud-field-tema').value.trim(),
+                brief: document.getElementById('pt-crud-field-brief').value.trim(),
+                selling_points: document.getElementById('pt-crud-field-selling-points').value.trim(),
+                editor,
+                status: ptStatusNormal(document.getElementById('pt-crud-field-status').value)
+            };
+            let result;
+            if (ptKriteriaEditAktif !== null) result = await db.from(NAMA_TABEL_POTRAIT).update(payload).eq('id', ptKriteriaEditAktif).select();
+            else result = await db.from(NAMA_TABEL_POTRAIT).insert([payload]).select();
+            if (result.error) { err.innerText = 'Gagal menyimpan data: ' + result.error.message; err.classList.remove('hidden'); return; }
+            if (!result.data || result.data.length === 0) { err.innerText = 'Data tidak tersimpan. Periksa policy INSERT/UPDATE pada tabel Planning_Potrait di Supabase.'; err.classList.remove('hidden'); return; }
+            ptTutupModal(); await ptMuatData();
+        }
+        async function ptUbahStatus(id, statusBaru) {
+            if (!id) { alert('ID data tidak ditemukan.'); return; }
+            const { data, error } = await db.from(NAMA_TABEL_POTRAIT).update({ status: ptStatusNormal(statusBaru) }).eq('id', id).select();
+            if (error) { alert('Gagal mengubah status: ' + error.message); return; }
+            if (!data || data.length === 0) { alert('Status tidak berubah. Periksa policy UPDATE pada tabel Planning_Potrait.'); return; }
+            await ptMuatData();
+        }
+        async function ptHapusData(id) {
+            if (!id) { alert('ID data tidak ditemukan.'); return; }
+            const item = ptFindItem(id);
+            if (!confirm(`Hapus planning "${item?.judul_video || 'ini'}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+            const { data, error } = await db.from(NAMA_TABEL_POTRAIT).delete().eq('id', id).select();
+            if (error) { alert('Gagal menghapus data: ' + error.message); return; }
+            if (!data || data.length === 0) { alert('Data tidak terhapus. Periksa policy DELETE pada tabel Planning_Potrait.'); return; }
+            await ptMuatData();
+        }
+        document.getElementById('pt-btn-tambah-data').addEventListener('click', ptBukaModalTambah);
+        document.getElementById('pt-crud-modal-close').addEventListener('click', ptTutupModal);
+        document.getElementById('pt-crud-cancel-btn').addEventListener('click', ptTutupModal);
+        document.getElementById('pt-crud-form').addEventListener('submit', ptSimpanForm);
+        document.getElementById('pt-crud-modal').addEventListener('click', (e) => { if (e.target.id === 'pt-crud-modal') ptTutupModal(); });
+        document.getElementById('pt-filter-editor').addEventListener('change', ptRenderCrudTable);
+        document.getElementById('pt-filter-status').addEventListener('change', ptRenderCrudTable);
+
         /* ===================================================================
            BAGIAN KELOLA USER & ROLE (tabel akun login)
            Semua id memakai prefix "us-"
@@ -5955,6 +6308,7 @@ function edNormalisasiNamaKolom(k) {
             else if (currentActiveTab === 'customer-profile') cpMuatDashboard();
             else if (currentActiveTab === 'editor-dashboard') edMuatDashboard();
             else if (currentActiveTab === 'editor-crud') edMuatDashboard();
+            else if (currentActiveTab === 'portrait-crud') ptMuatData();
         }
 
         db.channel('realtime-admin-kiriman')
@@ -5970,6 +6324,13 @@ function edNormalisasiNamaKolom(k) {
                 refreshCurrentTab();
             })
             .subscribe((status) => console.log('[Realtime] Status channel Planning_Editor:', status));
+
+        db.channel('realtime-admin-planning-potrait')
+            .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_POTRAIT }, (payload) => {
+                console.log('[Realtime] Perubahan pada tabel Planning_Potrait:', payload);
+                ptMuatData();
+            })
+            .subscribe((status) => console.log('[Realtime] Status channel Planning_Potrait:', status));
 
         db.channel('realtime-admin-customer-profile')
             .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CUSTOMER_PROFILE }, (payload) => {
