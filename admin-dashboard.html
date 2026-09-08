@@ -3159,7 +3159,19 @@
             const mainEl = document.querySelector('main');
             if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
 
-            if (tabName === 'overview') { cbRenderDashboardAndChart().then(() => ovCpRenderChart()); edMuatDashboard(); }
+            if (tabName === 'overview') {
+                // Muat SEMUA sumber data yang dipakai Ringkasan Admin.
+                // Sebelumnya Planning_Potrait tidak dipanggil saat membuka overview,
+                // sehingga elemen pt-ov-* tetap bernilai 0 dan daftar WIP tidak terisi.
+                Promise.all([
+                    cbRenderDashboardAndChart(),
+                    ovCpRenderChart(),
+                    edMuatDashboard(),
+                    ptMuatData()
+                ]).catch(error => {
+                    console.error('[Overview] Gagal memuat salah satu data dashboard:', error);
+                });
+            }
             else if (tabName === 'cabang-crud') cbMuatDataTabel();
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'customer-profile') cpMuatDashboard();
@@ -5875,6 +5887,8 @@ function edNormalisasiNamaKolom(k) {
                         ${items.map(item => `<div class="border-b border-slate-100 last:border-0 pb-3 last:pb-0"><p class="text-sm font-bold text-slate-800 leading-snug">${ptEscapeHtml(item.judul_video) || '-'}</p><p class="text-[11px] text-slate-400 mt-1">${ptEscapeHtml(item.tema) || 'Tanpa tema'}</p></div>`).join('')}
                     </div>
                 </div>`).join('');
+
+}            
         }
         async function ptMuatData() {
             const banner = document.getElementById('pt-diagnostic-banner'), message = document.getElementById('pt-diagnostic-message');
@@ -6308,7 +6322,16 @@ function edNormalisasiNamaKolom(k) {
         });
 
         function refreshCurrentTab() {
-            if (currentActiveTab === 'overview') { cbRenderDashboardAndChart().then(() => ovCpRenderChart()); edMuatDashboard(); }
+            if (currentActiveTab === 'overview') {
+                Promise.all([
+                    cbRenderDashboardAndChart(),
+                    ovCpRenderChart(),
+                    edMuatDashboard(),
+                    ptMuatData()
+                ]).catch(error => {
+                    console.error('[Refresh Overview] Gagal memuat salah satu data dashboard:', error);
+                });
+            }
             else if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
             else if (currentActiveTab === 'cabang-crud') cbMuatDataTabel();
             else if (currentActiveTab === 'cabang-evaluasi') cbMuatDataEvaluasi();
@@ -6335,7 +6358,9 @@ function edNormalisasiNamaKolom(k) {
         db.channel('realtime-admin-planning-potrait')
             .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_POTRAIT }, (payload) => {
                 console.log('[Realtime] Perubahan pada tabel Planning_Potrait:', payload);
-                if (currentActiveTab === 'overview' || currentActiveTab === 'portrait-crud') ptMuatData();
+                if (currentActiveTab === 'overview' || currentActiveTab === 'portrait-crud') {
+                    ptMuatData();
+                }
             })
             .subscribe((status) => console.log('[Realtime] Status channel Planning_Potrait:', status));
 
