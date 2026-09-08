@@ -786,7 +786,11 @@
         <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data</p>
         <a href="#" id="nav-crud"
           class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
-          <i class="fas fa-list-check w-5 text-center"></i> Kerjakan Video
+          <i class="fas fa-layer-group w-5 text-center"></i> Kerjakan Landscape
+        </a>
+        <a href="#" id="nav-portrait"
+          class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
+          <i class="fas fa-mobile-screen-button w-5 text-center"></i> Kerjakan Potrait
         </a>
 
         <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance</p>
@@ -931,6 +935,37 @@
           </div>
         </div>
 
+        <!-- RINGKASAN POTRAIT -->
+        <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-1">
+            <div>
+              <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                Kerjaan Potrait Saya
+                <span class="badge-pill bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200">POTRAIT</span>
+              </h4>
+              <p class="text-xs text-gray-400 mt-1">Status video Potrait yang ditugaskan kepada Anda.</p>
+            </div>
+            <button type="button" id="dashboard-open-portrait" class="text-xs font-bold text-fuchsia-600 hover:text-fuchsia-800">Lihat semua →</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
+            <div class="stat-card p-5 rounded-2xl border border-slate-200 bg-slate-50">
+              <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Belum</p>
+              <p id="portrait-card-belum" class="text-3xl font-black text-slate-800 mt-1">0</p>
+            </div>
+            <div class="stat-card p-5 rounded-2xl border border-amber-200 bg-amber-50/60">
+              <p class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600">WIP</p>
+              <p id="portrait-card-wip" class="text-3xl font-black text-slate-800 mt-1">0</p>
+            </div>
+            <div class="stat-card p-5 rounded-2xl border border-emerald-200 bg-emerald-50/60">
+              <p class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-600">Done</p>
+              <p id="portrait-card-done" class="text-3xl font-black text-slate-800 mt-1">0</p>
+            </div>
+          </div>
+          <div id="portrait-dashboard-list" class="mt-5 space-y-2">
+            <p class="text-sm text-gray-400 text-center py-5">Memuat data Potrait...</p>
+          </div>
+        </div>
+
         <!-- SEDANG DIKERJAKAN EDITOR SAAT INI -->
         <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
           <div class="flex items-center justify-between mb-1">
@@ -1068,9 +1103,8 @@
       <div id="view-crud" class="hidden space-y-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 class="text-2xl font-bold text-gray-800">Daftar Video Planning</h3>
-            <p class="text-sm text-gray-500 mt-1">Klik <b>Kerjakan</b> untuk mulai edit (Skenario Siap → WIP), lalu klik
-              <b>Selesai</b> setelah video rampung (WIP → Done).</p>
+            <h3 class="text-2xl font-bold text-gray-800">Kerjakan Landscape</h3>
+            <p class="text-sm text-gray-500 mt-1">Anda hanya dapat mengubah <b>Status Edit</b>. Tombol akan mengikuti status database: <b>Belum → WIP → Done</b>.</p>
           </div>
         </div>
 
@@ -1181,6 +1215,46 @@
         </div>
       </div>
       <!-- ============ /VIEW: CRUD PLANNING EDITOR ============ -->
+
+      <!-- ============ VIEW: KERJAKAN POTRAIT ============ -->
+      <div id="view-portrait" class="hidden space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-fuchsia-50 border border-fuchsia-200 text-fuchsia-700 text-[10px] font-extrabold uppercase tracking-widest">Planning Potrait</div>
+            <h3 class="text-2xl font-bold text-gray-800 mt-3">Kerjakan Potrait</h3>
+            <p class="text-sm text-gray-500 mt-1">Daftar video Potrait yang ditugaskan kepada Anda. Anda hanya dapat mengubah status edit.</p>
+          </div>
+          <span id="portrait-editor-label" class="text-xs font-bold px-3 py-2 rounded-xl bg-slate-100 text-slate-600 border border-slate-200">Editor: -</span>
+        </div>
+        <div id="portrait-diagnostic-banner" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm">
+          <p class="font-bold mb-1">⚠️ Data Potrait tidak tampil</p>
+          <p id="portrait-diagnostic-message" class="text-rose-600"></p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Belum</p><p id="portrait-page-belum" class="text-3xl font-black text-gray-800 mt-1">0</p></div>
+          <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><p class="text-xs font-bold uppercase tracking-wider text-amber-600">WIP</p><p id="portrait-page-wip" class="text-3xl font-black text-gray-800 mt-1">0</p></div>
+          <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><p class="text-xs font-bold uppercase tracking-wider text-emerald-600">Done</p><p id="portrait-page-done" class="text-3xl font-black text-gray-800 mt-1">0</p></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="overflow-x-auto max-h-[650px] overflow-y-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead class="sticky top-0 bg-white z-10">
+                <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                  <th class="py-3 px-4">Judul Video</th>
+                  <th class="py-3 px-4">Produk</th>
+                  <th class="py-3 px-4">Tema</th>
+                  <th class="py-3 px-4">Status Edit</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="portrait-body" class="divide-y divide-gray-50 text-gray-700">
+                <tr><td colspan="5" class="text-center py-10 text-gray-400">Memuat data Potrait...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: KERJAKAN POTRAIT ============ -->
 
       <!-- ============ VIEW: WORKFLOW EDITING ============ -->
       <div id="view-workflow" class="hidden space-y-7">
@@ -1415,6 +1489,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const NAMA_TABEL_PLANNING = 'Planning_Editor';
+    const NAMA_TABEL_POTRAIT = 'Planning_Potrait';
 
     // Target pencapaian tetap: 12 video Done per bulan
     const TARGET_KONSTAN = 12;
@@ -1428,6 +1503,9 @@
     let planningRawGlobal = []; // data mentah (nama kolom asli Supabase) dipakai oleh menu CRUD
     let chartEditor = null;
     let chartStatus = null;
+    let currentEditorName = '';
+    let portraitRawGlobal = [];
+    let portraitColumnMap = { id: null, judul: null, produk: null, tema: null, brief: null, sellingPoints: null, editor: null, status: null };
 
     // Peta nama kolom logis -> nama kolom asli di Supabase (dideteksi otomatis)
     let COLUMN_MAP = {
@@ -1493,6 +1571,7 @@
       }
 
       const namaUser = user.nama_user || 'User';
+      currentEditorName = String(namaUser).trim();
       document.getElementById('user-name').innerText = namaUser;
       document.getElementById('avatar-initial').innerText = namaUser.charAt(0).toUpperCase();
       document.getElementById('welcome-title').innerText = `Selamat Datang, ${namaUser}`;
@@ -1524,10 +1603,11 @@
     });
 
     // ===================== NAVIGASI ANTAR MENU (Media Converter dihapus) =====================
-    const ALL_VIEWS = ['dashboard', 'crud', 'workflow', 'tools'];
+    const ALL_VIEWS = ['dashboard', 'crud', 'portrait', 'workflow', 'tools'];
     const HEADER_SUBTITLE = {
       'dashboard': '| Workflow Video Editor',
-      'crud': '| Kerjakan Video',
+      'crud': '| Kerjakan Landscape',
+      'portrait': '| Kerjakan Potrait',
       'workflow': '| Workflow Editing Video',
       'tools': '| Tools AI Production'
     };
@@ -1551,6 +1631,17 @@
     document.getElementById('nav-crud').addEventListener('click', (e) => {
       e.preventDefault();
       tampilkanView('crud');
+    });
+
+    document.getElementById('nav-portrait').addEventListener('click', async (e) => {
+      e.preventDefault();
+      tampilkanView('portrait');
+      await muatPortraitEditor();
+    });
+
+    document.getElementById('dashboard-open-portrait')?.addEventListener('click', async () => {
+      tampilkanView('portrait');
+      await muatPortraitEditor();
     });
 
     document.getElementById('nav-workflow').addEventListener('click', (e) => {
@@ -1664,8 +1755,9 @@
         .map(i => i.editor)
         .filter(e => e && e.toLowerCase() !== 'all editor'));
 
-      selectEditor.innerHTML = '<option value="all">Semua Editor</option>';
-      Array.from(editorSet).sort().forEach(e => {
+      selectEditor.innerHTML = '<option value="all">Saya</option>';
+      const editorOptions = currentEditorName ? [currentEditorName] : Array.from(editorSet).sort();
+      editorOptions.forEach(e => {
         selectEditor.innerHTML += `<option value="${e}" ${e === curEditor ? 'selected' : ''}>${e}</option>`;
       });
     }
@@ -1678,6 +1770,7 @@
       const editorFilter = document.getElementById('filter-editor').value;
 
       return listPlanningGlobal.filter(item => {
+        if (currentEditorName && (!item.editor || String(item.editor).trim().toLowerCase() !== currentEditorName.toLowerCase())) return false;
         if (bulanFilter !== 'all' && item.bulan !== bulanFilter) return false;
         if (editorFilter !== 'all' && item.editor !== editorFilter) return false;
         return true;
@@ -2252,9 +2345,11 @@
       let barisTerfilter = planningRawGlobal
         .map((item, idx) => ({ item, idx }))
         .filter(({ item }) => {
+          const assignedEditor = COLUMN_MAP.editor ? String(item[COLUMN_MAP.editor] ?? '').trim() : '';
+          if (currentEditorName && assignedEditor.toLowerCase() !== currentEditorName.toLowerCase()) return false;
           if (fStatusEdit !== 'all' && normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
           if (fStatusUpload !== 'all' && (COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
-          if (fEditor !== 'all' && (COLUMN_MAP.editor ? item[COLUMN_MAP.editor] : null) !== fEditor) return false;
+          if (fEditor !== 'all' && assignedEditor !== fEditor) return false;
           if (fBulan !== 'all' && (COLUMN_MAP.bulan ? item[COLUMN_MAP.bulan] : null) !== fBulan) return false;
           return true;
         });
@@ -2302,11 +2397,8 @@
         `;
       }).join('');
 
-      tbody.querySelectorAll('.btn-kerjakan').forEach(btn => {
-        btn.addEventListener('click', () => mulaiKerjakan(btn.dataset.rid));
-      });
-      tbody.querySelectorAll('.btn-selesai').forEach(btn => {
-        btn.addEventListener('click', () => selesaikanVideo(btn.dataset.rid));
+      tbody.querySelectorAll('.landscape-status-btn').forEach(btn => {
+        btn.addEventListener('click', () => ubahStatusLandscape(btn.dataset.rid, btn.dataset.nextStatus));
       });
       tbody.querySelectorAll('.btn-copy-judul').forEach(btn => {
         btn.addEventListener('click', () => salinJudul(btn.dataset.rid, btn));
@@ -2318,21 +2410,16 @@
     // dan "Selesai" (WIP -> Done). Status lain tidak punya aksi (read-only).
     function renderAksiButton(item, rid) {
       const status = normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null);
-
-      if (status === 'Skenario Siap') {
-        return `<button class="btn-kerjakan bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all interactive-btn" data-rid="${rid}">
-                  <i class="fas fa-play mr-1"></i>Kerjakan
-                </button>`;
-      }
-      if (status === 'WIP') {
-        return `<button class="btn-selesai bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all interactive-btn" data-rid="${rid}">
-                  <i class="fas fa-check mr-1"></i>Selesai
-                </button>`;
-      }
-      if (status === 'Done') {
-        return '<span class="text-[11px] text-emerald-500 font-semibold">✔ Selesai</span>';
-      }
-      return '<span class="text-[11px] text-gray-300">Menunggu skenario</span>';
+      const label = status === 'WIP' ? 'WIP' : (status === 'Done' ? 'Done' : 'Belum');
+      const next = status === 'WIP' ? 'Done' : (status === 'Done' ? 'Done' : 'WIP');
+      const disabled = status === 'Done' || status === 'Transkrip Siap' || !COLUMN_MAP.statusEdit;
+      const cls = status === 'WIP'
+        ? 'bg-amber-500 hover:bg-amber-600'
+        : (status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600 hover:bg-blue-700');
+      return `<button type="button" class="landscape-status-btn ${cls} ${disabled ? 'opacity-80 cursor-default' : ''} text-white text-xs font-extrabold px-4 py-2 rounded-xl shadow-sm transition-all interactive-btn"
+          data-rid="${rid}" data-next-status="${next}" ${disabled ? 'disabled' : ''}>
+          ${label}
+        </button>`;
     }
 
     function cariRawItem(rid) {
@@ -2393,56 +2480,138 @@
       }
     }
 
-    // Ubah status video dari "Skenario Siap" menjadi "WIP" (editor mulai mengerjakan).
-    async function mulaiKerjakan(rid) {
+    // Editor hanya boleh mengubah Status Edit. Alurnya: Belum -> WIP -> Done.
+    async function ubahStatusLandscape(rid, statusBaru) {
       const item = cariRawItem(rid);
-      if (!item || !COLUMN_MAP.statusEdit) return;
-
-      const judul = COLUMN_MAP.judul ? item[COLUMN_MAP.judul] : 'video ini';
-      if (!confirm(`Mulai mengerjakan "${judul}"? Status akan berubah menjadi WIP.`)) return;
-
+      if (!item || !COLUMN_MAP.statusEdit || statusBaru === 'Done' && normalizeStatus(item[COLUMN_MAP.statusEdit]) === 'Done') return;
+      const statusSaatIni = normalizeStatus(item[COLUMN_MAP.statusEdit]);
+      if (statusSaatIni === 'WIP' && statusBaru !== 'Done') return;
+      if (statusSaatIni !== 'WIP' && statusSaatIni !== 'Skenario Siap') return;
       const kriteria = buatKriteriaBaris(item);
       const { data, error } = await db.from(NAMA_TABEL_PLANNING)
-        .update({ [COLUMN_MAP.statusEdit]: 'WIP' })
+        .update({ [COLUMN_MAP.statusEdit]: statusBaru })
         .match(kriteria)
         .select();
-
-      if (error) {
-        alert('Gagal mengubah status: ' + error.message);
-        return;
-      }
-      if (!data || data.length === 0) {
-        alert('Status TIDAK berubah meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy UPDATE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.');
-        return;
-      }
+      if (error) { alert('Gagal mengubah status Landscape: ' + error.message); return; }
+      if (!data || data.length === 0) { alert('Status Landscape tidak berubah. Periksa policy UPDATE pada tabel Planning_Editor.'); return; }
       await muatDashboard();
       tampilkanView('crud');
     }
 
-    // Ubah status video dari "WIP" menjadi "Done" (editor selesai mengerjakan).
-    async function selesaikanVideo(rid) {
-      const item = cariRawItem(rid);
-      if (!item || !COLUMN_MAP.statusEdit) return;
 
-      const judul = COLUMN_MAP.judul ? item[COLUMN_MAP.judul] : 'video ini';
-      if (!confirm(`Tandai "${judul}" sebagai selesai (Done)?`)) return;
-
-      const kriteria = buatKriteriaBaris(item);
-      const { data, error } = await db.from(NAMA_TABEL_PLANNING)
-        .update({ [COLUMN_MAP.statusEdit]: 'Done' })
-        .match(kriteria)
-        .select();
-
+    // ===================== PLANNING POTRAIT UNTUK EDITOR =====================
+    function portraitEscape(value) {
+      if (value === null || value === undefined) return '';
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    function portraitStatusNormal(raw) {
+      const s = String(raw ?? '').trim().toLowerCase();
+      if (s === 'wip') return 'WIP';
+      if (s === 'done' || s === 'sudah done' || s === 'sudah') return 'Done';
+      return 'Belum Edit';
+    }
+    function portraitStatusClass(status) {
+      const s = portraitStatusNormal(status);
+      if (s === 'WIP') return 'bg-amber-50 text-amber-700 border border-amber-200';
+      if (s === 'Done') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      return 'bg-slate-100 text-slate-600 border border-slate-200';
+    }
+    function portraitStatusButton(status, id) {
+      const normalized = portraitStatusNormal(status);
+      const next = normalized === 'WIP' ? 'Done' : (normalized === 'Done' ? 'Done' : 'WIP');
+      const disabled = normalized === 'Done';
+      const label = normalized === 'Belum Edit' ? 'Belum' : normalized;
+      return `<button type="button" class="portrait-status-btn inline-flex items-center justify-center min-w-[92px] px-3.5 py-2 rounded-xl text-[11px] font-extrabold transition ${portraitStatusClass(normalized)} ${disabled ? 'opacity-80 cursor-default' : 'hover:opacity-80'}" data-id="${portraitEscape(id)}" data-next-status="${next}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+    }
+    function portraitDetectColumns(row) {
+      const keys = Object.keys(row || {});
+      const find = (...names) => names.reduce((found, name) => found || keys.find(k => k.toLowerCase() === name.toLowerCase()), null);
+      portraitColumnMap.id = find('id', 'Id', 'ID', 'uuid');
+      portraitColumnMap.judul = find('judul_video', 'Judul_Video', 'Judul Video', 'judul');
+      portraitColumnMap.produk = find('produk', 'Produk');
+      portraitColumnMap.tema = find('tema', 'Tema');
+      portraitColumnMap.brief = find('brief', 'Brief');
+      portraitColumnMap.sellingPoints = find('selling_points', 'Selling_Points', 'Selling Points');
+      portraitColumnMap.editor = find('editor', 'Editor');
+      portraitColumnMap.status = find('status', 'Status', 'status_edit', 'Status Edit', 'Status_Edit');
+    }
+    async function ambilDataPortrait() {
+      const { data, error } = await db.from(NAMA_TABEL_POTRAIT).select('*').order('id', { ascending: true });
+      return { data: data || [], error };
+    }
+    function portraitDataSaya() {
+      return portraitRawGlobal.filter(item => {
+        const editor = portraitColumnMap.editor ? String(item[portraitColumnMap.editor] ?? '').trim() : '';
+        return !currentEditorName || editor.toLowerCase() === currentEditorName.toLowerCase();
+      });
+    }
+    function renderPortraitDashboard(data) {
+      const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      const saya = data;
+      const belum = saya.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Belum Edit');
+      const wip = saya.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'WIP');
+      const done = saya.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Done');
+      set('portrait-card-belum', belum.length); set('portrait-card-wip', wip.length); set('portrait-card-done', done.length);
+      const list = document.getElementById('portrait-dashboard-list');
+      if (!list) return;
+      const active = [...wip, ...belum].slice(0, 8);
+      list.innerHTML = active.length ? active.map(item => {
+        const status = portraitStatusNormal(item[portraitColumnMap.status]);
+        return `<div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/70">
+          <div class="min-w-0"><p class="text-sm font-semibold text-slate-700 truncate">${portraitEscape(item[portraitColumnMap.judul] || '-')}</p><p class="text-[10px] text-slate-400 mt-0.5">${portraitEscape(item[portraitColumnMap.tema] || 'Tanpa tema')}</p></div>
+          <span class="badge-pill shrink-0 ${portraitStatusClass(status)}">${status === 'Belum Edit' ? 'Belum' : status}</span>
+        </div>`;
+      }).join('') : '<p class="text-sm text-gray-400 text-center py-5">Tidak ada video Potrait yang perlu dikerjakan.</p>';
+    }
+    function renderPortraitPage(data) {
+      const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      set('portrait-page-belum', data.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Belum Edit').length);
+      set('portrait-page-wip', data.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'WIP').length);
+      set('portrait-page-done', data.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Done').length);
+      const tbody = document.getElementById('portrait-body');
+      if (!tbody) return;
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada video Potrait yang ditugaskan kepada Anda.</td></tr>'; return; }
+      tbody.innerHTML = data.map(item => `<tr class="hover:bg-gray-50 align-top">
+        <td class="py-4 px-4 min-w-[280px]"><div class="font-bold text-slate-800 leading-snug">${portraitEscape(item[portraitColumnMap.judul]) || '-'}</div></td>
+        <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.produk]) || '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.tema]) || '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-4 px-4 whitespace-nowrap"><span class="badge-pill ${portraitStatusClass(item[portraitColumnMap.status])}">${portraitStatusNormal(item[portraitColumnMap.status]) === 'Belum Edit' ? 'Belum' : portraitStatusNormal(item[portraitColumnMap.status])}</span></td>
+        <td class="py-4 px-4 text-right whitespace-nowrap">${portraitStatusButton(item[portraitColumnMap.status], item[portraitColumnMap.id])}</td>
+      </tr>`).join('');
+      tbody.querySelectorAll('.portrait-status-btn').forEach(btn => btn.addEventListener('click', () => ubahStatusPortrait(btn.dataset.id, btn.dataset.nextStatus)));
+    }
+    async function muatPortraitEditor() {
+      const banner = document.getElementById('portrait-diagnostic-banner');
+      const message = document.getElementById('portrait-diagnostic-message');
+      const label = document.getElementById('portrait-editor-label');
+      if (label) label.textContent = `Editor: ${currentEditorName || '-'}`;
+      if (banner) banner.classList.add('hidden');
+      const { data, error } = await ambilDataPortrait();
+      portraitRawGlobal = data;
       if (error) {
-        alert('Gagal mengubah status: ' + error.message);
-        return;
+        if (message) message.textContent = `Gagal membaca tabel "${NAMA_TABEL_POTRAIT}": ${error.message}`;
+        if (banner) banner.classList.remove('hidden');
+        renderPortraitDashboard([]); renderPortraitPage([]); return;
       }
-      if (!data || data.length === 0) {
-        alert('Status TIDAK berubah meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy UPDATE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.');
-        return;
-      }
-      await muatDashboard();
-      tampilkanView('crud');
+      if (data.length) portraitDetectColumns(data[0]);
+      const saya = portraitDataSaya();
+      renderPortraitDashboard(saya); renderPortraitPage(saya);
+    }
+    async function ubahStatusPortrait(id, statusBaru) {
+      if (!id) { alert('ID data Potrait tidak ditemukan.'); return; }
+      const current = portraitRawGlobal.find(item => String(item[portraitColumnMap.id]) === String(id));
+      if (!current || !portraitColumnMap.status) return;
+      const statusSekarang = portraitStatusNormal(current[portraitColumnMap.status]);
+      if (statusSekarang === 'Done') return;
+      const expectedNext = statusSekarang === 'WIP' ? 'Done' : 'WIP';
+      if (statusBaru !== expectedNext) return;
+      const editor = portraitColumnMap.editor ? String(current[portraitColumnMap.editor] ?? '').trim() : '';
+      if (currentEditorName && editor.toLowerCase() !== currentEditorName.toLowerCase()) { alert('Anda hanya dapat mengubah video yang ditugaskan kepada Anda.'); return; }
+      const { data, error } = await db.from(NAMA_TABEL_POTRAIT).update({ [portraitColumnMap.status]: statusBaru }).eq(portraitColumnMap.id, id).select();
+      if (error) { alert('Gagal mengubah status Potrait: ' + error.message); return; }
+      if (!data || data.length === 0) { alert('Status Potrait tidak berubah. Periksa policy UPDATE pada tabel Planning_Potrait.'); return; }
+      await muatPortraitEditor();
+      renderPortraitDashboard(portraitDataSaya());
     }
 
     // ===================== REALTIME: auto-update saat data berubah dari mana saja =====================
@@ -2455,9 +2624,20 @@
         console.log('[Realtime] Status koneksi channel Planning_Editor:', status);
       });
 
+    db.channel('realtime-editor-portrait')
+      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_POTRAIT }, (payload) => {
+        console.log('[Realtime] Perubahan terdeteksi pada tabel Planning_Potrait:', payload);
+        muatPortraitEditor();
+        ambilDataPortrait().then(({ data, error }) => {
+          if (!error) { portraitRawGlobal = data; if (data.length) portraitDetectColumns(data[0]); renderPortraitDashboard(portraitDataSaya()); }
+        });
+      })
+      .subscribe((status) => console.log('[Realtime] Status koneksi channel Planning_Potrait:', status));
+
     window.addEventListener('DOMContentLoaded', async () => {
       tampilkanView('dashboard');
       await muatDashboard();
+      await muatPortraitEditor();
     });
   </script>
 </body>
