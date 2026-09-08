@@ -2070,6 +2070,7 @@
                         <thead class="sticky top-0 z-10 bg-slate-100">
                             <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
                                 <th class="py-4 px-5 bg-slate-100">Judul Video</th>
+                                <th class="py-4 px-5 bg-slate-100">Produk</th>
                                 <th class="py-4 px-5 bg-slate-100">Tema</th>
                                 <th class="py-4 px-5 bg-slate-100 min-w-[260px]">Brief</th>
                                 <th class="py-4 px-5 bg-slate-100 min-w-[240px]">Selling Points</th>
@@ -2079,7 +2080,7 @@
                             </tr>
                         </thead>
                         <tbody id="pt-crud-body" class="divide-y divide-slate-100 text-sm text-slate-700">
-                            <tr><td colspan="7" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
+                            <tr><td colspan="8" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -2895,6 +2896,8 @@
                 <input id="pt-crud-field-id" type="hidden" />
                 <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Judul Video *</label>
                     <input id="pt-crud-field-judul" required type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" /></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Produk</label>
+                    <input id="pt-crud-field-produk" type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" placeholder="Contoh: Quick Boxer Rotary" /></div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema</label>
                     <input id="pt-crud-field-tema" type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" /></div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Brief</label>
@@ -5831,6 +5834,7 @@ function edNormalisasiNamaKolom(k) {
             }
             tbody.innerHTML = data.map(item => `<tr class="hover:bg-slate-50/80 align-top">
                 <td class="py-4 px-5 min-w-[250px]"><div class="font-bold text-slate-800 leading-snug">${ptEscapeHtml(item.judul_video) || '-'}</div></td>
+                <td class="py-4 px-5 min-w-[180px]"><div class="max-w-[220px] whitespace-normal break-words font-semibold text-fuchsia-700">${ptEscapeHtml(item.produk) || '<span class="text-slate-300">-</span>'}</div></td>
                 <td class="py-4 px-5 min-w-[180px]"><div class="max-w-[220px] whitespace-normal break-words">${ptEscapeHtml(item.tema) || '<span class="text-slate-300">-</span>'}</div></td>
                 <td class="py-4 px-5"><div class="max-w-[360px] whitespace-pre-wrap break-words text-slate-600 leading-relaxed">${ptEscapeHtml(item.brief) || '<span class="text-slate-300">-</span>'}</div></td>
                 <td class="py-4 px-5"><div class="max-w-[320px] whitespace-pre-wrap break-words text-slate-600 leading-relaxed">${ptEscapeHtml(item.selling_points) || '<span class="text-slate-300">-</span>'}</div></td>
@@ -5895,6 +5899,7 @@ function edNormalisasiNamaKolom(k) {
             ptResetForm(); document.getElementById('pt-crud-modal-title').innerText = 'Edit Planning Potrait';
             document.getElementById('pt-crud-field-id').value = item.id;
             document.getElementById('pt-crud-field-judul').value = item.judul_video || '';
+            document.getElementById('pt-crud-field-produk').value = item.produk || '';
             document.getElementById('pt-crud-field-tema').value = item.tema || '';
             document.getElementById('pt-crud-field-brief').value = item.brief || '';
             document.getElementById('pt-crud-field-selling-points').value = item.selling_points || '';
@@ -5912,6 +5917,7 @@ function edNormalisasiNamaKolom(k) {
             if (!editor) { err.innerText = 'Editor wajib dipilih.'; err.classList.remove('hidden'); return; }
             const payload = {
                 judul_video: judul,
+                produk: document.getElementById('pt-crud-field-produk').value.trim(),
                 tema: document.getElementById('pt-crud-field-tema').value.trim(),
                 brief: document.getElementById('pt-crud-field-brief').value.trim(),
                 selling_points: document.getElementById('pt-crud-field-selling-points').value.trim(),
