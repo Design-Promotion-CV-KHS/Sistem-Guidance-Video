@@ -8994,9 +8994,19 @@ function edNormalisasiNamaKolom(k) {
     }
 
     async function getStockLastUpdate() {
-        const { data, error } = await db.from(T.MASTER_STOCK).select('Update Terakhir').order('Update Terakhir', { ascending: false }).limit(1);
+        // Jangan mengandalkan kolom 'Update Terakhir' karena pada database
+        // Stock Gudang kolom tersebut tidak tersedia. Ambil waktu terbaru
+        // dari Stock History sebagai sumber informasi update terakhir.
+        const { data, error } = await db
+            .from(T.STOCK_HISTORY)
+            .select('Tanggal')
+            .order('Tanggal', { ascending: false })
+            .limit(1);
+
         if (error) throw error;
-        return data && data[0] ? displayDate(data[0]['Update Terakhir']) : '-';
+        return data && data[0] && data[0]['Tanggal']
+            ? displayDate(data[0]['Tanggal'])
+            : '-';
     }
 
     async function previewBonPdf(payload) {
