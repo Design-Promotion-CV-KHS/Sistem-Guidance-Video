@@ -932,19 +932,12 @@
    WRAPPER TAB — full width, tidak lagi mepet ke kanan
    ========================================================= */
 #tab-stock-gudang{
-  display:block;
   width:100%;
   box-sizing:border-box;
   padding:2rem;
   background:var(--sg-bg);
-  height:calc(100vh - 104px);
-  max-height:calc(100vh - 104px);
-  overflow-y:scroll !important;
-  overflow-x:hidden;
-}
-
-#tab-stock-gudang #stockPage{
-  min-width:0;
+  min-height:calc(100vh - 96px);
+  height:auto;
   overflow:visible !important;
 }
 
@@ -1269,12 +1262,15 @@
   background:var(--sg-card);
   border:1px solid var(--sg-border);
   border-radius:var(--sg-radius-md);
-  overflow-x:auto;
-  overflow-y:visible;
+  overflow:auto !important;
   box-shadow:var(--sg-shadow);
   width:100%;
   max-width:100%;
+  max-height:calc(100vh - 430px);
+  min-height:260px;
   box-sizing:border-box;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
 
 .stock-table{
@@ -1328,7 +1324,7 @@
 @media (min-width:761px){
   .stock-table-wrapper{
     overflow-x:auto !important;
-    overflow-y:visible !important;
+    overflow-y:auto !important;
   }
 }
 
@@ -1339,7 +1335,9 @@
 @media (max-width:760px){
   .stock-table-wrapper{
     overflow-x:auto !important;
-    overflow-y:visible !important;
+    overflow-y:auto !important;
+    max-height:calc(100vh - 300px);
+    min-height:220px;
   }
   .stock-table{ min-width:1080px; }
 }
@@ -1601,7 +1599,7 @@
 /* Pastikan scroll tabel Stock Gudang tidak dikunci oleh style global dashboard. */
 #tab-stock-gudang .stock-table-wrapper{
   overflow-x:auto !important;
-  overflow-y:visible !important;
+  overflow-y:auto !important;
 }
 #tab-stock-gudang .stock-table-wrapper::-webkit-scrollbar{
   width:9px;
