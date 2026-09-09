@@ -5191,6 +5191,16 @@
         const SUPABASE_URL = 'https://ybedibzzdbudwitiriso.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ============================================================
+        // SUPABASE KHUSUS STOCK GUDANG
+        // Stock Gudang berada pada project Supabase yang berbeda.
+        // Semua menu lain tetap menggunakan `db` di atas.
+        // ============================================================
+        const STOCK_SUPABASE_URL = 'https://dbaycgsbinmudvtvahaq.supabase.co';
+        const STOCK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiYXljZ3NiaW5tdWR2dHZhaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4OTM1MzQsImV4cCI6MjEwNDQ2OTUzNH0.7i69tFE88rUvxWTjmMqbxL0w36HyOihEnysqEw2YmoA';
+        const stockDb = window.supabase.createClient(STOCK_SUPABASE_URL, STOCK_SUPABASE_KEY);
+        window.stockDb = stockDb;
         const NAMA_TABEL_KIRIMAN = 'Kiriman_Cabang';
         const NAMA_TABEL_PLANNING = 'Planning_Editor';
         const NAMA_TABEL_POTRAIT = 'Planning_Potrait';
@@ -8587,7 +8597,7 @@ function edNormalisasiNamaKolom(k) {
             'Master Stock', 'Stock History', 'Import History',
             'Stock Import Detail', 'BON History', 'BON Detail'
         ].forEach((tableName, index) => {
-            db.channel('realtime-admin-stock-gudang-' + index)
+            stockDb.channel('realtime-admin-stock-gudang-' + index)
                 .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, (payload) => {
                     console.log('[Realtime] Perubahan ' + tableName, payload);
                     if (currentActiveTab === 'stock-gudang') loadStock();
@@ -8611,6 +8621,10 @@ function edNormalisasiNamaKolom(k) {
    Semua data dibaca/ditulis langsung ke Supabase.
    ========================================================= */
 (function () {
+    // IMPORTANT: adapter Stock Gudang wajib memakai project Supabase kedua.
+    const db = window.stockDb;
+    if (!db) throw new Error('Koneksi Supabase Stock Gudang belum tersedia.');
+
     const T = {
         BON_DETAIL: 'BON Detail',
         BON_HISTORY: 'BON History',
