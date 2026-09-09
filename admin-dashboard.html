@@ -1262,15 +1262,12 @@
   background:var(--sg-card);
   border:1px solid var(--sg-border);
   border-radius:var(--sg-radius-md);
-  overflow:auto !important;
+  overflow-x:auto;
+  overflow-y:visible;
   box-shadow:var(--sg-shadow);
   width:100%;
   max-width:100%;
-  max-height:calc(100vh - 430px);
-  min-height:260px;
   box-sizing:border-box;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:auto;   /* <-- diubah dari "contain" */
 }
 
 .stock-table{
@@ -1324,7 +1321,7 @@
 @media (min-width:761px){
   .stock-table-wrapper{
     overflow-x:auto !important;
-    overflow-y:auto !important;
+    overflow-y:visible !important;
   }
 }
 
@@ -1335,9 +1332,7 @@
 @media (max-width:760px){
   .stock-table-wrapper{
     overflow-x:auto !important;
-    overflow-y:auto !important;
-    max-height:calc(100vh - 300px);
-    min-height:220px;
+    overflow-y:visible !important;
   }
   .stock-table{ min-width:1080px; }
 }
@@ -1599,7 +1594,7 @@
 /* Pastikan scroll tabel Stock Gudang tidak dikunci oleh style global dashboard. */
 #tab-stock-gudang .stock-table-wrapper{
   overflow-x:auto !important;
-  overflow-y:auto !important;
+  overflow-y:visible !important;
 }
 #tab-stock-gudang .stock-table-wrapper::-webkit-scrollbar{
   width:9px;
