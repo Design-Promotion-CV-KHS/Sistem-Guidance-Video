@@ -13610,6 +13610,25 @@ function loadStock() {
           error
         );
 
+        const element =
+          document.getElementById(
+            'stockLastUpdate'
+          );
+
+        if (element) {
+
+          element.textContent =
+            'Gagal memuat (' +
+            (error && error.message
+              ? error.message
+              : 'periksa koneksi/RLS Supabase') +
+            ')';
+
+          element.style.color =
+            '#dc2626';
+
+        }
+
       }
     )
 
