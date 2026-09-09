@@ -935,21 +935,22 @@
           </div>
         </div>
 
-        <!-- RINGKASAN POTRAIT -->
+        <!-- PROJECT POTRAIT -->
         <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-          <div class="flex items-center justify-between mb-1">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
             <div>
               <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                Kerjaan Potrait Saya
+                Project Potrait
                 <span class="badge-pill bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200">POTRAIT</span>
               </h4>
-              <p class="text-xs text-gray-400 mt-1">Status video Potrait yang ditugaskan kepada Anda.</p>
+              <p class="text-xs text-gray-400 mt-1">Monitoring project Potrait berdasarkan editor. Setiap editor tetap ditampilkan meskipun belum memiliki project WIP.</p>
             </div>
             <button type="button" id="dashboard-open-portrait" class="text-xs font-bold text-fuchsia-600 hover:text-fuchsia-800">Lihat semua →</button>
           </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
             <div class="stat-card p-5 rounded-2xl border border-slate-200 bg-slate-50">
-              <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Belum</p>
+              <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Belum Dikerjakan</p>
               <p id="portrait-card-belum" class="text-3xl font-black text-slate-800 mt-1">0</p>
             </div>
             <div class="stat-card p-5 rounded-2xl border border-amber-200 bg-amber-50/60">
@@ -961,8 +962,9 @@
               <p id="portrait-card-done" class="text-3xl font-black text-slate-800 mt-1">0</p>
             </div>
           </div>
-          <div id="portrait-dashboard-list" class="mt-5 space-y-2">
-            <p class="text-sm text-gray-400 text-center py-5">Memuat data Potrait...</p>
+
+          <div id="portrait-wip-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+            <p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat project Potrait...</p>
           </div>
         </div>
 
@@ -1609,7 +1611,7 @@
     // ===================== NAVIGASI ANTAR MENU (Media Converter dihapus) =====================
     const ALL_VIEWS = ['dashboard', 'crud', 'portrait', 'workflow', 'tools'];
     const HEADER_SUBTITLE = {
-      'dashboard': '| Workflow Video Editor',
+      'dashboard': '| Titik Informasi',
       'crud': '| Kerjakan Landscape',
       'portrait': '| Kerjakan Potrait',
       'workflow': '| Workflow Editing Video',
@@ -2602,21 +2604,79 @@
     }
     function renderPortraitDashboard(data) {
       const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
-      const saya = data;
-      const belum = saya.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Belum Edit');
-      const wip = saya.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'WIP');
-      const done = saya.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Done');
-      set('portrait-card-belum', belum.length); set('portrait-card-wip', wip.length); set('portrait-card-done', done.length);
-      const list = document.getElementById('portrait-dashboard-list');
-      if (!list) return;
-      const active = [...wip, ...belum].slice(0, 8);
-      list.innerHTML = active.length ? active.map(item => {
-        const status = portraitStatusNormal(item[portraitColumnMap.status]);
-        return `<div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/70">
-          <div class="min-w-0"><p class="text-sm font-semibold text-slate-700 truncate">${portraitEscape(item[portraitColumnMap.judul] || '-')}</p><p class="text-[10px] text-slate-400 mt-0.5">${portraitEscape(item[portraitColumnMap.tema] || 'Tanpa tema')}</p></div>
-          <span class="badge-pill shrink-0 ${portraitStatusClass(status)}">${status === 'Belum Edit' ? 'Belum' : status}</span>
-        </div>`;
-      }).join('') : '<p class="text-sm text-gray-400 text-center py-5">Tidak ada video Potrait yang perlu dikerjakan.</p>';
+      const allData = Array.isArray(data) ? data : [];
+
+      const belum = allData.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Belum Edit');
+      const wip = allData.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'WIP');
+      const done = allData.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Done');
+
+      set('portrait-card-belum', belum.length);
+      set('portrait-card-wip', wip.length);
+      set('portrait-card-done', done.length);
+
+      const grid = document.getElementById('portrait-wip-grid');
+      if (!grid) return;
+
+      // Dashboard/Titik Informasi selalu menampilkan 4 editor.
+      // Jangan hilangkan kartu editor meskipun editor tersebut belum memiliki project WIP.
+      const editorNames = ['Munir', 'Bayu', 'Iis', 'Rafqi'];
+      const colorMap = {
+        Munir: '#2563eb',
+        Bayu: '#0d9488',
+        Iis: '#f59e0b',
+        Rafqi: '#8b5cf6'
+      };
+
+      const normalizeEditor = value => String(value ?? '').trim().toLowerCase();
+
+      grid.innerHTML = editorNames.map(editorName => {
+        const editorWip = wip
+          .filter(item => normalizeEditor(item[portraitColumnMap.editor]) === normalizeEditor(editorName));
+
+        const warna = colorMap[editorName] || '#64748b';
+        const inisial = editorName.charAt(0).toUpperCase();
+
+        const daftarVideo = editorWip.length
+          ? editorWip.map(item => `
+              <div class="py-2.5 border-b border-gray-100 last:border-b-0 last:pb-0">
+                <p class="text-sm font-semibold text-gray-800 leading-snug mb-1.5"
+                   title="${portraitEscape(item[portraitColumnMap.judul] || '-')}">
+                  ${portraitEscape(item[portraitColumnMap.judul] || '-')}
+                </p>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[11px] text-gray-400 truncate">
+                    ${portraitEscape(item[portraitColumnMap.produk] || item[portraitColumnMap.tema] || 'Tanpa produk/tema')}
+                  </span>
+                  <span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200 shrink-0">WIP</span>
+                </div>
+              </div>
+            `).join('')
+          : `<div class="flex flex-col items-center justify-center min-h-[110px] text-center">
+               <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-300 mb-2">
+                 <i class="fas fa-circle-check text-sm"></i>
+               </div>
+               <p class="text-xs font-semibold text-slate-400">Tidak ada project Potrait WIP</p>
+               <p class="text-[10px] text-slate-300 mt-1">Editor siap menerima project</p>
+             </div>`;
+
+        return `
+          <div class="editor-wip-card border border-gray-100 rounded-2xl p-5 bg-gradient-to-b from-white to-gray-50/60 flex flex-col min-h-[205px]">
+            <div class="flex items-center gap-2.5 mb-3 shrink-0">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0"
+                   style="background:${warna}">${inisial}</div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-bold text-gray-800 truncate">${editorName}</p>
+                <span class="badge-pill ${editorWip.length ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-slate-50 text-slate-400 border border-slate-200'}">
+                  ✂️ ${editorWip.length} Project WIP
+                </span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-0.5 shrink-0">Sedang Dikerjakan</p>
+            <div class="max-h-[260px] overflow-y-auto pr-1">
+              ${daftarVideo}
+            </div>
+          </div>`;
+      }).join('');
     }
     function renderPortraitPage(data) {
       const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
@@ -2649,8 +2709,10 @@
         renderPortraitDashboard([]); renderPortraitPage([]); return;
       }
       if (data.length) portraitDetectColumns(data[0]);
-      const saya = portraitDataSaya();
-      renderPortraitDashboard(saya); renderPortraitPage(saya);
+      // Dashboard/Titik Informasi menampilkan seluruh project Potrait per editor.
+      // Halaman Kerjakan Potrait tetap dibatasi ke editor yang sedang login.
+      renderPortraitDashboard(portraitRawGlobal);
+      renderPortraitPage(portraitDataSaya());
     }
     async function ubahStatusPortrait(id, statusBaru) {
       if (!id) { alert('ID data Potrait tidak ditemukan.'); return; }
@@ -2684,7 +2746,7 @@
         console.log('[Realtime] Perubahan terdeteksi pada tabel Planning_Potrait:', payload);
         muatPortraitEditor();
         ambilDataPortrait().then(({ data, error }) => {
-          if (!error) { portraitRawGlobal = data; if (data.length) portraitDetectColumns(data[0]); renderPortraitDashboard(portraitDataSaya()); }
+          if (!error) { portraitRawGlobal = data; if (data.length) portraitDetectColumns(data[0]); renderPortraitDashboard(portraitRawGlobal); }
         });
       })
       .subscribe((status) => console.log('[Realtime] Status koneksi channel Planning_Potrait:', status));
