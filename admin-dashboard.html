@@ -932,11 +932,19 @@
    WRAPPER TAB — full width, tidak lagi mepet ke kanan
    ========================================================= */
 #tab-stock-gudang{
+  display:block;
   width:100%;
   box-sizing:border-box;
   padding:2rem;
   background:var(--sg-bg);
-  height:auto;
+  height:calc(100vh - 104px);
+  max-height:calc(100vh - 104px);
+  overflow-y:scroll !important;
+  overflow-x:hidden;
+}
+
+#tab-stock-gudang #stockPage{
+  min-width:0;
   overflow:visible !important;
 }
 
