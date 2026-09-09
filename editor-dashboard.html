@@ -1504,20 +1504,6 @@
     let chartEditor = null;
     let chartStatus = null;
     let currentEditorName = '';
-    let currentEditorId = null;
-
-    // Akun login editor pada sistem lama menggunakan nama generik "Editor",
-    // sedangkan Planning_Editor menyimpan nama editor sebenarnya (Iis, Rafqi, Munir, Bayu).
-    // Mapping berdasarkan ID akun dipakai hanya bila nama akun masih generik.
-    // Jika nanti nama_user sudah berisi nama asli, nama tersebut otomatis diprioritaskan.
-    const EDITOR_BY_USER_ID = {
-      '3': 'Iis',
-      '4': 'Rafqi',
-      '5': 'Munir',
-      '6': 'Bayu'
-    };
-    const DAFTAR_EDITOR = ['Iis', 'Rafqi', 'Munir', 'Bayu'];
-
     let portraitRawGlobal = [];
     let portraitColumnMap = { id: null, judul: null, produk: null, tema: null, brief: null, sellingPoints: null, editor: null, status: null };
 
@@ -1571,10 +1557,6 @@
       COLUMN_MAP.musim = cariKolom('Musim', 'musim');
     }
 
-    function normalisasiNamaEditorAwal(value) {
-      return String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
-    }
-
     const storedUser = localStorage.getItem('data_user');
     if (!storedUser) {
       window.location.href = 'index.html';
@@ -1588,22 +1570,16 @@
         window.location.href = 'admin-dashboard.html';
       }
 
-      const namaUserAsli = String(user.nama_user || '').trim();
-      currentEditorId = user.id_user != null ? String(user.id_user).trim() : null;
-
-      // Bila login masih menggunakan nama generik "Editor", gunakan editor sebenarnya
-      // berdasarkan ID akun. Bila nama_user sudah berupa Iis/Rafqi/Munir/Bayu, langsung gunakan.
-      const namaUserNormal = normalisasiNamaEditorAwal(namaUserAsli);
-      const namaDariId = currentEditorId ? EDITOR_BY_USER_ID[currentEditorId] : '';
-      const namaUser = DAFTAR_EDITOR.some(n => normalisasiNamaEditorAwal(n) === namaUserNormal)
-        ? namaUserAsli
-        : (namaDariId || namaUserAsli || 'Editor');
-
-      currentEditorName = namaUser;
+      const namaUser = user.nama_user || 'User';
+      const namaUserNormal = String(namaUser).trim().toLowerCase();
+      const editorValid = ['iis', 'rafqi', 'munir', 'bayu'];
+      currentEditorName = editorValid.includes(namaUserNormal)
+        ? String(namaUser).trim()
+        : '';
       document.getElementById('user-name').innerText = namaUser;
       document.getElementById('avatar-initial').innerText = namaUser.charAt(0).toUpperCase();
       document.getElementById('welcome-title').innerText = `Selamat Datang, ${namaUser}`;
-      document.getElementById('user-role-badge').innerText = `ID: ${user.id_user || '-'} (EDITOR)`;
+      document.getElementById('user-role-badge').innerText = `ID: ${user.id_user} (EDITOR)`;
 
       document.getElementById('main-body').classList.remove('opacity-0');
     }
@@ -1690,36 +1666,17 @@
       const semuaData = [];
       let offset = 0;
       let nomorHalaman = 1;
-      let gunakanUrutan = Boolean(opsi.orderColumn);
-      let sudahFallbackUrutan = false;
 
       while (true) {
         let query = db.from(namaTabel).select('*');
 
-        // Jangan membuat proses loading gagal hanya karena tabel lama tidak mempunyai
-        // kolom "id". Jika order(id) gagal, otomatis ulangi query tanpa sorting.
-        if (gunakanUrutan) {
+        if (opsi.orderColumn) {
           query = query.order(opsi.orderColumn, { ascending: opsi.ascending !== false });
         }
 
         const { data, error } = await query.range(offset, offset + PAGE_SIZE - 1);
 
         if (error) {
-          const pesanError = String(error.message || '').toLowerCase();
-          const kolomOrderTidakAda = pesanError.includes('column') &&
-            (pesanError.includes('does not exist') || pesanError.includes('not found') || pesanError.includes('unknown'));
-
-          // Fallback penting untuk Planning_Editor versi lama yang tidak memiliki id.
-          if (gunakanUrutan && !sudahFallbackUrutan && kolomOrderTidakAda) {
-            console.warn(`[${namaTabel}] Kolom order "${opsi.orderColumn}" tidak tersedia. Mengambil data tanpa order.`);
-            gunakanUrutan = false;
-            sudahFallbackUrutan = true;
-            offset = 0;
-            nomorHalaman = 1;
-            semuaData.length = 0;
-            continue;
-          }
-
           console.error(`SUPABASE ERROR (${namaTabel}) halaman ${nomorHalaman}:`, error);
           return { data: semuaData, error };
         }
@@ -1729,6 +1686,7 @@
 
         console.log(`[${namaTabel}] halaman ${nomorHalaman}: ${halaman.length} baris, total sementara ${semuaData.length}.`);
 
+        // Jika kurang dari PAGE_SIZE, berarti sudah mencapai halaman terakhir.
         if (halaman.length < PAGE_SIZE) break;
 
         offset += PAGE_SIZE;
@@ -1739,8 +1697,6 @@
     }
 
     async function ambilDataPlanning() {
-      // Tidak lagi bergantung pada kolom id. Fungsi pengambil data akan mencoba
-      // order(id) dan otomatis fallback ke query biasa jika id tidak ada.
       const result = await ambilSemuaBarisSupabase(NAMA_TABEL_PLANNING, {
         orderColumn: 'id',
         ascending: true
@@ -1815,13 +1771,6 @@
       if (listPlanningGlobal.length === 0) {
         const kolomAsli = Object.keys(rawPlanning[0]).join(', ');
         tampilkanDiagnostik(`Tabel "${NAMA_TABEL_PLANNING}" berisi ${rawPlanning.length} baris, tapi tidak ada satupun yang berhasil dibaca karena nama kolom tidak cocok. Kolom yang terdeteksi di Supabase: [${kolomAsli}]. Buka Console browser (F12) untuk detail lengkap.`);
-      } else {
-        const editorTersedia = [...new Set(listPlanningGlobal.map(i => i.editor).filter(Boolean))];
-        console.log('[Planning_Editor] Editor yang tersedia di database:', editorTersedia);
-        console.log('[Planning_Editor] Editor yang sedang login:', currentEditorName);
-        if (currentEditorName && !editorTersedia.some(nama => editorSama(nama, currentEditorName))) {
-          tampilkanDiagnostik(`Data Planning_Editor berhasil dimuat (${rawPlanning.length} baris), tetapi belum ada data yang ditugaskan kepada akun "${currentEditorName}". Nama editor di database: ${editorTersedia.join(', ') || '(kosong)'}.`);
-        }
       }
 
       populateFilters();
@@ -1850,59 +1799,26 @@
         selectBulan.innerHTML += `<option value="${b}" ${b === curBulan ? 'selected' : ''}>${b}</option>`;
       });
 
-      // Filter editor selalu berisi tepat 4 editor yang memang digunakan di Planning_Editor.
-      // Opsi "Saya" berarti editor yang sedang login. Opsi nama editor tetap tersedia
-      // untuk memudahkan pengecekan data saat dibutuhkan.
-      const editorOptions = DAFTAR_EDITOR.slice();
-      const nilaiSaya = currentEditorName && DAFTAR_EDITOR.some(e => editorSama(e, currentEditorName))
-        ? currentEditorName
-        : 'all';
+      const editorSet = new Set(listPlanningGlobal
+        .map(i => i.editor)
+        .filter(e => e && e.toLowerCase() !== 'all editor'));
 
-      selectEditor.innerHTML = `<option value="all" ${curEditor === 'all' ? 'selected' : ''}>Saya</option>`;
-      editorOptions.forEach(e => {
+      selectEditor.innerHTML = '<option value="all">Semua Editor</option>';
+      Array.from(editorSet).sort().forEach(e => {
         selectEditor.innerHTML += `<option value="${e}" ${e === curEditor ? 'selected' : ''}>${e}</option>`;
       });
-
-      // Jika sebelumnya belum ada pilihan atau pilihan lama tidak valid, default kembali ke Saya.
-      if (!editorOptions.some(e => e === curEditor) && curEditor !== 'all') {
-        selectEditor.value = 'all';
-      }
-      if (nilaiSaya && curEditor === 'all') {
-        selectEditor.value = 'all';
-      }
     }
 
     document.getElementById('filter-bulan').addEventListener('change', renderSemua);
     document.getElementById('filter-editor').addEventListener('change', renderSemua);
-
-    function normalisasiNamaEditor(value) {
-      return String(value ?? '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, ' ');
-    }
-
-    function editorSama(namaData, namaLogin) {
-      const a = normalisasiNamaEditor(namaData);
-      const b = normalisasiNamaEditor(namaLogin);
-      if (!a || !b) return false;
-      if (a === b) return true;
-
-      // Toleransi nama akun seperti "Munir Editor" vs "Munir" tanpa mengubah
-      // pencocokan menjadi terlalu longgar.
-      const aDasar = a.replace(/\b(editor|pusat)\b/g, '').replace(/\s+/g, ' ').trim();
-      const bDasar = b.replace(/\b(editor|pusat)\b/g, '').replace(/\s+/g, ' ').trim();
-      return aDasar === bDasar;
-    }
 
     function getFilteredData() {
       const bulanFilter = document.getElementById('filter-bulan').value;
       const editorFilter = document.getElementById('filter-editor').value;
 
       return listPlanningGlobal.filter(item => {
-        if (currentEditorName && !editorSama(item.editor, currentEditorName)) return false;
         if (bulanFilter !== 'all' && item.bulan !== bulanFilter) return false;
-        if (editorFilter !== 'all' && !editorSama(item.editor, editorFilter)) return false;
+        if (editorFilter !== 'all' && item.editor !== editorFilter) return false;
         return true;
       });
     }
@@ -2476,7 +2392,6 @@
         .map((item, idx) => ({ item, idx }))
         .filter(({ item }) => {
           const assignedEditor = COLUMN_MAP.editor ? String(item[COLUMN_MAP.editor] ?? '').trim() : '';
-          if (currentEditorName && !editorSama(assignedEditor, currentEditorName)) return false;
           if (fStatusEdit !== 'all' && normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
           if (fStatusUpload !== 'all' && (COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
           if (fEditor !== 'all' && assignedEditor !== fEditor) return false;
@@ -2682,7 +2597,7 @@
     function portraitDataSaya() {
       return portraitRawGlobal.filter(item => {
         const editor = portraitColumnMap.editor ? String(item[portraitColumnMap.editor] ?? '').trim() : '';
-        return !currentEditorName || editorSama(editor, currentEditorName);
+        return !currentEditorName || editor.toLowerCase() === currentEditorName.toLowerCase();
       });
     }
     function renderPortraitDashboard(data) {
@@ -2724,7 +2639,7 @@
       const banner = document.getElementById('portrait-diagnostic-banner');
       const message = document.getElementById('portrait-diagnostic-message');
       const label = document.getElementById('portrait-editor-label');
-      if (label) label.textContent = `Editor: ${currentEditorName || '-'}`;
+      if (label) label.textContent = currentEditorName ? `Editor: ${currentEditorName}` : 'Semua Editor';
       if (banner) banner.classList.add('hidden');
       const { data, error } = await ambilDataPortrait();
       portraitRawGlobal = data;
@@ -2746,7 +2661,7 @@
       const expectedNext = statusSekarang === 'WIP' ? 'Done' : 'WIP';
       if (statusBaru !== expectedNext) return;
       const editor = portraitColumnMap.editor ? String(current[portraitColumnMap.editor] ?? '').trim() : '';
-      if (currentEditorName && !editorSama(editor, currentEditorName)) { alert('Anda hanya dapat mengubah video yang ditugaskan kepada Anda.'); return; }
+      if (currentEditorName && editor.toLowerCase() !== currentEditorName.toLowerCase()) { alert('Anda hanya dapat mengubah video yang ditugaskan kepada Anda.'); return; }
       const { data, error } = await db.from(NAMA_TABEL_POTRAIT).update({ [portraitColumnMap.status]: statusBaru }).eq(portraitColumnMap.id, id).select();
       if (error) { alert('Gagal mengubah status Potrait: ' + error.message); return; }
       if (!data || data.length === 0) { alert('Status Potrait tidak berubah. Periksa policy UPDATE pada tabel Planning_Potrait.'); return; }
