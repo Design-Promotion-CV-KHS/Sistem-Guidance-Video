@@ -1504,6 +1504,20 @@
     let chartEditor = null;
     let chartStatus = null;
     let currentEditorName = '';
+    let currentEditorId = null;
+
+    // Akun login editor pada sistem lama menggunakan nama generik "Editor",
+    // sedangkan Planning_Editor menyimpan nama editor sebenarnya (Iis, Rafqi, Munir, Bayu).
+    // Mapping berdasarkan ID akun dipakai hanya bila nama akun masih generik.
+    // Jika nanti nama_user sudah berisi nama asli, nama tersebut otomatis diprioritaskan.
+    const EDITOR_BY_USER_ID = {
+      '3': 'Iis',
+      '4': 'Rafqi',
+      '5': 'Munir',
+      '6': 'Bayu'
+    };
+    const DAFTAR_EDITOR = ['Iis', 'Rafqi', 'Munir', 'Bayu'];
+
     let portraitRawGlobal = [];
     let portraitColumnMap = { id: null, judul: null, produk: null, tema: null, brief: null, sellingPoints: null, editor: null, status: null };
 
@@ -1557,6 +1571,10 @@
       COLUMN_MAP.musim = cariKolom('Musim', 'musim');
     }
 
+    function normalisasiNamaEditorAwal(value) {
+      return String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
     const storedUser = localStorage.getItem('data_user');
     if (!storedUser) {
       window.location.href = 'index.html';
@@ -1570,12 +1588,22 @@
         window.location.href = 'admin-dashboard.html';
       }
 
-      const namaUser = user.nama_user || 'User';
-      currentEditorName = String(namaUser).trim();
+      const namaUserAsli = String(user.nama_user || '').trim();
+      currentEditorId = user.id_user != null ? String(user.id_user).trim() : null;
+
+      // Bila login masih menggunakan nama generik "Editor", gunakan editor sebenarnya
+      // berdasarkan ID akun. Bila nama_user sudah berupa Iis/Rafqi/Munir/Bayu, langsung gunakan.
+      const namaUserNormal = normalisasiNamaEditorAwal(namaUserAsli);
+      const namaDariId = currentEditorId ? EDITOR_BY_USER_ID[currentEditorId] : '';
+      const namaUser = DAFTAR_EDITOR.some(n => normalisasiNamaEditorAwal(n) === namaUserNormal)
+        ? namaUserAsli
+        : (namaDariId || namaUserAsli || 'Editor');
+
+      currentEditorName = namaUser;
       document.getElementById('user-name').innerText = namaUser;
       document.getElementById('avatar-initial').innerText = namaUser.charAt(0).toUpperCase();
       document.getElementById('welcome-title').innerText = `Selamat Datang, ${namaUser}`;
-      document.getElementById('user-role-badge').innerText = `ID: ${user.id_user} (EDITOR)`;
+      document.getElementById('user-role-badge').innerText = `ID: ${user.id_user || '-'} (EDITOR)`;
 
       document.getElementById('main-body').classList.remove('opacity-0');
     }
@@ -1822,15 +1850,26 @@
         selectBulan.innerHTML += `<option value="${b}" ${b === curBulan ? 'selected' : ''}>${b}</option>`;
       });
 
-      const editorSet = new Set(listPlanningGlobal
-        .map(i => i.editor)
-        .filter(e => e && e.toLowerCase() !== 'all editor'));
+      // Filter editor selalu berisi tepat 4 editor yang memang digunakan di Planning_Editor.
+      // Opsi "Saya" berarti editor yang sedang login. Opsi nama editor tetap tersedia
+      // untuk memudahkan pengecekan data saat dibutuhkan.
+      const editorOptions = DAFTAR_EDITOR.slice();
+      const nilaiSaya = currentEditorName && DAFTAR_EDITOR.some(e => editorSama(e, currentEditorName))
+        ? currentEditorName
+        : 'all';
 
-      selectEditor.innerHTML = '<option value="all">Saya</option>';
-      const editorOptions = currentEditorName ? [currentEditorName] : Array.from(editorSet).sort();
+      selectEditor.innerHTML = `<option value="all" ${curEditor === 'all' ? 'selected' : ''}>Saya</option>`;
       editorOptions.forEach(e => {
         selectEditor.innerHTML += `<option value="${e}" ${e === curEditor ? 'selected' : ''}>${e}</option>`;
       });
+
+      // Jika sebelumnya belum ada pilihan atau pilihan lama tidak valid, default kembali ke Saya.
+      if (!editorOptions.some(e => e === curEditor) && curEditor !== 'all') {
+        selectEditor.value = 'all';
+      }
+      if (nilaiSaya && curEditor === 'all') {
+        selectEditor.value = 'all';
+      }
     }
 
     document.getElementById('filter-bulan').addEventListener('change', renderSemua);
