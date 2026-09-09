@@ -1030,8 +1030,35 @@
           <p class="text-xs text-gray-400 mb-5">Jumlah video Done dibandingkan target tetap <span
               class="font-semibold">12
               video/bulan</span>. Ganti "Filter Bulan" di atas untuk melihat bulan lain.</p>
-          <div id="target-grid" class="max-w-sm">
-            <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 items-stretch">
+            <div id="target-grid" class="xl:col-span-1">
+              <p class="text-sm text-gray-400 text-center py-6">Memuat data target...</p>
+            </div>
+            <div class="xl:col-span-2 rounded-2xl border border-gray-100 bg-gray-50/50 overflow-hidden flex flex-col min-h-[230px]">
+              <div class="px-5 py-4 border-b border-gray-100 bg-white flex items-center justify-between gap-3">
+                <div>
+                  <h5 class="text-sm font-bold text-gray-800">Video Done Bulan Ini</h5>
+                  <p class="text-[11px] text-gray-400 mt-0.5">Daftar video yang sudah selesai, editor, dan ketepatan terhadap due date</p>
+                </div>
+                <span id="done-month-count" class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">0 video</span>
+              </div>
+              <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                  <thead class="bg-white sticky top-0 z-10">
+                    <tr class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                      <th class="py-3 px-4">Judul Video</th>
+                      <th class="py-3 px-4 whitespace-nowrap">Editor</th>
+                      <th class="py-3 px-4 whitespace-nowrap">Due Date</th>
+                      <th class="py-3 px-4 whitespace-nowrap">Selesai</th>
+                      <th class="py-3 px-4 whitespace-nowrap">Ketepatan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="done-month-body" class="text-xs text-gray-700 divide-y divide-gray-50">
+                    <tr><td colspan="5" class="text-center py-10 text-gray-400">Memuat video Done...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2180,6 +2207,89 @@
       return URUTAN_BULAN[new Date().getMonth()];
     }
 
+    function getTanggalSelesai(item) {
+      // Gunakan kolom tanggal selesai jika tersedia. Jika tidak ada, fallback ke updated_at.
+      const kandidat = [
+        item.tanggalSelesai, item.tanggal_selesai, item.TanggalSelesai, item.Tanggal_Selesai,
+        item.completed_at, item.completedAt, item.selesai_at, item.selesaiAt,
+        item.updated_at, item.updatedAt, item.Updated_At
+      ];
+      const raw = kandidat.find(v => v !== undefined && v !== null && String(v).trim() !== '');
+      if (!raw) return null;
+      const d = new Date(raw);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatTanggalSingkat(value) {
+      const d = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(d.getTime())) return '-';
+      return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function parseTanggalDue(value) {
+      if (!value) return null;
+      const raw = String(value).trim();
+      // Format ISO / yyyy-mm-dd.
+      let d = new Date(raw);
+      if (!Number.isNaN(d.getTime())) return d;
+      // Format umum Indonesia: dd/mm/yyyy atau dd-mm-yyyy.
+      const m = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+      if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      return null;
+    }
+
+    function renderVideoDoneBulanan(bulanTarget) {
+      const tbody = document.getElementById('done-month-body');
+      const countEl = document.getElementById('done-month-count');
+      if (!tbody || !countEl) return;
+
+      const doneItems = listPlanningGlobal
+        .filter(i => i.bulan === bulanTarget && i.statusEdit === 'Done')
+        .map(item => ({
+          ...item,
+          dueObj: parseTanggalDue(item.dueDate),
+          selesaiObj: getTanggalSelesai(item)
+        }))
+        .sort((a, b) => {
+          const ad = a.selesaiObj ? a.selesaiObj.getTime() : 0;
+          const bd = b.selesaiObj ? b.selesaiObj.getTime() : 0;
+          return bd - ad;
+        });
+
+      countEl.textContent = `${doneItems.length} video`;
+
+      if (doneItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada video Done pada ${bulanTarget}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = doneItems.map(item => {
+        let ketepatan = '<span class="badge-pill bg-gray-50 text-gray-400 border border-gray-200">Tidak dapat ditentukan</span>';
+        if (item.dueObj && item.selesaiObj) {
+          // Bandingkan tanggal kalender, bukan jam, agar due date tetap dianggap tepat pada hari yang sama.
+          const dueDay = new Date(item.dueObj.getFullYear(), item.dueObj.getMonth(), item.dueObj.getDate()).getTime();
+          const doneDay = new Date(item.selesaiObj.getFullYear(), item.selesaiObj.getMonth(), item.selesaiObj.getDate()).getTime();
+          if (doneDay <= dueDay) {
+            ketepatan = '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✓ Tepat waktu</span>';
+          } else {
+            const terlambat = Math.max(1, Math.round((doneDay - dueDay) / 86400000));
+            ketepatan = `<span class="badge-pill bg-rose-50 text-rose-600 border border-rose-200">⚠ Terlambat ${terlambat} hari</span>`;
+          }
+        }
+
+        return `
+          <tr class="hover:bg-white transition-colors">
+            <td class="py-3 px-4 max-w-[330px]">
+              <div class="font-semibold text-gray-700 truncate" title="${escapeHtml(item.judul || '-')}">${escapeHtml(item.judul || '-')}</div>
+            </td>
+            <td class="py-3 px-4 font-medium text-gray-600 whitespace-nowrap">${escapeHtml(item.editor || '-')}</td>
+            <td class="py-3 px-4 text-gray-500 whitespace-nowrap">${escapeHtml(item.dueDate || '-')}</td>
+            <td class="py-3 px-4 text-gray-500 whitespace-nowrap">${item.selesaiObj ? formatTanggalSingkat(item.selesaiObj) : '<span class="text-gray-300">-</span>'}</td>
+            <td class="py-3 px-4 whitespace-nowrap">${ketepatan}</td>
+          </tr>`;
+      }).join('');
+    }
+
     function renderTargetBulanan() {
       const container = document.getElementById('target-grid');
       const label = document.getElementById('target-bulan-label');
@@ -2217,6 +2327,8 @@
       label.innerText = filterBulan === 'all'
         ? (bulanFallback ? `Bulan Berjalan (data terbaru: ${bulanTarget})` : 'Bulan Berjalan')
         : 'Sesuai Filter Bulan';
+
+      renderVideoDoneBulanan(bulanTarget);
 
       container.innerHTML = `
         <div class="relative p-5 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
