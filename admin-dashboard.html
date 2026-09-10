@@ -15628,6 +15628,31 @@ function getStockCategoriesClean() {
   return Object.values(map).sort((a,b) => a.localeCompare(b, 'id'));
 }
 
+function populateCleanStockCategorySelect() {
+  const select = document.getElementById('stockCategorySelect');
+  const allSelect = document.getElementById('allStockCategoryFilter');
+  const cats = getStockCategoriesClean();
+
+  const current = window.selectedStockCategory || '';
+  const validCurrent = cats.find(c => c.toUpperCase() === String(current).toUpperCase());
+  window.selectedStockCategory = validCurrent || '';
+
+  if (select) {
+    select.innerHTML = '<option value="">Semua barang</option>' +
+      cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    select.value = window.selectedStockCategory;
+  }
+
+  if (allSelect) {
+    const currentAll = allSelect.value || '';
+    allSelect.innerHTML = '<option value="">Semua kategori</option>' +
+      cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    if (cats.some(c => c.toUpperCase() === currentAll.toUpperCase())) {
+      allSelect.value = currentAll;
+    }
+  }
+}
+
 function updateCleanStockOverview() {
   const all = Array.isArray(stockData) ? stockData : [];
   const cat = window.selectedStockCategory || '';
