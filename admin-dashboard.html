@@ -10135,6 +10135,10 @@ function edNormalisasiNamaKolom(k) {
 let stockData = [];
 let manualStockItemsCache = [];
 
+// Token untuk mencegah hasil request daftar barang lama
+// mengembalikan pilihan barang yang sudah di-reset.
+let manualStockLoadToken = 0;
+
 let stockStatusFilter = 'SEMUA';
 
 let stockChangeFilter = 'SEMUA';
@@ -11059,6 +11063,79 @@ if (newItem) {
 }
 
 
+function resetManualStockForm() {
+
+  // Naikkan token supaya callback request lama tidak
+  // mengembalikan pilihan barang sebelumnya.
+  manualStockLoadToken++;
+
+  const select =
+    document.getElementById('manualItem');
+
+  const selectedText =
+    document.getElementById('manualSelectedText');
+
+  const search =
+    document.getElementById('manualItemSearch');
+
+  const jenis =
+    document.getElementById('manualJenis');
+
+  const jumlah =
+    document.getElementById('manualJumlah');
+
+  const keterangan =
+    document.getElementById('manualKeterangan');
+
+  const optionsContainer =
+    document.getElementById('manualItemOptions');
+
+  // Reset barang yang dipilih.
+  if (select) {
+    select.value = '';
+    select.innerHTML =
+      '<option value="">Pilih barang...</option>';
+  }
+
+  if (selectedText) {
+    selectedText.textContent = 'Pilih barang...';
+    selectedText.classList.remove('selected');
+  }
+
+  // Reset pencarian barang.
+  if (search) {
+    search.value = '';
+  }
+
+  // Reset jenis perubahan ke kondisi awal.
+  if (jenis) {
+    jenis.value = 'MASUK';
+  }
+
+  // Reset jumlah.
+  if (jumlah) {
+    jumlah.value = '';
+  }
+
+  // Reset keterangan.
+  if (keterangan) {
+    keterangan.value = '';
+  }
+
+  // Tutup dropdown barang jika sebelumnya terbuka.
+  closeManualItemDropdown();
+
+  // Kosongkan hasil lama agar tidak terlihat ketika form dibuka kembali.
+  if (optionsContainer) {
+    optionsContainer.innerHTML = `
+      <div class="manual-item-loading">
+        Memuat barang...
+      </div>
+    `;
+  }
+}
+
+
 function closeStockUpdate() {
 
   const modal =
@@ -11081,15 +11158,30 @@ function closeStockUpdate() {
       'xlsxUploadForm'
     );
 
-  // Tutup modal
-  modal.style.display = 'none';
+  // Reset SEMUA data input manual setiap kali modal ditutup.
+  // Ini mencegah data transaksi sebelumnya muncul kembali
+  // ketika pengguna membuat input stock berikutnya.
+  resetManualStockForm();
 
-  // Reset tampilan
-  method.style.display = 'block';
-  manual.style.display = 'none';
-  xlsx.style.display = 'none';
+  // Tutup modal.
+  if (modal) {
+    modal.style.display = 'none';
+  }
 
-  // Reset file
+  // Reset tampilan.
+  if (method) {
+    method.style.display = 'block';
+  }
+
+  if (manual) {
+    manual.style.display = 'none';
+  }
+
+  if (xlsx) {
+    xlsx.style.display = 'none';
+  }
+
+  // Reset file XLSX.
   const fileInput =
     document.getElementById(
       'stockXlsxFile'
@@ -11099,6 +11191,7 @@ function closeStockUpdate() {
     fileInput.value = '';
   }
 
+  // Reset form tambah barang.
   const newItem =
     document.getElementById('newItemForm');
 
@@ -11113,14 +11206,7 @@ function closeStockUpdate() {
     bonForm.style.display = 'none';
   }
 
-  const manualSearch =
-    document.getElementById('manualItemSearch');
-
-  if (manualSearch) {
-    manualSearch.value = '';
-  }
-
-  // Reset status upload
+  // Reset status upload.
   const status =
     document.getElementById(
       'xlsxUploadStatus'
@@ -11129,23 +11215,44 @@ function closeStockUpdate() {
   if (status) {
     status.textContent = '';
   }
+
   sgSetStockModalTopHeaderVisible(true);
 }
 
 
 function openManualStockForm() {
 
-  document.getElementById(
-    'stockMethodSelection'
-  ).style.display = 'none';
+  const method =
+    document.getElementById(
+      'stockMethodSelection'
+    );
 
-  document.getElementById(
-    'manualStockForm'
-  ).style.display = 'block';
+  const manual =
+    document.getElementById(
+      'manualStockForm'
+    );
 
-  document.getElementById(
-    'xlsxUploadForm'
-  ).style.display = 'none';
+  const xlsx =
+    document.getElementById(
+      'xlsxUploadForm'
+    );
+
+  if (method) {
+    method.style.display = 'none';
+  }
+
+  if (manual) {
+    manual.style.display = 'block';
+  }
+
+  if (xlsx) {
+    xlsx.style.display = 'none';
+  }
+
+  // Selalu mulai input manual dari form kosong.
+  // Ini penting ketika pengguna sebelumnya sudah menyimpan
+  // transaksi lalu memilih "Input Manual" lagi.
+  resetManualStockForm();
 
   loadManualStockItems();
 
@@ -11160,29 +11267,36 @@ function loadManualStockItems(selectedItem) {
   const search =
     document.getElementById('manualItemSearch');
 
+  // Setiap pemanggilan memiliki token sendiri.
+  // Callback dari request lama tidak boleh mengembalikan
+  // selectedItem lama setelah form di-reset.
+  const requestToken = ++manualStockLoadToken;
+
   if (search && !selectedItem) {
     search.value = '';
   }
 
   const optionsContainer =
-  document.getElementById(
-    'manualItemOptions'
-  );
+    document.getElementById(
+      'manualItemOptions'
+    );
 
-
-if (optionsContainer) {
-
-  optionsContainer.innerHTML = `
-    <div class="manual-item-loading">
-      Memuat barang...
-    </div>
-  `;
-
-}
+  if (optionsContainer) {
+    optionsContainer.innerHTML = `
+      <div class="manual-item-loading">
+        Memuat barang...
+      </div>
+    `;
+  }
 
   google.script.run
 
     .withSuccessHandler(function(items) {
+
+      // Abaikan hasil request yang sudah tidak relevan.
+      if (requestToken !== manualStockLoadToken) {
+        return;
+      }
 
       manualStockItemsCache = items || [];
 
@@ -11194,21 +11308,23 @@ if (optionsContainer) {
 
     .withFailureHandler(function(error) {
 
+      // Abaikan error dari request yang sudah tidak relevan.
+      if (requestToken !== manualStockLoadToken) {
+        return;
+      }
+
       const optionsContainer =
-  document.getElementById(
-    'manualItemOptions'
-  );
+        document.getElementById(
+          'manualItemOptions'
+        );
 
-
-if (optionsContainer) {
-
-  optionsContainer.innerHTML = `
-    <div class="manual-item-empty">
-      Gagal memuat barang.
-    </div>
-  `;
-
-}
+      if (optionsContainer) {
+        optionsContainer.innerHTML = `
+          <div class="manual-item-empty">
+            Gagal memuat barang.
+          </div>
+        `;
+      }
 
       alert(
         'Gagal mengambil daftar barang:\n' +
@@ -11983,6 +12099,10 @@ function openQuickStockEdit(itemCode) {
     return;
   }
 
+  // Bersihkan data input manual yang mungkin tertinggal
+  // dari transaksi sebelumnya.
+  resetManualStockForm();
+
   modal.style.display = 'flex';
   method.style.display = 'none';
   manual.style.display = 'block';
@@ -12003,17 +12123,32 @@ function openQuickStockEdit(itemCode) {
       return row.item === itemCode;
     });
 
-  document.getElementById('manualJenis').value = 'KOREKSI';
-  document.getElementById('manualJumlah').value =
-    item ? Number(item.stock || 0) : '';
+  const jenis =
+    document.getElementById('manualJenis');
 
-  document.getElementById('manualKeterangan').value =
-    'Koreksi stock langsung dari monitoring';
+  const jumlah =
+    document.getElementById('manualJumlah');
+
+  const keterangan =
+    document.getElementById('manualKeterangan');
+
+  if (jenis) {
+    jenis.value = 'KOREKSI';
+  }
+
+  if (jumlah) {
+    jumlah.value =
+      item ? Number(item.stock || 0) : '';
+  }
+
+  if (keterangan) {
+    keterangan.value =
+      'Koreksi stock langsung dari monitoring';
+  }
 
   loadManualStockItems(itemCode);
 
 }
-
 
 
 function saveManualStockData() {
