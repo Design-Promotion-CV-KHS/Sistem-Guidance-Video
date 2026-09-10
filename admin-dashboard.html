@@ -947,6 +947,7 @@
 #tab-stock-gudang #stockPage {
   min-width:0;
   overflow:visible !important;
+  box-sizing:border-box;
 }
 
 @media (max-width:760px){
@@ -968,6 +969,8 @@
 #tab-stock-gudang .page-header {
   position:relative;
   overflow:hidden;
+  flex-shrink:0;
+  box-sizing:border-box;
   display:flex;
   flex-wrap:wrap;
   align-items:flex-end;
@@ -1745,6 +1748,14 @@
 #tab-stock-gudang .stock-inline-value:hover { background:var(--sg-primary-light); }
 
 
+#tab-stock-gudang .page-header > div:first-child {
+  min-width:0;
+}
+#tab-stock-gudang .page-header h1,
+#tab-stock-gudang .page-header p {
+  position:relative;
+  z-index:2;
+}
 </style>
 
 <style id="stock-main-clean-ui">
@@ -5690,7 +5701,15 @@
             // Setiap kali pindah tab, pastikan kunci scroll khusus mode panduan-workspace
             // tidak "nyangkut" dan membuat tab lain tidak bisa discroll.
             const mainEl = document.querySelector('main');
-            if (mainEl) mainEl.classList.remove('panduan-scroll-lock');
+            if (mainEl) {
+                mainEl.classList.remove('panduan-scroll-lock');
+
+                // Setiap tab dimulai dari posisi paling atas.
+                // Ini sangat penting untuk Stock Gudang karena header dashboard
+                // bersifat sticky; tanpa reset scroll, header Stock Monitoring
+                // dapat masuk ke bawah header sticky dan terlihat terpotong.
+                mainEl.scrollTo({ top: 0, behavior: 'auto' });
+            }
 
             if (tabName === 'overview') {
                 // Muat SEMUA sumber data yang dipakai Ringkasan Admin.
