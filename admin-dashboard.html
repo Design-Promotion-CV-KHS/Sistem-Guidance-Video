@@ -6889,7 +6889,7 @@
             setSelectValueEnsureOption(document.getElementById('cp-crud-field-cabang'), cpGetCabang(item));
             document.getElementById('cp-crud-field-nama').value = cpGetNama(item);
             document.getElementById('cp-crud-field-produk').value = cpGetProduk(item);
-            document.getElementById('cp-crud-field-produk').value = cpGetProduk(item);
+            document.getElementById('cp-crud-field-tanggal').value = cpGetTanggal(item);
             document.getElementById('cp-crud-field-customerProfile').value = cpGetCustomerProfile(item);
             document.getElementById('cp-crud-field-scriptWawancara').value = cpGetScriptWawancara(item);
             document.getElementById('cp-crud-field-evaluasiWawancara').value = cpGetEvaluasiWawancara(item);
@@ -8246,6 +8246,12 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('ed-crud-field-sellingPoints').value = edCOLUMN_MAP.sellingPoints ? (item[edCOLUMN_MAP.sellingPoints] || '') : '';
             setSelectValueEnsureOption(document.getElementById('ed-crud-field-editor'), edCOLUMN_MAP.editor ? (item[edCOLUMN_MAP.editor] || '') : '');
             document.getElementById('ed-crud-field-statusEdit').value = edCOLUMN_MAP.statusEdit ? (normalizeStatus(item[edCOLUMN_MAP.statusEdit]) || 'Transkrip Siap') : 'Transkrip Siap';
+            document.getElementById('ed-crud-field-suratPersetujuan').value = edCOLUMN_MAP.suratPersetujuan ? (item[edCOLUMN_MAP.suratPersetujuan] || '') : '';
+            document.getElementById('ed-crud-field-statusSkenario').value = edCOLUMN_MAP.statusSkenario ? (item[edCOLUMN_MAP.statusSkenario] || '') : '';
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-video'), edCOLUMN_MAP.video ? String(item[edCOLUMN_MAP.video] ?? '') : '');
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-thumbnail'), edCOLUMN_MAP.thumbnail ? String(item[edCOLUMN_MAP.thumbnail] ?? '') : '');
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-approveDirut'), edCOLUMN_MAP.approveDirut ? (item[edCOLUMN_MAP.approveDirut] || 'Belum') : 'Belum');
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-approveNarasumber'), edCOLUMN_MAP.approveNarasumber ? (item[edCOLUMN_MAP.approveNarasumber] || 'Belum') : 'Belum');
             document.getElementById('ed-crud-field-dueDate').value = edCOLUMN_MAP.dueDate ? (item[edCOLUMN_MAP.dueDate] || '') : '';
             document.getElementById('ed-crud-field-targetUpload').value = edCOLUMN_MAP.targetUpload ? (item[edCOLUMN_MAP.targetUpload] || '') : '';
             setSelectValueEnsureOption(document.getElementById('ed-crud-field-statusUpload'), edCOLUMN_MAP.statusUpload ? (item[edCOLUMN_MAP.statusUpload] || '') : '');
@@ -8288,6 +8294,18 @@ function edNormalisasiNamaKolom(k) {
             if (edCOLUMN_MAP.sellingPoints) payload[edCOLUMN_MAP.sellingPoints] = document.getElementById('ed-crud-field-sellingPoints').value;
             if (edCOLUMN_MAP.editor) payload[edCOLUMN_MAP.editor] = document.getElementById('ed-crud-field-editor').value;
             if (edCOLUMN_MAP.statusEdit) payload[edCOLUMN_MAP.statusEdit] = document.getElementById('ed-crud-field-statusEdit').value;
+            if (edCOLUMN_MAP.suratPersetujuan) payload[edCOLUMN_MAP.suratPersetujuan] = document.getElementById('ed-crud-field-suratPersetujuan').value;
+            if (edCOLUMN_MAP.statusSkenario) payload[edCOLUMN_MAP.statusSkenario] = document.getElementById('ed-crud-field-statusSkenario').value;
+            if (edCOLUMN_MAP.video) {
+                const videoVal = document.getElementById('ed-crud-field-video').value;
+                if (videoVal !== '') payload[edCOLUMN_MAP.video] = videoVal === 'true';
+            }
+            if (edCOLUMN_MAP.thumbnail) {
+                const thumbnailVal = document.getElementById('ed-crud-field-thumbnail').value;
+                if (thumbnailVal !== '') payload[edCOLUMN_MAP.thumbnail] = thumbnailVal === 'true';
+            }
+            if (edCOLUMN_MAP.approveDirut) payload[edCOLUMN_MAP.approveDirut] = document.getElementById('ed-crud-field-approveDirut').value || 'Belum';
+            if (edCOLUMN_MAP.approveNarasumber) payload[edCOLUMN_MAP.approveNarasumber] = document.getElementById('ed-crud-field-approveNarasumber').value || 'Belum';
             if (edCOLUMN_MAP.dueDate) payload[edCOLUMN_MAP.dueDate] = document.getElementById('ed-crud-field-dueDate').value;
             if (edCOLUMN_MAP.targetUpload) payload[edCOLUMN_MAP.targetUpload] = document.getElementById('ed-crud-field-targetUpload').value;
             if (edCOLUMN_MAP.statusUpload) payload[edCOLUMN_MAP.statusUpload] = document.getElementById('ed-crud-field-statusUpload').value;
