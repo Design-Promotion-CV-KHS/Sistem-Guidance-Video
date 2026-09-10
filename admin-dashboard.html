@@ -1746,6 +1746,148 @@
 
 
 </style>
+
+<style id="stock-main-clean-ui">
+/* =========================================================
+   STOCK GUDANG — CLEAN MAIN UI
+   Tampilan utama stabil: satu ringkasan, satu dropdown kategori,
+   satu tabel dengan ukuran kolom tetap. Semua data lengkap berada
+   pada halaman terpisah (#allStockPage).
+   ========================================================= */
+#tab-stock-gudang{position:relative;}
+#tab-stock-gudang .stock-overview-card{
+  display:grid;
+  grid-template-columns:minmax(300px,1.25fr) minmax(420px,1fr);
+  align-items:center;
+  gap:24px;
+  margin:0 0 14px;
+  padding:18px 22px;
+  background:#fff;
+  border:1px solid var(--sg-border);
+  border-radius:16px;
+  box-shadow:var(--sg-shadow);
+  flex:0 0 auto;
+}
+#tab-stock-gudang .stock-overview-main{display:flex;align-items:center;gap:14px;min-width:0;}
+#tab-stock-gudang .stock-overview-icon,
+#tab-stock-gudang .stock-category-icon{
+  width:44px;height:44px;flex:0 0 44px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--sg-primary-light);color:var(--sg-primary);font-size:17px;
+}
+#tab-stock-gudang .stock-overview-label,
+#tab-stock-gudang .stock-section-kicker{
+  display:block;font-size:9px;font-weight:900;letter-spacing:.85px;color:var(--sg-faint);
+}
+#tab-stock-gudang .stock-overview-value-row{display:flex;align-items:baseline;gap:7px;margin-top:2px;}
+#tab-stock-gudang .stock-overview-value-row strong{font-size:30px;line-height:1;font-weight:900;color:var(--sg-ink);}
+#tab-stock-gudang .stock-overview-value-row span{font-size:11px;font-weight:800;color:var(--sg-faint);}
+#tab-stock-gudang .stock-overview-main p{margin:5px 0 0;font-size:11px;color:var(--sg-muted);}
+#tab-stock-gudang .stock-overview-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+#tab-stock-gudang .stock-overview-metrics>div{
+  min-width:0;padding:10px 11px;background:#f8fafc;border:1px solid var(--sg-border-soft);border-radius:11px;
+}
+#tab-stock-gudang .stock-overview-metrics span{display:block;font-size:9px;font-weight:800;color:var(--sg-faint);white-space:nowrap;}
+#tab-stock-gudang .stock-overview-metrics strong{display:block;margin-top:3px;font-size:17px;font-weight:900;color:var(--sg-ink);}
+#tab-stock-gudang .stock-overview-metrics strong.is-green{color:var(--sg-green);}
+#tab-stock-gudang .stock-overview-metrics strong.is-amber{color:var(--sg-amber);}
+#tab-stock-gudang .stock-overview-metrics strong.is-red{color:var(--sg-rose);}
+
+#tab-stock-gudang .stock-category-control{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  margin:0 0 14px;padding:14px 16px;background:#fff;border:1px solid var(--sg-border);
+  border-radius:14px;box-shadow:var(--sg-shadow);flex:0 0 auto;
+}
+#tab-stock-gudang .stock-category-control-info{display:flex;align-items:center;gap:12px;min-width:0;}
+#tab-stock-gudang .stock-category-icon{width:38px;height:38px;flex-basis:38px;border-radius:10px;font-size:14px;}
+#tab-stock-gudang .stock-category-control-info strong{display:block;margin-top:2px;font-size:13px;color:var(--sg-ink);}
+#tab-stock-gudang .stock-category-control-info small{display:block;margin-top:2px;font-size:10.5px;color:var(--sg-faint);}
+#tab-stock-gudang .stock-category-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+#tab-stock-gudang .stock-category-select,
+#tab-stock-gudang .all-stock-select{
+  height:38px;padding:0 34px 0 12px;border:1px solid var(--sg-border);border-radius:10px;
+  background:#fff;color:var(--sg-ink-soft);font-family:inherit;font-size:11.5px;font-weight:800;
+  outline:none;cursor:pointer;min-width:190px;
+}
+#tab-stock-gudang .stock-category-select:focus,
+#tab-stock-gudang .all-stock-select:focus{border-color:var(--sg-primary);box-shadow:0 0 0 3px var(--sg-primary-light);}
+#tab-stock-gudang .stock-all-button{
+  height:38px;border:1px solid var(--sg-ink);border-radius:10px;padding:0 14px;
+  display:inline-flex;align-items:center;gap:7px;background:var(--sg-ink);color:#fff;
+  font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;transition:.18s ease;
+}
+#tab-stock-gudang .stock-all-button:hover{background:#1e293b;transform:translateY(-1px);}
+
+#tab-stock-gudang .stock-search{margin-bottom:10px!important;flex:0 0 auto;}
+#tab-stock-gudang .stock-filter-section{margin-bottom:10px!important;flex:0 0 auto;}
+#tab-stock-gudang .stock-table-wrapper{
+  flex:1 1 auto!important;min-height:300px!important;max-height:none!important;
+  height:calc(100vh - 410px)!important;overflow:auto!important;
+  border-radius:14px!important;
+}
+#tab-stock-gudang .stock-table{width:100%!important;min-width:1120px!important;table-layout:fixed!important;}
+#tab-stock-gudang .stock-table th,#tab-stock-gudang .stock-table td{box-sizing:border-box;}
+#tab-stock-gudang .stock-table th:nth-child(1),#tab-stock-gudang .stock-table td:nth-child(1){width:15%;}
+#tab-stock-gudang .stock-table th:nth-child(2),#tab-stock-gudang .stock-table td:nth-child(2){width:29%;}
+#tab-stock-gudang .stock-table th:nth-child(3),#tab-stock-gudang .stock-table td:nth-child(3){width:8%;}
+#tab-stock-gudang .stock-table th:nth-child(4),#tab-stock-gudang .stock-table td:nth-child(4){width:10%;}
+#tab-stock-gudang .stock-table th:nth-child(5),#tab-stock-gudang .stock-table td:nth-child(5){width:11%;}
+#tab-stock-gudang .stock-table th:nth-child(6),#tab-stock-gudang .stock-table td:nth-child(6){width:9%;}
+#tab-stock-gudang .stock-table th:nth-child(7),#tab-stock-gudang .stock-table td:nth-child(7){width:11%;}
+#tab-stock-gudang .stock-table th:nth-child(8),#tab-stock-gudang .stock-table td:nth-child(8){width:7%;}
+#tab-stock-gudang .stock-table th,#tab-stock-gudang .stock-table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+#tab-stock-gudang .stock-status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:68px;padding:5px 9px;border-radius:999px;font-size:9px;font-weight:900;line-height:1;}
+#tab-stock-gudang .stock-status-badge.status-aman{background:#e8f8ef;color:#16834a;}
+#tab-stock-gudang .stock-status-badge.status-menipis{background:#fff3df;color:#c87900;}
+#tab-stock-gudang .stock-status-badge.status-habis{background:#ffe8e8;color:#d63b3b;}
+
+/* Halaman semua stock */
+#tab-stock-gudang .all-stock-page{
+  position:absolute;inset:0;z-index:100;background:#f5f7fb;display:none;flex-direction:column;
+  padding:22px 24px;overflow:hidden;
+}
+#tab-stock-gudang .all-stock-page.is-open{display:flex;}
+#tab-stock-gudang .all-stock-page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex:0 0 auto;margin-bottom:14px;}
+#tab-stock-gudang .all-stock-back{
+  display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;padding:0;margin:0 0 12px;
+  color:var(--sg-primary);font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;
+}
+#tab-stock-gudang .all-stock-back:hover{text-decoration:underline;}
+#tab-stock-gudang .all-stock-page-header h2{margin:4px 0 2px;font-size:24px;line-height:1.15;color:var(--sg-ink);font-weight:900;}
+#tab-stock-gudang .all-stock-page-header p{margin:0;color:var(--sg-muted);font-size:11px;}
+#tab-stock-gudang .all-stock-page-count{padding:8px 12px;border:1px solid var(--sg-border);border-radius:999px;background:#fff;color:var(--sg-ink-soft);font-size:11px;font-weight:800;white-space:nowrap;}
+#tab-stock-gudang .all-stock-toolbar{display:flex;gap:9px;align-items:center;flex:0 0 auto;margin-bottom:12px;padding:10px;background:#fff;border:1px solid var(--sg-border);border-radius:13px;box-shadow:var(--sg-shadow);}
+#tab-stock-gudang .all-stock-search{height:38px;display:flex;align-items:center;gap:8px;flex:1;border:1px solid var(--sg-border);border-radius:10px;padding:0 12px;color:var(--sg-faint);}
+#tab-stock-gudang .all-stock-search input{width:100%;border:0;outline:0;background:transparent;font-family:inherit;font-size:11.5px;color:var(--sg-ink);}
+#tab-stock-gudang .all-stock-select{min-width:160px;padding-right:12px;}
+#tab-stock-gudang .all-stock-table-wrap{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--sg-border);border-radius:14px;box-shadow:var(--sg-shadow);}
+#tab-stock-gudang .all-stock-table{width:100%!important;min-width:1120px!important;table-layout:fixed!important;border-collapse:separate;border-spacing:0;}
+#tab-stock-gudang .all-stock-table th:nth-child(1),#tab-stock-gudang .all-stock-table td:nth-child(1){width:17%;}
+#tab-stock-gudang .all-stock-table th:nth-child(2),#tab-stock-gudang .all-stock-table td:nth-child(2){width:29%;}
+#tab-stock-gudang .all-stock-table th:nth-child(3),#tab-stock-gudang .all-stock-table td:nth-child(3){width:16%;}
+#tab-stock-gudang .all-stock-table th:nth-child(4),#tab-stock-gudang .all-stock-table td:nth-child(4){width:8%;}
+#tab-stock-gudang .all-stock-table th:nth-child(5),#tab-stock-gudang .all-stock-table td:nth-child(5){width:10%;}
+#tab-stock-gudang .all-stock-table th:nth-child(6),#tab-stock-gudang .all-stock-table td:nth-child(6){width:10%;}
+#tab-stock-gudang .all-stock-table th:nth-child(7),#tab-stock-gudang .all-stock-table td:nth-child(7){width:10%;}
+#tab-stock-gudang .all-stock-table th,#tab-stock-gudang .all-stock-table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+@media(max-width:900px){
+  #tab-stock-gudang .stock-overview-card{grid-template-columns:1fr;gap:12px;}
+  #tab-stock-gudang .stock-overview-metrics{grid-template-columns:repeat(4,1fr);}
+  #tab-stock-gudang .stock-category-control{align-items:stretch;flex-direction:column;}
+  #tab-stock-gudang .stock-category-actions{width:100%;}
+  #tab-stock-gudang .stock-category-select{flex:1;}
+}
+@media(max-width:600px){
+  #tab-stock-gudang .stock-overview-metrics{grid-template-columns:repeat(2,1fr);}
+  #tab-stock-gudang .stock-category-actions{flex-direction:column;}
+  #tab-stock-gudang .stock-category-select,#tab-stock-gudang .stock-all-button{width:100%;}
+  #tab-stock-gudang .all-stock-toolbar{flex-wrap:wrap;}
+  #tab-stock-gudang .all-stock-search{width:100%;flex-basis:100%;}
+  #tab-stock-gudang .all-stock-select{flex:1;}
+}
+</style>
 </head>
 
 <body class="flex h-screen overflow-hidden opacity-0 transition-opacity duration-700 ease-in text-slate-800"
@@ -3923,61 +4065,52 @@
   </div>
 
 <!-- =========================================================
-     STOCK BY CATEGORY
+     RINGKASAN STOCK + PILIH KATEGORI
+     Tampilan utama sengaja dibuat statis dan ringkas.
+     Daftar seluruh stock dibuka pada halaman overlay terpisah.
      ========================================================= -->
 
-<details class="category-carousel-section" id="categoryCarouselDetails">
-
-  <summary class="category-carousel-summary">
-    <i class="fas fa-layer-group"></i>
-    <span>Lihat Stock per Kategori (Bolpoin, Kaos, dll)</span>
-    <span class="category-carousel-summary-hint">Klik untuk buka / tutup</span>
-  </summary>
-
-  <div class="category-carousel-wrapper">
-
-    <!-- TOMBOL KIRI -->
-
-    <button
-      type="button"
-      id="categoryCarouselPrev"
-      class="category-carousel-btn category-carousel-btn-left"
-      aria-label="Kategori sebelumnya"
-    >
-      ‹
-    </button>
-
-
-    <!-- CAROUSEL -->
-
-    <div
-      class="category-carousel"
-      id="categoryCarousel"
-    >
-
-      <div
-        class="category-carousel-track"
-        id="categoryCarouselTrack"
-      >
+<div class="stock-overview-card">
+  <div class="stock-overview-main">
+    <div class="stock-overview-icon"><i class="fas fa-boxes-stacked"></i></div>
+    <div>
+      <span class="stock-overview-label">TOTAL STOCK SAAT INI</span>
+      <div class="stock-overview-value-row">
+        <strong id="stockOverviewTotal">0</strong>
+        <span>unit</span>
       </div>
-
+      <p id="stockOverviewSubtitle">Seluruh persediaan yang tercatat di gudang</p>
     </div>
-
-
-    <!-- TOMBOL KANAN -->
-
-    <button
-      type="button"
-      id="categoryCarouselNext"
-      class="category-carousel-btn category-carousel-btn-right"
-      aria-label="Kategori berikutnya"
-    >
-      ›
-    </button>
-
   </div>
 
-</details>
+  <div class="stock-overview-metrics">
+    <div><span>Total Item</span><strong id="stockOverviewItems">0</strong></div>
+    <div><span>Aman</span><strong class="is-green" id="stockOverviewAman">0</strong></div>
+    <div><span>Menipis</span><strong class="is-amber" id="stockOverviewMenipis">0</strong></div>
+    <div><span>Habis</span><strong class="is-red" id="stockOverviewHabis">0</strong></div>
+  </div>
+</div>
+
+<div class="stock-category-control">
+  <div class="stock-category-control-info">
+    <div class="stock-category-icon"><i class="fas fa-layer-group"></i></div>
+    <div>
+      <span class="stock-section-kicker">TAMPILAN STOCK UTAMA</span>
+      <strong>Pilih kategori barang</strong>
+      <small>Hanya satu kategori ditampilkan agar tabel tetap rapi.</small>
+    </div>
+  </div>
+
+  <div class="stock-category-actions">
+    <select id="stockCategorySelect" class="stock-category-select" aria-label="Pilih kategori stock" onchange="selectStockCategory(this.value)">
+      <option value="">Memuat kategori...</option>
+    </select>
+    <button type="button" class="stock-all-button" onclick="openAllStockPage()">
+      <i class="fas fa-table-list"></i>
+      <span>Lihat Semua Stok</span>
+    </button>
+  </div>
+</div>
 
 
   <div class="stock-search">
@@ -4113,6 +4246,50 @@
 
     </table>
 
+  </div>
+
+  <!-- HALAMAN SEMUA STOCK: terpisah dari tampilan utama -->
+  <div id="allStockPage" class="all-stock-page" aria-hidden="true">
+    <div class="all-stock-page-header">
+      <div>
+        <button type="button" class="all-stock-back" onclick="closeAllStockPage()">
+          <i class="fas fa-arrow-left"></i> Kembali ke Stock Monitoring
+        </button>
+        <span class="stock-section-kicker">DATA LENGKAP</span>
+        <h2>Semua Stock Gudang</h2>
+        <p>Daftar lengkap seluruh barang tanpa mengubah tampilan utama Stock Monitoring.</p>
+      </div>
+      <div class="all-stock-page-count" id="allStockPageCount">0 item</div>
+    </div>
+
+    <div class="all-stock-toolbar">
+      <div class="all-stock-search">
+        <i class="fas fa-search"></i>
+        <input id="allStockSearch" type="text" placeholder="Cari kode item, nama barang, atau kategori..." oninput="renderAllStockPage()" autocomplete="off">
+      </div>
+      <select id="allStockCategoryFilter" class="all-stock-select" onchange="renderAllStockPage()">
+        <option value="">Semua kategori</option>
+      </select>
+      <select id="allStockStatusFilter" class="all-stock-select" onchange="renderAllStockPage()">
+        <option value="SEMUA">Semua status</option>
+        <option value="AMAN">Aman</option>
+        <option value="MENIPIS">Menipis</option>
+        <option value="HABIS">Habis</option>
+      </select>
+    </div>
+
+    <div class="all-stock-table-wrap">
+      <table class="stock-table all-stock-table">
+        <thead>
+          <tr>
+            <th>ITEM</th><th>NAMA BARANG</th><th>KATEGORI</th><th>UOM</th><th>STOCK</th><th>MINIMUM</th><th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="allStockTableBody">
+          <tr><td colspan="7">Memuat data stock...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
@@ -9787,14 +9964,16 @@ function renderStock() {
       }
 
 
+      const matchCategory =
+        !window.selectedStockCategory ||
+        getItemCategory(item).trim().toUpperCase() ===
+        String(window.selectedStockCategory).trim().toUpperCase();
+
       return (
-
         matchSearch &&
-
         matchStatus &&
-
-        matchChange
-
+        matchChange &&
+        matchCategory
       );
 
     });
@@ -15408,6 +15587,122 @@ function handleCategoryCardClick(
   
 </script>
 
+
+<script>
+/* =========================================================
+   STOCK GUDANG — CLEAN CATEGORY SELECTOR + ALL STOCK PAGE
+   ========================================================= */
+function getStockCategoriesClean() {
+  const map = {};
+  (Array.isArray(stockData) ? stockData : []).forEach(item => {
+    const name = getItemCategory(item);
+    if (!name) return;
+    const key = name.trim().toUpperCase();
+    if (!map[key]) map[key] = name.trim();
+  });
+  return Object.values(map).sort((a,b) => a.localeCompare(b, 'id'));
+}
+
+function updateCleanStockOverview() {
+  const data = Array.isArray(stockData) ? stockData : [];
+  const total = data.reduce((n,i) => n + Number(i.stock || 0), 0);
+  const byStatus = status => data.filter(i => String(i.status || '').toUpperCase() === status).length;
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=Number(v||0).toLocaleString('id-ID'); };
+  set('stockOverviewTotal', total);
+  set('stockOverviewItems', data.length);
+  set('stockOverviewAman', byStatus('AMAN'));
+  set('stockOverviewMenipis', byStatus('MENIPIS'));
+  set('stockOverviewHabis', byStatus('HABIS'));
+  const sub=document.getElementById('stockOverviewSubtitle');
+  if(sub) sub.textContent = data.length ? `${data.length.toLocaleString('id-ID')} jenis barang tercatat di gudang` : 'Belum ada data stock';
+}
+
+function populateCleanStockCategorySelect() {
+  const select = document.getElementById('stockCategorySelect');
+  const allSelect = document.getElementById('allStockCategoryFilter');
+  const cats = getStockCategoriesClean();
+  if (!select) return;
+
+  const current = window.selectedStockCategory || '';
+  select.innerHTML = cats.length
+    ? cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
+    : '<option value="">Belum ada kategori</option>';
+
+  const validCurrent = cats.find(c => c.toUpperCase() === String(current).toUpperCase());
+  window.selectedStockCategory = validCurrent || cats[0] || '';
+  select.value = window.selectedStockCategory;
+
+  if (allSelect) {
+    allSelect.innerHTML = '<option value="">Semua kategori</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  }
+}
+
+function selectStockCategory(category) {
+  window.selectedStockCategory = category || '';
+  renderStock();
+  const title = document.getElementById('stockOverviewSubtitle');
+  if(title && category) title.textContent = `Menampilkan kategori ${category}`;
+}
+
+/* Override fungsi lama supaya carousel/detail card tidak lagi dirender. */
+function updateCategoryCarousel() {
+  updateCleanStockOverview();
+  populateCleanStockCategorySelect();
+  renderStock();
+}
+
+function openAllStockPage() {
+  const page = document.getElementById('allStockPage');
+  if (!page) return;
+  populateCleanStockCategorySelect();
+  const search = document.getElementById('allStockSearch');
+  if (search) search.value = '';
+  const status = document.getElementById('allStockStatusFilter');
+  if (status) status.value = 'SEMUA';
+  const cat = document.getElementById('allStockCategoryFilter');
+  if (cat) cat.value = '';
+  page.classList.add('is-open');
+  page.setAttribute('aria-hidden','false');
+  renderAllStockPage();
+}
+
+function closeAllStockPage() {
+  const page = document.getElementById('allStockPage');
+  if (!page) return;
+  page.classList.remove('is-open');
+  page.setAttribute('aria-hidden','true');
+}
+
+function renderAllStockPage() {
+  const tbody = document.getElementById('allStockTableBody');
+  if (!tbody) return;
+  const search = String(document.getElementById('allStockSearch')?.value || '').toLowerCase().trim();
+  const category = String(document.getElementById('allStockCategoryFilter')?.value || '').trim().toUpperCase();
+  const status = String(document.getElementById('allStockStatusFilter')?.value || 'SEMUA').toUpperCase();
+  let data = (Array.isArray(stockData) ? stockData : []).filter(item => {
+    const hay = `${item.item || ''} ${item.description || ''} ${getItemCategory(item)}`.toLowerCase();
+    const cat = getItemCategory(item).toUpperCase();
+    return hay.includes(search) && (!category || cat === category) && (status === 'SEMUA' || String(item.status || '').toUpperCase() === status);
+  });
+  data.sort((a,b) => Number(a.stock||0) - Number(b.stock||0));
+  const count=document.getElementById('allStockPageCount');
+  if(count) count.textContent = `${data.length.toLocaleString('id-ID')} item`;
+  if(!data.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:35px;color:#94a3b8;">Tidak ada data yang sesuai.</td></tr>'; return; }
+  tbody.innerHTML=data.map(item=>`<tr>
+    <td title="${escapeHtml(item.item || '-')}" style="font-weight:800;color:var(--sg-ink);">${escapeHtml(item.item || '-')}</td>
+    <td title="${escapeHtml(item.description || '-')}" >${escapeHtml(item.description || '-')}</td>
+    <td title="${escapeHtml(getItemCategory(item) || '-')}" >${escapeHtml(getItemCategory(item) || '-')}</td>
+    <td>${escapeHtml(item.uom || 'PCS')}</td>
+    <td style="font-weight:900;color:var(--sg-ink);">${Number(item.stock||0).toLocaleString('id-ID')}</td>
+    <td>${Number(item.minimum||0).toLocaleString('id-ID')}</td>
+    <td>${(() => { const st=String(item.status||'-').toUpperCase(); const cls=st==='AMAN'?'status-aman':st==='MENIPIS'?'status-menipis':st==='HABIS'?'status-habis':''; return `<span class="stock-status-badge ${cls}">${escapeHtml(st)}</span>`; })()}</td>
+  </tr>`).join('');
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeAllStockPage();
+});
+</script>
 </body>
 
 </html>
