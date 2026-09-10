@@ -10020,42 +10020,292 @@ function edNormalisasiNamaKolom(k) {
             : '-';
     }
 
-    async function previewBonPdf(payload) {
-        if (!window.pdfjsLib) throw new Error('Library PDF belum termuat. Refresh halaman lalu coba lagi.');
-        const binary = atob(payload.base64 || '');
-        const bytes = new Uint8Array(binary.length);
-        for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
-        const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+    // ============================================================
+    // BON PDF PARSER - ROBUST VERSION
+    //
+    // Perbaikan utama:
+    // 1. Kode barang dicocokkan secara NORMALIZED (huruf besar,
+    //    spasi, titik, slash, dash, dll diabaikan).
+    // 2. Tetap bisa mengenali kode jika PDF memecah kode menjadi
+    //    beberapa text item / baris.
+    // 3. Jika PDF tidak memiliki text layer, gunakan OCR fallback.
+    // 4. Pesan error dibuat lebih informatif.
+    // ============================================================
+
+    function bonNormalizeCode(value) {
+        return String(value == null ? '' : value)
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '');
+    }
+
+    function bonEscapeRegex(value) {
+        return String(value == null ? '' : value)
+            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function bonBuildFlexibleCodeRegex(code) {
+        const chars = String(code || '').split('');
+        if (!chars.length) return null;
+
+        // Antar karakter kode boleh dipisahkan oleh spasi, newline,
+        // dash, titik, slash, atau karakter pemisah umum pada PDF.
+        return new RegExp(
+            chars.map(bonEscapeRegex).join('[\\s._\\-/]*'),
+            'i'
+        );
+    }
+
+    async function bonExtractPdfText(pdf) {
         let allText = '';
-        for (let p=1; p<=pdf.numPages; p++) {
+        let textItemCount = 0;
+
+        for (let p = 1; p <= pdf.numPages; p++) {
             const page = await pdf.getPage(p);
             const tc = await page.getTextContent();
-            allText += tc.items.map(x => x.str).join(' ') + '\n';
+            const pageItems = (tc.items || []).map(x => String(x.str || '')).filter(Boolean);
+            textItemCount += pageItems.length;
+            allText += pageItems.join(' ') + '\n';
         }
-        const noMatch = allText.match(/(?:No\s*BON|Nomor\s*BON)\s*[:#-]?\s*(\d+)/i);
+
+        return {
+            text: allText,
+            textItemCount
+        };
+    }
+
+    async function bonLoadTesseract() {
+        if (window.Tesseract) return window.Tesseract;
+
+        await new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-bon-tesseract="1"]');
+            if (existing) {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+            script.async = true;
+            script.dataset.bonTesseract = '1';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Library OCR Tesseract gagal dimuat.'));
+            document.head.appendChild(script);
+        });
+
+        if (!window.Tesseract) {
+            throw new Error('Library OCR Tesseract tidak tersedia.');
+        }
+
+        return window.Tesseract;
+    }
+
+    async function bonExtractOcrText(pdf, progressCallback) {
+        const Tesseract = await bonLoadTesseract();
+        let allText = '';
+
+        for (let p = 1; p <= pdf.numPages; p++) {
+            const page = await pdf.getPage(p);
+            const viewport = page.getViewport({ scale: 2.25 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+
+            await page.render({
+                canvasContext: ctx,
+                viewport
+            }).promise;
+
+            if (progressCallback) {
+                progressCallback(`OCR halaman ${p} dari ${pdf.numPages}...`);
+            }
+
+            const result = await Tesseract.recognize(
+                canvas,
+                'eng',
+                {
+                    logger: message => {
+                        if (progressCallback && message && message.status === 'recognizing text') {
+                            const percent = Math.round((message.progress || 0) * 100);
+                            progressCallback(`OCR halaman ${p} dari ${pdf.numPages}... ${percent}%`);
+                        }
+                    }
+                }
+            );
+
+            allText += String(result && result.data && result.data.text || '') + '\n';
+            canvas.width = 1;
+            canvas.height = 1;
+        }
+
+        return allText;
+    }
+
+    function bonFindCodePosition(source, code) {
+        const original = String(source || '');
+        const compactSource = bonNormalizeCode(original);
+        const compactCode = bonNormalizeCode(code);
+
+        if (!compactCode) return null;
+
+        // Cara 1: pencarian compact. Ini menangani:
+        // ABC-123, ABC 123, ABC/123, ABC\n123, dll.
+        const compactIndex = compactSource.indexOf(compactCode);
+        if (compactIndex >= 0) {
+            // Tidak ada pemetaan karakter 1:1 yang diperlukan untuk
+            // ekstraksi qty; gunakan regex fleksibel sebagai posisi
+            // pada source asli bila tersedia.
+            const flexible = bonBuildFlexibleCodeRegex(code);
+            const match = flexible ? flexible.exec(original) : null;
+            return {
+                index: match ? match.index : 0,
+                length: match ? match[0].length : code.length,
+                matchedText: match ? match[0] : code
+            };
+        }
+
+        // Cara 2: regex fleksibel langsung pada source asli.
+        const flexible = bonBuildFlexibleCodeRegex(code);
+        const match = flexible ? flexible.exec(original) : null;
+        if (match) {
+            return {
+                index: match.index,
+                length: match[0].length,
+                matchedText: match[0]
+            };
+        }
+
+        return null;
+    }
+
+    function bonExtractQtyAfterCode(source, position) {
+        const tail = String(source || '').slice(position.index + position.length, position.index + position.length + 500);
+
+        // Prioritas pertama: angka yang berada setelah keyword Qty /
+        // Jumlah / Diserahkan. Ini jauh lebih aman daripada mengambil
+        // angka terakhir secara membabi buta.
+        const keywordPatterns = [
+            /(?:qty|quantity|jumlah|diserahkan|qty\s*diserahkan)\s*[:=\-]?\s*(\d+(?:[.,]\d+)?)/i,
+            /(?:qty|quantity|jumlah|diserahkan|qty\s*diserahkan)[^\d]{0,40}(\d+(?:[.,]\d+)?)/i
+        ];
+
+        for (const re of keywordPatterns) {
+            const m = tail.match(re);
+            if (m) {
+                const value = Number(String(m[1]).replace(',', '.'));
+                if (Number.isFinite(value)) return value;
+            }
+        }
+
+        // Fallback: ambil angka pertama yang muncul setelah nama/kode,
+        // dengan batas area agar tidak mengambil angka dari bagian BON
+        // yang terlalu jauh.
+        const nums = tail.match(/\b\d+(?:[.,]\d+)?\b/g) || [];
+        for (const raw of nums) {
+            const value = Number(String(raw).replace(',', '.'));
+            if (Number.isFinite(value) && value >= 0) return value;
+        }
+
+        return 0;
+    }
+
+    async function previewBonPdf(payload) {
+        if (!window.pdfjsLib) {
+            throw new Error('Library PDF belum termuat. Refresh halaman lalu coba lagi.');
+        }
+
+        const binary = atob(payload.base64 || '');
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+        const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+        const extracted = await bonExtractPdfText(pdf);
+        let allText = extracted.text || '';
+        let usedOcr = false;
+
+        const noMatch = allText.match(/(?:No\s*BON|Nomor\s*BON|No\.\s*BON)\s*[:#-]?\s*([A-Z0-9\-/]+)/i);
         const cabMatch = allText.match(/Cabang\s*[:#-]?\s*([^\n|]+)/i);
         const dateMatch = allText.match(/Tanggal\s*(?:BON)?\s*[:#-]?\s*([^\n|]+)/i);
-        const { data: masters, error } = await db.from(T.MASTER_STOCK).select('*').order('ID_Stock', { ascending: true });
+
+        const { data: masters, error } = await db
+            .from(T.MASTER_STOCK)
+            .select('*')
+            .order('ID_Stock', { ascending: true });
+
         if (error) throw error;
-        const source = allText.replace(/\s+/g,' ').trim();
-        const items = [];
-        for (const m of (masters || [])) {
-            const code = text(m['Item']);
-            if (!code) continue;
-            const idx = source.toLowerCase().indexOf(code.toLowerCase());
-            if (idx < 0) continue;
-            const segment = source.slice(idx, idx + 180);
-            const nums = segment.match(/(?:qty|jumlah|diserahkan)?\s*[:=]?\s*(\d+)\b/gi) || [];
-            let qty = 0;
-            if (nums.length) {
-                const last = nums[nums.length-1].match(/(\d+)\s*$/);
-                qty = last ? n(last[1]) : 0;
+
+        const masterRows = (masters || []).filter(m => bonNormalizeCode(m['Item']));
+        let items = [];
+
+        const parseItemsFromText = source => {
+            const result = [];
+
+            for (const m of masterRows) {
+                const code = text(m['Item']);
+                const position = bonFindCodePosition(source, code);
+                if (!position) continue;
+
+                const qty = bonExtractQtyAfterCode(source, position);
+
+                result.push({
+                    item: code,
+                    namaBarang: text(m['Nama Barang']),
+                    stock: n(m['Stock']),
+                    qtyDiserahkan: Math.min(qty, n(m['Stock']))
+                });
             }
-            items.push({ item: code, namaBarang: text(m['Nama Barang']), stock: n(m['Stock']), qtyDiserahkan: Math.min(qty, n(m['Stock'])) });
+
+            return result;
+        };
+
+        items = parseItemsFromText(allText);
+
+        // ========================================================
+        // FALLBACK OCR
+        // Jika PDF berupa scan/image, PDF.js bisa menghasilkan
+        // 0 text item sehingga pencarian Master Stock pasti gagal.
+        // ========================================================
+        if (!items.length) {
+            try {
+                allText = await bonExtractOcrText(
+                    pdf,
+                    message => {
+                        const statusEl = document.getElementById('bonUploadStatus');
+                        if (statusEl) statusEl.textContent = message;
+                    }
+                );
+                usedOcr = true;
+
+                items = parseItemsFromText(allText);
+            } catch (ocrError) {
+                console.warn('[BON OCR]', ocrError);
+            }
         }
-        if (!items.length) throw new Error('Kode barang pada PDF tidak berhasil dikenali dari Master Stock. Silakan periksa format PDF BON.');
-        const totalQty = items.reduce((a,b)=>a+n(b.qtyDiserahkan),0);
-        return { fileName: text(payload.fileName), tanggalBon: dateMatch ? dateMatch[1].trim() : '-', noBon: noMatch ? noMatch[1] : '-', cabang: cabMatch ? cabMatch[1].trim() : '-', items, totalQty };
+
+        if (!items.length) {
+            const pdfType = extracted.textItemCount === 0
+                ? 'PDF ini tidak memiliki text layer sehingga sistem mencoba OCR.'
+                : 'Text PDF terbaca, tetapi format kode barang belum cocok dengan Master Stock.';
+
+            throw new Error(
+                'Kode barang pada PDF BON tidak berhasil dikenali dari Master Stock.\n\n' +
+                pdfType + '\n\n' +
+                'Pastikan kode barang pada BON sama dengan kolom Item di Master Stock.'
+            );
+        }
+
+        const totalQty = items.reduce((a, b) => a + n(b.qtyDiserahkan), 0);
+
+        return {
+            fileName: text(payload.fileName),
+            tanggalBon: dateMatch ? dateMatch[1].trim() : '-',
+            noBon: noMatch ? noMatch[1] : '-',
+            cabang: cabMatch ? cabMatch[1].trim() : '-',
+            items,
+            totalQty,
+            usedOcr
+        };
     }
 
     async function applyBonStock(payload) {
