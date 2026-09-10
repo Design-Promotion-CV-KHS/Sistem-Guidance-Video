@@ -1655,6 +1655,48 @@
    Jangan pakai display:flex langsung pada #tab-stock-gudang karena
    itu akan mengalahkan class Tailwind .hidden dan membuat Stock
    Monitoring tetap tampil di Ringkasan Admin. */
+/* Filter Status Stock & Perubahan Stock dibuat berjejer satu baris */
+#tab-stock-gudang .stock-filter-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:22px;
+}
+#tab-stock-gudang .stock-filter-group{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+#tab-stock-gudang .stock-filter-group .stock-filter-label{
+  margin:0 !important;
+  white-space:nowrap;
+}
+#tab-stock-gudang .stock-filter-divider{
+  width:1px;
+  align-self:stretch;
+  background:var(--sg-border);
+  margin:0 2px;
+}
+/* label sudah sejajar dengan tombolnya, jadi margin bawah lama tidak dipakai lagi */
+#tab-stock-gudang .stock-filter-section .stock-filter-label + .stock-filters{
+  margin-bottom:0 !important;
+}
+#tab-stock-gudang .stock-filters{
+  margin-bottom:0 !important;
+}
+
+/* Di layar sempit, kembali bertumpuk supaya tetap enak dibaca */
+@media (max-width:900px){
+  #tab-stock-gudang .stock-filter-row{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+  #tab-stock-gudang .stock-filter-divider{ display:none; }
+  #tab-stock-gudang .stock-filter-group{ width:100%; }
+}
+    
 #tab-stock-gudang:not(.hidden) {
   display:flex !important;
   flex-direction:column !important;
@@ -4144,76 +4186,29 @@
 
 <div class="stock-filter-section">
 
-  <div class="stock-filter-label">
-    STATUS STOCK
-  </div>
+  <div class="stock-filter-row">
 
-  <div class="stock-filters">
+    <div class="stock-filter-group">
+      <span class="stock-filter-label">STATUS STOCK</span>
+      <div class="stock-filters">
+        <button class="stock-filter active" onclick="setStockStatusFilter('SEMUA', this)">Semua</button>
+        <button class="stock-filter" onclick="setStockStatusFilter('AMAN', this)">Aman</button>
+        <button class="stock-filter" onclick="setStockStatusFilter('MENIPIS', this)">Menipis</button>
+        <button class="stock-filter" onclick="setStockStatusFilter('HABIS', this)">Habis</button>
+      </div>
+    </div>
 
-    <button
-      class="stock-filter active"
-      onclick="setStockStatusFilter('SEMUA', this)"
-    >
-      Semua
-    </button>
+    <div class="stock-filter-divider"></div>
 
-    <button
-      class="stock-filter"
-      onclick="setStockStatusFilter('AMAN', this)"
-    >
-      Aman
-    </button>
-
-    <button
-      class="stock-filter"
-      onclick="setStockStatusFilter('MENIPIS', this)"
-    >
-      Menipis
-    </button>
-
-    <button
-      class="stock-filter"
-      onclick="setStockStatusFilter('HABIS', this)"
-    >
-      Habis
-    </button>
-
-  </div>
-
-
-  <div class="stock-filter-label">
-    PERUBAHAN STOCK
-  </div>
-
-  <div class="stock-filters">
-
-    <button
-      class="stock-filter change-filter active"
-      onclick="setStockChangeFilter('SEMUA', this)"
-    >
-      Semua
-    </button>
-
-    <button
-      class="stock-filter change-filter"
-      onclick="setStockChangeFilter('BERTAMBAH', this)"
-    >
-      ↑ Bertambah
-    </button>
-
-    <button
-      class="stock-filter change-filter"
-      onclick="setStockChangeFilter('BERKURANG', this)"
-    >
-      ↓ Berkurang
-    </button>
-
-    <button
-      class="stock-filter change-filter"
-      onclick="setStockChangeFilter('TIDAK BERUBAH', this)"
-    >
-      Tidak Berubah
-    </button>
+    <div class="stock-filter-group">
+      <span class="stock-filter-label">PERUBAHAN STOCK</span>
+      <div class="stock-filters">
+        <button class="stock-filter change-filter active" onclick="setStockChangeFilter('SEMUA', this)">Semua</button>
+        <button class="stock-filter change-filter" onclick="setStockChangeFilter('BERTAMBAH', this)">↑ Bertambah</button>
+        <button class="stock-filter change-filter" onclick="setStockChangeFilter('BERKURANG', this)">↓ Berkurang</button>
+        <button class="stock-filter change-filter" onclick="setStockChangeFilter('TIDAK BERUBAH', this)">Tidak Berubah</button>
+      </div>
+    </div>
 
   </div>
 
