@@ -11379,7 +11379,7 @@ function openXlsxUpload() {
     'xlsxUploadForm'
   ).style.display = 'block';
     
-  sgSetStockModalTopHeaderVisible(true);
+  sgSetStockModalTopHeaderVisible(false);
 }
 
 function processXlsxUpload() {
@@ -12418,7 +12418,7 @@ function openBonUpload() {
     'bonUploadStatus'
   ).textContent = '';
     
-  sgSetStockModalTopHeaderVisible(true);
+  sgSetStockModalTopHeaderVisible(false);
 }
 
 function backFromBonUpload() {
@@ -12431,6 +12431,8 @@ function backFromBonUpload() {
   document.getElementById(
     'stockMethodSelection'
   ).style.display = 'block';
+
+  sgSetStockModalTopHeaderVisible(true);
 
 }
 
@@ -13080,7 +13082,7 @@ function openNewItemForm() {
     'newItemKeterangan'
   ).value = '';
 
-      sgSetStockModalTopHeaderVisible(true);
+      sgSetStockModalTopHeaderVisible(false);
 }
 
 function saveNewItemData() {
