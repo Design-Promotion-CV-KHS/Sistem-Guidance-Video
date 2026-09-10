@@ -1882,6 +1882,11 @@
 #tab-stock-gudang .all-stock-table th:nth-child(6),#tab-stock-gudang .all-stock-table td:nth-child(6){width:10%;}
 #tab-stock-gudang .all-stock-table th:nth-child(7),#tab-stock-gudang .all-stock-table td:nth-child(7){width:10%;}
 #tab-stock-gudang .all-stock-table th,#tab-stock-gudang .all-stock-table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#tab-stock-gudang .all-stock-table td:nth-child(5){overflow:visible;text-overflow:clip;}
+#tab-stock-gudang .all-stock-inline-value{min-width:58px;justify-content:center;}
+#tab-stock-gudang .all-stock-inline-value .stock-edit-hint{font-size:9px;}
+#tab-stock-gudang .all-stock-inline-value .stock-inline-editor{max-width:100%;}
+#tab-stock-gudang .all-stock-inline-value .stock-inline-input{width:68px;height:32px;}
 
 @media(max-width:900px){
   #tab-stock-gudang .stock-overview-card{grid-template-columns:1fr;gap:12px;}
@@ -9591,6 +9596,7 @@ function loadStock() {
               renderStock();
 
               updateCategoryCarousel();
+              if (document.getElementById('allStockPage')?.classList.contains('is-open')) renderAllStockPage();
 
             }
           )
@@ -9620,6 +9626,7 @@ function loadStock() {
               renderStock();
 
               updateCategoryCarousel();
+              if (document.getElementById('allStockPage')?.classList.contains('is-open')) renderAllStockPage();
 
             }
           )
@@ -11137,6 +11144,25 @@ function saveInlineStockEdit(
     .withSuccessHandler(
       function(result) {
 
+        // Update tampilan lokal terlebih dahulu agar perubahan langsung
+        // terlihat baik di tabel utama maupun halaman Semua Stock.
+        if (item) {
+          item.stock = newStock;
+          item.stockBaru = newStock;
+          item.perubahan = newStock - oldStock;
+          item.status = newStock <= 0
+            ? 'HABIS'
+            : (newStock <= Number(item.minimum || 0) ? 'MENIPIS' : 'AMAN');
+        }
+
+        updateStockSummary();
+        updateCleanStockOverview();
+        renderStock();
+        if (document.getElementById('allStockPage')?.classList.contains('is-open')) {
+          renderAllStockPage();
+        }
+
+        // Tetap sinkronkan dengan data server dan history terbaru.
         loadStock();
 
       }
@@ -15642,13 +15668,14 @@ function populateCleanStockCategorySelect() {
   const cats = getStockCategoriesClean();
   if (!select) return;
 
+  // Default selalu MENAMPILKAN SEMUA BARANG.
+  // Kategori spesifik hanya dipilih jika user memang memilihnya.
   const current = window.selectedStockCategory || '';
-  select.innerHTML = cats.length
-    ? cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
-    : '<option value="">Belum ada kategori</option>';
+  select.innerHTML = '<option value="">Semua barang</option>' +
+    cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
 
   const validCurrent = cats.find(c => c.toUpperCase() === String(current).toUpperCase());
-  window.selectedStockCategory = validCurrent || cats[0] || '';
+  window.selectedStockCategory = validCurrent || '';
   select.value = window.selectedStockCategory;
 
   if (allSelect) {
@@ -15709,10 +15736,19 @@ function renderAllStockPage() {
   if(!data.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:35px;color:#94a3b8;">Tidak ada data yang sesuai.</td></tr>'; return; }
   tbody.innerHTML=data.map(item=>`<tr>
     <td title="${escapeHtml(item.item || '-')}" style="font-weight:800;color:var(--sg-ink);">${escapeHtml(item.item || '-')}</td>
-    <td title="${escapeHtml(item.description || '-')}" >${escapeHtml(item.description || '-')}</td>
-    <td title="${escapeHtml(getItemCategory(item) || '-')}" >${escapeHtml(getItemCategory(item) || '-')}</td>
+    <td title="${escapeHtml(item.description || '-')}">${escapeHtml(item.description || '-')}</td>
+    <td title="${escapeHtml(getItemCategory(item) || '-')}">${escapeHtml(getItemCategory(item) || '-')}</td>
     <td>${escapeHtml(item.uom || 'PCS')}</td>
-    <td style="font-weight:900;color:var(--sg-ink);">${Number(item.stock||0).toLocaleString('id-ID')}</td>
+    <td>
+      <span
+        class="stock-inline-value all-stock-inline-value"
+        title="Klik untuk mengubah jumlah stock"
+        onclick="startInlineStockEdit(this, '${escapeHtml(item.item || '')}', ${Number(item.stock || 0)})"
+      >
+        <strong>${Number(item.stock||0).toLocaleString('id-ID')}</strong>
+        <i class="fas fa-pen stock-edit-hint"></i>
+      </span>
+    </td>
     <td>${Number(item.minimum||0).toLocaleString('id-ID')}</td>
     <td>${(() => { const st=String(item.status||'-').toUpperCase(); const cls=st==='AMAN'?'status-aman':st==='MENIPIS'?'status-menipis':st==='HABIS'?'status-habis':''; return `<span class="stock-status-badge ${cls}">${escapeHtml(st)}</span>`; })()}</td>
   </tr>`).join('');
