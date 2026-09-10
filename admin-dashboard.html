@@ -1999,6 +1999,13 @@
                     id="nav-stock-gudang" onclick="switchTab('stock-gudang')">
                     <i class="fas fa-boxes-stacked w-5 text-center"></i> Stock Gudang
                 </button>
+                <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Riset &amp;
+                    Promosi</p>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-riset-promosi" onclick="switchTab('riset-promosi')">
+                    <i class="fas fa-flask w-5 text-center"></i> Riset Promosi
+                </button>
                 <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Data
                     Editor</p>
                 <button
@@ -2966,6 +2973,147 @@
                 </div>
             </div>
         </div>
+        <!-- ============ TAB: RISET PROMOSI ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-riset-promosi">
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Kelola Riset Promosi</h3>
+                    <p class="text-sm text-slate-500 mt-1">Catat rencana, progres, dan dokumen riset promosi produk
+                        secara terpusat dan real-time.</p>
+                </div>
+                <button
+                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn shrink-0"
+                    id="rp-btn-tambah-data" type="button">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+                        </path>
+                    </svg>
+                    Tambah Riset Baru
+                </button>
+            </div>
+            <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
+                id="rp-diagnostic-banner">
+                <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+                <p class="text-rose-600" id="rp-diagnostic-message"></p>
+            </div>
+            <div class="hidden bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-4 text-xs"
+                id="rp-crud-no-id-warning">
+                ⚠️ Kolom ID unik tidak terdeteksi pada tabel Supabase. Edit &amp; Hapus tetap bisa dipakai, tapi
+                sebaiknya tambahkan kolom <code>id</code> unik (primary key) di tabel Riset_Promosi Supabase.
+            </div>
+            <!-- Filter & Ringkasan -->
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 tracking-tight">Daftar Riset Promosi</h3>
+                    <p class="text-sm text-slate-500 mt-1">Cari berdasarkan nama riset, produk, atau PIC — atau
+                        saring per status.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M21 21l-4.35-4.35m1.35-5.15a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Cari
+                                Riset</label>
+                            <input type="text" id="rp-filter-search" placeholder="Nama riset, produk, atau PIC..."
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none mt-0.5 w-40" />
+                        </div>
+                    </div>
+                    <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+                        <div
+                            class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter
+                                Status</label>
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="rp-filter-status">
+                                <option value="all">Semua Status</option>
+                                <option value="Perencanaan">Perencanaan</option>
+                                <option value="Berjalan">Berjalan</option>
+                                <option value="Selesai">Selesai</option>
+                                <option value="Ditunda">Ditunda</option>
+                                <option value="Dibatalkan">Dibatalkan</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Kartu ringkas -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                        🧪</div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Riset (Sesuai
+                            Filter)</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="rp-card-total">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                        ⏳</div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Sedang Berjalan</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="rp-card-berjalan">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                        ✅</div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Selesai</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="rp-card-selesai">0</h4>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabel data -->
+            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+                            <tr
+                                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-5 bg-slate-100">ID</th>
+                                <th class="py-4 px-5 bg-slate-100">Nama Riset</th>
+                                <th class="py-4 px-5 bg-slate-100">Produk Terkait</th>
+                                <th class="py-4 px-5 bg-slate-100">Tujuan Riset</th>
+                                <th class="py-4 px-5 bg-slate-100">PIC / Tim</th>
+                                <th class="py-4 px-5 bg-slate-100">Mulai</th>
+                                <th class="py-4 px-5 bg-slate-100">Target Selesai</th>
+                                <th class="py-4 px-5 bg-slate-100">Status</th>
+                                <th class="py-4 px-5 bg-slate-100">Proposal</th>
+                                <th class="py-4 px-5 bg-slate-100">Hasil</th>
+                                <th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
+                            id="rp-tabel-body">
+                            <tr>
+                                <td class="text-center py-8 text-slate-400" colspan="11">Memuat data dari database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         <!-- ============ TAB: EDITOR - CRUD PLANNING ============ -->
         <div class="p-8 space-y-6 w-full hidden" id="tab-editor-crud">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -3768,6 +3916,132 @@
                         id="cp-crud-cancel-btn" type="button">Batal</button>
                     <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800"
                         id="cp-crud-save-btn" type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL CRUD RISET PROMOSI -->
+    <div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="rp-crud-modal">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+                <h4 class="text-lg font-bold text-gray-800" id="rp-crud-modal-title">Tambah Riset Promosi</h4>
+                <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" id="rp-crud-modal-close"
+                    type="button">×</button>
+            </div>
+            <form class="p-6 space-y-4" id="rp-crud-form">
+                <input id="rp-crud-field-id" type="hidden" />
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nama Riset *</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                        id="rp-crud-field-nama" placeholder="Contoh: Riset Efektivitas Promosi Boxer Rotary Q1"
+                        required="" type="text" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Produk Terkait</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                        id="rp-crud-field-produk" placeholder="Contoh: Boxer Rotary, Amberjack" type="text" />
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <button type="button" onclick="rpTambahProdukChip('Boxer Rotary')"
+                            class="text-[11px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200 transition-all">+
+                            Boxer Rotary</button>
+                        <button type="button" onclick="rpTambahProdukChip('Amberjack')"
+                            class="text-[11px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200 transition-all">+
+                            Amberjack</button>
+                        <button type="button" onclick="rpTambahProdukChip('Boxer')"
+                            class="text-[11px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200 transition-all">+
+                            Boxer</button>
+                        <button type="button" onclick="rpTambahProdukChip('Rider')"
+                            class="text-[11px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200 transition-all">+
+                            Rider</button>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-1">Pisahkan dengan koma jika lebih dari satu produk.</p>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tujuan Riset (1
+                        kalimat) *</label>
+                    <textarea
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                        id="rp-crud-field-tujuan"
+                        placeholder="Contoh: Mengukur efektivitas konten promosi terhadap kenaikan penjualan Boxer Rotary."
+                        required="" rows="2"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">PIC / Tim yang
+                        Mengerjakan *</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                        id="rp-crud-field-pic" placeholder="Contoh: Tim Marketing - Andi & Sari" required=""
+                        type="text" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tanggal Mulai *</label>
+                        <input
+                            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                            id="rp-crud-field-mulai" required="" type="date" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Target
+                            Selesai</label>
+                        <input
+                            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                            id="rp-crud-field-selesai" type="date" />
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-400"
+                        id="rp-crud-field-status">
+                        <option value="Perencanaan">Perencanaan</option>
+                        <option value="Berjalan">Berjalan</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Ditunda">Ditunda</option>
+                        <option value="Dibatalkan">Dibatalkan</option>
+                    </select>
+                </div>
+
+                <!-- ===== Dokumen Proposal: upload multi-file (PDF/DOCX/JPG/PNG) ===== -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Dokumen Proposal</label>
+                    <input id="rp-crud-field-proposal" type="hidden" value="[]" />
+                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <label
+                            class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+                            <i class="fas fa-upload"></i> Upload File Proposal (bisa lebih dari 1)
+                            <input type="file" id="rp-upload-proposal" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                multiple class="hidden" />
+                        </label>
+                        <span class="text-xs" id="rp-upload-proposal-status"></span>
+                    </div>
+                    <div class="mt-2" id="rp-proposal-file-list"></div>
+                </div>
+
+                <!-- ===== Dokumen Hasil: upload multi-file (PDF/DOCX/JPG/PNG) ===== -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Dokumen Hasil</label>
+                    <input id="rp-crud-field-hasil" type="hidden" value="[]" />
+                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <label
+                            class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+                            <i class="fas fa-upload"></i> Upload File Hasil (bisa lebih dari 1)
+                            <input type="file" id="rp-upload-hasil" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple
+                                class="hidden" />
+                        </label>
+                        <span class="text-xs" id="rp-upload-hasil-status"></span>
+                    </div>
+                    <div class="mt-2" id="rp-hasil-file-list"></div>
+                </div>
+
+                <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
+                    id="rp-crud-form-error"></div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100"
+                        id="rp-crud-cancel-btn" type="button">Batal</button>
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800"
+                        id="rp-crud-save-btn" type="submit">Simpan</button>
                 </div>
             </form>
         </div>
@@ -5539,6 +5813,8 @@
         const POTRAIT_STATUSES = ['Belum Edit', 'WIP', 'Done'];
         const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
         const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
+        const NAMA_TABEL_RISET_PROMOSI = 'Riset_Promosi';
+        const SUPABASE_STORAGE_BUCKET_RISET = 'riset-promosi-files';
         const MASTER_DAFTAR_CABANG = [
             'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
             'Bandar Lampung', 'Palu', 'Makassar', 'Medan'
@@ -5679,13 +5955,14 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'editor-crud', 'portrait-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'riset-promosi', 'editor-crud', 'portrait-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
             'cabang-evaluasi': '| Hasil Evaluasi Cabang',
             'customer-profile': '| Kelola Customer Profile',
             'stock-gudang': '| Monitoring & Pengelolaan Stock Gudang',
+            'riset-promosi': '| Kelola Riset Promosi',
             'editor-crud': '| Planning Landscape',
             'portrait-crud': '| Planning Potrait',
             'user-crud': '| Kelola User & Role',
@@ -5736,6 +6013,7 @@
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'customer-profile') cpMuatDashboard();
             else if (tabName === 'stock-gudang') loadStock();
+            else if (tabName === 'riset-promosi') rpMuatData();
             else if (tabName === 'editor-crud') edMuatDashboard();
             else if (tabName === 'portrait-crud') ptMuatData();
             else if (tabName === 'user-crud') usMuatDataUser();
@@ -7020,6 +7298,418 @@
             await cpMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
         }
+
+        /* ===================================================================
+           BAGIAN RISET PROMOSI (Riset_Promosi)
+           Semua id memakai prefix "rp-"
+           Kolom di Supabase: id, Nama_Riset, Produk_Terkait, Tujuan_Riset,
+           PIC, Tanggal_Mulai, Target_Selesai, Status, Link_Proposal,
+           Link_Hasil.
+
+           "Link_Proposal" dan "Link_Hasil" menyimpan STRING JSON berisi array
+           file yang sudah diupload ke Supabase Storage bucket
+           SUPABASE_STORAGE_BUCKET_RISET, contoh:
+           [{"name":"proposal.pdf","url":"https://..."}, {"name":"foto.png","url":"https://..."}]
+           Ini memungkinkan satu kolom menyimpan BEBERAPA file sekaligus
+           (pdf, docx, jpg, png, dll).
+        =================================================================== */
+        let rpListGlobal = [];
+        let rpCurrentEditIdInfo = null;
+        const RP_STATUS_OPTIONS = ['Perencanaan', 'Berjalan', 'Selesai', 'Ditunda', 'Dibatalkan'];
+
+        function rpGetField(item, ...keys) {
+            for (const k of keys) {
+                if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+                    return String(item[k]);
+                }
+            }
+            return '';
+        }
+        function rpGetNama(item) { return rpGetField(item, 'Nama_Riset', 'Nama Riset', 'nama_riset'); }
+        function rpGetProduk(item) { return rpGetField(item, 'Produk_Terkait', 'Produk Terkait', 'produk_terkait'); }
+        function rpGetTujuan(item) { return rpGetField(item, 'Tujuan_Riset', 'Tujuan Riset', 'tujuan_riset'); }
+        function rpGetPic(item) { return rpGetField(item, 'PIC', 'pic', 'Tim', 'tim'); }
+        function rpGetTglMulai(item) { return rpGetField(item, 'Tanggal_Mulai', 'Tanggal Mulai', 'tanggal_mulai'); }
+        function rpGetTglSelesai(item) { return rpGetField(item, 'Target_Selesai', 'Target Selesai', 'target_selesai', 'Tanggal_Target_Selesai'); }
+        function rpGetStatus(item) { return rpGetField(item, 'Status', 'status') || 'Perencanaan'; }
+        function rpGetProposalRaw(item) { return rpGetField(item, 'Link_Proposal', 'Link Proposal', 'link_proposal'); }
+        function rpGetHasilRaw(item) { return rpGetField(item, 'Link_Hasil', 'Link Hasil', 'link_hasil'); }
+
+        function rpParseFiles(raw) {
+            if (!raw) return [];
+            if (Array.isArray(raw)) return raw;
+            try {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) { return []; }
+        }
+
+        function rpTruncateText(text, maxLen = 60) {
+            if (!text) return '-';
+            const clean = String(text);
+            return clean.length > maxLen ? clean.substring(0, maxLen) + '…' : clean;
+        }
+
+        function rpStatusBadgeClass(status) {
+            switch (status) {
+                case 'Berjalan': return 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100';
+                case 'Selesai': return 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100';
+                case 'Ditunda': return 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100';
+                case 'Dibatalkan': return 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100';
+                default: return 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
+            }
+        }
+
+        function rpRenderFileChips(raw) {
+            const files = rpParseFiles(raw);
+            if (!files.length) return '<span class="text-slate-300">-</span>';
+            return files.map(f => {
+                const info = cpGetFileIconInfo(f.url || '');
+                return `<a href="${edEscapeHtml(f.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-bold mb-1 mr-1 transition-all ${info.color}"><i class="fas ${info.icon}"></i> ${edEscapeHtml(rpTruncateText(f.name || info.label, 16))}</a>`;
+            }).join('');
+        }
+
+        async function rpAmbilData() {
+            const { data, error } = await db.from(NAMA_TABEL_RISET_PROMOSI).select('*');
+            if (error) {
+                console.error('SUPABASE ERROR (Riset_Promosi):', error);
+                return { data: [], error };
+            }
+            return { data: data || [], error: null };
+        }
+
+        async function rpMuatData() {
+            const diagBanner = document.getElementById('rp-diagnostic-banner');
+            const diagMsg = document.getElementById('rp-diagnostic-message');
+            if (diagBanner) diagBanner.classList.add('hidden');
+
+            const { data, error } = await rpAmbilData();
+            if (error) {
+                if (diagBanner && diagMsg) {
+                    diagMsg.innerText = `Gagal mengambil data dari tabel "${NAMA_TABEL_RISET_PROMOSI}": ${error.message} (code: ${error.code || '-'}). Kemungkinan tabel belum dibuat di Supabase, nama tabel salah, atau RLS belum mengizinkan akses baca untuk anon key.`;
+                    diagBanner.classList.remove('hidden');
+                }
+                rpListGlobal = [];
+            } else {
+                rpListGlobal = cbSortDataById(data);
+                if (diagBanner && data.length === 0) {
+                    diagMsg.innerText = `Tabel "${NAMA_TABEL_RISET_PROMOSI}" berhasil diakses tapi belum berisi data. Klik "Tambah Riset Baru" untuk menambahkan data pertama.`;
+                    diagBanner.classList.remove('hidden');
+                    diagBanner.classList.remove('bg-rose-50', 'border-rose-200', 'text-rose-700');
+                    diagBanner.classList.add('bg-sky-50', 'border-sky-200', 'text-sky-700');
+                }
+            }
+            rpRenderSemua();
+        }
+
+        function rpGetFiltered() {
+            const search = (document.getElementById('rp-filter-search')?.value || '').toLowerCase().trim();
+            const status = document.getElementById('rp-filter-status')?.value || 'all';
+            return rpListGlobal.filter(item => {
+                const nama = rpGetNama(item).toLowerCase();
+                const produk = rpGetProduk(item).toLowerCase();
+                const pic = rpGetPic(item).toLowerCase();
+                const matchSearch = !search || nama.includes(search) || produk.includes(search) || pic.includes(search);
+                const matchStatus = status === 'all' || rpGetStatus(item) === status;
+                return matchSearch && matchStatus;
+            });
+        }
+
+        function rpRenderSemua() {
+            const filtered = rpGetFiltered();
+            rpRenderCards(filtered);
+            rpRenderTabel(filtered);
+        }
+
+        function rpRenderCards(filtered) {
+            const total = filtered.length;
+            const berjalan = filtered.filter(i => rpGetStatus(i) === 'Berjalan').length;
+            const selesai = filtered.filter(i => rpGetStatus(i) === 'Selesai').length;
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('rp-card-total', total);
+            set('rp-card-berjalan', berjalan);
+            set('rp-card-selesai', selesai);
+        }
+
+        function rpRenderTabel(filtered) {
+            const tbody = document.getElementById('rp-tabel-body');
+            if (!tbody) return;
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400">Belum ada data riset promosi untuk filter ini.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = filtered.map(item => {
+                const idInfo = getRowIdInfo(item);
+                const idDisplay = idInfo ? `#${edEscapeHtml(idInfo.value)}` : '⚠️ Tanpa ID';
+                const status = rpGetStatus(item);
+                const rid = rpListGlobal.indexOf(item);
+                return `
+          <tr class="hover:bg-slate-50/80 transition-all duration-200 align-top">
+            <td class="py-4 px-5 font-mono text-xs text-slate-400">${idDisplay}</td>
+            <td class="py-4 px-5 font-bold text-slate-800">${edEscapeHtml(rpGetNama(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs">${edEscapeHtml(rpGetProduk(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-[220px]">${edEscapeHtml(rpGetTujuan(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs">${edEscapeHtml(rpGetPic(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs whitespace-nowrap">${edEscapeHtml(rpGetTglMulai(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs whitespace-nowrap">${edEscapeHtml(rpGetTglSelesai(item) || '-')}</td>
+            <td class="py-4 px-5 whitespace-nowrap">
+              <button type="button" data-rid="${rid}" title="Klik untuk mengubah status"
+                class="rp-btn-status inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-extrabold border transition-all ${rpStatusBadgeClass(status)}">${edEscapeHtml(status)}</button>
+            </td>
+            <td class="py-4 px-5 max-w-[180px]">${rpRenderFileChips(rpGetProposalRaw(item))}</td>
+            <td class="py-4 px-5 max-w-[180px]">${rpRenderFileChips(rpGetHasilRaw(item))}</td>
+            <td class="py-4 px-5 text-center space-x-2 whitespace-nowrap">
+              <button data-rid="${rid}" class="rp-btn-edit text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Edit</button>
+              <button data-rid="${rid}" class="rp-btn-hapus text-rose-600 hover:text-rose-800 font-bold text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Hapus</button>
+            </td>
+          </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('.rp-btn-status').forEach(btn => btn.addEventListener('click', () => rpCycleStatus(btn.dataset.rid)));
+            tbody.querySelectorAll('.rp-btn-edit').forEach(btn => btn.addEventListener('click', () => rpBukaModalEdit(btn.dataset.rid)));
+            tbody.querySelectorAll('.rp-btn-hapus').forEach(btn => btn.addEventListener('click', () => rpHapusData(btn.dataset.rid)));
+        }
+
+        function rpCariRawItem(rid) { return rpListGlobal[Number(rid)]; }
+
+        async function rpCycleStatus(rid) {
+            const item = rpCariRawItem(rid);
+            if (!item) return;
+            const idInfo = getRowIdInfo(item);
+            if (!idInfo) {
+                alert('Status tidak bisa diubah langsung karena tidak ditemukan kolom ID unik pada data ini. Gunakan tombol Edit.');
+                return;
+            }
+            const current = rpGetStatus(item);
+            const idx = RP_STATUS_OPTIONS.indexOf(current);
+            const next = RP_STATUS_OPTIONS[(idx + 1) % RP_STATUS_OPTIONS.length];
+            const { data, error } = await db.from(NAMA_TABEL_RISET_PROMOSI).update({ 'Status': next }).eq(idInfo.key, idInfo.value).select();
+            if (error) { alert('Gagal mengubah status: ' + error.message); return; }
+            if (!data || data.length === 0) {
+                alert(`Status tidak berubah. Kemungkinan RLS pada tabel "${NAMA_TABEL_RISET_PROMOSI}" belum punya policy UPDATE untuk role anon, atau kolom "Status" belum dibuat di tabel Supabase.`);
+                return;
+            }
+            await rpMuatData();
+        }
+
+        // Upload BEBERAPA file sekaligus untuk satu kolom (Proposal / Hasil), disimpan sebagai array JSON.
+        async function rpUploadFilesHandler(inputEl, hiddenFieldId, listContainerId, statusElId) {
+            const files = inputEl.files ? Array.from(inputEl.files) : [];
+            if (!files.length) return;
+
+            const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+            const statusEl = document.getElementById(statusElId);
+            const hiddenField = document.getElementById(hiddenFieldId);
+            let current = rpParseFiles(hiddenField.value);
+
+            for (const file of files) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!allowedExt.includes(ext)) {
+                    statusEl.innerHTML = `<span class="text-rose-500">"${edEscapeHtml(file.name)}" dilewati: format tidak didukung (gunakan PDF, DOC/DOCX, JPG, atau PNG).</span>`;
+                    continue;
+                }
+                if (file.size > 15 * 1024 * 1024) {
+                    statusEl.innerHTML = `<span class="text-rose-500">"${edEscapeHtml(file.name)}" dilewati: ukuran melebihi 15MB.</span>`;
+                    continue;
+                }
+                statusEl.innerHTML = `<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload ${edEscapeHtml(file.name)}...</span>`;
+
+                const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const path = `${Date.now()}_${namaBersih}`;
+                const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET_RISET).upload(path, file, { cacheControl: '3600', upsert: false });
+                if (error) {
+                    statusEl.innerHTML = `<span class="text-rose-500">Gagal upload "${edEscapeHtml(file.name)}": ${edEscapeHtml(error.message)}</span>`;
+                    continue;
+                }
+                const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET_RISET).getPublicUrl(path);
+                const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
+                current.push({ name: file.name, url: publicUrl });
+            }
+
+            hiddenField.value = JSON.stringify(current);
+            rpRenderFileListEditor(hiddenFieldId, listContainerId);
+            statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> ${current.length} file tersimpan.</span>`;
+            inputEl.value = '';
+        }
+
+        function rpRenderFileListEditor(hiddenFieldId, listContainerId) {
+            const hiddenField = document.getElementById(hiddenFieldId);
+            const listEl = document.getElementById(listContainerId);
+            if (!hiddenField || !listEl) return;
+            const files = rpParseFiles(hiddenField.value);
+            if (!files.length) { listEl.innerHTML = '<span class="text-gray-400 text-xs">Belum ada file diupload.</span>'; return; }
+            listEl.innerHTML = files.map((f, idx) => {
+                const info = cpGetFileIconInfo(f.url || '');
+                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold mr-1.5 mb-1.5 ${info.color}">
+          <a href="${edEscapeHtml(f.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1"><i class="fas ${info.icon}"></i> ${edEscapeHtml(rpTruncateText(f.name, 20))}</a>
+          <button type="button" class="ml-1 text-current opacity-60 hover:opacity-100" onclick="rpHapusFileDariList('${hiddenFieldId}', '${listContainerId}', ${idx})" title="Hapus file ini">&times;</button>
+        </span>`;
+            }).join('');
+        }
+
+        function rpHapusFileDariList(hiddenFieldId, listContainerId, idx) {
+            const hiddenField = document.getElementById(hiddenFieldId);
+            let files = rpParseFiles(hiddenField.value);
+            files.splice(idx, 1);
+            hiddenField.value = JSON.stringify(files);
+            rpRenderFileListEditor(hiddenFieldId, listContainerId);
+        }
+
+        function rpTambahProdukChip(nama) {
+            const input = document.getElementById('rp-crud-field-produk');
+            if (!input) return;
+            const existing = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            if (!existing.some(s => s.toLowerCase() === nama.toLowerCase())) {
+                existing.push(nama);
+                input.value = existing.join(', ');
+            }
+        }
+
+        function rpResetForm() {
+            const form = document.getElementById('rp-crud-form');
+            if (form) form.reset();
+            document.getElementById('rp-crud-field-id').value = '';
+            document.getElementById('rp-crud-field-proposal').value = '[]';
+            document.getElementById('rp-crud-field-hasil').value = '[]';
+            const errorBox = document.getElementById('rp-crud-form-error');
+            if (errorBox) errorBox.classList.add('hidden');
+            ['rp-upload-proposal-status', 'rp-upload-hasil-status'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '';
+            });
+            rpRenderFileListEditor('rp-crud-field-proposal', 'rp-proposal-file-list');
+            rpRenderFileListEditor('rp-crud-field-hasil', 'rp-hasil-file-list');
+            rpCurrentEditIdInfo = null;
+        }
+
+        function rpBukaModalTambah() {
+            rpResetForm();
+            document.getElementById('rp-crud-modal-title').innerText = 'Tambah Riset Promosi';
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('rp-crud-field-mulai').value = todayStr;
+            document.getElementById('rp-crud-field-status').value = 'Perencanaan';
+            document.getElementById('rp-crud-modal').classList.remove('hidden');
+        }
+
+        function rpBukaModalEdit(rid) {
+            const item = rpCariRawItem(rid);
+            if (!item) return;
+            rpResetForm();
+            rpCurrentEditIdInfo = getRowIdInfo(item);
+            document.getElementById('rp-crud-modal-title').innerText = 'Edit Riset Promosi';
+            document.getElementById('rp-crud-field-id').value = rpCurrentEditIdInfo ? rpCurrentEditIdInfo.value : '';
+            document.getElementById('rp-crud-field-nama').value = rpGetNama(item);
+            document.getElementById('rp-crud-field-produk').value = rpGetProduk(item);
+            document.getElementById('rp-crud-field-tujuan').value = rpGetTujuan(item);
+            document.getElementById('rp-crud-field-pic').value = rpGetPic(item);
+            document.getElementById('rp-crud-field-mulai').value = rpGetTglMulai(item);
+            document.getElementById('rp-crud-field-selesai').value = rpGetTglSelesai(item);
+            document.getElementById('rp-crud-field-status').value = rpGetStatus(item) || 'Perencanaan';
+            document.getElementById('rp-crud-field-proposal').value = JSON.stringify(rpParseFiles(rpGetProposalRaw(item)));
+            document.getElementById('rp-crud-field-hasil').value = JSON.stringify(rpParseFiles(rpGetHasilRaw(item)));
+            rpRenderFileListEditor('rp-crud-field-proposal', 'rp-proposal-file-list');
+            rpRenderFileListEditor('rp-crud-field-hasil', 'rp-hasil-file-list');
+            document.getElementById('rp-crud-modal').classList.remove('hidden');
+        }
+
+        function rpTutupModalCrud() { document.getElementById('rp-crud-modal').classList.add('hidden'); }
+
+        const rpBtnTambahData = document.getElementById('rp-btn-tambah-data');
+        if (rpBtnTambahData) rpBtnTambahData.addEventListener('click', rpBukaModalTambah);
+
+        const rpModalClose = document.getElementById('rp-crud-modal-close');
+        if (rpModalClose) rpModalClose.addEventListener('click', rpTutupModalCrud);
+
+        const rpCancelBtn = document.getElementById('rp-crud-cancel-btn');
+        if (rpCancelBtn) rpCancelBtn.addEventListener('click', rpTutupModalCrud);
+
+        const rpModal = document.getElementById('rp-crud-modal');
+        if (rpModal) rpModal.addEventListener('click', (e) => {
+            if (e.target.id === 'rp-crud-modal') rpTutupModalCrud();
+        });
+
+        const rpUploadProposal = document.getElementById('rp-upload-proposal');
+        if (rpUploadProposal) rpUploadProposal.addEventListener('change', function () {
+            rpUploadFilesHandler(this, 'rp-crud-field-proposal', 'rp-proposal-file-list', 'rp-upload-proposal-status');
+        });
+
+        const rpUploadHasil = document.getElementById('rp-upload-hasil');
+        if (rpUploadHasil) rpUploadHasil.addEventListener('change', function () {
+            rpUploadFilesHandler(this, 'rp-crud-field-hasil', 'rp-hasil-file-list', 'rp-upload-hasil-status');
+        });
+
+        async function rpSimpanForm(e) {
+            e.preventDefault();
+            const errBox = document.getElementById('rp-crud-form-error');
+            errBox.classList.add('hidden');
+
+            const namaVal = document.getElementById('rp-crud-field-nama').value.trim();
+            if (!namaVal) { errBox.innerText = 'Nama riset wajib diisi.'; errBox.classList.remove('hidden'); return; }
+
+            const tujuanVal = document.getElementById('rp-crud-field-tujuan').value.trim();
+            if (!tujuanVal) { errBox.innerText = 'Tujuan riset wajib diisi.'; errBox.classList.remove('hidden'); return; }
+
+            const picVal = document.getElementById('rp-crud-field-pic').value.trim();
+            if (!picVal) { errBox.innerText = 'PIC / Tim yang mengerjakan wajib diisi.'; errBox.classList.remove('hidden'); return; }
+
+            const mulaiVal = document.getElementById('rp-crud-field-mulai').value;
+            if (!mulaiVal) { errBox.innerText = 'Tanggal mulai wajib diisi.'; errBox.classList.remove('hidden'); return; }
+
+            const payload = {
+                Nama_Riset: namaVal,
+                Produk_Terkait: document.getElementById('rp-crud-field-produk').value.trim(),
+                Tujuan_Riset: tujuanVal,
+                PIC: picVal,
+                Tanggal_Mulai: mulaiVal,
+                Target_Selesai: document.getElementById('rp-crud-field-selesai').value || null,
+                Status: document.getElementById('rp-crud-field-status').value || 'Perencanaan',
+                Link_Proposal: document.getElementById('rp-crud-field-proposal').value || '[]',
+                Link_Hasil: document.getElementById('rp-crud-field-hasil').value || '[]'
+            };
+
+            const idVal = document.getElementById('rp-crud-field-id').value;
+            let error, data;
+            if (idVal !== '' && rpCurrentEditIdInfo) {
+                ({ data, error } = await db.from(NAMA_TABEL_RISET_PROMOSI).update(payload).eq(rpCurrentEditIdInfo.key, rpCurrentEditIdInfo.value).select());
+            } else {
+                ({ data, error } = await db.from(NAMA_TABEL_RISET_PROMOSI).insert([payload]).select());
+            }
+            if (error) { errBox.innerText = 'Gagal menyimpan data: ' + error.message; errBox.classList.remove('hidden'); return; }
+            if (!data || data.length === 0) {
+                errBox.innerText = `Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_RISET_PROMOSI}" belum punya policy INSERT/UPDATE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_RISET_PROMOSI} → RLS.`;
+                errBox.classList.remove('hidden');
+                return;
+            }
+            rpTutupModalCrud();
+            await rpMuatData();
+        }
+        const rpFormEl = document.getElementById('rp-crud-form');
+        if (rpFormEl) rpFormEl.addEventListener('submit', rpSimpanForm);
+
+        async function rpHapusData(rid) {
+            const item = rpCariRawItem(rid);
+            if (!item) return;
+            const idInfo = getRowIdInfo(item);
+            if (!idInfo) {
+                alert('Tidak bisa menghapus: tidak ditemukan kolom ID pada data ini.\n\nTambahkan kolom id unik (primary key) pada tabel Riset_Promosi di Supabase.');
+                return;
+            }
+            if (!confirm(`Apakah Anda yakin ingin menghapus riset "${rpGetNama(item) || 'ini'}"?`)) return;
+            const { data, error } = await db.from(NAMA_TABEL_RISET_PROMOSI).delete().eq(idInfo.key, idInfo.value).select();
+            if (error) { alert('Gagal menghapus: ' + error.message); return; }
+            if (!data || data.length === 0) {
+                alert(`Data TIDAK terhapus meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_RISET_PROMOSI}" belum punya policy DELETE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_RISET_PROMOSI} → RLS.`);
+                return;
+            }
+            await rpMuatData();
+        }
+
+        const rpFilterSearch = document.getElementById('rp-filter-search');
+        if (rpFilterSearch) rpFilterSearch.addEventListener('input', rpRenderSemua);
+
+        const rpFilterStatus = document.getElementById('rp-filter-status');
+        if (rpFilterStatus) rpFilterStatus.addEventListener('change', rpRenderSemua);
 
         /* ===================================================================
            BAGIAN EDITOR (Planning_Editor)
@@ -8946,6 +9636,7 @@ function edNormalisasiNamaKolom(k) {
             else if (currentActiveTab === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (currentActiveTab === 'customer-profile') cpMuatDashboard();
             else if (currentActiveTab === 'stock-gudang') loadStock();
+            else if (currentActiveTab === 'riset-promosi') rpMuatData();
             else if (currentActiveTab === 'editor-dashboard') edMuatDashboard();
             else if (currentActiveTab === 'editor-crud') edMuatDashboard();
             else if (currentActiveTab === 'portrait-crud') ptMuatData();
@@ -8980,6 +9671,13 @@ function edNormalisasiNamaKolom(k) {
                 refreshCurrentTab();
             })
             .subscribe((status) => console.log('[Realtime] Status channel Customer_Profile:', status));
+
+        db.channel('realtime-admin-riset-promosi')
+            .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_RISET_PROMOSI }, (payload) => {
+                console.log('[Realtime] Perubahan pada tabel Riset_Promosi:', payload);
+                if (currentActiveTab === 'riset-promosi') rpMuatData();
+            })
+            .subscribe((status) => console.log('[Realtime] Status channel Riset_Promosi:', status));
 
         // Realtime Stock Gudang — refresh hanya ketika tab Stock Gudang sedang aktif.
         [
