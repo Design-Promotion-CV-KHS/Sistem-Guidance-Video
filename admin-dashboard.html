@@ -1945,6 +1945,11 @@
   #tab-stock-gudang .all-stock-search{width:100%;flex-basis:100%;}
   #tab-stock-gudang .all-stock-select{flex:1;}
 }
+
+    /* Perbaikan: pastikan stockPage benar-benar hilang saat Import History dibuka */
+#tab-stock-gudang #stockPage.sg-page-hidden{
+  display:none !important;
+}
 </style>
 </head>
 
@@ -4313,10 +4318,10 @@
 
   <div class="stock-modal">
 
-    <div class="stock-modal-header">
+<div class="stock-modal-header" id="stockModalTopHeader">
 
-      <div>
-        <h2>Update Stock</h2>
+  <div>
+    <h2>Update Stock</h2>
 
         <p>
           Pilih metode update stock.
@@ -9387,6 +9392,10 @@ let stockChangeData = {};
 
 let stockChangedToday = 0;
 
+    function sgSetStockModalTopHeaderVisible(visible) {
+  const topHeader = document.getElementById('stockModalTopHeader');
+  if (topHeader) topHeader.style.display = visible ? '' : 'none';
+}
 
 function escapeHtml(value) {
   return String(value || '')
@@ -10294,6 +10303,8 @@ if (newItem) {
     status.textContent = '';
   }
 
+  sgSetStockModalTopHeaderVisible(true);
+
 }
 
 
@@ -10367,7 +10378,7 @@ function closeStockUpdate() {
   if (status) {
     status.textContent = '';
   }
-
+  sgSetStockModalTopHeaderVisible(true);
 }
 
 
@@ -11367,7 +11378,8 @@ function openXlsxUpload() {
   document.getElementById(
     'xlsxUploadForm'
   ).style.display = 'block';
-
+    
+  sgSetStockModalTopHeaderVisible(true);
 }
 
 function processXlsxUpload() {
@@ -11858,53 +11870,24 @@ let importHistoryData = [];
 
 
 function showImportHistory() {
+  const stockPage = document.getElementById('stockPage');
+  const historyPage = document.getElementById('importHistoryPage');
 
-  const stockPage =
-    document.getElementById(
-      'stockPage'
-    );
-
-  const historyPage =
-    document.getElementById(
-      'importHistoryPage'
-    );
-
-
-  if (stockPage) {
-    stockPage.style.display = 'none';
-  }
-
-
-  if (historyPage) {
-    historyPage.style.display = 'block';
-  }
-
+  if (stockPage) { stockPage.classList.add('sg-page-hidden'); }
+  if (historyPage) { historyPage.style.display = 'block'; }
 
   loadImportHistory();
-
 }
 
 function backToStockMonitoring() {
+  const stockPage = document.getElementById('stockPage');
+  const historyPage = document.getElementById('importHistoryPage');
 
-  const stockPage =
-    document.getElementById('stockPage');
+  if (historyPage) { historyPage.style.display = 'none'; }
+  if (stockPage) { stockPage.classList.remove('sg-page-hidden'); }
 
-  const historyPage =
-    document.getElementById('importHistoryPage');
-
-  if (historyPage) {
-    historyPage.style.display = 'none';
-  }
-
-  if (stockPage) {
-    stockPage.style.display = 'block';
-  }
-
-  // Refresh data stock agar data terbaru tampil
   loadStock();
-
 }
-
 
 function loadImportHistory() {
 
@@ -12434,7 +12417,8 @@ function openBonUpload() {
   document.getElementById(
     'bonUploadStatus'
   ).textContent = '';
-
+    
+  sgSetStockModalTopHeaderVisible(true);
 }
 
 function backFromBonUpload() {
@@ -13096,6 +13080,7 @@ function openNewItemForm() {
     'newItemKeterangan'
   ).value = '';
 
+      sgSetStockModalTopHeaderVisible(true);
 }
 
 function saveNewItemData() {
@@ -15644,45 +15629,37 @@ function getStockCategoriesClean() {
 }
 
 function updateCleanStockOverview() {
-  const data = Array.isArray(stockData) ? stockData : [];
+  const all = Array.isArray(stockData) ? stockData : [];
+  const cat = window.selectedStockCategory || '';
+
+  const data = cat
+    ? all.filter(i => getItemCategory(i).trim().toUpperCase() === cat.trim().toUpperCase())
+    : all;
+
   const total = data.reduce((n,i) => n + Number(i.stock || 0), 0);
   const byStatus = status => data.filter(i => String(i.status || '').toUpperCase() === status).length;
   const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=Number(v||0).toLocaleString('id-ID'); };
+
   set('stockOverviewTotal', total);
   set('stockOverviewItems', data.length);
   set('stockOverviewAman', byStatus('AMAN'));
   set('stockOverviewMenipis', byStatus('MENIPIS'));
   set('stockOverviewHabis', byStatus('HABIS'));
-  const sub=document.getElementById('stockOverviewSubtitle');
-  if(sub) sub.textContent = data.length ? `${data.length.toLocaleString('id-ID')} jenis barang tercatat di gudang` : 'Belum ada data stock';
-}
 
-function populateCleanStockCategorySelect() {
-  const select = document.getElementById('stockCategorySelect');
-  const allSelect = document.getElementById('allStockCategoryFilter');
-  const cats = getStockCategoriesClean();
-  if (!select) return;
-
-  // Default selalu MENAMPILKAN SEMUA BARANG.
-  // Kategori spesifik hanya dipilih jika user memang memilihnya.
-  const current = window.selectedStockCategory || '';
-  select.innerHTML = '<option value="">Semua barang</option>' +
-    cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-
-  const validCurrent = cats.find(c => c.toUpperCase() === String(current).toUpperCase());
-  window.selectedStockCategory = validCurrent || '';
-  select.value = window.selectedStockCategory;
-
-  if (allSelect) {
-    allSelect.innerHTML = '<option value="">Semua kategori</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  const sub = document.getElementById('stockOverviewSubtitle');
+  if (sub) {
+    sub.textContent = cat
+      ? `Menampilkan kategori ${cat} — ${data.length.toLocaleString('id-ID')} jenis barang`
+      : (data.length
+          ? `${data.length.toLocaleString('id-ID')} jenis barang tercatat di gudang`
+          : 'Belum ada data stock');
   }
 }
 
 function selectStockCategory(category) {
   window.selectedStockCategory = category || '';
+  updateCleanStockOverview();
   renderStock();
-  const title = document.getElementById('stockOverviewSubtitle');
-  if(title && category) title.textContent = `Menampilkan kategori ${category}`;
 }
 
 /* Override fungsi lama supaya carousel/detail card tidak lagi dirender. */
