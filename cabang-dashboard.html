@@ -881,8 +881,15 @@
             <i class="fas fa-id-card"></i> Mode Lihat
           </span>
           <h3 class="text-2xl font-black text-slate-900 tracking-tight">Customer Profile - Seluruh Cabang</h3>
-          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Data Customer Profile dari seluruh cabang (data universal, sama seperti yang dilihat Admin). Gunakan Filter Cabang di bawah untuk melihat cabang tertentu. Halaman ini <b>hanya untuk melihat data</b> — tidak ada tambah/ubah/hapus di sisi cabang.</p>
+          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Data Customer Profile dari seluruh cabang (data universal, sama seperti yang dilihat Admin). Gunakan Filter Cabang di bawah untuk melihat cabang tertentu. Cabang hanya bisa <b>melihat status</b> dan <b>menambahkan/mengupload Customer Profile milik cabang sendiri</b> — tidak ada ubah/hapus data cabang lain.</p>
         </div>
+        <button type="button" id="cp-btn-tambah-data"
+          class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Tambah / Upload Customer Profile
+        </button>
       </div>
       <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
         id="cp-diagnostic-banner">
@@ -1021,7 +1028,7 @@
                 <th class="py-4 px-5 bg-slate-100">Produk</th>
                 <th class="py-4 px-5 bg-slate-100">Customer Profile</th>
                 <th class="py-4 px-5 bg-slate-100">Script Wawancara</th>
-                <th class="py-4 px-5 bg-slate-100">Evaluasi Wawancara</th>
+                <th class="py-4 px-5 bg-slate-100">Status</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
@@ -1174,6 +1181,83 @@
       </div>
     </div>
   </main>
+
+  <!-- MODAL TAMBAH / UPLOAD CUSTOMER PROFILE (KHUSUS CABANG) -->
+  <div class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" id="cp-crud-modal">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+        <h4 class="text-lg font-bold text-gray-800">Tambah / Upload Customer Profile</h4>
+        <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" id="cp-crud-modal-close"
+          type="button">×</button>
+      </div>
+      <form class="p-6 space-y-4" id="cp-crud-form">
+        <div class="bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl p-3 text-xs">
+          Data yang ditambahkan di sini otomatis tercatat atas nama cabang Anda. Status (Sudah/Belum Ada Video) akan diatur oleh Admin setelah video diproses.
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Cabang *</label>
+          <select
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            id="cp-crud-field-cabang" required></select>
+          <p class="text-[11px] text-gray-400 mt-1" id="cp-crud-cabang-hint"></p>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nama *</label>
+          <input
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            id="cp-crud-field-nama" required type="text" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Produk</label>
+          <input
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            id="cp-crud-field-produk" placeholder="Contoh: Quick Boxer" type="text" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tanggal Kiriman *</label>
+          <input
+            class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            id="cp-crud-field-tanggal" required type="date" />
+        </div>
+
+        <!-- ===== Customer Profile: upload file (PDF/DOCX/JPG/PNG) ===== -->
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload Customer Profile (PDF/DOCX/JPG/PNG) *</label>
+          <input id="cp-crud-field-customerProfile" type="hidden" />
+          <div class="flex items-center gap-2 mt-2 flex-wrap">
+            <label class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+              <i class="fas fa-upload"></i> Pilih File Customer Profile
+              <input type="file" id="cp-upload-customerProfile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden" />
+            </label>
+            <span class="text-xs" id="cp-upload-customerProfile-status"></span>
+          </div>
+        </div>
+
+        <!-- ===== Script Wawancara: upload file opsional (PDF/DOCX/JPG/PNG) ===== -->
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload Script Wawancara (Opsional)</label>
+          <input id="cp-crud-field-scriptWawancara" type="hidden" />
+          <div class="flex items-center gap-2 mt-2 flex-wrap">
+            <label class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+              <i class="fas fa-upload"></i> Pilih File Script Wawancara
+              <input type="file" id="cp-upload-scriptWawancara" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden" />
+            </label>
+            <span class="text-xs" id="cp-upload-scriptWawancara-status"></span>
+          </div>
+        </div>
+
+        <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
+          id="cp-crud-form-error"></div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100"
+            id="cp-crud-cancel-btn" type="button">Batal</button>
+          <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-gray-800"
+            id="cp-crud-save-btn" type="submit">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     Chart.register(ChartDataLabels);
 
@@ -1183,6 +1267,8 @@
     const NAMA_TABEL = 'Kiriman_Cabang';
     // Tabel Customer Profile di Supabase — sumber data utama halaman ini.
     const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
+    // Bucket Supabase Storage untuk upload file Customer Profile & Script Wawancara.
+    const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
     const MASTER_DAFTAR_CABANG = [
       'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
       'Bandar Lampung', 'Palu', 'Makassar', 'Medan'
@@ -2079,9 +2165,11 @@
     });
 
     /* ================================================================
-       CUSTOMER PROFILE — MODE CABANG (VIEW ONLY)
+       CUSTOMER PROFILE — MODE CABANG (VIEW STATUS + TAMBAH/UPLOAD MILIK SENDIRI)
        Sumber data: tabel Supabase Customer_Profile.
-       Role cabang hanya melihat data milik cabang yang sedang login.
+       Role cabang bisa melihat data seluruh cabang (universal), tapi hanya
+       bisa MENAMBAHKAN data baru (upload) atas nama cabangnya sendiri.
+       Tidak ada ubah/hapus data di sisi cabang — itu tetap wewenang Admin.
     ================================================================ */
     function cpBranchEscape(value) {
       return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
@@ -2113,8 +2201,18 @@
     function cpBranchGetScriptWawancara(item) {
       return cpBranchGetField(item, 'Script Wawancara', 'Script_Wawancara', 'script_wawancara');
     }
-    function cpBranchGetEvaluasiWawancara(item) {
-      return cpBranchGetField(item, 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara');
+    // ==== REVISI: kolom "Evaluasi Wawancara" diganti menjadi "Status" (Sudah/Belum Ada Video),
+    // konsisten dengan Dashboard Admin. Cabang hanya bisa MELIHAT nilai ini (read-only). ====
+    function cpBranchGetStatusRaw(item) {
+      return cpBranchGetField(item, 'Status', 'status', 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara');
+    }
+    function cpBranchStatusNormal(raw) {
+      const s = String(raw ?? '').trim().toLowerCase();
+      if (s === 'sudah ada video' || s === 'sudah' || s === 'ada video') return 'Sudah Ada Video';
+      return 'Belum Ada Video';
+    }
+    function cpBranchGetStatus(item) {
+      return cpBranchStatusNormal(cpBranchGetStatusRaw(item));
     }
     function cpBranchGetTanggal(item) {
       return cpBranchGetField(item, 'Tanggal', 'tanggal', 'created_at', 'Created_at', 'CreatedAt', 'Tanggal_Kirim', 'tanggal_kirim', 'Waktu', 'waktu', 'Timestamp', 'timestamp');
@@ -2194,6 +2292,17 @@
       return `<span class="text-slate-600" title="${cpBranchEscape(value)}">${cpBranchEscape(value.length > 60 ? value.substring(0, 60) + '…' : value)}</span>`;
     }
 
+    // Badge status (read-only, tidak bisa diklik untuk diubah dari sisi cabang).
+    function cpBranchStatusBadge(item) {
+      const status = cpBranchGetStatus(item);
+      const sudah = status === 'Sudah Ada Video';
+      const cls = sudah
+        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        : 'bg-slate-100 text-slate-600 border-slate-200';
+      const icon = sudah ? 'fa-circle-check' : 'fa-circle-xmark';
+      return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold border ${cls}"><i class="fas ${icon} text-[10px]"></i>${cpBranchEscape(status)}</span>`;
+    }
+
     function cpBranchGetFilteredData() {
       const bulanEl = document.getElementById('cp-filter-bulan');
       const cabangEl = document.getElementById('cp-filter-cabang');
@@ -2253,7 +2362,6 @@
         const produk = cpBranchGetProduk(item) || '-';
         const profil = cpBranchGetCustomerProfile(item);
         const script = cpBranchGetScriptWawancara(item);
-        const evaluasi = cpBranchGetEvaluasiWawancara(item) || '-';
         return `
           <tr class="hover:bg-slate-50/80 transition">
             <td class="py-4 px-5 text-xs font-mono text-slate-400">${item.id ?? index + 1}</td>
@@ -2262,7 +2370,7 @@
             <td class="py-4 px-5 text-slate-600">${cpBranchEscape(produk)}</td>
             <td class="py-4 px-5">${cpBranchFileButton(profil)}</td>
             <td class="py-4 px-5">${cpBranchFileButton(script)}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs" title="${cpBranchEscape(evaluasi)}">${cpBranchEscape(evaluasi)}</td>
+            <td class="py-4 px-5 whitespace-nowrap">${cpBranchStatusBadge(item)}</td>
           </tr>`;
       }).join('');
     }
@@ -2577,6 +2685,11 @@
       // Deteksi kolom tanggal dari SEMUA baris.
       cpBranchDetectDateColumn(semuaData);
 
+      // Coba resolusi ulang nama cabang sekarang setelah data tersedia,
+      // supaya form Tambah/Upload otomatis mem-preselect cabang milik akun ini.
+      const resolved = cpResolveBranchFromUser(currentBranchUser, semuaData);
+      if (resolved) currentBranchName = resolved;
+
       // Tampilkan SEMUA data (universal) — filter per cabang dilakukan lewat dropdown.
       branchCpData = semuaData.slice().sort((a, b) => {
         const dateA = new Date(cpBranchGetTanggal(a) || 0).getTime() || 0;
@@ -2618,6 +2731,180 @@
 
     document.getElementById('cp-filter-bulan')?.addEventListener('change', cpBranchApplyFilters);
     document.getElementById('cp-filter-cabang')?.addEventListener('change', cpBranchApplyFilters);
+
+    /* ================================================================
+       TAMBAH / UPLOAD CUSTOMER PROFILE OLEH CABANG
+       Cabang hanya bisa menambahkan data baru (insert) atas nama
+       cabangnya sendiri — tidak ada edit/hapus dari sisi cabang.
+       Status selalu default "Belum Ada Video" sampai diproses Admin.
+    ================================================================ */
+    function cpBranchPopulateCabangSelectForAdd() {
+      const select = document.getElementById('cp-crud-field-cabang');
+      const hint = document.getElementById('cp-crud-cabang-hint');
+      if (!select) return;
+
+      const cabangSet = new Set(MASTER_DAFTAR_CABANG);
+      branchCpData.forEach(item => {
+        const c = cpBranchGetCabang(item).trim();
+        if (c) cabangSet.add(c);
+      });
+      const sorted = Array.from(cabangSet).sort();
+
+      select.innerHTML = `<option value="">- Pilih Cabang -</option>` +
+        sorted.map(c => `<option value="${cpBranchEscape(c)}">${cpBranchEscape(c)}</option>`).join('');
+
+      const matched = sorted.find(c => cpNormalizeBranch(c) === cpNormalizeBranch(currentBranchName));
+      if (matched) {
+        select.value = matched;
+        if (hint) hint.innerText = 'Cabang otomatis terisi berdasarkan akun Anda. Ubah bila diperlukan.';
+      } else if (hint) {
+        hint.innerText = 'Pilih cabang Anda pada daftar di atas.';
+      }
+    }
+
+    function cpBranchUploadResetField(hiddenId, statusId) {
+      const hidden = document.getElementById(hiddenId);
+      const status = document.getElementById(statusId);
+      if (hidden) hidden.value = '';
+      if (status) status.innerHTML = '';
+    }
+
+    function cpBranchResetForm() {
+      const form = document.getElementById('cp-crud-form');
+      const errorBox = document.getElementById('cp-crud-form-error');
+      if (form) form.reset();
+      if (errorBox) errorBox.classList.add('hidden');
+      cpBranchUploadResetField('cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
+      cpBranchUploadResetField('cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
+    }
+
+    function cpBranchBukaModalTambah() {
+      cpBranchResetForm();
+      cpBranchPopulateCabangSelectForAdd();
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      document.getElementById('cp-crud-field-tanggal').value = todayStr;
+      document.getElementById('cp-crud-modal').classList.remove('hidden');
+    }
+
+    function cpBranchTutupModal() {
+      document.getElementById('cp-crud-modal').classList.add('hidden');
+    }
+
+    // Upload satu file ke Supabase Storage lalu isi hidden field dengan URL publiknya.
+    // Pola sama dengan yang dipakai Dashboard Admin, supaya URL yang dihasilkan
+    // langsung terbaca oleh sisi Admin.
+    async function cpBranchUploadFileHandler(inputEl, targetHiddenFieldId, statusElId) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+
+      const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+      const ext = file.name.split('.').pop().toLowerCase();
+      const statusEl = document.getElementById(statusElId);
+
+      if (!allowedExt.includes(ext)) {
+        statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, JPG, atau PNG.</span>';
+        inputEl.value = '';
+        return;
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        statusEl.innerHTML = '<span class="text-rose-500">Ukuran file maksimal 15MB.</span>';
+        inputEl.value = '';
+        return;
+      }
+
+      statusEl.innerHTML = '<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload file...</span>';
+
+      const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = `${Date.now()}_${namaBersih}`;
+
+      const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false });
+      if (error) {
+        statusEl.innerHTML = `<span class="text-rose-500">Gagal upload: ${cpBranchEscape(error.message)}</span>`;
+        inputEl.value = '';
+        return;
+      }
+
+      const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET).getPublicUrl(path);
+      const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
+
+      document.getElementById(targetHiddenFieldId).value = publicUrl;
+      statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> Berhasil: ${cpBranchEscape(file.name)}</span>`;
+      inputEl.value = '';
+    }
+
+    const cpBtnTambahData = document.getElementById('cp-btn-tambah-data');
+    if (cpBtnTambahData) cpBtnTambahData.addEventListener('click', cpBranchBukaModalTambah);
+
+    const cpModalCloseBtn = document.getElementById('cp-crud-modal-close');
+    if (cpModalCloseBtn) cpModalCloseBtn.addEventListener('click', cpBranchTutupModal);
+
+    const cpCancelBtn = document.getElementById('cp-crud-cancel-btn');
+    if (cpCancelBtn) cpCancelBtn.addEventListener('click', cpBranchTutupModal);
+
+    const cpCrudModalEl = document.getElementById('cp-crud-modal');
+    if (cpCrudModalEl) cpCrudModalEl.addEventListener('click', (e) => {
+      if (e.target.id === 'cp-crud-modal') cpBranchTutupModal();
+    });
+
+    const cpUploadCustomerProfileInput = document.getElementById('cp-upload-customerProfile');
+    if (cpUploadCustomerProfileInput) cpUploadCustomerProfileInput.addEventListener('change', function () {
+      cpBranchUploadFileHandler(this, 'cp-crud-field-customerProfile', 'cp-upload-customerProfile-status');
+    });
+
+    const cpUploadScriptWawancaraInput = document.getElementById('cp-upload-scriptWawancara');
+    if (cpUploadScriptWawancaraInput) cpUploadScriptWawancaraInput.addEventListener('change', function () {
+      cpBranchUploadFileHandler(this, 'cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
+    });
+
+    async function cpBranchSimpanForm(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('cp-crud-form-error');
+      errBox.classList.add('hidden');
+
+      const cabangVal = document.getElementById('cp-crud-field-cabang').value.trim();
+      const namaVal = document.getElementById('cp-crud-field-nama').value.trim();
+      const tanggalVal = document.getElementById('cp-crud-field-tanggal').value;
+      const profileUrl = document.getElementById('cp-crud-field-customerProfile').value.trim();
+
+      if (!cabangVal) { errBox.innerText = 'Cabang wajib dipilih.'; errBox.classList.remove('hidden'); return; }
+      if (!namaVal) { errBox.innerText = 'Nama wajib diisi.'; errBox.classList.remove('hidden'); return; }
+      if (!tanggalVal) { errBox.innerText = 'Tanggal kiriman wajib diisi.'; errBox.classList.remove('hidden'); return; }
+      if (!profileUrl) { errBox.innerText = 'File Customer Profile wajib diupload.'; errBox.classList.remove('hidden'); return; }
+
+      const payload = {
+        Cabang: cabangVal,
+        Nama: namaVal,
+        Produk: document.getElementById('cp-crud-field-produk').value.trim(),
+        Tanggal: tanggalVal,
+        'Customer Profile': profileUrl,
+        'Script Wawancara': document.getElementById('cp-crud-field-scriptWawancara').value.trim(),
+        'Status': 'Belum Ada Video'
+      };
+
+      const saveBtn = document.getElementById('cp-crud-save-btn');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = 'Menyimpan...'; }
+
+      const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).insert([payload]).select();
+
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = 'Simpan'; }
+
+      if (error) {
+        errBox.innerText = 'Gagal menyimpan data: ' + error.message;
+        errBox.classList.remove('hidden');
+        return;
+      }
+      if (!data || data.length === 0) {
+        errBox.innerText = `Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy INSERT untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_CUSTOMER_PROFILE} → RLS.`;
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      cpBranchTutupModal();
+      await muatCustomerProfileCabang();
+    }
+    const cpCrudFormEl = document.getElementById('cp-crud-form');
+    if (cpCrudFormEl) cpCrudFormEl.addEventListener('submit', cpBranchSimpanForm);
 
     // ===================== REALTIME CUSTOMER PROFILE =====================
     // Jika tabel Customer_Profile diaktifkan pada Supabase Realtime,
