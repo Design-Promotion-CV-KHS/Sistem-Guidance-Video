@@ -1648,7 +1648,11 @@
    pendek dan tabel mendapat ruang maksimal.
    ========================================================= */
 
-#tab-stock-gudang {
+/* Hanya aktif saat tab Stock Gudang sedang terlihat.
+   Jangan pakai display:flex langsung pada #tab-stock-gudang karena
+   itu akan mengalahkan class Tailwind .hidden dan membuat Stock
+   Monitoring tetap tampil di Ringkasan Admin. */
+#tab-stock-gudang:not(.hidden) {
   display:flex !important;
   flex-direction:column !important;
   padding:1.25rem 1.5rem !important;
