@@ -2951,7 +2951,7 @@
                                 <th class="py-4 px-5 bg-slate-100">Produk</th>
                                 <th class="py-4 px-5 bg-slate-100">Customer Profile</th>
                                 <th class="py-4 px-5 bg-slate-100">Script Wawancara</th>
-                                <th class="py-4 px-5 bg-slate-100">Evaluasi Wawancara</th>
+                                <th class="py-4 px-5 bg-slate-100">Status</th>
                                 <th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
                             </tr>
                         </thead>
@@ -3753,10 +3753,13 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Evaluasi Wawancara</label>
-                    <textarea
-                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                        id="cp-crud-field-evaluasiWawancara" placeholder="Tuliskan evaluasi wawancara..." rows="3"></textarea>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Status</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-400"
+                        id="cp-crud-field-status">
+                        <option value="Belum Ada Video">Belum Ada Video</option>
+                        <option value="Sudah Ada Video">Sudah Ada Video</option>
+                    </select>
                 </div>
                 <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
                     id="cp-crud-form-error"></div>
@@ -6288,7 +6291,12 @@
         function cpGetProduk(item) { return cpGetField(item, 'Produk', 'produk'); }
         function cpGetCustomerProfile(item) { return cpGetField(item, 'Customer Profile', 'Customer_Profile', 'customer_profile'); }
         function cpGetScriptWawancara(item) { return cpGetField(item, 'Script Wawancara', 'Script_Wawancara', 'script_wawancara'); }
-        function cpGetEvaluasiWawancara(item) { return cpGetField(item, 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara'); }
+        function cpGetStatus(item) { return cpGetField(item, 'Status', 'status', 'Evaluasi Wawancara', 'Evaluasi_Wawancara', 'evaluasi_wawancara'); }
+        function cpStatusNormal(raw) {
+            const s = String(raw ?? '').trim().toLowerCase();
+            if (s === 'sudah ada video' || s === 'sudah' || s === 'ada video') return 'Sudah Ada Video';
+            return 'Belum Ada Video';
+        }
         function cpGetTanggal(item) { return cpGetField(item, 'Tanggal', 'tanggal'); }
 
         // Deteksi otomatis nama kolom tanggal/waktu yang ada pada baris data (untuk pengelompokan bulan)
@@ -6817,7 +6825,8 @@
                 const produk = edEscapeHtml(cpGetProduk(item) || '-');
                 const profil = cpGetCustomerProfile(item);
                 const script = cpGetScriptWawancara(item);
-                const evaluasi = cpGetEvaluasiWawancara(item);
+                const status = cpStatusNormal(cpGetStatus(item));
+                const statusSudah = status === 'Sudah Ada Video';
                 return `
           <tr class="hover:bg-slate-50/80 transition-all duration-200">
             <td class="py-4 px-5 font-mono text-xs text-slate-400">${idDisplay}</td>
@@ -6826,7 +6835,12 @@
             <td class="py-4 px-5 text-slate-600">${produk}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(profil)}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(script)}</td>
-            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs truncate" title="${edEscapeHtml(evaluasi)}">${edEscapeHtml(cpTruncateText(evaluasi))}</td>
+            <td class="py-4 px-5 whitespace-nowrap">
+              <button type="button" data-rid="${cpListGlobal.indexOf(item)}" title="Klik untuk mengubah status"
+                class="cp-btn-status inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${statusSudah ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'}">
+                <i class="fas ${statusSudah ? 'fa-circle-check' : 'fa-circle-xmark'} text-[10px]"></i>${status}
+              </button>
+            </td>
             <td class="py-4 px-5 text-center space-x-2 whitespace-nowrap">
               <button data-rid="${cpListGlobal.indexOf(item)}" class="cp-btn-edit text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Edit</button>
               <button data-rid="${cpListGlobal.indexOf(item)}" class="cp-btn-hapus text-rose-600 hover:text-rose-800 font-bold text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl transition-all interactive-btn">Hapus</button>
@@ -6834,6 +6848,7 @@
           </tr>`;
             }).join('');
 
+            tbody.querySelectorAll('.cp-btn-status').forEach(btn => btn.addEventListener('click', () => cpToggleStatus(btn.dataset.rid)));
             tbody.querySelectorAll('.cp-btn-edit').forEach(btn => btn.addEventListener('click', () => cpBukaModalEdit(btn.dataset.rid)));
             tbody.querySelectorAll('.cp-btn-hapus').forEach(btn => btn.addEventListener('click', () => cpHapusData(btn.dataset.rid)));
         }
@@ -6892,7 +6907,7 @@
             document.getElementById('cp-crud-field-tanggal').value = cpGetTanggal(item);
             document.getElementById('cp-crud-field-customerProfile').value = cpGetCustomerProfile(item);
             document.getElementById('cp-crud-field-scriptWawancara').value = cpGetScriptWawancara(item);
-            document.getElementById('cp-crud-field-evaluasiWawancara').value = cpGetEvaluasiWawancara(item);
+            document.getElementById('cp-crud-field-status').value = cpStatusNormal(cpGetStatus(item));
             document.getElementById('cp-upload-customerProfile-existing').innerHTML = cpRenderExistingPreview(cpGetCustomerProfile(item));
             document.getElementById('cp-upload-scriptWawancara-existing').innerHTML = cpRenderExistingPreview(cpGetScriptWawancara(item));
             document.getElementById('cp-crud-modal').classList.remove('hidden');
@@ -6945,7 +6960,7 @@
                 Tanggal: tanggalVal,
                 'Customer Profile': document.getElementById('cp-crud-field-customerProfile').value,
                 'Script Wawancara': document.getElementById('cp-crud-field-scriptWawancara').value,
-                'Evaluasi Wawancara': document.getElementById('cp-crud-field-evaluasiWawancara').value
+                'Status': cpStatusNormal(document.getElementById('cp-crud-field-status').value)
             };    
 
             const idVal = document.getElementById('cp-crud-field-id').value;
@@ -6966,6 +6981,26 @@
             if (currentActiveTab === 'overview') renderOverview();
         }
         document.getElementById('cp-crud-form').addEventListener('submit', cpSimpanForm);
+
+        async function cpToggleStatus(rid) {
+            const item = cpCariRawItem(rid);
+            if (!item) return;
+            const idInfo = getRowIdInfo(item);
+            if (!idInfo) {
+                alert('Status tidak bisa diubah langsung karena tidak ditemukan kolom ID unik pada data ini. Gunakan tombol Edit.');
+                return;
+            }
+            const current = cpStatusNormal(cpGetStatus(item));
+            const next = current === 'Sudah Ada Video' ? 'Belum Ada Video' : 'Sudah Ada Video';
+            const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).update({ 'Status': next }).eq(idInfo.key, idInfo.value).select();
+            if (error) { alert('Gagal mengubah status: ' + error.message); return; }
+            if (!data || data.length === 0) {
+                alert(`Status tidak berubah. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy UPDATE untuk role anon, atau kolom "Status" belum dibuat/di-rename di tabel Supabase.`);
+                return;
+            }
+            await cpMuatDashboard();
+            if (currentActiveTab === 'overview') renderOverview();
+        }
 
         async function cpHapusData(rid) {
             const item = cpCariRawItem(rid);
