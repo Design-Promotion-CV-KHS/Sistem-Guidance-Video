@@ -875,7 +875,160 @@
                 height: calc(100vh - 78px);
             }
         }
-    </style>
+    
+        /* =========================================================
+           JADWAL 5S
+           ========================================================= */
+        #tab-jadwal-5s {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 2rem;
+        }
+        #tab-jadwal-5s .j5s-container {
+            width: 100%;
+            max-width: 1680px;
+            margin: 0 auto;
+        }
+        #tab-jadwal-5s .j5s-header {
+            display:flex; align-items:flex-end; justify-content:space-between;
+            gap:20px; padding:28px 30px; margin-bottom:20px;
+            border-radius:22px;
+            background:linear-gradient(135deg,#0f172a 0%,#1e2749 100%);
+            color:#fff; box-shadow:0 24px 60px -12px rgba(15,23,42,.18);
+            position:relative; overflow:hidden;
+        }
+        #tab-jadwal-5s .j5s-header::before {
+            content:""; position:absolute; width:260px; height:260px;
+            right:-90px; top:-130px; border-radius:50%;
+            background:radial-gradient(circle,#4f46e5 0%,transparent 70%); opacity:.55;
+        }
+        #tab-jadwal-5s .j5s-header > * { position:relative; z-index:2; }
+        #tab-jadwal-5s .j5s-header h1 { margin:0; font-size:28px; font-weight:800; letter-spacing:-.5px; }
+        #tab-jadwal-5s .j5s-header p { margin:6px 0 0; color:rgba(255,255,255,.68); font-size:13px; }
+        #tab-jadwal-5s .j5s-toolbar {
+            display:flex; align-items:center; justify-content:space-between;
+            gap:12px; flex-wrap:wrap; margin-bottom:14px;
+        }
+        #tab-jadwal-5s .j5s-search {
+            flex:1 1 320px; min-width:220px; height:44px; padding:0 14px;
+            border:1px solid #e2e8f0; border-radius:12px; background:#fff;
+            color:#0f172a; outline:none; font:inherit;
+            box-shadow:0 8px 24px -6px rgba(15,23,42,.06);
+        }
+        #tab-jadwal-5s .j5s-search:focus {
+            border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.12);
+        }
+        #tab-jadwal-5s .j5s-btn {
+            min-height:42px; padding:9px 15px; border:1px solid transparent;
+            border-radius:11px; display:inline-flex; align-items:center;
+            justify-content:center; gap:7px; font:inherit; font-size:13px;
+            font-weight:800; cursor:pointer; transition:.18s ease;
+        }
+        #tab-jadwal-5s .j5s-btn:hover { transform:translateY(-1px); }
+        #tab-jadwal-5s .j5s-btn-primary {
+            background:#4f46e5; color:#fff; box-shadow:0 6px 16px rgba(79,70,229,.25);
+        }
+        #tab-jadwal-5s .j5s-btn-primary:hover { background:#4338ca; }
+        #tab-jadwal-5s .j5s-btn-light {
+            background:#fff; color:#334155; border-color:#e2e8f0;
+        }
+        #tab-jadwal-5s .j5s-btn-light:hover { background:#f8fafc; }
+        #tab-jadwal-5s .j5s-card {
+            background:#fff; border:1px solid #e2e8f0; border-radius:18px;
+            overflow:hidden; box-shadow:0 8px 24px -6px rgba(15,23,42,.08);
+        }
+        #tab-jadwal-5s .j5s-table-wrap { width:100%; overflow-x:auto; }
+        #tab-jadwal-5s .j5s-table {
+            width:100%; min-width:760px; border-collapse:separate;
+            border-spacing:0; table-layout:fixed;
+        }
+        #tab-jadwal-5s .j5s-table th {
+            padding:13px 16px; background:#0f172a; color:rgba(255,255,255,.75);
+            text-align:left; font-size:10px; font-weight:800; letter-spacing:.7px;
+            text-transform:uppercase; white-space:nowrap;
+        }
+        #tab-jadwal-5s .j5s-table td {
+            padding:14px 16px; border-top:1px solid #eef0f7;
+            color:#334155; font-size:13px; vertical-align:middle;
+        }
+        #tab-jadwal-5s .j5s-table tbody tr { background:#fff; transition:background .15s ease; }
+        #tab-jadwal-5s .j5s-table tbody tr:hover { background:#f8faff; }
+        #tab-jadwal-5s .j5s-id {
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:11px; font-weight:800; color:#64748b; word-break:break-all;
+        }
+        #tab-jadwal-5s .j5s-status {
+            display:inline-flex; align-items:center; justify-content:center;
+            min-width:88px; padding:5px 10px; border-radius:999px;
+            font-size:10px; font-weight:900;
+        }
+        #tab-jadwal-5s .j5s-status-terjadwal { background:#eef2ff; color:#4338ca; }
+        #tab-jadwal-5s .j5s-status-selesai { background:#e9f9ef; color:#16834a; }
+        #tab-jadwal-5s .j5s-status-dibatalkan { background:#fdecef; color:#d11a45; }
+        #tab-jadwal-5s .j5s-status-lainnya { background:#f1f5f9; color:#475569; }
+        #tab-jadwal-5s .j5s-actions {
+            display:flex; align-items:center; justify-content:flex-end; gap:6px;
+        }
+        #tab-jadwal-5s .j5s-icon-btn {
+            width:32px; height:32px; border:1px solid #e2e8f0; border-radius:9px;
+            background:#fff; color:#475569; cursor:pointer; transition:.18s ease;
+        }
+        #tab-jadwal-5s .j5s-icon-btn:hover {
+            background:#eef2ff; color:#4338ca; border-color:#c7d2fe;
+        }
+        #tab-jadwal-5s .j5s-icon-btn.delete:hover {
+            background:#fdecef; color:#d11a45; border-color:#fecdd3;
+        }
+        #tab-jadwal-5s .j5s-empty {
+            text-align:center; padding:48px 20px !important; color:#94a3b8 !important;
+        }
+        #tab-jadwal-5s .j5s-count {
+            font-size:11px; color:#94a3b8; font-weight:700; white-space:nowrap;
+        }
+        .j5s-modal-overlay {
+            position:fixed; inset:0; padding:20px; background:rgba(15,23,42,.55);
+            backdrop-filter:blur(4px); display:flex; align-items:center;
+            justify-content:center; z-index:10000;
+        }
+        .j5s-modal {
+            width:520px; max-width:100%; max-height:90vh; overflow-y:auto;
+            background:#fff; border:1px solid #e2e8f0; border-radius:20px;
+            padding:26px; box-shadow:0 24px 60px -12px rgba(15,23,42,.25);
+        }
+        .j5s-modal-header {
+            display:flex; align-items:flex-start; justify-content:space-between;
+            gap:16px; margin-bottom:20px; padding-bottom:15px;
+            border-bottom:1px solid #eef0f7;
+        }
+        .j5s-modal-header h2 { margin:0; color:#0f172a; font-size:20px; font-weight:800; }
+        .j5s-modal-header p { margin:5px 0 0; color:#64748b; font-size:12px; }
+        .j5s-close {
+            width:34px; height:34px; border:1px solid #e2e8f0; border-radius:9px;
+            background:#f8fafc; color:#475569; cursor:pointer;
+        }
+        .j5s-field { margin-bottom:15px; }
+        .j5s-field label {
+            display:block; margin-bottom:6px; color:#334155; font-size:11px; font-weight:800;
+        }
+        .j5s-field input,.j5s-field select {
+            width:100%; height:42px; box-sizing:border-box; padding:0 12px;
+            border:1px solid #e2e8f0; border-radius:10px; background:#fff;
+            color:#0f172a; font:inherit; font-size:13px; outline:none;
+        }
+        .j5s-field input:focus,.j5s-field select:focus {
+            border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.12);
+        }
+        .j5s-form-error {
+            display:none; margin-top:10px; padding:10px 12px; border:1px solid #fecdd3;
+            border-radius:10px; background:#fff1f2; color:#be123c; font-size:12px; line-height:1.5;
+        }
+        .j5s-modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:22px; }
+        @media (max-width:760px) {
+            #tab-jadwal-5s { padding:1.1rem; }
+            #tab-jadwal-5s .j5s-header { padding:22px; align-items:flex-start; flex-direction:column; }
+        }
+
+</style>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
@@ -1998,6 +2151,11 @@
                     class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
                     id="nav-stock-gudang" onclick="switchTab('stock-gudang')">
                     <i class="fas fa-boxes-stacked w-5 text-center"></i> Stock Gudang
+                </button>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-jadwal-5s" onclick="switchTab('jadwal-5s')">
+                    <i class="fas fa-calendar-check w-5 text-center"></i> Jadwal 5S
                 </button>
                 <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Riset &amp;
                     Promosi</p>
@@ -4333,6 +4491,45 @@
         </div>
     </div>
 
+        <!-- ============ TAB: JADWAL 5S ============ -->
+        <div class="hidden" id="tab-jadwal-5s">
+            <div class="j5s-container">
+                <div class="j5s-header">
+                    <div>
+                        <h1>Jadwal 5S</h1>
+                        <p>Kelola jadwal kegiatan 5S berdasarkan tanggal, PIC, lokasi, dan status.</p>
+                    </div>
+                    <button class="j5s-btn j5s-btn-primary" type="button" onclick="j5sBukaForm()">
+                        <i class="fas fa-plus"></i> Tambah Jadwal
+                    </button>
+                </div>
+                <div class="j5s-toolbar">
+                    <input id="j5s-search" class="j5s-search" type="search"
+                        placeholder="Cari tanggal, PIC, lokasi, atau status..." oninput="j5sRender()">
+                    <span id="j5s-count" class="j5s-count">0 jadwal</span>
+                </div>
+                <div class="j5s-card">
+                    <div class="j5s-table-wrap">
+                        <table class="j5s-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:22%;">ID</th>
+                                    <th style="width:15%;">Tanggal</th>
+                                    <th style="width:19%;">PIC</th>
+                                    <th style="width:22%;">Lokasi</th>
+                                    <th style="width:12%;">Status</th>
+                                    <th style="width:10%;text-align:right;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="j5s-table-body">
+                                <tr><td colspan="6" class="j5s-empty">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ============ TAB: STOCK GUDANG ============ -->
         <div class="hidden" id="tab-stock-gudang">
 <div id="stockPage">
@@ -5955,13 +6152,14 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'riset-promosi', 'editor-crud', 'portrait-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'jadwal-5s', 'riset-promosi', 'editor-crud', 'portrait-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
             'cabang-evaluasi': '| Hasil Evaluasi Cabang',
             'customer-profile': '| Kelola Customer Profile',
             'stock-gudang': '| Monitoring & Pengelolaan Stock Gudang',
+            'jadwal-5s': '| Kelola Jadwal 5S',
             'riset-promosi': '| Kelola Riset Promosi',
             'editor-crud': '| Planning Landscape',
             'portrait-crud': '| Planning Potrait',
@@ -6013,6 +6211,7 @@
             else if (tabName === 'cabang-evaluasi') cbMuatDataEvaluasi();
             else if (tabName === 'customer-profile') cpMuatDashboard();
             else if (tabName === 'stock-gudang') loadStock();
+            else if (tabName === 'jadwal-5s') j5sMuatData();
             else if (tabName === 'riset-promosi') rpMuatData();
             else if (tabName === 'editor-crud') edMuatDashboard();
             else if (tabName === 'portrait-crud') ptMuatData();
@@ -9671,6 +9870,13 @@ function edNormalisasiNamaKolom(k) {
                 refreshCurrentTab();
             })
             .subscribe((status) => console.log('[Realtime] Status channel Customer_Profile:', status));
+
+        db.channel('realtime-admin-jadwal-5s')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'Jadwal_5S' }, (payload) => {
+                console.log('[Realtime] Perubahan pada tabel Jadwal_5S:', payload);
+                if (currentActiveTab === 'jadwal-5s') j5sMuatData();
+            })
+            .subscribe((status) => console.log('[Realtime] Status channel Jadwal_5S:', status));
 
         db.channel('realtime-admin-riset-promosi')
             .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_RISET_PROMOSI }, (payload) => {
@@ -16892,6 +17098,280 @@ function renderAllStockPage() {
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeAllStockPage();
 });
+
+<!-- =========================================================
+     JADWAL 5S — CRUD SUPABASE
+     Tabel: Jadwal_5S
+     Kolom: id (primary key), tanggal, pic, lokasi, status
+     ========================================================= -->
+<div id="j5s-modal-overlay" class="j5s-modal-overlay" style="display:none;" aria-hidden="true">
+    <div class="j5s-modal" role="dialog" aria-modal="true" aria-labelledby="j5s-modal-title">
+        <div class="j5s-modal-header">
+            <div>
+                <h2 id="j5s-modal-title">Tambah Jadwal 5S</h2>
+                <p>Isi data jadwal kegiatan 5S.</p>
+            </div>
+            <button class="j5s-close" type="button" onclick="j5sTutupForm()" aria-label="Tutup">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form id="j5s-form" onsubmit="j5sSimpan(event)">
+            <input type="hidden" id="j5s-field-id">
+
+            <div class="j5s-field">
+                <label for="j5s-field-tanggal">Tanggal *</label>
+                <input id="j5s-field-tanggal" type="date" required>
+            </div>
+
+            <div class="j5s-field">
+                <label for="j5s-field-pic">PIC *</label>
+                <input id="j5s-field-pic" type="text" placeholder="Nama PIC" required>
+            </div>
+
+            <div class="j5s-field">
+                <label for="j5s-field-lokasi">Lokasi *</label>
+                <input id="j5s-field-lokasi" type="text" placeholder="Lokasi kegiatan 5S" required>
+            </div>
+
+            <div class="j5s-field">
+                <label for="j5s-field-status">Status *</label>
+                <select id="j5s-field-status" required>
+                    <option value="Terjadwal">Terjadwal</option>
+                    <option value="Selesai">Selesai</option>
+                    <option value="Dibatalkan">Dibatalkan</option>
+                </select>
+            </div>
+
+            <div id="j5s-form-error" class="j5s-form-error"></div>
+
+            <div class="j5s-modal-actions">
+                <button class="j5s-btn j5s-btn-light" type="button" onclick="j5sTutupForm()">Batal</button>
+                <button class="j5s-btn j5s-btn-primary" type="submit" id="j5s-save-btn">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const J5S_TABLE = 'Jadwal_5S';
+    let j5sData = [];
+    let j5sLoading = false;
+
+    function esc(v) {
+        return String(v ?? '')
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+            .replace(/'/g,'&#039;');
+    }
+
+    function formatDate(v) {
+        if (!v) return '-';
+        const d = new Date(String(v).includes('T') ? v : String(v) + 'T00:00:00');
+        return Number.isNaN(d.getTime()) ? String(v) :
+            d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});
+    }
+
+    function statusClass(v) {
+        const s = String(v || '').trim().toLowerCase();
+        if (s === 'terjadwal') return 'j5s-status-terjadwal';
+        if (s === 'selesai') return 'j5s-status-selesai';
+        if (s === 'dibatalkan') return 'j5s-status-dibatalkan';
+        return 'j5s-status-lainnya';
+    }
+
+    window.j5sRender = function () {
+        const tbody = document.getElementById('j5s-table-body');
+        const count = document.getElementById('j5s-count');
+        const q = String(document.getElementById('j5s-search')?.value || '').trim().toLowerCase();
+        if (!tbody) return;
+
+        const rows = j5sData.filter(r => [
+            r.id, r.tanggal, r.pic, r.PIC, r.lokasi, r.status
+        ].map(x => String(x ?? '')).join(' ').toLowerCase().includes(q));
+
+        if (count) count.textContent = `${rows.length.toLocaleString('id-ID')} jadwal`;
+
+        if (!rows.length) {
+            tbody.innerHTML = `<tr><td colspan="6" class="j5s-empty">${
+                q ? 'Tidak ada jadwal yang sesuai dengan pencarian.' : 'Belum ada data Jadwal 5S.'
+            }</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(r => {
+            const id = String(r.id ?? '');
+            const pic = r.pic ?? r.PIC ?? '';
+            return `<tr>
+                <td><span class="j5s-id">${esc(id)}</span></td>
+                <td>${esc(formatDate(r.tanggal))}</td>
+                <td>${esc(pic || '-')}</td>
+                <td>${esc(r.lokasi || '-')}</td>
+                <td><span class="j5s-status ${statusClass(r.status)}">${esc(r.status || '-')}</span></td>
+                <td>
+                    <div class="j5s-actions">
+                        <button class="j5s-icon-btn" type="button" title="Edit"
+                            onclick="j5sEdit(${JSON.stringify(id)})"><i class="fas fa-pen"></i></button>
+                        <button class="j5s-icon-btn delete" type="button" title="Hapus"
+                            onclick="j5sHapus(${JSON.stringify(id)})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    };
+
+    window.j5sMuatData = async function () {
+        if (j5sLoading) return;
+        j5sLoading = true;
+
+        try {
+            if (!window.db) throw new Error('Koneksi Supabase utama tidak tersedia.');
+
+            const { data, error } = await window.db
+                .from(J5S_TABLE)
+                .select('id,tanggal,pic,lokasi,status')
+                .order('tanggal',{ascending:true})
+                .order('id',{ascending:true});
+
+            if (error) throw error;
+
+            j5sData = Array.isArray(data) ? data : [];
+            j5sRender();
+        } catch (error) {
+            console.error('[Jadwal 5S] Gagal memuat data:', error);
+            const tbody = document.getElementById('j5s-table-body');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="j5s-empty" style="color:#be123c !important;">
+                Gagal memuat data: ${esc(error?.message || error)}
+                <small style="display:block;margin-top:8px;color:#94a3b8;">
+                    Pastikan tabel "${J5S_TABLE}" dan kolom id, tanggal, pic, lokasi, status sudah dibuat di Supabase.
+                </small>
+            </td></tr>`;
+        } finally {
+            j5sLoading = false;
+        }
+    };
+
+    window.j5sBukaForm = function (row) {
+        const overlay = document.getElementById('j5s-modal-overlay');
+        const form = document.getElementById('j5s-form');
+        const errorBox = document.getElementById('j5s-form-error');
+        if (!overlay) return;
+
+        form?.reset();
+
+        document.getElementById('j5s-modal-title').textContent = row ? 'Edit Jadwal 5S' : 'Tambah Jadwal 5S';
+        document.getElementById('j5s-field-id').value = row?.id ?? '';
+        document.getElementById('j5s-field-tanggal').value = row?.tanggal ? String(row.tanggal).slice(0,10) : '';
+        document.getElementById('j5s-field-pic').value = row?.pic ?? row?.PIC ?? '';
+        document.getElementById('j5s-field-lokasi').value = row?.lokasi ?? '';
+        document.getElementById('j5s-field-status').value = row?.status ?? 'Terjadwal';
+
+        if (errorBox) { errorBox.style.display='none'; errorBox.textContent=''; }
+        overlay.style.display='flex';
+        overlay.setAttribute('aria-hidden','false');
+        setTimeout(() => document.getElementById('j5s-field-tanggal')?.focus(), 50);
+    };
+
+    window.j5sTutupForm = function () {
+        const overlay = document.getElementById('j5s-modal-overlay');
+        if (overlay) {
+            overlay.style.display='none';
+            overlay.setAttribute('aria-hidden','true');
+        }
+    };
+
+    window.j5sEdit = function (id) {
+        const row = j5sData.find(r => String(r.id ?? '') === String(id));
+        if (row) j5sBukaForm(row);
+    };
+
+    window.j5sSimpan = async function (event) {
+        event.preventDefault();
+
+        const id = String(document.getElementById('j5s-field-id').value || '').trim();
+        const tanggal = String(document.getElementById('j5s-field-tanggal').value || '').trim();
+        const pic = String(document.getElementById('j5s-field-pic').value || '').trim();
+        const lokasi = String(document.getElementById('j5s-field-lokasi').value || '').trim();
+        const status = String(document.getElementById('j5s-field-status').value || '').trim();
+        const errorBox = document.getElementById('j5s-form-error');
+        const saveBtn = document.getElementById('j5s-save-btn');
+
+        if (!tanggal || !pic || !lokasi || !status) {
+            errorBox.style.display='block';
+            errorBox.textContent='Tanggal, PIC, lokasi, dan status wajib diisi.';
+            return;
+        }
+
+        try {
+            if (!window.db) throw new Error('Koneksi Supabase utama tidak tersedia.');
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            const payload = { tanggal, pic, lokasi, status };
+            let result;
+
+            if (id) {
+                result = await window.db.from(J5S_TABLE)
+                    .update(payload).eq('id',id).select();
+            } else {
+                const generatedId = (window.crypto && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : '5S-' + Date.now() + '-' + Math.random().toString(36).slice(2,9);
+
+                result = await window.db.from(J5S_TABLE)
+                    .insert({ id: generatedId, ...payload }).select();
+            }
+
+            if (result.error) throw result.error;
+
+            j5sTutupForm();
+            await j5sMuatData();
+        } catch (error) {
+            console.error('[Jadwal 5S] Gagal menyimpan:', error);
+            errorBox.style.display='block';
+            errorBox.textContent='Gagal menyimpan data: ' + (error?.message || error);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+        }
+    };
+
+    window.j5sHapus = async function (id) {
+        const row = j5sData.find(r => String(r.id ?? '') === String(id));
+        if (!row) return;
+
+        if (!confirm(`Hapus jadwal 5S tanggal ${formatDate(row.tanggal)} dengan PIC "${row.pic ?? row.PIC ?? '-'}"?`)) return;
+
+        try {
+            if (!window.db) throw new Error('Koneksi Supabase utama tidak tersedia.');
+
+            const { data, error } = await window.db
+                .from(J5S_TABLE).delete().eq('id',id).select();
+
+            if (error) throw error;
+            if (!data || !data.length) {
+                throw new Error('Data tidak terhapus. Periksa policy DELETE/RLS pada tabel Jadwal_5S.');
+            }
+
+            await j5sMuatData();
+        } catch (error) {
+            console.error('[Jadwal 5S] Gagal menghapus:', error);
+            alert('Gagal menghapus data: ' + (error?.message || error));
+        }
+    };
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') j5sTutupForm();
+    });
+
+    document.getElementById('j5s-modal-overlay')?.addEventListener('click', function(e) {
+        if (e.target === this) j5sTutupForm();
+    });
+})();
 </script>
 </body>
 
