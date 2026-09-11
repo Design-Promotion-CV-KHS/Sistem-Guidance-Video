@@ -792,6 +792,10 @@
           class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
           <i class="fas fa-mobile-screen-button w-5 text-center"></i> Kerjakan Potrait
         </a>
+        <a href="#" id="nav-jadwal5s"
+          class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
+          <i class="fas fa-calendar-check w-5 text-center"></i> Jadwal 5S
+        </a>
 
         <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance</p>
         <a href="#" id="nav-workflow"
@@ -1284,7 +1288,53 @@
         </div>
       </div>
       <!-- ============ /VIEW: KERJAKAN POTRAIT ============ -->
+      <!-- ============ VIEW: JADWAL 5S ============ -->
+<div id="view-jadwal5s" class="hidden space-y-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-800">Jadwal 5S</h3>
+      <p class="text-sm text-gray-500 mt-1">Anda hanya dapat melihat jadwal dan menandai kegiatan sebagai <b>Selesai</b>.</p>
+    </div>
+    <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 w-full md:w-72">
+      <div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.35-5.15a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <div class="flex flex-col flex-1">
+        <label class="text-[9px] font-extrabold text-blue-600 uppercase tracking-widest">Cari</label>
+        <input type="text" id="j5s-editor-search" placeholder="Tanggal, PIC, atau lokasi..."
+          class="text-xs font-bold text-gray-800 bg-transparent outline-none mt-0.5 w-full" />
+      </div>
+    </div>
+  </div>
 
+  <div id="j5s-editor-diagnostic" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm">
+    <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+    <p id="j5s-editor-diagnostic-message" class="text-rose-600"></p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="sticky top-0 bg-white z-10">
+          <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+            <th class="py-3 px-4">Tanggal</th>
+            <th class="py-3 px-4">PIC</th>
+            <th class="py-3 px-4">Lokasi</th>
+            <th class="py-3 px-4">Status</th>
+            <th class="py-3 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="j5s-editor-body" class="divide-y divide-gray-50 text-gray-700">
+          <tr><td colspan="5" class="text-center py-10 text-gray-400">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+      
+<!-- ============ /VIEW: JADWAL 5S ============ -->
       <!-- ============ VIEW: WORKFLOW EDITING ============ -->
       <div id="view-workflow" class="hidden space-y-7">
         <div class="wf-header">
@@ -1636,14 +1686,15 @@
     });
 
     // ===================== NAVIGASI ANTAR MENU (Media Converter dihapus) =====================
-    const ALL_VIEWS = ['dashboard', 'crud', 'portrait', 'workflow', 'tools'];
-    const HEADER_SUBTITLE = {
-      'dashboard': '| Titik Informasi',
-      'crud': '| Kerjakan Landscape',
-      'portrait': '| Kerjakan Potrait',
-      'workflow': '| Workflow Editing Video',
-      'tools': '| Tools AI Production'
-    };
+const ALL_VIEWS = ['dashboard', 'crud', 'portrait', 'jadwal5s', 'workflow', 'tools'];
+const HEADER_SUBTITLE = {
+  'dashboard': '| Titik Informasi',
+  'crud': '| Kerjakan Landscape',
+  'portrait': '| Kerjakan Potrait',
+  'jadwal5s': '| Jadwal 5S',
+  'workflow': '| Workflow Editing Video',
+  'tools': '| Tools AI Production'
+};
     const activeNavClass = "nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 bg-indigo-600 rounded-2xl text-sm font-medium text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02]";
     const inactiveNavClass = "nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]";
 
@@ -1672,6 +1723,11 @@
       await muatPortraitEditor();
     });
 
+    document.getElementById('nav-jadwal5s').addEventListener('click', async (e) => {
+      e.preventDefault();
+      tampilkanView('jadwal5s');
+      await muatJadwal5SEditor();
+    });
     document.getElementById('dashboard-open-portrait')?.addEventListener('click', async () => {
       tampilkanView('portrait');
       await muatPortraitEditor();
@@ -2863,6 +2919,132 @@
       })
       .subscribe((status) => console.log('[Realtime] Status koneksi channel Planning_Potrait:', status));
 
+    // ===================== JADWAL 5S (READ-ONLY + TANDAI SELESAI) =====================
+const NAMA_TABEL_JADWAL5S = 'Jadwal_5S';
+let jadwal5sDataGlobal = [];
+
+function j5sEscape(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function j5sFormatTanggal(v) {
+  if (!v) return '-';
+  const d = new Date(String(v).includes('T') ? v : String(v) + 'T00:00:00');
+  return Number.isNaN(d.getTime()) ? String(v) :
+    d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function j5sStatusClass(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (s === 'terjadwal') return 'bg-blue-50 text-blue-600 border border-blue-200';
+  if (s === 'selesai') return 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+  if (s === 'dibatalkan') return 'bg-rose-50 text-rose-600 border border-rose-200';
+  return 'bg-slate-100 text-slate-600 border border-slate-200';
+}
+
+async function ambilDataJadwal5S() {
+  const { data, error } = await db.from(NAMA_TABEL_JADWAL5S)
+    .select('id,tanggal,pic,lokasi,status')
+    .order('tanggal', { ascending: true });
+  return { data: data || [], error };
+}
+
+async function muatJadwal5SEditor() {
+  const banner = document.getElementById('j5s-editor-diagnostic');
+  const message = document.getElementById('j5s-editor-diagnostic-message');
+  if (banner) banner.classList.add('hidden');
+
+  const { data, error } = await ambilDataJadwal5S();
+  jadwal5sDataGlobal = data;
+
+  if (error) {
+    if (message) message.textContent = `Gagal membaca tabel "${NAMA_TABEL_JADWAL5S}": ${error.message}`;
+    if (banner) banner.classList.remove('hidden');
+  }
+
+  renderJadwal5SEditor();
+}
+
+function renderJadwal5SEditor() {
+  const tbody = document.getElementById('j5s-editor-body');
+  if (!tbody) return;
+
+  const q = String(document.getElementById('j5s-editor-search')?.value || '').trim().toLowerCase();
+  const rows = jadwal5sDataGlobal.filter(r => [
+    r.id, r.tanggal, r.pic, r.lokasi, r.status
+  ].map(x => String(x ?? '')).join(' ').toLowerCase().includes(q));
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-400">${
+      q ? 'Tidak ada jadwal yang sesuai pencarian.' : 'Belum ada data Jadwal 5S.'
+    }</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const status = String(r.status || '').trim();
+    const sudahSelesai = status.toLowerCase() === 'selesai';
+    const bisaDiselesaikan = status.toLowerCase() === 'terjadwal';
+
+    const aksi = bisaDiselesaikan
+      ? `<button type="button" class="j5s-btn-selesai bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl shadow-sm transition-all interactive-btn" data-id="${j5sEscape(r.id)}">
+           Tandai Selesai
+         </button>`
+      : `<span class="text-xs text-gray-300 font-semibold">${sudahSelesai ? 'Sudah selesai' : 'Tidak ada aksi'}</span>`;
+
+    return `<tr class="hover:bg-gray-50">
+      <td class="py-3 px-4 whitespace-nowrap">${j5sEscape(j5sFormatTanggal(r.tanggal))}</td>
+      <td class="py-3 px-4">${j5sEscape(r.pic || '-')}</td>
+      <td class="py-3 px-4">${j5sEscape(r.lokasi || '-')}</td>
+      <td class="py-3 px-4"><span class="badge-pill ${j5sStatusClass(status)}">${j5sEscape(status || '-')}</span></td>
+      <td class="py-3 px-4 text-right whitespace-nowrap">${aksi}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.j5s-btn-selesai').forEach(btn => {
+    btn.addEventListener('click', () => j5sTandaiSelesai(btn.dataset.id, btn));
+  });
+}
+
+async function j5sTandaiSelesai(id, btnEl) {
+  if (!id) return;
+  if (!confirm('Tandai kegiatan 5S ini sebagai Selesai?')) return;
+
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'Menyimpan...';
+  }
+
+  const { data, error } = await db.from(NAMA_TABEL_JADWAL5S)
+    .update({ status: 'Selesai' })
+    .eq('id', id)
+    .select();
+
+  if (error) {
+    alert('Gagal mengubah status: ' + error.message);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Tandai Selesai'; }
+    return;
+  }
+  if (!data || !data.length) {
+    alert('Status tidak berubah. Periksa policy UPDATE pada tabel Jadwal_5S untuk role yang sedang digunakan.');
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Tandai Selesai'; }
+    return;
+  }
+
+  await muatJadwal5SEditor();
+}
+
+document.getElementById('j5s-editor-search')?.addEventListener('input', renderJadwal5SEditor);
+
+db.channel('realtime-editor-jadwal5s')
+  .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_JADWAL5S }, () => {
+    muatJadwal5SEditor();
+  })
+  .subscribe((status) => console.log('[Realtime] Status koneksi channel Jadwal_5S:', status));
+    
     window.addEventListener('DOMContentLoaded', async () => {
       tampilkanView('dashboard');
       await muatDashboard();
