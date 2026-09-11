@@ -4169,7 +4169,7 @@
                         <label
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
                             <i class="fas fa-upload"></i> Upload File Proposal (bisa lebih dari 1)
-                            <input type="file" id="rp-upload-proposal" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            <input type="file" id="rp-upload-proposal" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png" multiple class="hidden" />
                                 multiple class="hidden" />
                         </label>
                         <span class="text-xs" id="rp-upload-proposal-status"></span>
@@ -4185,7 +4185,7 @@
                         <label
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
                             <i class="fas fa-upload"></i> Upload File Hasil (bisa lebih dari 1)
-                            <input type="file" id="rp-upload-hasil" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple
+                            <input type="file" id="rp-upload-hasil" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png" multiple class="hidden" />
                                 class="hidden" />
                         </label>
                         <span class="text-xs" id="rp-upload-hasil-status"></span>
@@ -7220,6 +7220,7 @@
             const clean = url.split('?')[0].toLowerCase();
             if (clean.endsWith('.pdf')) return { icon: 'fa-file-pdf', label: 'Lihat PDF', color: 'text-rose-600 bg-rose-50 border-rose-200 hover:bg-rose-100' };
             if (clean.endsWith('.doc') || clean.endsWith('.docx')) return { icon: 'fa-file-word', label: 'Lihat Dokumen', color: 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100' };
+            if (clean.endsWith('.ppt') || clean.endsWith('.pptx')) return { icon: 'fa-file-powerpoint', label: 'Lihat Presentasi', color: 'text-orange-600 bg-orange-50 border-orange-200 hover:bg-orange-100' };
             if (clean.endsWith('.jpg') || clean.endsWith('.jpeg') || clean.endsWith('.png')) return { icon: 'fa-image', label: 'Lihat Gambar', color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' };
             return { icon: 'fa-file', label: 'Lihat File', color: 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100' };
         }
@@ -7694,43 +7695,53 @@
 
         // Upload BEBERAPA file sekaligus untuk satu kolom (Proposal / Hasil), disimpan sebagai array JSON.
         async function rpUploadFilesHandler(inputEl, hiddenFieldId, listContainerId, statusElId) {
-            const files = inputEl.files ? Array.from(inputEl.files) : [];
-            if (!files.length) return;
+    const files = inputEl.files ? Array.from(inputEl.files) : [];
+    if (!files.length) return;
 
-            const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
-            const statusEl = document.getElementById(statusElId);
-            const hiddenField = document.getElementById(hiddenFieldId);
-            let current = rpParseFiles(hiddenField.value);
+    const allowedExt = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png'];
+    const statusEl = document.getElementById(statusElId);
+    const hiddenField = document.getElementById(hiddenFieldId);
+    let current = rpParseFiles(hiddenField.value);
 
-            for (const file of files) {
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (!allowedExt.includes(ext)) {
-                    statusEl.innerHTML = `<span class="text-rose-500">"${edEscapeHtml(file.name)}" dilewati: format tidak didukung (gunakan PDF, DOC/DOCX, JPG, atau PNG).</span>`;
-                    continue;
-                }
-                if (file.size > 15 * 1024 * 1024) {
-                    statusEl.innerHTML = `<span class="text-rose-500">"${edEscapeHtml(file.name)}" dilewati: ukuran melebihi 15MB.</span>`;
-                    continue;
-                }
-                statusEl.innerHTML = `<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload ${edEscapeHtml(file.name)}...</span>`;
+    let berhasil = 0;
+    const pesanError = [];
 
-                const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                const path = `${Date.now()}_${namaBersih}`;
-                const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET_RISET).upload(path, file, { cacheControl: '3600', upsert: false });
-                if (error) {
-                    statusEl.innerHTML = `<span class="text-rose-500">Gagal upload "${edEscapeHtml(file.name)}": ${edEscapeHtml(error.message)}</span>`;
-                    continue;
-                }
-                const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET_RISET).getPublicUrl(path);
-                const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
-                current.push({ name: file.name, url: publicUrl });
-            }
-
-            hiddenField.value = JSON.stringify(current);
-            rpRenderFileListEditor(hiddenFieldId, listContainerId);
-            statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> ${current.length} file tersimpan.</span>`;
-            inputEl.value = '';
+    for (const file of files) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!allowedExt.includes(ext)) {
+            pesanError.push(`"${file.name}": format tidak didukung (gunakan PDF, DOC/DOCX, PPT/PPTX, JPG, atau PNG).`);
+            continue;
         }
+        if (file.size > 15 * 1024 * 1024) {
+            pesanError.push(`"${file.name}": ukuran melebihi 15MB.`);
+            continue;
+        }
+        statusEl.innerHTML = `<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload ${edEscapeHtml(file.name)}...</span>`;
+
+        const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${Date.now()}_${namaBersih}`;
+        const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET_RISET).upload(path, file, { cacheControl: '3600', upsert: false });
+        if (error) {
+            pesanError.push(`Gagal upload "${file.name}": ${error.message}`);
+            continue;
+        }
+        const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET_RISET).getPublicUrl(path);
+        const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
+        current.push({ name: file.name, url: publicUrl });
+        berhasil++;
+    }
+
+    hiddenField.value = JSON.stringify(current);
+    rpRenderFileListEditor(hiddenFieldId, listContainerId);
+
+    if (pesanError.length) {
+        // Pesan error TIDAK ditimpa lagi — ini yang jadi kunci perbaikan.
+        statusEl.innerHTML = `<span class="text-rose-500">${pesanError.map(edEscapeHtml).join('<br>')}</span>`;
+    } else {
+        statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> ${berhasil} file berhasil diupload.</span>`;
+    }
+    inputEl.value = '';
+}
 
         function rpRenderFileListEditor(hiddenFieldId, listContainerId) {
             const hiddenField = document.getElementById(hiddenFieldId);
