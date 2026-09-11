@@ -17214,10 +17214,10 @@ document.addEventListener('keydown', function(e){
                 <td><span class="j5s-status ${statusClass(r.status)}">${esc(r.status || '-')}</span></td>
                 <td>
                     <div class="j5s-actions">
-                        <button class="j5s-icon-btn" type="button" title="Edit"
-                            onclick="j5sEdit(${JSON.stringify(id)})"><i class="fas fa-pen"></i></button>
-                        <button class="j5s-icon-btn delete" type="button" title="Hapus"
-                            onclick="j5sHapus(${JSON.stringify(id)})"><i class="fas fa-trash"></i></button>
+                    <button class="j5s-icon-btn" type="button" title="Edit"
+                        onclick='j5sEdit(${JSON.stringify(id)})'><i class="fas fa-pen"></i></button>
+                    <button class="j5s-icon-btn delete" type="button" title="Hapus"
+                        onclick='j5sHapus(${JSON.stringify(id)})'><i class="fas fa-trash"></i></button>
                     </div>
                 </td>
             </tr>`;
