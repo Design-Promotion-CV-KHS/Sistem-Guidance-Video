@@ -1331,13 +1331,14 @@
           <div class="overflow-x-auto max-h-[650px] overflow-y-auto">
             <table class="w-full text-left border-collapse text-sm">
               <thead class="sticky top-0 bg-white z-10">
-                <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-                  <th class="py-3 px-4">Judul Video</th>
-                  <th class="py-3 px-4">Produk</th>
-                  <th class="py-3 px-4">Tema</th>
-                  <th class="py-3 px-4">Status Edit</th>
-                  <th class="py-3 px-4 text-right">Aksi</th>
-                </tr>
+              <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th class="py-3 px-4">Judul Video</th>
+                <th class="py-3 px-4">Produk</th>
+                <th class="py-3 px-4">Tema</th>
+                <th class="py-3 px-4">Editor</th>
+                <th class="py-3 px-4">Status Edit</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
               </thead>
               <tbody id="portrait-body" class="divide-y divide-gray-50 text-gray-700">
                 <tr><td colspan="5" class="text-center py-10 text-gray-400">Memuat data Potrait...</td></tr>
@@ -3351,17 +3352,18 @@ const HEADER_SUBTITLE = {
       set('portrait-page-done', data.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Done').length);
       const tbody = document.getElementById('portrait-body');
       if (!tbody) return;
-      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada video Potrait yang ditugaskan kepada Anda.</td></tr>'; return; }
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-400">Belum ada video Potrait yang ditugaskan kepada Anda.</td></tr>'; return; }
       tbody.innerHTML = data.map(item => `<tr class="hover:bg-gray-50 align-top">
         <td class="py-4 px-4 min-w-[280px]"><div class="font-bold text-slate-800 leading-snug">${portraitEscape(item[portraitColumnMap.judul]) || '-'}</div></td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.produk]) || '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.tema]) || '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.editor]) || '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4 whitespace-nowrap"><span class="badge-pill ${portraitStatusClass(item[portraitColumnMap.status])}">${portraitStatusNormal(item[portraitColumnMap.status]) === 'Belum Edit' ? 'Belum' : portraitStatusNormal(item[portraitColumnMap.status])}</span></td>
         <td class="py-4 px-4 text-right whitespace-nowrap">${portraitStatusButton(item[portraitColumnMap.status], item[portraitColumnMap.id])}</td>
       </tr>`).join('');
       tbody.querySelectorAll('.portrait-status-btn').forEach(btn => btn.addEventListener('click', () => ubahStatusPortrait(btn.dataset.id, btn.dataset.nextStatus)));
     }
-    async function muatPortraitEditor() {
+        async function muatPortraitEditor() {
       const banner = document.getElementById('portrait-diagnostic-banner');
       const message = document.getElementById('portrait-diagnostic-message');
       const label = document.getElementById('portrait-editor-label');
