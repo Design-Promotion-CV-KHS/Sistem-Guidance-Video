@@ -2194,6 +2194,11 @@
                     id="nav-portrait-crud" onclick="switchTab('portrait-crud')">
                     <i class="fas fa-mobile-screen-button w-5 text-center"></i> Planning Potrait
                 </button>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-carousel-crud" onclick="switchTab('carousel-crud')">
+                    <i class="fas fa-images w-5 text-center"></i> Planning Carousel
+                </button>
                 <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Guidance
                 </p>
                 <button
@@ -3492,6 +3497,79 @@
             </div>
         </div>
 
+        <!-- ============ TAB: PLANNING CAROUSEL ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-carousel-crud">
+            <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 shadow-sm">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-extrabold uppercase tracking-widest mb-3">
+                        <i class="fas fa-images"></i> Konten Carousel
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Planning Carousel</h3>
+                    <p class="text-sm text-slate-500 mt-1">Kelola planning konten carousel: tema, kebutuhan item copywriting &amp; visual, isi slide 1-10, caption, dan status pengerjaan.</p>
+                </div>
+                <button id="pc-btn-tambah-data" type="button"
+                    class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-5 py-3 rounded-2xl transition-all shadow-md interactive-btn">
+                    <i class="fas fa-plus"></i> Tambah Planning Carousel
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Undone</p>
+                    <h4 class="text-3xl font-black text-slate-900 mt-1" id="pc-card-undone">0</h4>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600">WIP</p>
+                    <h4 class="text-3xl font-black text-slate-900 mt-1" id="pc-card-wip">0</h4>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-600">Done</p>
+                    <h4 class="text-3xl font-black text-slate-900 mt-1" id="pc-card-done">0</h4>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i class="fas fa-bars-progress text-xs"></i></div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-amber-600 uppercase tracking-widest">Status</label>
+                        <select id="pc-filter-status" class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                            <option value="all">Semua Status</option><option value="Undone">Undone</option><option value="WIP">WIP</option><option value="Done">Done</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 flex-1 min-w-[220px]">
+                    <div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><i class="fas fa-search text-xs"></i></div>
+                    <div class="flex flex-col flex-1">
+                        <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Cari Tema</label>
+                        <input id="pc-filter-search" type="text" placeholder="Cari tema, caption, atau item..." class="text-xs font-bold text-slate-800 bg-transparent outline-none mt-0.5 w-full" autocomplete="off">
+                    </div>
+                </div>
+                <span id="pc-filter-count" class="text-xs font-semibold text-slate-400 ml-auto"></span>
+            </div>
+            <div id="pc-diagnostic-banner" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-sm">
+                <p class="font-bold mb-1">⚠️ Data Planning Carousel tidak tampil</p>
+                <p id="pc-diagnostic-message" class="text-rose-600"></p>
+            </div>
+            <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                    <table class="min-w-[1000px] w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-slate-100">
+                            <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-5 bg-slate-100 min-w-[200px]">Tema</th>
+                                <th class="py-4 px-5 bg-slate-100 min-w-[260px]">Items (Copywriting &amp; Visual)</th>
+                                <th class="py-4 px-5 bg-slate-100">Slide</th>
+                                <th class="py-4 px-5 bg-slate-100 min-w-[240px]">Caption</th>
+                                <th class="py-4 px-5 bg-slate-100">Status</th>
+                                <th class="py-4 px-5 text-right bg-slate-100 sticky right-0">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pc-crud-body" class="divide-y divide-slate-100 text-sm text-slate-700">
+                            <tr><td colspan="6" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- ============ TAB: KELOLA USER & ROLE ============ -->
         <div class="p-8 space-y-6 w-full hidden" id="tab-user-crud">
             <div
@@ -4452,6 +4530,59 @@
                 <div class="flex justify-end gap-3 pt-2">
                     <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" id="pt-crud-cancel-btn" type="button">Batal</button>
                     <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md" id="pt-crud-save-btn" type="submit"><i class="fas fa-check mr-1"></i> Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL CRUD PLANNING CAROUSEL -->
+    <div class="hidden fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4" id="pc-crud-modal">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
+                <div><p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600">Planning Carousel</p><h4 class="text-xl font-black text-slate-900 mt-1" id="pc-crud-modal-title">Tambah Planning Carousel</h4></div>
+                <button class="text-slate-400 hover:text-slate-700 text-2xl leading-none" id="pc-crud-modal-close" type="button">×</button>
+            </div>
+            <form class="p-6 space-y-4" id="pc-crud-form">
+                <input id="pc-crud-field-id" type="hidden" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema *</label>
+                        <input id="pc-crud-field-tema" required type="text" placeholder="Contoh: Tips Merawat Mesin Jahit"
+                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" /></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Status *</label>
+                        <select id="pc-crud-field-status" required class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:border-indigo-400">
+                            <option value="Undone">Undone</option><option value="WIP">WIP</option><option value="Done">Done</option>
+                        </select></div>
+                </div>
+
+                <div class="pt-1 border-t border-slate-100">
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mt-4 mb-2">Items (Copywriting &amp; Visual)</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Items Copywriting</label>
+                        <textarea id="pc-crud-field-item-copywriting" rows="4" placeholder="Contoh: headline, body text tiap slide, CTA"
+                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Items Visual</label>
+                        <textarea id="pc-crud-field-item-visual" rows="4" placeholder="Contoh: foto produk, ilustrasi, warna & font yang dipakai"
+                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea></div>
+                </div>
+
+                <div class="pt-1 border-t border-slate-100">
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mt-4 mb-2">Isi Slide 1 - 10</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="pc-crud-slide-fields">
+                    <!-- 10 field slide dirender otomatis lewat JavaScript (pcRenderSlideFields) -->
+                </div>
+
+                <div class="pt-1 border-t border-slate-100">
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mt-4 mb-2">Caption</p>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Caption Postingan</label>
+                    <textarea id="pc-crud-field-caption" rows="5" placeholder="Tulis caption lengkap untuk postingan carousel ini..."
+                        class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea></div>
+
+                <div id="pc-crud-form-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-3 text-xs font-semibold"></div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" id="pc-crud-cancel-btn" type="button">Batal</button>
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md" id="pc-crud-save-btn" type="submit"><i class="fas fa-check mr-1"></i> Simpan</button>
                 </div>
             </form>
         </div>
@@ -6060,6 +6191,9 @@
         const NAMA_TABEL_POTRAIT = 'Planning_Potrait';
         const POTRAIT_EDITORS = ['Munir', 'Bayu', 'Iis', 'Rafqi'];
         const POTRAIT_STATUSES = ['Belum Edit', 'WIP', 'Done'];
+        const NAMA_TABEL_CAROUSEL = 'Planning_Carousel';
+        const CAROUSEL_STATUSES = ['Undone', 'WIP', 'Done'];
+        const CAROUSEL_SLIDE_COUNT = 10;
         const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
         const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
         const NAMA_TABEL_RISET_PROMOSI = 'Riset_Promosi';
@@ -6204,7 +6338,7 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'jadwal-5s', 'riset-promosi', 'editor-crud', 'portrait-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'jadwal-5s', 'riset-promosi', 'editor-crud', 'portrait-crud', 'carousel-crud', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
@@ -6215,6 +6349,7 @@
             'riset-promosi': '| Kelola Riset Promosi',
             'editor-crud': '| Planning Landscape',
             'portrait-crud': '| Planning Potrait',
+            'carousel-crud': '| Planning Carousel',
             'user-crud': '| Kelola User & Role',
             'workflow-tools': '| Workflow Editing Video',
             'panduan': '| Panduan Take Video',
@@ -6267,6 +6402,7 @@
             else if (tabName === 'riset-promosi') rpMuatData();
             else if (tabName === 'editor-crud') edMuatDashboard();
             else if (tabName === 'portrait-crud') ptMuatData();
+            else if (tabName === 'carousel-crud') pcMuatData();
             else if (tabName === 'user-crud') usMuatDataUser();
             else if (tabName === 'panduan') tutupPanduanWorkspace();
             else if (tabName === 'workflow-tools' || tabName === 'tools') { /* static content */ }
@@ -9902,6 +10038,7 @@ function edNormalisasiNamaKolom(k) {
             else if (currentActiveTab === 'editor-dashboard') edMuatDashboard();
             else if (currentActiveTab === 'editor-crud') edMuatDashboard();
             else if (currentActiveTab === 'portrait-crud') ptMuatData();
+            else if (currentActiveTab === 'carousel-crud') pcMuatData();
         }
 
         db.channel('realtime-admin-kiriman')
@@ -9926,6 +10063,15 @@ function edNormalisasiNamaKolom(k) {
                 }
             })
             .subscribe((status) => console.log('[Realtime] Status channel Planning_Potrait:', status));
+
+        db.channel('realtime-admin-planning-carousel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CAROUSEL }, (payload) => {
+                console.log('[Realtime] Perubahan pada tabel Planning_Carousel:', payload);
+                if (currentActiveTab === 'carousel-crud') {
+                    pcMuatData();
+                }
+            })
+            .subscribe((status) => console.log('[Realtime] Status channel Planning_Carousel:', status));
 
         db.channel('realtime-admin-customer-profile')
             .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CUSTOMER_PROFILE }, (payload) => {
