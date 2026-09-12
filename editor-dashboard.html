@@ -993,27 +993,86 @@
 
         <!-- TARGET MINGGUAN PER EDITOR -->
         <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
-            <h4 class="text-sm font-bold text-gray-800">Target Mingguan Editor</h4>
-            <span
-              class="text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200 self-start sm:self-auto"
-              id="week-range-label">Memuat minggu berjalan...</span>
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-1">
+            <div>
+              <h4 class="text-sm font-bold text-gray-800">Target Mingguan Editor</h4>
+              <p class="text-xs text-gray-400 mt-1">
+                Target tetap: <span class="font-semibold">1 video Done per editor setiap minggu</span>
+                (Senin–Minggu). Dihitung dari due date video berstatus Done.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="weekly-prev-btn"
+                class="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors"
+                title="Minggu sebelumnya">
+                <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
+              </button>
+
+              <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <i class="fas fa-calendar-week text-xs"></i>
+                </div>
+                <div class="flex flex-col min-w-[190px]">
+                  <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Riwayat Minggu</label>
+                  <select id="weekly-period-select"
+                    class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                    <option value="">Memuat riwayat...</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" id="weekly-next-btn"
+                class="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors"
+                title="Minggu berikutnya">
+                Berikutnya <i class="fas fa-chevron-right ml-1"></i>
+              </button>
+            </div>
           </div>
-          <p class="text-xs text-gray-400 mb-5">Target tetap: <span class="font-semibold">1 video Done per editor
-              setiap minggu</span> (Senin–Minggu). Dihitung dari due date video berstatus Done.</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="weekly-target-grid">
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <span id="week-range-label"
+              class="text-[11px] font-bold px-3 py-1.5 rounded-full border bg-indigo-50 text-indigo-600 border-indigo-200">
+              Memuat minggu berjalan...
+            </span>
+            <span id="weekly-period-month"
+              class="text-[11px] font-semibold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
+              -
+            </span>
+          </div>
+
+          <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-[11px] text-slate-500">
+              <i class="fas fa-circle-info text-indigo-500 mr-1"></i>
+              Pilih minggu sebelumnya untuk melihat apakah target editor pada periode tersebut
+              <span class="font-bold">tercapai atau tidak tercapai</span>. Riwayat tetap tersedia meskipun
+              <span class="font-bold">Filter Bulan</span> dashboard sedang menampilkan bulan lain.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5" id="weekly-target-grid">
             <p class="text-sm text-gray-400 text-center py-6 col-span-full">Memuat data...</p>
           </div>
         </div>
 
         <!-- GRAFIK -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] lg:col-span-2">
-            <h4 class="text-sm font-bold text-gray-800 mb-1">Video Berhasil Diedit per Editor</h4>
-            <p class="text-xs text-gray-400 mb-3">Jumlah video berstatus <span class="font-semibold">Done</span> yang
-              dikerjakan tiap editor</p>
-            <div class="h-[280px]">
-              <canvas id="chartEditor"></canvas>
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
+              <div>
+                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                  Plotting &amp; Next Video per Editor
+                  <span class="badge-pill bg-indigo-50 text-indigo-700 border border-indigo-200">ACTION BOARD</span>
+                </h4>
+                <p class="text-xs text-gray-400 mt-1">Setiap editor dipisahkan agar langsung terlihat video yang sedang dikerjakan dan video berikutnya yang harus diambil.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-[10px] font-bold">
+                <span class="px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">WIP = Sedang dikerjakan</span>
+                <span class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">NEXT = Prioritas berikutnya</span>
+              </div>
+            </div>
+            <div id="editor-action-board" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <p class="text-sm text-gray-400 text-center py-8 col-span-full">Memuat data...</p>
             </div>
           </div>
           <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[380px] flex flex-col">
@@ -1912,8 +1971,8 @@ const HEADER_SUBTITLE = {
       const filtered = getFilteredData();
       renderKartuStatistik(filtered);
       renderWipGrid(filtered);
-      renderWeeklyTarget(filtered);
-      renderChartEditor(filtered);
+      renderWeeklyTarget(listPlanningGlobal);
+      renderEditorActionBoard(filtered);
       renderChartStatus(filtered);
       renderLeaderboard(filtered);
       renderPriorityTable(filtered);
@@ -1933,51 +1992,153 @@ const HEADER_SUBTITLE = {
       document.getElementById('card-transkrip').innerText = transkrip;
     }
 
-    function renderChartEditor(data) {
-      const doneData = data.filter(i => i.statusEdit === 'Done' && i.editor && i.editor.toLowerCase() !== 'all editor');
-      const rekap = {};
-      doneData.forEach(i => { rekap[i.editor] = (rekap[i.editor] || 0) + 1; });
+    function editorActionEscape(value) {
+      if (value === null || value === undefined) return '';
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
-      const labels = Object.keys(rekap).sort((a, b) => rekap[b] - rekap[a]);
-      const values = labels.map(l => rekap[l]);
-      const colors = ['#2563eb', '#0d9488', '#f59e0b', '#8b5cf6', '#ef4444', '#0891b2', '#65a30d'];
+    function editorActionDate(item) {
+      const d = parseTanggalDue(item.dueDate);
+      return d && !isNaN(d.getTime()) ? d : null;
+    }
 
-      const ctx = document.getElementById('chartEditor').getContext('2d');
-      if (chartEditor) chartEditor.destroy();
+    function formatTanggalEditorAction(value) {
+      const d = value instanceof Date ? value : editorActionDate({ dueDate: value });
+      if (!d) return 'Tanpa due date';
+      return d.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
 
-      if (labels.length === 0) {
-        chartEditor = null;
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    function getPrioritasEditorAction(item) {
+      const status = String(item.statusEdit || '').trim().toLowerCase();
+      if (status === 'wip') return 1;
+      if (status === 'skenario siap') return 2;
+      if (status === 'transkrip siap') return 3;
+      if (status === 'belum edit') return 4;
+      return 5;
+    }
+
+    function renderEditorActionBoard(data) {
+      const container = document.getElementById('editor-action-board');
+      if (!container) return;
+
+      const editorFilter = document.getElementById('filter-editor')?.value || 'all';
+      const editorSet = new Set(
+        (data || [])
+          .map(i => i.editor)
+          .filter(e => e && String(e).toLowerCase() !== 'all editor')
+      );
+
+      // Jika filter editor dipilih, hanya editor tersebut yang ditampilkan.
+      if (editorFilter !== 'all') editorSet.add(editorFilter);
+
+      const editors = Array.from(editorSet).sort((a, b) => String(a).localeCompare(String(b)));
+
+      if (editors.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-8 col-span-full">Belum ada data editor.</p>';
         return;
       }
 
-      chartEditor = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Video Done',
-            data: values,
-            backgroundColor: labels.map((_, idx) => colors[idx % colors.length]),
-            borderRadius: 8,
-            borderSkipped: false,
-            maxBarThickness: 50
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { backgroundColor: 'rgba(22,23,36,0.9)', padding: 12, cornerRadius: 10 },
-            datalabels: { anchor: 'end', align: 'top', color: '#475569', font: { weight: 'bold', size: 11 } }
-          },
-          scales: {
-            y: { beginAtZero: true, ticks: { precision: 0, color: '#94a3b8' }, grid: { color: 'rgba(226,232,240,0.6)' } },
-            x: { ticks: { color: '#64748b' }, grid: { display: false } }
-          }
-        }
-      });
+      container.innerHTML = editors.map((editorName, idx) => {
+        const items = (data || [])
+          .filter(i => i.editor === editorName)
+          .map(i => ({ ...i, __due: editorActionDate(i) }));
+
+        const done = items.filter(i => i.statusEdit === 'Done').length;
+        const wipItems = items
+          .filter(i => i.statusEdit === 'WIP')
+          .sort((a, b) => {
+            if (a.__due && b.__due) return a.__due - b.__due;
+            if (a.__due) return -1;
+            if (b.__due) return 1;
+            return 0;
+          });
+
+        // NEXT dipilih dari video yang belum Done, dengan prioritas:
+        // WIP -> Skenario Siap -> Transkrip Siap -> Belum Edit, lalu due date terdekat.
+        const nextItems = items
+          .filter(i => i.statusEdit !== 'Done')
+          .sort((a, b) => {
+            const pa = getPrioritasEditorAction(a);
+            const pb = getPrioritasEditorAction(b);
+            if (pa !== pb) return pa - pb;
+            if (a.__due && b.__due) return a.__due - b.__due;
+            if (a.__due) return -1;
+            if (b.__due) return 1;
+            return String(a.judul || '').localeCompare(String(b.judul || ''));
+          });
+
+        const current = wipItems[0] || null;
+        const next = nextItems[0] || null;
+        const remaining = Math.max(0, items.length - done);
+
+        const editorInitial = String(editorName).trim().charAt(0).toUpperCase() || '?';
+        const currentHtml = current ? `
+          <div class="rounded-xl border border-amber-200 bg-amber-50/70 p-3">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-[10px] font-black uppercase tracking-wider text-amber-700">Sedang Dikerjakan</span>
+              <span class="badge-pill bg-white text-amber-700 border border-amber-200">WIP</span>
+            </div>
+            <p class="text-xs font-extrabold text-slate-800 leading-snug line-clamp-2" title="${editorActionEscape(current.judul || '-')}">${editorActionEscape(current.judul || 'Tanpa judul')}</p>
+            <div class="flex items-center justify-between gap-2 mt-2 text-[10px] font-semibold text-amber-700">
+              <span>${current.dueDate ? `Due ${editorActionEscape(formatTanggalEditorAction(current.__due))}` : 'Tanpa due date'}</span>
+              <span>Kerjakan sampai Done</span>
+            </div>
+          </div>` : `
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Sedang Dikerjakan</span>
+              <span class="badge-pill bg-white text-slate-500 border border-slate-200">KOSONG</span>
+            </div>
+            <p class="text-xs font-semibold text-slate-500">Tidak ada video WIP saat ini.</p>
+          </div>`;
+
+        const nextHtml = next ? `
+          <div class="rounded-xl border-2 border-blue-200 bg-blue-50/80 p-3 shadow-sm">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-[10px] font-black uppercase tracking-wider text-blue-700">Next Video</span>
+              <span class="badge-pill bg-blue-600 text-white border border-blue-600">PRIORITAS</span>
+            </div>
+            <p class="text-sm font-black text-slate-900 leading-snug line-clamp-3" title="${editorActionEscape(next.judul || '-')}">${editorActionEscape(next.judul || 'Tanpa judul')}</p>
+            <div class="flex flex-wrap items-center gap-2 mt-2">
+              <span class="badge-pill ${next.statusEdit === 'Skenario Siap' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : next.statusEdit === 'Transkrip Siap' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">${editorActionEscape(next.statusEdit || 'Belum Edit')}</span>
+              <span class="text-[10px] font-bold ${next.__due && next.__due < new Date() ? 'text-rose-600' : 'text-slate-500'}">${next.__due ? `Due ${editorActionEscape(formatTanggalEditorAction(next.__due))}` : 'Tanpa due date'}</span>
+            </div>
+          </div>` : `
+          <div class="rounded-xl border-2 border-emerald-200 bg-emerald-50/80 p-3">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-base">✓</span>
+              <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700">Semua Selesai</span>
+            </div>
+            <p class="text-xs font-bold text-emerald-800">Tidak ada video berikutnya yang perlu dikerjakan.</p>
+          </div>`;
+
+        return `
+          <div class="editor-wip-card rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-sm shrink-0">${editorActionEscape(editorInitial)}</div>
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-slate-800 truncate" title="${editorActionEscape(editorName)}">${editorActionEscape(editorName)}</p>
+                  <p class="text-[10px] text-slate-400 font-semibold">${done} Done · ${remaining} belum selesai</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-black text-slate-400">#${idx + 1}</span>
+            </div>
+            <div class="p-4 space-y-3">
+              ${currentHtml}
+              ${nextHtml}
+            </div>
+          </div>`;
+      }).join('');
     }
 
     function renderChartStatus(data) {
@@ -2174,16 +2335,25 @@ const HEADER_SUBTITLE = {
       }).join('');
     }
 
-    /* ===== Target Mingguan Editor (1 video/minggu/editor) ===== */
+    /* ===== Target Mingguan Editor + Riwayat Minggu ===== */
+    const TARGET_MINGGUAN_EDITOR = 1;
+    let weeklyPeriodList = [];
+    let selectedWeeklyPeriodIndex = 0;
+
     function getAwalAkhirMinggu(refDate) {
       const d = new Date(refDate);
       d.setHours(0, 0, 0, 0);
       const hari = d.getDay();
       const offsetKeSenin = hari === 0 ? -6 : 1 - hari;
+
       const senin = new Date(d);
       senin.setDate(d.getDate() + offsetKeSenin);
+      senin.setHours(0, 0, 0, 0);
+
       const minggu = new Date(senin);
       minggu.setDate(senin.getDate() + 6);
+      minggu.setHours(23, 59, 59, 999);
+
       return { senin, minggu };
     }
 
@@ -2191,46 +2361,294 @@ const HEADER_SUBTITLE = {
       return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
     }
 
+    function formatPeriodeMinggu(periode) {
+      const awal = periode.senin.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+      const akhir = periode.minggu.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+      return `${awal} — ${akhir}`;
+    }
+
+    function getKunciMinggu(d) {
+      const { senin } = getAwalAkhirMinggu(d);
+      return senin.getFullYear() + '-' +
+        String(senin.getMonth() + 1).padStart(2, '0') + '-' +
+        String(senin.getDate()).padStart(2, '0');
+    }
+
+    function buatDaftarPeriodeMinggu(data) {
+      const periodeMap = new Map();
+
+      // Selalu masukkan minggu berjalan agar dashboard tetap memiliki periode aktif.
+      const mingguSekarang = getAwalAkhirMinggu(new Date());
+      periodeMap.set(getKunciMinggu(mingguSekarang.senin), mingguSekarang);
+
+      // Buat periode berdasarkan semua due date yang ada di database.
+      data.forEach(item => {
+        const due = parseTanggalDue(item.dueDate);
+        if (!due) return;
+
+        const periode = getAwalAkhirMinggu(due);
+        const key = getKunciMinggu(periode.senin);
+
+        if (!periodeMap.has(key)) {
+          periodeMap.set(key, periode);
+        }
+      });
+
+      return Array.from(periodeMap.values()).sort((a, b) => b.senin - a.senin);
+    }
+
+    function populateWeeklyPeriodSelect(data) {
+      const select = document.getElementById('weekly-period-select');
+      if (!select) return;
+
+      const previousKey = weeklyPeriodList[selectedWeeklyPeriodIndex]
+        ? getKunciMinggu(weeklyPeriodList[selectedWeeklyPeriodIndex].senin)
+        : getKunciMinggu(new Date());
+
+      weeklyPeriodList = buatDaftarPeriodeMinggu(data);
+
+      if (!weeklyPeriodList.length) {
+        select.innerHTML = '<option value="">Belum ada periode minggu</option>';
+        selectedWeeklyPeriodIndex = 0;
+        return;
+      }
+
+      let index = weeklyPeriodList.findIndex(
+        p => getKunciMinggu(p.senin) === previousKey
+      );
+
+      // Jika periode sebelumnya tidak lagi ada, tampilkan minggu berjalan.
+      if (index === -1) {
+        const currentKey = getKunciMinggu(new Date());
+        index = weeklyPeriodList.findIndex(
+          p => getKunciMinggu(p.senin) === currentKey
+        );
+      }
+
+      if (index === -1) index = 0;
+      selectedWeeklyPeriodIndex = index;
+
+      select.innerHTML = weeklyPeriodList.map((periode, idx) => {
+        const sekarang = idx === selectedWeeklyPeriodIndex;
+        const { senin, minggu } = periode;
+        const monthYear = senin.toLocaleDateString('id-ID', {
+          month: 'long',
+          year: 'numeric'
+        });
+
+        return `<option value="${getKunciMinggu(senin)}" ${sekarang ? 'selected' : ''}>
+          ${formatPeriodeMinggu(periode)} • ${monthYear}
+        </option>`;
+      }).join('');
+    }
+
+    function getStatusPeriodeMinggu(periode) {
+      const sekarang = getAwalAkhirMinggu(new Date());
+      const key = getKunciMinggu(periode.senin);
+      const keySekarang = getKunciMinggu(sekarang.senin);
+
+      if (key < keySekarang) return 'past';
+      if (key > keySekarang) return 'future';
+      return 'current';
+    }
+
     function renderWeeklyTarget(data) {
       const container = document.getElementById('weekly-target-grid');
       const labelEl = document.getElementById('week-range-label');
-      const { senin, minggu } = getAwalAkhirMinggu(new Date());
-      labelEl.innerText = `Minggu ini: ${formatTglSingkat(senin)} — ${formatTglSingkat(minggu)}`;
+      const monthEl = document.getElementById('weekly-period-month');
+      const select = document.getElementById('weekly-period-select');
+      const prevBtn = document.getElementById('weekly-prev-btn');
+      const nextBtn = document.getElementById('weekly-next-btn');
 
-      const namaEditorSet = new Set(data.map(i => i.editor).filter(e => e && e.toLowerCase() !== 'all editor'));
+      if (!container || !labelEl) return;
+
+      // Riwayat minggu menggunakan data global, bukan data yang sudah terkena Filter Bulan.
+      // Filter Editor tetap berlaku supaya editor dapat melihat target dirinya sendiri.
+      populateWeeklyPeriodSelect(listPlanningGlobal);
+
+      if (!weeklyPeriodList.length) {
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada periode minggu yang bisa dihitung.</p>';
+        labelEl.innerText = 'Belum ada periode';
+        if (monthEl) monthEl.innerText = '-';
+        return;
+      }
+
+      const periode = weeklyPeriodList[selectedWeeklyPeriodIndex];
+      const statusPeriode = getStatusPeriodeMinggu(periode);
+
+      labelEl.innerText = statusPeriode === 'current'
+        ? `Minggu ini: ${formatPeriodeMinggu(periode)}`
+        : `Riwayat: ${formatPeriodeMinggu(periode)}`;
+
+      if (monthEl) {
+        monthEl.innerText = periode.senin.toLocaleDateString('id-ID', {
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+
+      if (select) {
+        select.value = getKunciMinggu(periode.senin);
+      }
+
+      if (prevBtn) {
+        prevBtn.disabled = selectedWeeklyPeriodIndex >= weeklyPeriodList.length - 1;
+        prevBtn.classList.toggle('opacity-40', prevBtn.disabled);
+        prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
+      }
+
+      if (nextBtn) {
+        nextBtn.disabled = selectedWeeklyPeriodIndex <= 0;
+        nextBtn.classList.toggle('opacity-40', nextBtn.disabled);
+        nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
+      }
+
+      const editorFilter = document.getElementById('filter-editor')?.value || 'all';
+
+      // Ambil semua editor dari seluruh data agar editor yang tidak mencapai target
+      // tetap muncul dengan nilai 0.
+      let namaEditorSet = new Set(
+        listPlanningGlobal
+          .map(i => i.editor)
+          .filter(e => e && e.toLowerCase() !== 'all editor')
+      );
+
+      if (editorFilter !== 'all') {
+        namaEditorSet = new Set([editorFilter]);
+      }
+
       if (namaEditorSet.size === 0) {
-        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung target mingguannya untuk filter ini.</p>';
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung target mingguannya.</p>';
         return;
       }
 
       const namaEditorSorted = Array.from(namaEditorSet).sort();
-      const TARGET_MINGGUAN = 1;
 
       container.innerHTML = namaEditorSorted.map(editorName => {
-        const doneMingguIni = data.filter(i => {
-          if (i.editor !== editorName || i.statusEdit !== 'Done') return false;
-          const d = parseTanggal(i.dueDate);
-          if (!d) return false;
-          return d >= senin && d <= minggu;
+        const doneMinggu = listPlanningGlobal.filter(item => {
+          if (item.editor !== editorName || item.statusEdit !== 'Done') return false;
+
+          const due = parseTanggalDue(item.dueDate);
+          if (!due) return false;
+
+          return due >= periode.senin && due <= periode.minggu;
         }).length;
-        const wipAktif = data.filter(i => i.editor === editorName && i.statusEdit === 'WIP').length;
-        const tercapai = doneMingguIni >= TARGET_MINGGUAN;
-        const persen = Math.min(100, Math.round((doneMingguIni / TARGET_MINGGUAN) * 100));
-        const barColor = tercapai ? 'bg-emerald-500' : (wipAktif > 0 ? 'bg-blue-600' : 'bg-amber-500');
-        const statusBadge = tercapai
-          ? '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Target Tercapai</span>'
-          : (wipAktif > 0
-            ? '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">Sedang Dikerjakan</span>'
-            : '<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Belum Mulai</span>');
+
+        const wipMinggu = listPlanningGlobal.filter(item => {
+          if (item.editor !== editorName || item.statusEdit !== 'WIP') return false;
+
+          const due = parseTanggalDue(item.dueDate);
+          if (!due) return false;
+
+          return due >= periode.senin && due <= periode.minggu;
+        }).length;
+
+        const tercapai = doneMinggu >= TARGET_MINGGUAN_EDITOR;
+        const persen = Math.min(
+          100,
+          Math.round((doneMinggu / TARGET_MINGGUAN_EDITOR) * 100)
+        );
+
+        let statusBadge = '';
+        let barColor = 'bg-amber-500';
+        let statusText = '';
+
+        if (tercapai) {
+          statusBadge = '<span class="badge-pill bg-emerald-50 text-emerald-600 border border-emerald-200">✔ Target Tercapai</span>';
+          barColor = 'bg-emerald-500';
+          statusText = `${doneMinggu} dari ${TARGET_MINGGUAN_EDITOR} video`;
+        } else if (statusPeriode === 'past') {
+          statusBadge = '<span class="badge-pill bg-rose-50 text-rose-600 border border-rose-200">✕ Target Tidak Tercapai</span>';
+          barColor = 'bg-rose-500';
+          statusText = `Kurang ${TARGET_MINGGUAN_EDITOR - doneMinggu} video`;
+        } else if (statusPeriode === 'current' && wipMinggu > 0) {
+          statusBadge = '<span class="badge-pill bg-blue-50 text-blue-600 border border-blue-200">Sedang Dikerjakan</span>';
+          barColor = 'bg-blue-600';
+          statusText = `${doneMinggu} Done • ${wipMinggu} WIP`;
+        } else if (statusPeriode === 'future') {
+          statusBadge = '<span class="badge-pill bg-slate-100 text-slate-500 border border-slate-200">Belum Dimulai</span>';
+          barColor = 'bg-slate-400';
+          statusText = 'Periode mendatang';
+        } else {
+          statusBadge = '<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Belum Tercapai</span>';
+          barColor = 'bg-amber-500';
+          statusText = `Kurang ${TARGET_MINGGUAN_EDITOR - doneMinggu} video`;
+        }
+
         return `
-          <div class="p-4 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
-            <p class="text-sm font-bold text-gray-800 truncate mb-2">${editorName}</p>
-            <div class="flex items-end gap-1.5 mb-2"><span class="text-2xl font-black text-gray-800">${doneMingguIni}</span><span class="text-xs text-gray-400 font-semibold mb-0.5">/ ${TARGET_MINGGUAN} video minggu ini</span></div>
-            <div class="progress-track w-full h-2 rounded-full overflow-hidden mb-3"><div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div></div>
-            ${statusBadge}
+          <div class="p-4 rounded-2xl border ${
+            tercapai
+              ? 'border-emerald-200 bg-emerald-50/30'
+              : statusPeriode === 'past'
+                ? 'border-rose-200 bg-rose-50/20'
+                : 'border-gray-100 bg-gray-50/50'
+          }">
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <p class="text-sm font-bold text-gray-800 truncate" title="${escapeHtml(editorName)}">
+                ${escapeHtml(editorName)}
+              </p>
+              <span class="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 whitespace-nowrap">
+                ${statusPeriode === 'past' ? 'Minggu lalu' : statusPeriode === 'current' ? 'Aktif' : 'Mendatang'}
+              </span>
+            </div>
+
+            <div class="flex items-end gap-1.5 mb-2">
+              <span class="text-2xl font-black text-gray-800">${doneMinggu}</span>
+              <span class="text-xs text-gray-400 font-semibold mb-0.5">
+                / ${TARGET_MINGGUAN_EDITOR} video
+              </span>
+            </div>
+
+            <div class="progress-track w-full h-2 rounded-full overflow-hidden mb-2">
+              <div class="progress-fill h-full rounded-full ${barColor}" style="width: ${persen}%"></div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              ${statusBadge}
+              <span class="text-[10px] font-semibold text-gray-400">${statusText}</span>
+            </div>
           </div>`;
       }).join('');
     }
+
+    function ubahPeriodeWeeklyTarget(delta) {
+      if (!weeklyPeriodList.length) return;
+
+      const newIndex = selectedWeeklyPeriodIndex + delta;
+      if (newIndex < 0 || newIndex >= weeklyPeriodList.length) return;
+
+      selectedWeeklyPeriodIndex = newIndex;
+      renderWeeklyTarget(listPlanningGlobal);
+    }
+
+    document.getElementById('weekly-period-select')?.addEventListener('change', function () {
+      const index = weeklyPeriodList.findIndex(
+        p => getKunciMinggu(p.senin) === this.value
+      );
+
+      if (index !== -1) {
+        selectedWeeklyPeriodIndex = index;
+        renderWeeklyTarget(listPlanningGlobal);
+      }
+    });
+
+    document.getElementById('weekly-prev-btn')?.addEventListener('click', () => {
+      // Array diurutkan terbaru -> terlama.
+      ubahPeriodeWeeklyTarget(1);
+    });
+
+    document.getElementById('weekly-next-btn')?.addEventListener('click', () => {
+      // Kembali menuju minggu yang lebih baru.
+      ubahPeriodeWeeklyTarget(-1);
+    });
 
     /* ===== Berikutnya Diplanningkan untuk Diedit (Next Up) ===== */
     function renderNextUpTable(data) {
