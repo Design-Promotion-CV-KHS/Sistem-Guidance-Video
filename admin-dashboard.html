@@ -736,6 +736,39 @@
             box-shadow: -8px 0 14px rgba(15,23,42,.06);
         }
 
+
+        /* ================================================================
+           PLANNING CAROUSEL — CRUD TABLE
+           ================================================================ */
+        #tab-carousel-crud .pc-table-wrap { overflow:auto; max-height:650px; }
+        #tab-carousel-crud .pc-table { min-width:2600px; width:100%; border-collapse:separate; border-spacing:0; }
+        #tab-carousel-crud .pc-table th { position:sticky; top:0; z-index:12; background:#f8fafc; color:#475569; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #e2e8f0; }
+        #tab-carousel-crud .pc-table td { padding:12px 14px; border-bottom:1px solid #eef2f7; vertical-align:top; font-size:12px; color:#334155; background:#fff; }
+        #tab-carousel-crud .pc-table tbody tr:hover td { background:#fafbff; }
+        #tab-carousel-crud .pc-col-tema { min-width:220px; max-width:260px; }
+        #tab-carousel-crud .pc-col-copy, #tab-carousel-crud .pc-col-visual { min-width:280px; max-width:320px; }
+        #tab-carousel-crud .pc-col-slide { min-width:210px; max-width:250px; }
+        #tab-carousel-crud .pc-col-caption { min-width:300px; max-width:360px; }
+        #tab-carousel-crud .pc-cell-text { white-space:pre-wrap; word-break:break-word; line-height:1.55; max-height:120px; overflow:auto; }
+        #tab-carousel-crud .pc-slide-head { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; margin-bottom:6px; border-radius:8px; background:#eef2ff; color:#4338ca; font-size:10px; font-weight:900; }
+        #tab-carousel-crud .pc-status { display:inline-flex; align-items:center; justify-content:center; min-width:70px; padding:5px 10px; border-radius:999px; font-size:10px; font-weight:900; }
+        #tab-carousel-crud .pc-status-undone { background:#f1f5f9; color:#475569; }
+        #tab-carousel-crud .pc-status-wip { background:#fff7ed; color:#c2410c; }
+        #tab-carousel-crud .pc-status-done { background:#ecfdf5; color:#047857; }
+        #tab-carousel-crud .pc-actions { position:sticky; right:0; z-index:10; background:#fff !important; box-shadow:-8px 0 14px rgba(15,23,42,.06); min-width:125px; }
+        #tab-carousel-crud thead .pc-actions { z-index:20; background:#f8fafc !important; }
+        #tab-carousel-crud .pc-action-btn { border:1px solid #e2e8f0; border-radius:9px; padding:7px 9px; font-size:11px; font-weight:800; cursor:pointer; transition:.18s ease; }
+        #tab-carousel-crud .pc-action-edit { color:#4338ca; background:#eef2ff; border-color:#c7d2fe; }
+        #tab-carousel-crud .pc-action-edit:hover { background:#e0e7ff; }
+        #tab-carousel-crud .pc-action-delete { color:#be123c; background:#fff1f2; border-color:#fecdd3; }
+        #tab-carousel-crud .pc-action-delete:hover { background:#ffe4e6; }
+        #tab-carousel-crud .pc-toolbar-note { font-size:11px; color:#94a3b8; }
+        #pc-crud-modal .pc-slide-field textarea { min-height:115px; }
+        @media (max-width:768px) {
+            #tab-carousel-crud { padding:1rem !important; }
+            #tab-carousel-crud .pc-table-wrap { max-height:60vh; }
+        }
+
         /* ================================================================
            PANDUAN TAKE VIDEO — EMBEDDED CONTENT + MAX WIDTH
            Konten Panduan tetap berada di area dashboard.
@@ -3551,21 +3584,34 @@
             </div>
             <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
                 <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                    <table class="min-w-[1000px] w-full text-left border-collapse">
-                        <thead class="sticky top-0 z-10 bg-slate-100">
-                            <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
-                                <th class="py-4 px-5 bg-slate-100 min-w-[200px]">Tema</th>
-                                <th class="py-4 px-5 bg-slate-100 min-w-[260px]">Items (Copywriting &amp; Visual)</th>
-                                <th class="py-4 px-5 bg-slate-100">Slide</th>
-                                <th class="py-4 px-5 bg-slate-100 min-w-[240px]">Caption</th>
-                                <th class="py-4 px-5 bg-slate-100">Status</th>
-                                <th class="py-4 px-5 text-right bg-slate-100 sticky right-0">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pc-crud-body" class="divide-y divide-slate-100 text-sm text-slate-700">
-                            <tr><td colspan="6" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="pc-toolbar-note mb-2">Geser horizontal untuk melihat seluruh kolom. Setiap slide memiliki kolom sendiri (Slide 1 sampai Slide 10).</div>
+                    <div class="pc-table-wrap rounded-2xl border border-slate-200">
+                        <table class="pc-table text-left">
+                            <thead>
+                                <tr>
+                                    <th class="py-4 px-5 pc-col-tema">Tema</th>
+                                    <th class="py-4 px-5 pc-col-copy">Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-visual">Visual</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 1</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 2</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 3</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 4</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 5</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 6</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 7</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 8</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 9</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 10</th>
+                                    <th class="py-4 px-5 pc-col-caption">Caption</th>
+                                    <th class="py-4 px-5">Status</th>
+                                    <th class="py-4 px-5 text-right pc-actions">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pc-crud-body">
+                                <tr><td colspan="16" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4536,53 +4582,67 @@
     </div>
     <!-- MODAL CRUD PLANNING CAROUSEL -->
     <div class="hidden fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4" id="pc-crud-modal">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
-                <div><p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600">Planning Carousel</p><h4 class="text-xl font-black text-slate-900 mt-1" id="pc-crud-modal-title">Tambah Planning Carousel</h4></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[94vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-20">
+                <div>
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600">Planning Carousel</p>
+                    <h4 class="text-xl font-black text-slate-900 mt-1" id="pc-crud-modal-title">Tambah Planning Carousel</h4>
+                </div>
                 <button class="text-slate-400 hover:text-slate-700 text-2xl leading-none" id="pc-crud-modal-close" type="button">×</button>
             </div>
-            <form class="p-6 space-y-4" id="pc-crud-form">
+            <form class="p-6 space-y-5" id="pc-crud-form">
                 <input id="pc-crud-field-id" type="hidden" />
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema *</label>
-                        <input id="pc-crud-field-tema" required type="text" placeholder="Contoh: Tips Merawat Mesin Jahit"
-                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" /></div>
-                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Status *</label>
-                        <select id="pc-crud-field-status" required class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:border-indigo-400">
-                            <option value="Undone">Undone</option><option value="WIP">WIP</option><option value="Done">Done</option>
-                        </select></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema *</label>
+                        <input id="pc-crud-field-tema" required type="text" placeholder="Contoh: Tips Perawatan Mesin"
+                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Status *</label>
+                        <select id="pc-crud-field-status" required class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                            <option value="Undone">Undone</option>
+                            <option value="WIP">WIP</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="pt-1 border-t border-slate-100">
-                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mt-4 mb-2">Items (Copywriting &amp; Visual)</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Items Copywriting</label>
-                        <textarea id="pc-crud-field-item-copywriting" rows="4" placeholder="Contoh: headline, body text tiap slide, CTA"
-                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea></div>
-                    <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Items Visual</label>
-                        <textarea id="pc-crud-field-item-visual" rows="4" placeholder="Contoh: foto produk, ilustrasi, warna & font yang dipakai"
-                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea></div>
-                </div>
-
-                <div class="pt-1 border-t border-slate-100">
-                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mt-4 mb-2">Isi Slide 1 - 10</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="pc-crud-slide-fields">
-                    <!-- 10 field slide dirender otomatis lewat JavaScript (pcRenderSlideFields) -->
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">Kebutuhan Konten</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Copywriting</label>
+                            <textarea id="pc-crud-field-copywriting" rows="6" placeholder="Tulis kebutuhan copywriting: headline, body text, CTA, gaya bahasa, dll."
+                                class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Visual</label>
+                            <textarea id="pc-crud-field-visual" rows="6" placeholder="Tulis kebutuhan visual: foto produk, ilustrasi, komposisi, warna, font, referensi, dll."
+                                class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="pt-1 border-t border-slate-100">
-                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mt-4 mb-2">Caption</p>
+                <div class="pt-4 border-t border-slate-100">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Isi Slide 1 - 10</p>
+                        <span class="text-[10px] font-semibold text-slate-400">Satu kolom untuk setiap slide</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="pc-crud-slide-fields"></div>
                 </div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Caption Postingan</label>
-                    <textarea id="pc-crud-field-caption" rows="5" placeholder="Tulis caption lengkap untuk postingan carousel ini..."
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea></div>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">Caption</p>
+                    <textarea id="pc-crud-field-caption" rows="6" placeholder="Tulis caption lengkap untuk postingan carousel ini..."
+                        class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea>
+                </div>
 
                 <div id="pc-crud-form-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-3 text-xs font-semibold"></div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100" id="pc-crud-cancel-btn" type="button">Batal</button>
-                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md" id="pc-crud-save-btn" type="submit"><i class="fas fa-check mr-1"></i> Simpan</button>
+                    <button class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md disabled:opacity-60" id="pc-crud-save-btn" type="submit"><i class="fas fa-save mr-1"></i> Simpan</button>
                 </div>
             </form>
         </div>
@@ -10017,6 +10077,268 @@ function edNormalisasiNamaKolom(k) {
                 bukaPanduanSubList(title, items);
             });
         });
+
+        /* ================================================================
+           PLANNING CAROUSEL — FULL CRUD
+           Struktur database:
+           id, tema, copywriting, visual, slide_1 ... slide_10, caption, status
+           ================================================================ */
+        let pcListGlobal = [];
+        let pcCurrentEditId = null;
+
+        function pcEscapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function pcText(value) {
+            const v = String(value ?? '').trim();
+            return v || '-';
+        }
+
+        function pcStatusClass(status) {
+            const s = String(status || '').trim().toLowerCase();
+            if (s === 'done') return 'pc-status pc-status-done';
+            if (s === 'wip') return 'pc-status pc-status-wip';
+            return 'pc-status pc-status-undone';
+        }
+
+        function pcRenderSlideFields(values = {}) {
+            const wrap = document.getElementById('pc-crud-slide-fields');
+            if (!wrap) return;
+            wrap.innerHTML = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => {
+                const n = i + 1;
+                return `
+                    <div class="pc-slide-field bg-slate-50/70 border border-slate-200 rounded-2xl p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-[10px] font-black">${n}</span>
+                            <label class="text-xs font-bold text-slate-600 uppercase tracking-wide">Slide ${n}</label>
+                        </div>
+                        <textarea id="pc-crud-field-slide-${n}" rows="4"
+                            placeholder="Isi/narasi Slide ${n}..."
+                            class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y">${pcEscapeHtml(values[`slide_${n}`] || '')}</textarea>
+                    </div>`;
+            }).join('');
+        }
+
+        function pcResetForm() {
+            const form = document.getElementById('pc-crud-form');
+            if (form) form.reset();
+            document.getElementById('pc-crud-field-id').value = '';
+            document.getElementById('pc-crud-field-status').value = 'Undone';
+            document.getElementById('pc-crud-form-error').classList.add('hidden');
+            document.getElementById('pc-crud-form-error').textContent = '';
+            pcCurrentEditId = null;
+            pcRenderSlideFields();
+        }
+
+        function pcBukaModalTambah() {
+            pcResetForm();
+            document.getElementById('pc-crud-modal-title').textContent = 'Tambah Planning Carousel';
+            document.getElementById('pc-crud-modal').classList.remove('hidden');
+            document.getElementById('pc-crud-field-tema').focus();
+        }
+
+        function pcBukaModalEdit(id) {
+            const item = pcListGlobal.find(row => String(row.id) === String(id));
+            if (!item) return;
+            pcResetForm();
+            pcCurrentEditId = item.id;
+            document.getElementById('pc-crud-modal-title').textContent = 'Edit Planning Carousel';
+            document.getElementById('pc-crud-field-id').value = item.id;
+            document.getElementById('pc-crud-field-tema').value = item.tema || '';
+            document.getElementById('pc-crud-field-copywriting').value = item.copywriting || '';
+            document.getElementById('pc-crud-field-visual').value = item.visual || '';
+            document.getElementById('pc-crud-field-caption').value = item.caption || '';
+            document.getElementById('pc-crud-field-status').value = CAROUSEL_STATUSES.includes(item.status) ? item.status : 'Undone';
+            const slideValues = {};
+            for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) slideValues[`slide_${i}`] = item[`slide_${i}`] || '';
+            pcRenderSlideFields(slideValues);
+            document.getElementById('pc-crud-modal').classList.remove('hidden');
+        }
+
+        function pcTutupModal() {
+            document.getElementById('pc-crud-modal').classList.add('hidden');
+        }
+
+        async function pcMuatData() {
+            const tbody = document.getElementById('pc-crud-body');
+            if (!tbody) return;
+            const banner = document.getElementById('pc-diagnostic-banner');
+            const message = document.getElementById('pc-diagnostic-message');
+            if (banner) banner.classList.add('hidden');
+            tbody.innerHTML = '<tr><td colspan="16" class="text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data dari database...</td></tr>';
+
+            try {
+                if (!window.db) throw new Error('Koneksi Supabase tidak tersedia.');
+                const { data, error } = await window.db
+                    .from(NAMA_TABEL_CAROUSEL)
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                pcListGlobal = Array.isArray(data) ? data : [];
+                pcRenderTable();
+            } catch (error) {
+                console.error('[Planning Carousel] Gagal memuat:', error);
+                pcListGlobal = [];
+                tbody.innerHTML = '<tr><td colspan="16" class="text-center py-10 text-rose-500 font-semibold">Gagal memuat data Planning Carousel.</td></tr>';
+                if (banner && message) {
+                    message.textContent = error?.message || String(error);
+                    banner.classList.remove('hidden');
+                }
+            }
+        }
+
+        function pcRenderTable() {
+            const tbody = document.getElementById('pc-crud-body');
+            if (!tbody) return;
+            const search = String(document.getElementById('pc-filter-search')?.value || '').trim().toLowerCase();
+            const statusFilter = String(document.getElementById('pc-filter-status')?.value || 'all');
+            const rows = pcListGlobal.filter(row => {
+                const statusOk = statusFilter === 'all' || String(row.status || '') === statusFilter;
+                if (!statusOk) return false;
+                if (!search) return true;
+                const haystack = [row.tema, row.copywriting, row.visual, row.caption, row.status,
+                    ...Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => row[`slide_${i + 1}`])]
+                    .join(' ').toLowerCase();
+                return haystack.includes(search);
+            });
+
+            const countEl = document.getElementById('pc-filter-count');
+            if (countEl) countEl.textContent = `${rows.length} dari ${pcListGlobal.length} data`;
+
+            const undone = pcListGlobal.filter(r => String(r.status || '').toLowerCase() === 'undone').length;
+            const wip = pcListGlobal.filter(r => String(r.status || '').toLowerCase() === 'wip').length;
+            const done = pcListGlobal.filter(r => String(r.status || '').toLowerCase() === 'done').length;
+            document.getElementById('pc-card-undone').textContent = undone;
+            document.getElementById('pc-card-wip').textContent = wip;
+            document.getElementById('pc-card-done').textContent = done;
+
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td colspan="16" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rows.map(row => {
+                const slideCells = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => {
+                    const n = i + 1;
+                    return `<td class="pc-col-slide"><div class="pc-cell-text">${pcEscapeHtml(pcText(row[`slide_${n}`]))}</div></td>`;
+                }).join('');
+                return `
+                    <tr>
+                        <td class="pc-col-tema"><div class="font-extrabold text-slate-900 leading-snug">${pcEscapeHtml(pcText(row.tema))}</div></td>
+                        <td class="pc-col-copy"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.copywriting))}</div></td>
+                        <td class="pc-col-visual"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.visual))}</div></td>
+                        ${slideCells}
+                        <td class="pc-col-caption"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.caption))}</div></td>
+                        <td><span class="${pcStatusClass(row.status)}">${pcEscapeHtml(pcText(row.status))}</span></td>
+                        <td class="pc-actions">
+                            <div class="flex items-center justify-end gap-2">
+                                <button type="button" class="pc-action-btn pc-action-edit" data-pc-id="${pcEscapeHtml(row.id)}"><i class="fas fa-pen mr-1"></i>Edit</button>
+                                <button type="button" class="pc-action-btn pc-action-delete" data-pc-id="${pcEscapeHtml(row.id)}"><i class="fas fa-trash mr-1"></i>Hapus</button>
+                            </div>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('.pc-action-edit').forEach(btn => btn.addEventListener('click', () => pcBukaModalEdit(btn.dataset.pcId)));
+            tbody.querySelectorAll('.pc-action-delete').forEach(btn => btn.addEventListener('click', () => pcHapusData(btn.dataset.pcId)));
+        }
+
+        async function pcSimpanForm(e) {
+            e.preventDefault();
+            const errorBox = document.getElementById('pc-crud-form-error');
+            const saveBtn = document.getElementById('pc-crud-save-btn');
+            errorBox.classList.add('hidden');
+            errorBox.textContent = '';
+
+            const tema = document.getElementById('pc-crud-field-tema').value.trim();
+            const status = document.getElementById('pc-crud-field-status').value;
+            if (!tema) {
+                errorBox.textContent = 'Tema wajib diisi.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const payload = {
+                tema,
+                copywriting: document.getElementById('pc-crud-field-copywriting').value.trim(),
+                visual: document.getElementById('pc-crud-field-visual').value.trim(),
+                caption: document.getElementById('pc-crud-field-caption').value.trim(),
+                status: CAROUSEL_STATUSES.includes(status) ? status : 'Undone'
+            };
+            for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) {
+                payload[`slide_${i}`] = document.getElementById(`pc-crud-field-slide-${i}`)?.value.trim() || '';
+            }
+
+            try {
+                if (!window.db) throw new Error('Koneksi Supabase tidak tersedia.');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan...';
+
+                let result;
+                if (pcCurrentEditId !== null && pcCurrentEditId !== '') {
+                    result = await window.db.from(NAMA_TABEL_CAROUSEL)
+                        .update(payload)
+                        .eq('id', pcCurrentEditId)
+                        .select()
+                        .single();
+                } else {
+                    result = await window.db.from(NAMA_TABEL_CAROUSEL)
+                        .insert(payload)
+                        .select()
+                        .single();
+                }
+                if (result.error) throw result.error;
+                pcTutupModal();
+                await pcMuatData();
+            } catch (error) {
+                console.error('[Planning Carousel] Gagal menyimpan:', error);
+                errorBox.textContent = 'Gagal menyimpan data: ' + (error?.message || String(error));
+                errorBox.classList.remove('hidden');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Simpan';
+            }
+        }
+
+        async function pcHapusData(id) {
+            const item = pcListGlobal.find(row => String(row.id) === String(id));
+            if (!item) return;
+            const tema = pcText(item.tema);
+            if (!confirm(`Yakin ingin menghapus planning carousel "${tema}"?\n\nData yang dihapus tidak dapat dikembalikan.`)) return;
+            try {
+                const { data, error } = await window.db
+                    .from(NAMA_TABEL_CAROUSEL)
+                    .delete()
+                    .eq('id', id)
+                    .select();
+                if (error) throw error;
+                if (!data || !data.length) throw new Error('Data tidak terhapus. Periksa policy DELETE/RLS pada tabel Planning_Carousel.');
+                await pcMuatData();
+            } catch (error) {
+                console.error('[Planning Carousel] Gagal menghapus:', error);
+                alert('Gagal menghapus data: ' + (error?.message || String(error)));
+            }
+        }
+
+        document.getElementById('pc-btn-tambah-data')?.addEventListener('click', pcBukaModalTambah);
+        document.getElementById('pc-crud-modal-close')?.addEventListener('click', pcTutupModal);
+        document.getElementById('pc-crud-cancel-btn')?.addEventListener('click', pcTutupModal);
+        document.getElementById('pc-crud-form')?.addEventListener('submit', pcSimpanForm);
+        document.getElementById('pc-filter-status')?.addEventListener('change', pcRenderTable);
+        document.getElementById('pc-filter-search')?.addEventListener('input', pcRenderTable);
+        document.getElementById('pc-crud-modal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'pc-crud-modal') pcTutupModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') pcTutupModal();
+        });
+        pcRenderSlideFields();
 
         function refreshCurrentTab() {
             if (currentActiveTab === 'overview') {
