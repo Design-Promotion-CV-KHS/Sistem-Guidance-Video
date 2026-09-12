@@ -3590,25 +3590,33 @@
                             <thead>
                                 <tr>
                                     <th class="py-4 px-5 pc-col-tema">Tema</th>
-                                    <th class="py-4 px-5 pc-col-copy">Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-visual">Visual</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 1</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 2</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 3</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 4</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 5</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 6</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 7</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 8</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 9</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 10</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 1 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 1 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 2 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 2 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 3 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 3 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 4 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 4 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 5 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 5 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 6 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 6 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 7 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 7 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 8 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 8 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 9 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 9 — Visual</th>
+<th class="py-4 px-5 pc-col-slide">Slide 10 — Copywriting</th>
+                                    <th class="py-4 px-5 pc-col-slide">Slide 10 — Visual</th>
                                     <th class="py-4 px-5 pc-col-caption">Caption</th>
                                     <th class="py-4 px-5">Status</th>
                                     <th class="py-4 px-5 text-right pc-actions">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="pc-crud-body">
-                                <tr><td colspan="16" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
+                                <tr><td colspan="24" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -4610,27 +4618,11 @@
                 </div>
 
                 <div class="pt-4 border-t border-slate-100">
-                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">Kebutuhan Konten</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Copywriting</label>
-                            <textarea id="pc-crud-field-copywriting" rows="6" placeholder="Tulis kebutuhan copywriting: headline, body text, CTA, gaya bahasa, dll."
-                                class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Visual</label>
-                            <textarea id="pc-crud-field-visual" rows="6" placeholder="Tulis kebutuhan visual: foto produk, ilustrasi, komposisi, warna, font, referensi, dll."
-                                class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-slate-100">
                     <div class="flex items-center justify-between gap-3 mb-3">
                         <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Isi Slide 1 - 10</p>
-                        <span class="text-[10px] font-semibold text-slate-400">Satu kolom untuk setiap slide</span>
+                        <span class="text-[10px] font-semibold text-slate-400">Setiap slide memiliki Copywriting & Visual</span>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="pc-crud-slide-fields"></div>
+                    <div class="space-y-4" id="pc-crud-slide-fields"></div>
                 </div>
 
                 <div class="pt-4 border-t border-slate-100">
@@ -10112,15 +10104,24 @@ function edNormalisasiNamaKolom(k) {
             if (!wrap) return;
             wrap.innerHTML = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => {
                 const n = i + 1;
+                const cw = values[`slide_${n}_copywriting`] || '';
+                const visual = values[`slide_${n}_visual`] || '';
                 return `
-                    <div class="pc-slide-field bg-slate-50/70 border border-slate-200 rounded-2xl p-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-[10px] font-black">${n}</span>
-                            <label class="text-xs font-bold text-slate-600 uppercase tracking-wide">Slide ${n}</label>
+                    <div class="pc-slide-card bg-slate-50/70 border border-slate-200 rounded-2xl p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white text-xs font-black">${n}</span>
+                            <label class="text-xs font-black text-slate-700 uppercase tracking-wide">Slide ${n}</label>
                         </div>
-                        <textarea id="pc-crud-field-slide-${n}" rows="4"
-                            placeholder="Isi/narasi Slide ${n}..."
-                            class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y">${pcEscapeHtml(values[`slide_${n}`] || '')}</textarea>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wide mb-1.5">Copywriting</label>
+                                <textarea id="pc-crud-field-slide-${n}-copywriting" rows="5" placeholder="Copywriting untuk Slide ${n}..." class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y">${pcEscapeHtml(cw)}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wide mb-1.5">Visual</label>
+                                <textarea id="pc-crud-field-slide-${n}-visual" rows="5" placeholder="Konsep visual untuk Slide ${n}..." class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y">${pcEscapeHtml(visual)}</textarea>
+                            </div>
+                        </div>
                     </div>`;
             }).join('');
         }
@@ -10151,12 +10152,10 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('pc-crud-modal-title').textContent = 'Edit Planning Carousel';
             document.getElementById('pc-crud-field-id').value = item.id;
             document.getElementById('pc-crud-field-tema').value = item.tema || '';
-            document.getElementById('pc-crud-field-copywriting').value = item.copywriting || '';
-            document.getElementById('pc-crud-field-visual').value = item.visual || '';
             document.getElementById('pc-crud-field-caption').value = item.caption || '';
             document.getElementById('pc-crud-field-status').value = CAROUSEL_STATUSES.includes(item.status) ? item.status : 'Undone';
             const slideValues = {};
-            for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) slideValues[`slide_${i}`] = item[`slide_${i}`] || '';
+            for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) { slideValues[`slide_${i}_copywriting`] = item[`slide_${i}_copywriting`] || ''; slideValues[`slide_${i}_visual`] = item[`slide_${i}_visual`] || ''; }
             pcRenderSlideFields(slideValues);
             document.getElementById('pc-crud-modal').classList.remove('hidden');
         }
@@ -10202,9 +10201,9 @@ function edNormalisasiNamaKolom(k) {
                 const statusOk = statusFilter === 'all' || String(row.status || '') === statusFilter;
                 if (!statusOk) return false;
                 if (!search) return true;
-                const haystack = [row.tema, row.copywriting, row.visual, row.caption, row.status,
-                    ...Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => row[`slide_${i + 1}`])]
-                    .join(' ').toLowerCase();
+                const haystack = [row.tema, row.caption, row.status,
+                    ...Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [row[`slide_${i + 1}_copywriting`], row[`slide_${i + 1}_visual`]])
+                ].flat().join(' ').toLowerCase();
                 return haystack.includes(search);
             });
 
@@ -10219,20 +10218,19 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('pc-card-done').textContent = done;
 
             if (!rows.length) {
-                tbody.innerHTML = '<tr><td colspan="16" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="24" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = rows.map(row => {
                 const slideCells = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => {
                     const n = i + 1;
-                    return `<td class="pc-col-slide"><div class="pc-cell-text">${pcEscapeHtml(pcText(row[`slide_${n}`]))}</div></td>`;
+                    return `<td class="pc-col-slide"><div class="pc-cell-text">${pcEscapeHtml(pcText(row[`slide_${n}_copywriting`]))}</div></td>
+                            <td class="pc-col-slide"><div class="pc-cell-text">${pcEscapeHtml(pcText(row[`slide_${n}_visual`]))}</div></td>`;
                 }).join('');
                 return `
                     <tr>
                         <td class="pc-col-tema"><div class="font-extrabold text-slate-900 leading-snug">${pcEscapeHtml(pcText(row.tema))}</div></td>
-                        <td class="pc-col-copy"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.copywriting))}</div></td>
-                        <td class="pc-col-visual"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.visual))}</div></td>
                         ${slideCells}
                         <td class="pc-col-caption"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.caption))}</div></td>
                         <td><span class="${pcStatusClass(row.status)}">${pcEscapeHtml(pcText(row.status))}</span></td>
@@ -10266,13 +10264,12 @@ function edNormalisasiNamaKolom(k) {
 
             const payload = {
                 tema,
-                copywriting: document.getElementById('pc-crud-field-copywriting').value.trim(),
-                visual: document.getElementById('pc-crud-field-visual').value.trim(),
                 caption: document.getElementById('pc-crud-field-caption').value.trim(),
                 status: CAROUSEL_STATUSES.includes(status) ? status : 'Undone'
             };
             for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) {
-                payload[`slide_${i}`] = document.getElementById(`pc-crud-field-slide-${i}`)?.value.trim() || '';
+                payload[`slide_${i}_copywriting`] = document.getElementById(`pc-crud-field-slide-${i}-copywriting`)?.value.trim() || '';
+                payload[`slide_${i}_visual`] = document.getElementById(`pc-crud-field-slide-${i}-visual`)?.value.trim() || '';
             }
 
             try {
