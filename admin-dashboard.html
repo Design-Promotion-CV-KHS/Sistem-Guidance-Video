@@ -741,13 +741,20 @@
            PLANNING CAROUSEL — CRUD TABLE
            ================================================================ */
         #tab-carousel-crud .pc-table-wrap { overflow:auto; max-height:650px; }
-        #tab-carousel-crud .pc-table { min-width:2600px; width:100%; border-collapse:separate; border-spacing:0; }
-        #tab-carousel-crud .pc-table th { position:sticky; top:0; z-index:12; background:#f8fafc; color:#475569; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #e2e8f0; }
+        #tab-carousel-crud .pc-table { min-width:3100px; width:100%; border-collapse:separate; border-spacing:0; }
+        #tab-carousel-crud .pc-table th { position:sticky; background:#f8fafc; color:#475569; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #e2e8f0; text-align:center; vertical-align:middle; }
+        #tab-carousel-crud .pc-table thead tr:first-child th { top:0; height:42px; z-index:13; background:#f1f5f9; border-bottom:1px solid #cbd5e1; }
+        #tab-carousel-crud .pc-table thead tr:nth-child(2) th { top:42px; height:38px; z-index:12; background:#f8fafc; font-size:9px; }
         #tab-carousel-crud .pc-table td { padding:12px 14px; border-bottom:1px solid #eef2f7; vertical-align:top; font-size:12px; color:#334155; background:#fff; }
         #tab-carousel-crud .pc-table tbody tr:hover td { background:#fafbff; }
         #tab-carousel-crud .pc-col-tema { min-width:220px; max-width:260px; }
         #tab-carousel-crud .pc-col-copy, #tab-carousel-crud .pc-col-visual { min-width:280px; max-width:320px; }
-        #tab-carousel-crud .pc-col-slide { min-width:210px; max-width:250px; }
+        #tab-carousel-crud .pc-col-slide { min-width:220px; max-width:260px; }
+        #tab-carousel-crud .pc-slide-group { min-width:440px; }
+        #tab-carousel-crud .pc-slide-group-label { font-size:10px; font-weight:950; color:#1e293b; letter-spacing:.8px; }
+        #tab-carousel-crud .pc-slide-sub-copy { color:#4338ca; background:#eef2ff !important; }
+        #tab-carousel-crud .pc-slide-sub-visual { color:#047857; background:#ecfdf5 !important; }
+        #tab-carousel-crud .pc-table .pc-rowspan-head { vertical-align:middle; }
         #tab-carousel-crud .pc-col-caption { min-width:300px; max-width:360px; }
         #tab-carousel-crud .pc-cell-text { white-space:pre-wrap; word-break:break-word; line-height:1.55; max-height:120px; overflow:auto; }
         #tab-carousel-crud .pc-slide-head { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; margin-bottom:6px; border-radius:8px; background:#eef2ff; color:#4338ca; font-size:10px; font-weight:900; }
@@ -3589,30 +3596,32 @@
                         <table class="pc-table text-left">
                             <thead>
                                 <tr>
-                                    <th class="py-4 px-5 pc-col-tema">Tema</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 1 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 1 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 2 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 2 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 3 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 3 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 4 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 4 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 5 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 5 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 6 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 6 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 7 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 7 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 8 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 8 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 9 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 9 — Visual</th>
-<th class="py-4 px-5 pc-col-slide">Slide 10 — Copywriting</th>
-                                    <th class="py-4 px-5 pc-col-slide">Slide 10 — Visual</th>
-                                    <th class="py-4 px-5 pc-col-caption">Caption</th>
-                                    <th class="py-4 px-5">Status</th>
-                                    <th class="py-4 px-5 text-right pc-actions">Aksi</th>
+                                    <th class="py-3 px-5 pc-col-tema pc-rowspan-head" rowspan="2">Tema</th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 1</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 2</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 3</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 4</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 5</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 6</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 7</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 8</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 9</span></th>
+                                    <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 10</span></th>
+                                    <th class="py-3 px-5 pc-col-caption pc-rowspan-head" rowspan="2">Caption</th>
+                                    <th class="py-3 px-5 pc-rowspan-head" rowspan="2">Status</th>
+                                    <th class="py-3 px-5 pc-actions pc-rowspan-head" rowspan="2">Aksi</th>
+                                </tr>
+                                <tr>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
+                                    <th class="py-2 px-3 pc-col-slide pc-slide-sub-copy">Copywriting</th><th class="py-2 px-3 pc-col-slide pc-slide-sub-visual">Visual</th>
                                 </tr>
                             </thead>
                             <tbody id="pc-crud-body">
