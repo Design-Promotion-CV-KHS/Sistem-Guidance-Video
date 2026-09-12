@@ -1895,11 +1895,16 @@ const HEADER_SUBTITLE = {
       }
 
       // Normalisasi & buang baris kosong (tanpa Bulan / Judul Video) - khusus untuk dashboard
-      listPlanningGlobal = rawPlanning.map(item => {
+      listPlanningGlobal = rawPlanning.map((item, planningIndex) => {
         const bulan = getField(item, 'Bulan', 'bulan');
         const judul = getField(item, 'Judul Video', 'Judul_Video', 'judul_video', 'judul');
         if (!bulan || !judul) return null;
         return {
+          // Menyimpan posisi baris dari hasil query Planning_Editor.
+          // Karena data diambil ORDER BY id ASC, angka yang lebih besar berarti
+          // planning yang lebih baru. Ini dipakai untuk menentukan Next Video.
+          __planningIndex: planningIndex,
+          id: getField(item, 'id', 'Id', 'ID', 'uuid'),
           bulan,
           tahun: getField(item, 'Tahun', 'tahun'),
           statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
@@ -2061,9 +2066,9 @@ const HEADER_SUBTITLE = {
          * sudah terisi (biasanya berupa link Google Docs), selama video tersebut
          * belum sedang WIP dan belum Done.
          *
-         * Prioritas utama: Skenario terisi -> due date terdekat.
-         * Status Edit tidak dipakai untuk menentukan apakah sebuah video
-         * merupakan Next Video.
+         * Prioritas utama: Skenario terisi -> planning terbaru di tabel Planning_Editor.
+         * Due Date tidak lagi menjadi penentu utama Next Video.
+         * Status Edit hanya dipakai untuk mengecualikan video yang sudah WIP/Done.
          */
         const nextItems = items
           .filter(i => {
@@ -2071,10 +2076,19 @@ const HEADER_SUBTITLE = {
             return skenario !== '' && i.statusEdit !== 'WIP' && i.statusEdit !== 'Done';
           })
           .sort((a, b) => {
-            if (a.__due && b.__due) return a.__due - b.__due;
-            if (a.__due) return -1;
-            if (b.__due) return 1;
-            return String(a.judul || '').localeCompare(String(b.judul || ''));
+            // NEXT VIDEO mengikuti urutan planning di tabel Planning_Editor.
+            // Planning terbaru (baris/id terbesar) menjadi kandidat paling atas,
+            // bukan video lama yang kebetulan memiliki Due Date lebih dekat.
+            const orderA = Number.isFinite(Number(a.__planningIndex)) ? Number(a.__planningIndex) : -1;
+            const orderB = Number.isFinite(Number(b.__planningIndex)) ? Number(b.__planningIndex) : -1;
+            if (orderA !== orderB) return orderB - orderA;
+
+            // Fallback jika posisi planning sama/tidak tersedia: gunakan id terbaru.
+            const idA = Number(a.id);
+            const idB = Number(b.id);
+            if (Number.isFinite(idA) && Number.isFinite(idB) && idA !== idB) return idB - idA;
+
+            return String(b.judul || '').localeCompare(String(a.judul || ''));
           });
 
         const current = wipItems[0] || null;
