@@ -10,6 +10,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Library untuk export Laporan Rekap Stock Gudang (Excel rapi & Word) -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <script>
         tailwind.config = {
@@ -1221,6 +1225,20 @@
   border-color:var(--sg-border);
 }
 #tab-stock-gudang .btn-outline:hover { background:var(--sg-primary-light); border-color:var(--sg-primary-border); color:var(--sg-primary-dark); }
+
+/* ---- Tombol Unduh Rekap Stock (Excel/Word) ---- */
+#tab-stock-gudang .stock-export-group { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#tab-stock-gudang .stock-export-btn { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+#tab-stock-gudang .stock-export-btn i { font-size:13px; }
+#tab-stock-gudang .stock-export-btn:disabled { opacity:.6; cursor:progress; transform:none; }
+#tab-stock-gudang .all-stock-toolbar .stock-export-group { margin-left:auto; }
+@media (max-width:760px) {
+  #tab-stock-gudang .stock-export-btn span { display:inline; }
+}
+@media (max-width:600px) {
+  #tab-stock-gudang .all-stock-toolbar .stock-export-group { margin-left:0; width:100%; }
+  #tab-stock-gudang .all-stock-toolbar .stock-export-btn { flex:1 1 auto; justify-content:center; }
+}
 
 #tab-stock-gudang .page-header .btn-outline {
   background:rgba(255,255,255,.08);
@@ -4558,6 +4576,29 @@
       + Update Stock
     </button>
 
+    <div class="stock-export-group" id="stockExportGroup">
+      <button
+        type="button"
+        class="btn btn-outline stock-export-btn"
+        id="stockExportXlsxBtn"
+        onclick="exportStockRekap('xlsx', false, this)"
+        title="Unduh rekap seluruh stock gudang sebagai Excel (.xlsx)"
+      >
+        <i class="fas fa-file-excel" style="color:#15803d;"></i>
+        <span>Rekap Excel</span>
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline stock-export-btn"
+        id="stockExportDocxBtn"
+        onclick="exportStockRekap('docx', false, this)"
+        title="Unduh rekap seluruh stock gudang sebagai Word (.docx)"
+      >
+        <i class="fas fa-file-word" style="color:#1d4ed8;"></i>
+        <span>Rekap Word</span>
+      </button>
+    </div>
+
     <button
       class="btn btn-outline"
       onclick="confirmRollbackLastStockImport(this)"
@@ -4766,6 +4807,16 @@
         <option value="MENIPIS">Menipis</option>
         <option value="HABIS">Habis</option>
       </select>
+      <div class="stock-export-group" id="allStockExportGroup">
+        <button type="button" class="btn btn-outline stock-export-btn" onclick="exportStockRekap('xlsx', true, this)" title="Unduh data yang sedang ditampilkan (sesuai filter) sebagai Excel">
+          <i class="fas fa-file-excel" style="color:#15803d;"></i>
+          <span>Excel</span>
+        </button>
+        <button type="button" class="btn btn-outline stock-export-btn" onclick="exportStockRekap('docx', true, this)" title="Unduh data yang sedang ditampilkan (sesuai filter) sebagai Word">
+          <i class="fas fa-file-word" style="color:#1d4ed8;"></i>
+          <span>Word</span>
+        </button>
+      </div>
     </div>
 
     <div class="all-stock-table-wrap">
@@ -17110,6 +17161,359 @@ function renderAllStockPage() {
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeAllStockPage();
 });
+
+/* =========================================================
+   REKAP STOCK GUDANG — EXPORT EXCEL (.xlsx) & WORD (.docx)
+   - format='xlsx' | 'docx'
+   - useFilter=true  -> ambil data sesuai filter halaman "Semua Stock Gudang"
+     (search / kategori / status) yang sedang aktif.
+   - useFilter=false -> ambil SELURUH data stock gudang.
+   ========================================================= */
+
+function sgGetFilteredStockData() {
+  const search = String(document.getElementById('allStockSearch')?.value || '').toLowerCase().trim();
+  const category = String(document.getElementById('allStockCategoryFilter')?.value || '').trim().toUpperCase();
+  const status = String(document.getElementById('allStockStatusFilter')?.value || 'SEMUA').toUpperCase();
+  return (Array.isArray(stockData) ? stockData : []).filter(item => {
+    const hay = `${item.item || ''} ${item.description || ''} ${getItemCategory(item)}`.toLowerCase();
+    const cat = getItemCategory(item).toUpperCase();
+    return hay.includes(search) && (!category || cat === category) && (status === 'SEMUA' || String(item.status || '').toUpperCase() === status);
+  });
+}
+
+function sgBuildRekapKategori(rows) {
+  const map = {};
+  let totalStock = 0, totalAman = 0, totalMenipis = 0, totalHabis = 0;
+  rows.forEach(item => {
+    const kat = getItemCategory(item) || 'TANPA KATEGORI';
+    if (!map[kat]) map[kat] = { kategori: kat, totalItem: 0, totalStock: 0, aman: 0, menipis: 0, habis: 0 };
+    const r = map[kat];
+    r.totalItem += 1;
+    const stockVal = Number(item.stock || 0);
+    r.totalStock += stockVal;
+    totalStock += stockVal;
+    const st = String(item.status || '').toUpperCase();
+    if (st === 'AMAN') { r.aman++; totalAman++; }
+    else if (st === 'MENIPIS') { r.menipis++; totalMenipis++; }
+    else if (st === 'HABIS') { r.habis++; totalHabis++; }
+  });
+  const ringkasan = Object.values(map).sort((a, b) => a.kategori.localeCompare(b.kategori));
+  return { ringkasan, totalStock, totalAman, totalMenipis, totalHabis };
+}
+
+async function exportStockRekap(format, useFilter, btnEl) {
+  const label = format === 'xlsx' ? 'Excel' : 'Word';
+
+  if (!Array.isArray(stockData) || !stockData.length) {
+    alert('Data stock belum tersedia / masih dimuat. Silakan coba lagi sesaat lagi.');
+    return;
+  }
+
+  const rowsRaw = useFilter ? sgGetFilteredStockData() : stockData.slice();
+  if (!rowsRaw.length) {
+    alert('Tidak ada data stock yang cocok untuk diunduh.');
+    return;
+  }
+
+  const rows = rowsRaw.slice().sort((a, b) => {
+    const ca = getItemCategory(a).toUpperCase();
+    const cb = getItemCategory(b).toUpperCase();
+    if (ca !== cb) return ca.localeCompare(cb);
+    return String(a.item || '').localeCompare(String(b.item || ''));
+  });
+
+  const { ringkasan, totalStock, totalAman, totalMenipis, totalHabis } = sgBuildRekapKategori(rows);
+
+  const now = new Date();
+  const meta = {
+    tanggal: now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
+    jam: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+    totalItem: rows.length,
+    totalStock, totalAman, totalMenipis, totalHabis,
+    cakupan: useFilter
+      ? 'Cakupan: sesuai filter yang sedang aktif pada halaman Semua Stock Gudang'
+      : 'Cakupan: seluruh data stock gudang'
+  };
+
+  const originalHtml = btnEl ? btnEl.innerHTML : null;
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i><span>Menyiapkan...</span>`;
+  }
+
+  try {
+    if (format === 'xlsx') {
+      await sgDownloadStockXlsx(rows, ringkasan, meta);
+    } else {
+      await sgDownloadStockDocx(rows, ringkasan, meta);
+    }
+  } catch (err) {
+    console.error('Gagal membuat laporan rekap stock:', err);
+    alert('Gagal membuat laporan ' + label + '. Pastikan koneksi internet stabil (library diambil dari CDN) lalu coba lagi.\n\nDetail: ' + (err && err.message ? err.message : err));
+  } finally {
+    if (btnEl && originalHtml !== null) {
+      btnEl.disabled = false;
+      btnEl.innerHTML = originalHtml;
+    }
+  }
+}
+
+function sgSaveBlobAsFile(blob, filename) {
+  if (typeof saveAs === 'function') {
+    saveAs(blob, filename);
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+async function sgDownloadStockXlsx(rows, ringkasan, meta) {
+  if (typeof ExcelJS === 'undefined') {
+    alert('Library ExcelJS belum termuat (butuh koneksi internet). Silakan muat ulang halaman lalu coba lagi.');
+    return;
+  }
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Sistem Internal - Dashboard Admin';
+  wb.created = new Date();
+
+  /* ---------- SHEET 1: RINGKASAN ---------- */
+  const wsSum = wb.addWorksheet('Ringkasan');
+  wsSum.mergeCells('A1:F1');
+  wsSum.getCell('A1').value = 'LAPORAN REKAP STOCK GUDANG';
+  wsSum.getCell('A1').font = { bold: true, size: 16, color: { argb: 'FF0F172A' } };
+
+  wsSum.mergeCells('A2:F2');
+  wsSum.getCell('A2').value = `Diunduh pada ${meta.tanggal}, pukul ${meta.jam}`;
+  wsSum.getCell('A2').font = { italic: true, size: 10, color: { argb: 'FF64748B' } };
+
+  wsSum.mergeCells('A3:F3');
+  wsSum.getCell('A3').value = meta.cakupan;
+  wsSum.getCell('A3').font = { size: 10, color: { argb: 'FF64748B' } };
+
+  let r = 5;
+  wsSum.getCell(`A${r}`).value = 'RINGKASAN UMUM';
+  wsSum.getCell(`A${r}`).font = { bold: true, size: 12, color: { argb: 'FF0F172A' } };
+  r++;
+  [
+    ['Total Item', meta.totalItem],
+    ['Total Stock (unit)', meta.totalStock],
+    ['Status Aman', meta.totalAman],
+    ['Status Menipis', meta.totalMenipis],
+    ['Status Habis', meta.totalHabis],
+  ].forEach(([labelTxt, val]) => {
+    wsSum.getCell(`A${r}`).value = labelTxt;
+    wsSum.getCell(`A${r}`).font = { bold: true, color: { argb: 'FF334155' } };
+    wsSum.getCell(`B${r}`).value = val;
+    wsSum.getCell(`B${r}`).alignment = { horizontal: 'left' };
+    r++;
+  });
+
+  r += 1;
+  wsSum.getCell(`A${r}`).value = 'REKAP PER KATEGORI';
+  wsSum.getCell(`A${r}`).font = { bold: true, size: 12, color: { argb: 'FF0F172A' } };
+  r++;
+
+  const sumHeaderRow = r;
+  ['Kategori', 'Total Item', 'Total Stock', 'Aman', 'Menipis', 'Habis'].forEach((h, i) => {
+    const cell = wsSum.getCell(sumHeaderRow, i + 1);
+    cell.value = h;
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+  });
+  r++;
+
+  ringkasan.forEach((row, idx) => {
+    wsSum.getCell(r, 1).value = row.kategori;
+    wsSum.getCell(r, 2).value = row.totalItem;
+    wsSum.getCell(r, 3).value = row.totalStock;
+    wsSum.getCell(r, 4).value = row.aman;
+    wsSum.getCell(r, 5).value = row.menipis;
+    wsSum.getCell(r, 6).value = row.habis;
+    for (let c = 1; c <= 6; c++) {
+      const cell = wsSum.getCell(r, c);
+      cell.border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
+      if (c >= 2) cell.alignment = { horizontal: 'center' };
+      if (idx % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+    }
+    r++;
+  });
+
+  wsSum.columns = [{ width: 28 }, { width: 13 }, { width: 13 }, { width: 10 }, { width: 10 }, { width: 10 }];
+
+  /* ---------- SHEET 2: DETAIL STOCK ---------- */
+  const wsDet = wb.addWorksheet('Detail Stock');
+  wsDet.mergeCells('A1:H1');
+  wsDet.getCell('A1').value = 'DETAIL STOCK GUDANG';
+  wsDet.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF0F172A' } };
+
+  wsDet.mergeCells('A2:H2');
+  wsDet.getCell('A2').value = `${meta.cakupan} • Diunduh ${meta.tanggal}, ${meta.jam}`;
+  wsDet.getCell('A2').font = { italic: true, size: 10, color: { argb: 'FF64748B' } };
+
+  const detHeaderRow = 4;
+  ['No', 'Kode Item', 'Nama Barang', 'Kategori', 'UOM', 'Stock', 'Minimum', 'Status'].forEach((h, i) => {
+    const cell = wsDet.getCell(detHeaderRow, i + 1);
+    cell.value = h;
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4F46E5' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+  });
+
+  const statusColor = { AMAN: 'FF15803D', MENIPIS: 'FFB45309', HABIS: 'FFB91C1C' };
+  rows.forEach((item, idx) => {
+    const rowIdx = detHeaderRow + 1 + idx;
+    const st = String(item.status || '-').toUpperCase();
+    wsDet.getCell(rowIdx, 1).value = idx + 1;
+    wsDet.getCell(rowIdx, 2).value = item.item || '-';
+    wsDet.getCell(rowIdx, 3).value = item.description || '-';
+    wsDet.getCell(rowIdx, 4).value = getItemCategory(item) || '-';
+    wsDet.getCell(rowIdx, 5).value = item.uom || '-';
+    wsDet.getCell(rowIdx, 6).value = Number(item.stock || 0);
+    wsDet.getCell(rowIdx, 7).value = Number(item.minimum || 0);
+    wsDet.getCell(rowIdx, 8).value = st;
+    wsDet.getCell(rowIdx, 8).font = { bold: true, color: { argb: statusColor[st] || 'FF334155' } };
+
+    for (let c = 1; c <= 8; c++) {
+      const cell = wsDet.getCell(rowIdx, c);
+      cell.border = { bottom: { style: 'thin', color: { argb: 'FFF1F5F9' } } };
+      if (c === 1 || c === 5 || c === 6 || c === 7 || c === 8) cell.alignment = { horizontal: 'center' };
+      if (idx % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+    }
+  });
+
+  wsDet.columns = [{ width: 6 }, { width: 16 }, { width: 36 }, { width: 18 }, { width: 8 }, { width: 11 }, { width: 11 }, { width: 12 }];
+  wsDet.views = [{ state: 'frozen', ySplit: detHeaderRow }];
+  wsDet.autoFilter = { from: { row: detHeaderRow, column: 1 }, to: { row: detHeaderRow, column: 8 } };
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const stamp = new Date().toISOString().slice(0, 10);
+  sgSaveBlobAsFile(blob, `Rekap_Stock_Gudang_${stamp}.xlsx`);
+}
+
+async function sgDownloadStockDocx(rows, ringkasan, meta) {
+  if (typeof docx === 'undefined') {
+    alert('Library docx belum termuat (butuh koneksi internet). Silakan muat ulang halaman lalu coba lagi.');
+    return;
+  }
+
+  const {
+    Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+    WidthType, AlignmentType, HeadingLevel, PageOrientation
+  } = docx;
+
+  function headCell(text, width) {
+    return new TableCell({
+      width: { size: width, type: WidthType.PERCENTAGE },
+      shading: { fill: '0F172A' },
+      children: [new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text, bold: true, color: 'FFFFFF', size: 18 })]
+      })]
+    });
+  }
+
+  function bodyCell(text, opts) {
+    opts = opts || {};
+    return new TableCell({
+      shading: opts.shade ? { fill: 'F8FAFC' } : undefined,
+      children: [new Paragraph({
+        alignment: opts.center ? AlignmentType.CENTER : AlignmentType.LEFT,
+        children: [new TextRun({
+          text: String(text === undefined || text === null || text === '' ? '-' : text),
+          size: 18,
+          bold: !!opts.bold,
+          color: opts.color || undefined
+        })]
+      })]
+    });
+  }
+
+  const ringkasanTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        children: [
+          headCell('Kategori', 28), headCell('Total Item', 18), headCell('Total Stock', 18),
+          headCell('Aman', 12), headCell('Menipis', 12), headCell('Habis', 12)
+        ]
+      }),
+      ...ringkasan.map((row, idx) => new TableRow({
+        children: [
+          bodyCell(row.kategori, { shade: idx % 2 === 1 }),
+          bodyCell(row.totalItem, { center: true, shade: idx % 2 === 1 }),
+          bodyCell(row.totalStock, { center: true, shade: idx % 2 === 1 }),
+          bodyCell(row.aman, { center: true, shade: idx % 2 === 1 }),
+          bodyCell(row.menipis, { center: true, shade: idx % 2 === 1 }),
+          bodyCell(row.habis, { center: true, shade: idx % 2 === 1 })
+        ]
+      }))
+    ]
+  });
+
+  const statusColorMap = { AMAN: '15803D', MENIPIS: 'B45309', HABIS: 'B91C1C' };
+  const detailHeader = new TableRow({
+    children: [
+      headCell('No', 6), headCell('Kode Item', 14), headCell('Nama Barang', 30),
+      headCell('Kategori', 16), headCell('UOM', 8), headCell('Stock', 10),
+      headCell('Min', 8), headCell('Status', 10)
+    ]
+  });
+
+  const detailRows = rows.map((item, idx) => {
+    const st = String(item.status || '-').toUpperCase();
+    const shade = idx % 2 === 1;
+    return new TableRow({
+      children: [
+        bodyCell(idx + 1, { center: true, shade }),
+        bodyCell(item.item || '-', { shade }),
+        bodyCell(item.description || '-', { shade }),
+        bodyCell(getItemCategory(item) || '-', { shade }),
+        bodyCell(item.uom || '-', { center: true, shade }),
+        bodyCell(Number(item.stock || 0).toLocaleString('id-ID'), { center: true, shade }),
+        bodyCell(Number(item.minimum || 0).toLocaleString('id-ID'), { center: true, shade }),
+        bodyCell(st, { center: true, shade, bold: true, color: statusColorMap[st] || '334155' })
+      ]
+    });
+  });
+
+  const detailTable = new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [detailHeader, ...detailRows] });
+
+  const doc = new Document({
+    sections: [{
+      properties: { page: { size: { orientation: PageOrientation.LANDSCAPE } } },
+      children: [
+        new Paragraph({ children: [new TextRun({ text: 'LAPORAN REKAP STOCK GUDANG', bold: true, size: 32, color: '0F172A' })] }),
+        new Paragraph({ children: [new TextRun({ text: `Diunduh pada ${meta.tanggal}, pukul ${meta.jam}`, italics: true, size: 18, color: '64748B' })] }),
+        new Paragraph({ children: [new TextRun({ text: meta.cakupan, size: 18, color: '64748B' })], spacing: { after: 200 } }),
+        new Paragraph({
+          children: [new TextRun({
+            text: `Total Item: ${meta.totalItem}   •   Total Stock: ${meta.totalStock.toLocaleString('id-ID')}   •   Aman: ${meta.totalAman}   •   Menipis: ${meta.totalMenipis}   •   Habis: ${meta.totalHabis}`,
+            bold: true, size: 20
+          })],
+          spacing: { after: 300 }
+        }),
+        new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: 'Rekap per Kategori', bold: true, size: 24 })], spacing: { before: 200, after: 150 } }),
+        ringkasanTable,
+        new Paragraph({ text: '', spacing: { after: 300 } }),
+        new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: 'Detail Stock per Item', bold: true, size: 24 })], spacing: { before: 200, after: 150 } }),
+        detailTable
+      ]
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const stamp = new Date().toISOString().slice(0, 10);
+  sgSaveBlobAsFile(blob, `Rekap_Stock_Gudang_${stamp}.docx`);
+}
 </script>
 <!-- =========================================================
      JADWAL 5S — CRUD SUPABASE
