@@ -1905,6 +1905,8 @@ const HEADER_SUBTITLE = {
           statusEdit: normalizeStatus(getField(item, 'Status Edit', 'Status_Edit', 'status_edit')),
           editor: getField(item, 'Editor', 'editor'),
           judul,
+          transkrip: getField(item, 'Transkrip', 'transkrip', 'Link Transkrip', 'Link_Transkrip', 'link_transkrip'),
+          skenario: getField(item, 'Skenario', 'skenario', 'Link Skenario', 'Link_Skenario', 'link_skenario'),
           dueDate: getField(item, 'Due Date', 'Due_Date', 'due_date'),
           targetUpload: getField(item, 'Target Upload', 'Target_Upload', 'target_upload'),
           statusUpload: getField(item, 'Status Upload', 'Status_Upload', 'status_upload'),
@@ -2017,15 +2019,6 @@ const HEADER_SUBTITLE = {
       });
     }
 
-    function getPrioritasEditorAction(item) {
-      const status = String(item.statusEdit || '').trim().toLowerCase();
-      if (status === 'wip') return 1;
-      if (status === 'skenario siap') return 2;
-      if (status === 'transkrip siap') return 3;
-      if (status === 'belum edit') return 4;
-      return 5;
-    }
-
     function renderEditorActionBoard(data) {
       const container = document.getElementById('editor-action-board');
       if (!container) return;
@@ -2062,14 +2055,22 @@ const HEADER_SUBTITLE = {
             return 0;
           });
 
-        // NEXT dipilih dari video yang belum Done, dengan prioritas:
-        // WIP -> Skenario Siap -> Transkrip Siap -> Belum Edit, lalu due date terdekat.
+        /*
+         * NEXT VIDEO ditentukan dari KOLOM SKENARIO, bukan dari Status Edit.
+         * Artinya, video dianggap siap menjadi Next Video jika field Skenario
+         * sudah terisi (biasanya berupa link Google Docs), selama video tersebut
+         * belum sedang WIP dan belum Done.
+         *
+         * Prioritas utama: Skenario terisi -> due date terdekat.
+         * Status Edit tidak dipakai untuk menentukan apakah sebuah video
+         * merupakan Next Video.
+         */
         const nextItems = items
-          .filter(i => i.statusEdit !== 'Done')
+          .filter(i => {
+            const skenario = String(i.skenario || '').trim();
+            return skenario !== '' && i.statusEdit !== 'WIP' && i.statusEdit !== 'Done';
+          })
           .sort((a, b) => {
-            const pa = getPrioritasEditorAction(a);
-            const pb = getPrioritasEditorAction(b);
-            if (pa !== pb) return pa - pb;
             if (a.__due && b.__due) return a.__due - b.__due;
             if (a.__due) return -1;
             if (b.__due) return 1;
@@ -2109,7 +2110,7 @@ const HEADER_SUBTITLE = {
             </div>
             <p class="text-sm font-black text-slate-900 leading-snug line-clamp-3" title="${editorActionEscape(next.judul || '-')}">${editorActionEscape(next.judul || 'Tanpa judul')}</p>
             <div class="flex flex-wrap items-center gap-2 mt-2">
-              <span class="badge-pill ${next.statusEdit === 'Skenario Siap' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : next.statusEdit === 'Transkrip Siap' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">${editorActionEscape(next.statusEdit || 'Belum Edit')}</span>
+              <span class="badge-pill bg-indigo-50 text-indigo-700 border border-indigo-200">SKENARIO SIAP</span>
               <span class="text-[10px] font-bold ${next.__due && next.__due < new Date() ? 'text-rose-600' : 'text-slate-500'}">${next.__due ? `Due ${editorActionEscape(formatTanggalEditorAction(next.__due))}` : 'Tanpa due date'}</span>
             </div>
           </div>` : `
@@ -2340,21 +2341,45 @@ const HEADER_SUBTITLE = {
     let weeklyPeriodList = [];
     let selectedWeeklyPeriodIndex = 0;
 
-    function getAwalAkhirMinggu(refDate) {
+    /*
+     * PERIODE TARGET MINGGUAN EDITOR
+     * Periode tidak mengikuti Senin-Minggu.
+     * Setiap bulan dibagi menjadi:
+     * 1-7, 8-14, 15-21, 22-28, dan 29-sampai-akhir-bulan.
+     */
+    function getPeriodeTargetMingguan(refDate) {
       const d = new Date(refDate);
-      d.setHours(0, 0, 0, 0);
-      const hari = d.getDay();
-      const offsetKeSenin = hari === 0 ? -6 : 1 - hari;
+      if (isNaN(d)) return null;
 
-      const senin = new Date(d);
-      senin.setDate(d.getDate() + offsetKeSenin);
-      senin.setHours(0, 0, 0, 0);
+      const tahun = d.getFullYear();
+      const bulan = d.getMonth();
+      const tanggal = d.getDate();
 
-      const minggu = new Date(senin);
-      minggu.setDate(senin.getDate() + 6);
-      minggu.setHours(23, 59, 59, 999);
+      let awalTanggal;
+      if (tanggal <= 7) awalTanggal = 1;
+      else if (tanggal <= 14) awalTanggal = 8;
+      else if (tanggal <= 21) awalTanggal = 15;
+      else if (tanggal <= 28) awalTanggal = 22;
+      else awalTanggal = 29;
 
-      return { senin, minggu };
+      const akhirTanggal = awalTanggal === 29
+        ? new Date(tahun, bulan + 1, 0).getDate()
+        : Math.min(awalTanggal + 6, new Date(tahun, bulan + 1, 0).getDate());
+
+      const awal = new Date(tahun, bulan, awalTanggal, 0, 0, 0, 0);
+      const akhir = new Date(tahun, bulan, akhirTanggal, 23, 59, 59, 999);
+
+      return {
+        awal,
+        akhir,
+        tahun,
+        bulan,
+        periodeKe: awalTanggal === 1 ? 1
+          : awalTanggal === 8 ? 2
+          : awalTanggal === 15 ? 3
+          : awalTanggal === 22 ? 4
+          : 5
+      };
     }
 
     function formatTglSingkat(d) {
@@ -2362,12 +2387,12 @@ const HEADER_SUBTITLE = {
     }
 
     function formatPeriodeMinggu(periode) {
-      const awal = periode.senin.toLocaleDateString('id-ID', {
+      const awal = periode.awal.toLocaleDateString('id-ID', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'
       });
-      const akhir = periode.minggu.toLocaleDateString('id-ID', {
+      const akhir = periode.akhir.toLocaleDateString('id-ID', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'
@@ -2376,33 +2401,84 @@ const HEADER_SUBTITLE = {
     }
 
     function getKunciMinggu(d) {
-      const { senin } = getAwalAkhirMinggu(d);
-      return senin.getFullYear() + '-' +
-        String(senin.getMonth() + 1).padStart(2, '0') + '-' +
-        String(senin.getDate()).padStart(2, '0');
+      const periode = getPeriodeTargetMingguan(d);
+      if (!periode) return '';
+      return periode.tahun + '-' +
+        String(periode.bulan + 1).padStart(2, '0') + '-P' +
+        periode.periodeKe;
     }
 
     function buatDaftarPeriodeMinggu(data) {
       const periodeMap = new Map();
+      const sekarang = new Date();
+      const periodeSekarang = getPeriodeTargetMingguan(sekarang);
 
-      // Selalu masukkan minggu berjalan agar dashboard tetap memiliki periode aktif.
-      const mingguSekarang = getAwalAkhirMinggu(new Date());
-      periodeMap.set(getKunciMinggu(mingguSekarang.senin), mingguSekarang);
+      // Selalu tampilkan periode aktif.
+      if (periodeSekarang) {
+        periodeMap.set(getKunciMinggu(periodeSekarang.awal), periodeSekarang);
+      }
 
-      // Buat periode berdasarkan semua due date yang ada di database.
-      data.forEach(item => {
-        const due = parseTanggalDue(item.dueDate);
-        if (!due) return;
+      /*
+       * Buat semua periode 1-7, 8-14, 15-21, 22-28, 29-akhir
+       * dari bulan paling awal sampai bulan paling akhir yang tersedia.
+       * Dengan begitu periode kosong tetap muncul dan bisa dinilai
+       * sebagai "Target Tidak Tercapai".
+       */
+      const tanggalData = (data || [])
+        .map(item => parseTanggalDue(item.dueDate))
+        .filter(d => d && !isNaN(d.getTime()));
 
-        const periode = getAwalAkhirMinggu(due);
-        const key = getKunciMinggu(periode.senin);
+      let mulai = periodeSekarang ? new Date(periodeSekarang.tahun, periodeSekarang.bulan, 1) : new Date();
+      let selesai = mulai;
 
-        if (!periodeMap.has(key)) {
-          periodeMap.set(key, periode);
-        }
-      });
+      if (tanggalData.length) {
+        const minDate = new Date(Math.min(...tanggalData.map(d => d.getTime())));
+        const maxDate = new Date(Math.max(...tanggalData.map(d => d.getTime())));
 
-      return Array.from(periodeMap.values()).sort((a, b) => b.senin - a.senin);
+        const bulanMulai = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+        const bulanSelesai = new Date(
+          Math.max(maxDate.getFullYear(), sekarang.getFullYear()),
+          Math.max(
+            maxDate.getFullYear() === sekarang.getFullYear() ? maxDate.getMonth() : 0,
+            sekarang.getMonth()
+          ),
+          1
+        );
+
+        mulai = bulanMulai < mulai ? bulanMulai : mulai;
+        selesai = bulanSelesai > selesai ? bulanSelesai : selesai;
+      }
+
+      const cursor = new Date(mulai.getFullYear(), mulai.getMonth(), 1);
+      const endMonth = new Date(selesai.getFullYear(), selesai.getMonth(), 1);
+
+      while (cursor <= endMonth) {
+        const tahun = cursor.getFullYear();
+        const bulan = cursor.getMonth();
+        const jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
+
+        const batasAwal = [1, 8, 15, 22, 29].filter(d => d <= jumlahHari);
+
+        batasAwal.forEach((awalTanggal, idx) => {
+          const akhirTanggal = idx === batasAwal.length - 1
+            ? jumlahHari
+            : Math.min(awalTanggal + 6, jumlahHari);
+
+          const periode = {
+            awal: new Date(tahun, bulan, awalTanggal, 0, 0, 0, 0),
+            akhir: new Date(tahun, bulan, akhirTanggal, 23, 59, 59, 999),
+            tahun,
+            bulan,
+            periodeKe: idx + 1
+          };
+
+          periodeMap.set(getKunciMinggu(periode.awal), periode);
+        });
+
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+
+      return Array.from(periodeMap.values()).sort((a, b) => b.awal - a.awal);
     }
 
     function populateWeeklyPeriodSelect(data) {
@@ -2410,26 +2486,25 @@ const HEADER_SUBTITLE = {
       if (!select) return;
 
       const previousKey = weeklyPeriodList[selectedWeeklyPeriodIndex]
-        ? getKunciMinggu(weeklyPeriodList[selectedWeeklyPeriodIndex].senin)
+        ? getKunciMinggu(weeklyPeriodList[selectedWeeklyPeriodIndex].awal)
         : getKunciMinggu(new Date());
 
       weeklyPeriodList = buatDaftarPeriodeMinggu(data);
 
       if (!weeklyPeriodList.length) {
-        select.innerHTML = '<option value="">Belum ada periode minggu</option>';
+        select.innerHTML = '<option value="">Belum ada periode target</option>';
         selectedWeeklyPeriodIndex = 0;
         return;
       }
 
       let index = weeklyPeriodList.findIndex(
-        p => getKunciMinggu(p.senin) === previousKey
+        p => getKunciMinggu(p.awal) === previousKey
       );
 
-      // Jika periode sebelumnya tidak lagi ada, tampilkan minggu berjalan.
       if (index === -1) {
         const currentKey = getKunciMinggu(new Date());
         index = weeklyPeriodList.findIndex(
-          p => getKunciMinggu(p.senin) === currentKey
+          p => getKunciMinggu(p.awal) === currentKey
         );
       }
 
@@ -2438,25 +2513,21 @@ const HEADER_SUBTITLE = {
 
       select.innerHTML = weeklyPeriodList.map((periode, idx) => {
         const sekarang = idx === selectedWeeklyPeriodIndex;
-        const { senin, minggu } = periode;
-        const monthYear = senin.toLocaleDateString('id-ID', {
+        const monthYear = periode.awal.toLocaleDateString('id-ID', {
           month: 'long',
           year: 'numeric'
         });
 
-        return `<option value="${getKunciMinggu(senin)}" ${sekarang ? 'selected' : ''}>
+        return `<option value="${getKunciMinggu(periode.awal)}" ${sekarang ? 'selected' : ''}>
           ${formatPeriodeMinggu(periode)} • ${monthYear}
         </option>`;
       }).join('');
     }
 
     function getStatusPeriodeMinggu(periode) {
-      const sekarang = getAwalAkhirMinggu(new Date());
-      const key = getKunciMinggu(periode.senin);
-      const keySekarang = getKunciMinggu(sekarang.senin);
-
-      if (key < keySekarang) return 'past';
-      if (key > keySekarang) return 'future';
+      const sekarang = new Date();
+      if (sekarang < periode.awal) return 'future';
+      if (sekarang > periode.akhir) return 'past';
       return 'current';
     }
 
@@ -2470,12 +2541,11 @@ const HEADER_SUBTITLE = {
 
       if (!container || !labelEl) return;
 
-      // Riwayat minggu menggunakan data global, bukan data yang sudah terkena Filter Bulan.
-      // Filter Editor tetap berlaku supaya editor dapat melihat target dirinya sendiri.
+      // Riwayat target memakai seluruh data, bukan Filter Bulan.
       populateWeeklyPeriodSelect(listPlanningGlobal);
 
       if (!weeklyPeriodList.length) {
-        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada periode minggu yang bisa dihitung.</p>';
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada periode target yang bisa dihitung.</p>';
         labelEl.innerText = 'Belum ada periode';
         if (monthEl) monthEl.innerText = '-';
         return;
@@ -2485,19 +2555,17 @@ const HEADER_SUBTITLE = {
       const statusPeriode = getStatusPeriodeMinggu(periode);
 
       labelEl.innerText = statusPeriode === 'current'
-        ? `Minggu ini: ${formatPeriodeMinggu(periode)}`
+        ? `Periode ini: ${formatPeriodeMinggu(periode)}`
         : `Riwayat: ${formatPeriodeMinggu(periode)}`;
 
       if (monthEl) {
-        monthEl.innerText = periode.senin.toLocaleDateString('id-ID', {
+        monthEl.innerText = periode.awal.toLocaleDateString('id-ID', {
           month: 'long',
           year: 'numeric'
         });
       }
 
-      if (select) {
-        select.value = getKunciMinggu(periode.senin);
-      }
+      if (select) select.value = getKunciMinggu(periode.awal);
 
       if (prevBtn) {
         prevBtn.disabled = selectedWeeklyPeriodIndex >= weeklyPeriodList.length - 1;
@@ -2513,12 +2581,10 @@ const HEADER_SUBTITLE = {
 
       const editorFilter = document.getElementById('filter-editor')?.value || 'all';
 
-      // Ambil semua editor dari seluruh data agar editor yang tidak mencapai target
-      // tetap muncul dengan nilai 0.
       let namaEditorSet = new Set(
         listPlanningGlobal
           .map(i => i.editor)
-          .filter(e => e && e.toLowerCase() !== 'all editor')
+          .filter(e => e && String(e).toLowerCase() !== 'all editor')
       );
 
       if (editorFilter !== 'all') {
@@ -2526,7 +2592,7 @@ const HEADER_SUBTITLE = {
       }
 
       if (namaEditorSet.size === 0) {
-        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung target mingguannya.</p>';
+        container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6 col-span-full">Belum ada editor yang bisa dihitung targetnya.</p>';
         return;
       }
 
@@ -2539,7 +2605,7 @@ const HEADER_SUBTITLE = {
           const due = parseTanggalDue(item.dueDate);
           if (!due) return false;
 
-          return due >= periode.senin && due <= periode.minggu;
+          return due >= periode.awal && due <= periode.akhir;
         }).length;
 
         const wipMinggu = listPlanningGlobal.filter(item => {
@@ -2548,7 +2614,7 @@ const HEADER_SUBTITLE = {
           const due = parseTanggalDue(item.dueDate);
           if (!due) return false;
 
-          return due >= periode.senin && due <= periode.minggu;
+          return due >= periode.awal && due <= periode.akhir;
         }).length;
 
         const tercapai = doneMinggu >= TARGET_MINGGUAN_EDITOR;
@@ -2596,7 +2662,7 @@ const HEADER_SUBTITLE = {
                 ${escapeHtml(editorName)}
               </p>
               <span class="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 whitespace-nowrap">
-                ${statusPeriode === 'past' ? 'Minggu lalu' : statusPeriode === 'current' ? 'Aktif' : 'Mendatang'}
+                ${statusPeriode === 'past' ? 'Periode lalu' : statusPeriode === 'current' ? 'Aktif' : 'Mendatang'}
               </span>
             </div>
 
@@ -2641,12 +2707,12 @@ const HEADER_SUBTITLE = {
     });
 
     document.getElementById('weekly-prev-btn')?.addEventListener('click', () => {
-      // Array diurutkan terbaru -> terlama.
+      // Array diurutkan periode terbaru -> terlama.
       ubahPeriodeWeeklyTarget(1);
     });
 
     document.getElementById('weekly-next-btn')?.addEventListener('click', () => {
-      // Kembali menuju minggu yang lebih baru.
+      // Kembali menuju periode yang lebih baru.
       ubahPeriodeWeeklyTarget(-1);
     });
 
