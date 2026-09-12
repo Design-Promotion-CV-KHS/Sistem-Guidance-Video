@@ -823,6 +823,15 @@
             background: #fff;
         }
 
+        /* Perbaikan: selector ID di atas (display:block) punya spesifisitas
+           lebih tinggi dari class .hidden, jadi class "hidden" saja tidak
+           cukup untuk menyembunyikan iframe. Aturan di bawah ini menaikkan
+           spesifisitas khusus untuk kondisi hidden, supaya iframe benar-benar
+           hilang dan tidak menutupi panel daftar (mis. saat poin 7 dibuka). */
+        #panduan-iframe.hidden {
+            display: none;
+        }
+
         #panduan-sublist-panel {
             width: 100%;
             height: 100%;
