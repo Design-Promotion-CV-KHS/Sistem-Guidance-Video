@@ -748,6 +748,7 @@
         #tab-carousel-crud .pc-table td { padding:12px 14px; border-bottom:1px solid #eef2f7; vertical-align:top; font-size:12px; color:#334155; background:#fff; }
         #tab-carousel-crud .pc-table tbody tr:hover td { background:#fafbff; }
         #tab-carousel-crud .pc-col-tema { min-width:220px; max-width:260px; }
+        #tab-carousel-crud .pc-col-editor { min-width:130px; max-width:150px; }
         #tab-carousel-crud .pc-col-copy, #tab-carousel-crud .pc-col-visual { min-width:280px; max-width:320px; }
         #tab-carousel-crud .pc-col-slide { min-width:220px; max-width:260px; }
         #tab-carousel-crud .pc-slide-group { min-width:440px; }
@@ -3585,6 +3586,15 @@
                         </select>
                     </div>
                 </div>
+                <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center shrink-0"><i class="fas fa-user text-xs"></i></div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-extrabold text-fuchsia-600 uppercase tracking-widest">Editor</label>
+                        <select id="pc-filter-editor" class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                            <option value="all">Semua Editor</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 flex-1 min-w-[220px]">
                     <div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><i class="fas fa-search text-xs"></i></div>
                     <div class="flex flex-col flex-1">
@@ -3606,6 +3616,7 @@
                             <thead>
                                 <tr>
                                     <th class="py-3 px-5 pc-col-tema pc-rowspan-head" rowspan="2">Tema</th>
+                                    <th class="py-3 px-5 pc-col-editor pc-rowspan-head" rowspan="2">Editor</th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 1</span></th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 2</span></th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span class="pc-slide-group-label">SLIDE 3</span></th>
@@ -3634,7 +3645,7 @@
                                 </tr>
                             </thead>
                             <tbody id="pc-crud-body">
-                                <tr><td colspan="24" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
+                                <tr><td colspan="25" class="text-center py-10 text-slate-400">Memuat data dari database...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -4629,11 +4640,25 @@
             <form class="p-6 space-y-5" id="pc-crud-form">
                 <input id="pc-crud-field-id" type="hidden" />
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema *</label>
                         <input id="pc-crud-field-tema" required type="text" placeholder="Contoh: Tips Perawatan Mesin"
                             class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Editor</label>
+                        <select id="pc-crud-field-editor" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                            <option value="">- Pilih Editor -</option>
+                            <option value="Rinal">Rinal</option>
+                            <option value="Syukri">Syukri</option>
+                            <option value="Ridan">Ridan</option>
+                            <option value="Rega">Rega</option>
+                            <option value="Bayu">Bayu</option>
+                            <option value="Rafqi">Rafqi</option>
+                            <option value="Iis">Iis</option>
+                            <option value="Munir">Munir</option>
+                        </select>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Status *</label>
@@ -6274,6 +6299,7 @@
         const NAMA_TABEL_CAROUSEL = 'Planning_Carousel';
         const CAROUSEL_STATUSES = ['Undone', 'WIP', 'Done'];
         const CAROUSEL_SLIDE_COUNT = 10;
+        const CAROUSEL_EDITORS = ['Rinal', 'Syukri', 'Ridan', 'Rega', 'Bayu', 'Rafqi', 'Iis', 'Munir'];
         const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
         const SUPABASE_STORAGE_BUCKET = 'customer-profile-files';
         const NAMA_TABEL_RISET_PROMOSI = 'Riset_Promosi';
@@ -10168,6 +10194,7 @@ function edNormalisasiNamaKolom(k) {
             const form = document.getElementById('pc-crud-form');
             if (form) form.reset();
             document.getElementById('pc-crud-field-id').value = '';
+            document.getElementById('pc-crud-field-editor').value = '';
             document.getElementById('pc-crud-field-status').value = 'Undone';
             document.getElementById('pc-crud-form-error').classList.add('hidden');
             document.getElementById('pc-crud-form-error').textContent = '';
@@ -10190,6 +10217,7 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('pc-crud-modal-title').textContent = 'Edit Planning Carousel';
             document.getElementById('pc-crud-field-id').value = item.id;
             document.getElementById('pc-crud-field-tema').value = item.tema || '';
+            setSelectValueEnsureOption(document.getElementById('pc-crud-field-editor'), item.editor || '');
             document.getElementById('pc-crud-field-caption').value = item.caption || '';
             document.getElementById('pc-crud-field-status').value = CAROUSEL_STATUSES.includes(item.status) ? item.status : 'Undone';
             const slideValues = {};
@@ -10208,7 +10236,7 @@ function edNormalisasiNamaKolom(k) {
             const banner = document.getElementById('pc-diagnostic-banner');
             const message = document.getElementById('pc-diagnostic-message');
             if (banner) banner.classList.add('hidden');
-            tbody.innerHTML = '<tr><td colspan="16" class="text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data dari database...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="25" class="text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data dari database...</td></tr>';
 
             try {
                 if (!window.db) throw new Error('Koneksi Supabase tidak tersedia.');
@@ -10218,11 +10246,12 @@ function edNormalisasiNamaKolom(k) {
                     .order('created_at', { ascending: false });
                 if (error) throw error;
                 pcListGlobal = Array.isArray(data) ? data : [];
+                pcPopulateFilterEditor();
                 pcRenderTable();
             } catch (error) {
                 console.error('[Planning Carousel] Gagal memuat:', error);
                 pcListGlobal = [];
-                tbody.innerHTML = '<tr><td colspan="16" class="text-center py-10 text-rose-500 font-semibold">Gagal memuat data Planning Carousel.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="25" class="text-center py-10 text-rose-500 font-semibold">Gagal memuat data Planning Carousel.</td></tr>';
                 if (banner && message) {
                     message.textContent = error?.message || String(error);
                     banner.classList.remove('hidden');
@@ -10230,16 +10259,27 @@ function edNormalisasiNamaKolom(k) {
             }
         }
 
+        function pcPopulateFilterEditor() {
+            const select = document.getElementById('pc-filter-editor');
+            if (!select) return;
+            const current = select.value || 'all';
+            select.innerHTML = '<option value="all">Semua Editor</option>' + CAROUSEL_EDITORS.map(e => `<option value="${pcEscapeHtml(e)}">${pcEscapeHtml(e)}</option>`).join('');
+            if (CAROUSEL_EDITORS.includes(current)) select.value = current;
+        }
+
         function pcRenderTable() {
             const tbody = document.getElementById('pc-crud-body');
             if (!tbody) return;
             const search = String(document.getElementById('pc-filter-search')?.value || '').trim().toLowerCase();
             const statusFilter = String(document.getElementById('pc-filter-status')?.value || 'all');
+            const editorFilter = String(document.getElementById('pc-filter-editor')?.value || 'all');
             const rows = pcListGlobal.filter(row => {
                 const statusOk = statusFilter === 'all' || String(row.status || '') === statusFilter;
                 if (!statusOk) return false;
+                const editorOk = editorFilter === 'all' || String(row.editor || '') === editorFilter;
+                if (!editorOk) return false;
                 if (!search) return true;
-                const haystack = [row.tema, row.caption, row.status,
+                const haystack = [row.tema, row.caption, row.status, row.editor,
                     ...Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [row[`slide_${i + 1}_copywriting`], row[`slide_${i + 1}_visual`]])
                 ].flat().join(' ').toLowerCase();
                 return haystack.includes(search);
@@ -10256,7 +10296,7 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('pc-card-done').textContent = done;
 
             if (!rows.length) {
-                tbody.innerHTML = '<tr><td colspan="24" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="25" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
                 return;
             }
 
@@ -10269,6 +10309,7 @@ function edNormalisasiNamaKolom(k) {
                 return `
                     <tr>
                         <td class="pc-col-tema"><div class="font-extrabold text-slate-900 leading-snug">${pcEscapeHtml(pcText(row.tema))}</div></td>
+                        <td class="pc-col-editor"><div class="font-semibold text-fuchsia-700">${pcEscapeHtml(pcText(row.editor))}</div></td>
                         ${slideCells}
                         <td class="pc-col-caption"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.caption))}</div></td>
                         <td><span class="${pcStatusClass(row.status)}">${pcEscapeHtml(pcText(row.status))}</span></td>
@@ -10302,6 +10343,7 @@ function edNormalisasiNamaKolom(k) {
 
             const payload = {
                 tema,
+                editor: document.getElementById('pc-crud-field-editor').value,
                 caption: document.getElementById('pc-crud-field-caption').value.trim(),
                 status: CAROUSEL_STATUSES.includes(status) ? status : 'Undone'
             };
@@ -10366,6 +10408,7 @@ function edNormalisasiNamaKolom(k) {
         document.getElementById('pc-crud-cancel-btn')?.addEventListener('click', pcTutupModal);
         document.getElementById('pc-crud-form')?.addEventListener('submit', pcSimpanForm);
         document.getElementById('pc-filter-status')?.addEventListener('change', pcRenderTable);
+        document.getElementById('pc-filter-editor')?.addEventListener('change', pcRenderTable);
         document.getElementById('pc-filter-search')?.addEventListener('input', pcRenderTable);
         document.getElementById('pc-crud-modal')?.addEventListener('click', (e) => {
             if (e.target.id === 'pc-crud-modal') pcTutupModal();
