@@ -1339,13 +1339,14 @@
                 <th class="py-3 px-4">Judul Video</th>
                 <th class="py-3 px-4">Produk</th>
                 <th class="py-3 px-4">Tema</th>
+                <th class="py-3 px-4">Brief</th>
                 <th class="py-3 px-4">Editor</th>
                 <th class="py-3 px-4">Status Edit</th>
                 <th class="py-3 px-4 text-right">Aksi</th>
               </tr>
               </thead>
               <tbody id="portrait-body" class="divide-y divide-gray-50 text-gray-700">
-                <tr><td colspan="5" class="text-center py-10 text-gray-400">Memuat data Potrait...</td></tr>
+                <tr><td colspan="7" class="text-center py-10 text-gray-400">Memuat data Potrait...</td></tr>
               </tbody>
             </table>
           </div>
@@ -3447,11 +3448,12 @@ const HEADER_SUBTITLE = {
       set('portrait-page-done', data.filter(i => portraitStatusNormal(i[portraitColumnMap.status]) === 'Done').length);
       const tbody = document.getElementById('portrait-body');
       if (!tbody) return;
-      if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-400">Belum ada video Potrait yang ditugaskan kepada Anda.</td></tr>'; return; }
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-gray-400">Belum ada video Potrait yang ditugaskan kepada Anda.</td></tr>'; return; }
       tbody.innerHTML = data.map(item => `<tr class="hover:bg-gray-50 align-top">
         <td class="py-4 px-4 min-w-[280px]"><div class="font-bold text-slate-800 leading-snug">${portraitEscape(item[portraitColumnMap.judul]) || '-'}</div></td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.produk]) || '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.tema]) || '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-4 px-4 min-w-[240px] max-w-[320px]">${portraitColumnMap.brief && item[portraitColumnMap.brief] ? `<div class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap max-h-24 overflow-y-auto pr-1">${portraitEscape(item[portraitColumnMap.brief])}</div>` : '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.editor]) || '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4 whitespace-nowrap"><span class="badge-pill ${portraitStatusClass(item[portraitColumnMap.status])}">${portraitStatusNormal(item[portraitColumnMap.status]) === 'Belum Edit' ? 'Belum' : portraitStatusNormal(item[portraitColumnMap.status])}</span></td>
         <td class="py-4 px-4 text-right whitespace-nowrap">${portraitStatusButton(item[portraitColumnMap.status], item[portraitColumnMap.id])}</td>
