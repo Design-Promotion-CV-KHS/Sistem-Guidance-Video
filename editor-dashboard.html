@@ -3314,6 +3314,29 @@ const HEADER_SUBTITLE = {
       if (value === null || value === undefined) return '';
       return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
+    // Brief disimpan sebagai link file (PDF/DOCX/JPG/PNG) hasil upload di Planning Potrait admin.
+    // Kalau isinya link, tampilkan sebagai tombol yang langsung membuka filenya di tab baru.
+    function portraitIsFileUrl(value) {
+      return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+    }
+    function portraitFileIconInfo(url) {
+      const clean = url.split('?')[0].toLowerCase();
+      if (clean.endsWith('.pdf')) return { icon: 'fa-file-pdf', label: 'Lihat PDF', color: 'text-rose-600 bg-rose-50 border-rose-200 hover:bg-rose-100' };
+      if (clean.endsWith('.doc') || clean.endsWith('.docx')) return { icon: 'fa-file-word', label: 'Lihat Dokumen', color: 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100' };
+      if (clean.endsWith('.ppt') || clean.endsWith('.pptx')) return { icon: 'fa-file-powerpoint', label: 'Lihat Presentasi', color: 'text-orange-600 bg-orange-50 border-orange-200 hover:bg-orange-100' };
+      if (clean.endsWith('.jpg') || clean.endsWith('.jpeg') || clean.endsWith('.png')) return { icon: 'fa-image', label: 'Lihat Gambar', color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' };
+      return { icon: 'fa-file', label: 'Lihat File', color: 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100' };
+    }
+    function portraitRenderBrief(value) {
+      if (portraitIsFileUrl(value)) {
+        const info = portraitFileIconInfo(value);
+        return `<a href="${portraitEscape(value)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${info.color}"><i class="fas ${info.icon}"></i> ${info.label}</a>`;
+      }
+      if (!value) return '<span class="text-slate-300">-</span>';
+      const text = String(value);
+      const truncated = text.length > 60 ? text.slice(0, 60) + '…' : text;
+      return `<span title="${portraitEscape(text)}" class="text-xs text-slate-500">${portraitEscape(truncated)}</span>`;
+    }
     function portraitStatusNormal(raw) {
       const s = String(raw ?? '').trim().toLowerCase();
       if (s === 'wip') return 'WIP';
@@ -3453,7 +3476,7 @@ const HEADER_SUBTITLE = {
         <td class="py-4 px-4 min-w-[280px]"><div class="font-bold text-slate-800 leading-snug">${portraitEscape(item[portraitColumnMap.judul]) || '-'}</div></td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.produk]) || '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.tema]) || '<span class="text-slate-300">-</span>'}</td>
-        <td class="py-4 px-4 min-w-[240px] max-w-[320px]">${portraitColumnMap.brief && item[portraitColumnMap.brief] ? `<div class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap max-h-24 overflow-y-auto pr-1">${portraitEscape(item[portraitColumnMap.brief])}</div>` : '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-4 px-4 min-w-[160px]">${portraitColumnMap.brief ? portraitRenderBrief(item[portraitColumnMap.brief]) : '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4">${portraitEscape(item[portraitColumnMap.editor]) || '<span class="text-slate-300">-</span>'}</td>
         <td class="py-4 px-4 whitespace-nowrap"><span class="badge-pill ${portraitStatusClass(item[portraitColumnMap.status])}">${portraitStatusNormal(item[portraitColumnMap.status]) === 'Belum Edit' ? 'Belum' : portraitStatusNormal(item[portraitColumnMap.status])}</span></td>
         <td class="py-4 px-4 text-right whitespace-nowrap">${portraitStatusButton(item[portraitColumnMap.status], item[portraitColumnMap.id])}</td>
