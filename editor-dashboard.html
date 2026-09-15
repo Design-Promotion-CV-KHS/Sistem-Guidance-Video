@@ -3290,13 +3290,18 @@ const HEADER_SUBTITLE = {
       }
     }
 
-    // Editor hanya boleh mengubah Status Edit. Alurnya: Belum -> WIP -> Done.
+    // Editor hanya boleh mengubah Status Edit. Alurnya: (siap edit) -> WIP -> Done.
+    // Transisi diselaraskan dengan tombol aksi (renderAksiButton): tombol hanya nonaktif
+    // saat status Done atau Transkrip Siap, jadi validasi di sini tidak boleh lebih ketat
+    // dari itu (sebelumnya hanya menerima status "Skenario Siap" persis, sehingga status
+    // lain yang belum dikerjakan gagal diklik meski tombolnya terlihat aktif).
     async function ubahStatusLandscape(rid, statusBaru) {
       const item = cariRawItem(rid);
-      if (!item || !COLUMN_MAP.statusEdit || statusBaru === 'Done' && normalizeStatus(item[COLUMN_MAP.statusEdit]) === 'Done') return;
+      if (!item || !COLUMN_MAP.statusEdit) return;
       const statusSaatIni = normalizeStatus(item[COLUMN_MAP.statusEdit]);
-      if (statusSaatIni === 'WIP' && statusBaru !== 'Done') return;
-      if (statusSaatIni !== 'WIP' && statusSaatIni !== 'Skenario Siap') return;
+      if (statusSaatIni === 'Done' || statusSaatIni === 'Transkrip Siap') return;
+      if (statusBaru === 'WIP' && statusSaatIni === 'WIP') return;
+      if (statusBaru === 'Done' && statusSaatIni !== 'WIP') return;
       const kriteria = buatKriteriaBaris(item);
       const { data, error } = await db.from(NAMA_TABEL_PLANNING)
         .update({ [COLUMN_MAP.statusEdit]: statusBaru })
