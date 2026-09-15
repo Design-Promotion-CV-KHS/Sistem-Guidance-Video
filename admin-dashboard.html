@@ -3855,10 +3855,11 @@
                         </div>
                         <div>
                             <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nama Editor</label>
-                            <input
-                                class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
-                                id="odp-input-editor" type="text" placeholder="Nama editor yang mengerjakan" list="odp-editor-list" />
-                            <datalist id="odp-editor-list"></datalist>
+                            <select
+                                class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-400"
+                                id="odp-input-editor">
+                                <option value="">- Pilih Editor -</option>
+                            </select>
                         </div>
                     </div>
                     <div>
@@ -6540,6 +6541,7 @@
         const SUPABASE_STORAGE_BUCKET_ORDER_DESAIN = 'order-desain-promosi-files';
         const ODP_ITEM_OPTIONS = ['Banner', 'Spanduk', 'X Banner', 'Roll Banner', 'Sticker Mobil', 'Umbul-umbul', 'Sticker Promosi', 'Kaos Toko Relasi', 'Poster Promosi', 'Kartu Nama', 'Kaos Suvenir', 'Bill Board', 'Lainnya'];
         const ODP_PROGRESS_OPTIONS = ['Belum', 'WIP', 'Proses PP', 'Done'];
+        const ODP_EDITORS = ['Rega', 'Syukri', 'Rinal', 'Ridan', 'Bayu', 'Rafqi', 'Iis', 'Munir'];
         const MASTER_DAFTAR_CABANG = [
             'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
             'Bandar Lampung', 'Palu', 'Makassar', 'Medan'
@@ -10976,19 +10978,13 @@ function edNormalisasiNamaKolom(k) {
         }
 
         function odpPopulateEditorOptions() {
-            const datalist = document.getElementById('odp-editor-list');
+            const modalSelect = document.getElementById('odp-input-editor');
             const filterSelect = document.getElementById('odp-filter-editor');
-            if (!datalist && !filterSelect) return;
-            const editors = Array.from(new Set(odpListGlobal
-                .map(it => (it.nama_editor || it.Nama_Editor || '').trim())
-                .filter(Boolean))).sort();
-            if (datalist) {
-                datalist.innerHTML = editors.map(e => `<option value="${edEscapeHtml(e)}"></option>`).join('');
+            if (modalSelect && modalSelect.options.length <= 1) {
+                modalSelect.innerHTML = '<option value="">- Pilih Editor -</option>' + ODP_EDITORS.map(e => `<option value="${edEscapeHtml(e)}">${edEscapeHtml(e)}</option>`).join('');
             }
-            if (filterSelect) {
-                const currentVal = filterSelect.value || 'all';
-                filterSelect.innerHTML = '<option value="all">Semua Editor</option>' + editors.map(e => `<option value="${edEscapeHtml(e)}">${edEscapeHtml(e)}</option>`).join('');
-                filterSelect.value = editors.includes(currentVal) ? currentVal : 'all';
+            if (filterSelect && filterSelect.options.length <= 1) {
+                filterSelect.innerHTML = '<option value="all">Semua Editor</option>' + ODP_EDITORS.map(e => `<option value="${edEscapeHtml(e)}">${edEscapeHtml(e)}</option>`).join('');
             }
         }
 
