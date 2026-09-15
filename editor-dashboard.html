@@ -3207,8 +3207,8 @@ const HEADER_SUBTITLE = {
         `;
       }).join('');
 
-      tbody.querySelectorAll('.landscape-status-btn').forEach(btn => {
-        btn.addEventListener('click', () => ubahStatusLandscape(btn.dataset.rid, btn.dataset.nextStatus));
+      tbody.querySelectorAll('.landscape-status-seg').forEach(btn => {
+        btn.addEventListener('click', () => ubahStatusLandscape(btn.dataset.rid, btn.dataset.status));
       });
       tbody.querySelectorAll('.btn-copy-judul').forEach(btn => {
         btn.addEventListener('click', () => salinJudul(btn.dataset.rid, btn));
@@ -3216,20 +3216,28 @@ const HEADER_SUBTITLE = {
     }
 
     // Menentukan tombol aksi yang tampil di tabel sesuai status edit video saat ini.
-    // Editor hanya boleh menjalankan 2 aksi: "Kerjakan" (Skenario Siap -> WIP)
-    // dan "Selesai" (WIP -> Done). Status lain tidak punya aksi (read-only).
+    // Ditampilkan sebagai 3 segmen (Belum / WIP / Done) yang bisa diklik bolak-balik ke
+    // status mana pun (tidak harus maju berurutan). Hanya dikunci kalau videonya
+    // masih "Transkrip Siap" (belum ada skenario, jadi memang belum bisa dikerjakan editor).
     function renderAksiButton(item, rid) {
       const status = normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null);
-      const label = status === 'WIP' ? 'WIP' : (status === 'Done' ? 'Done' : 'Belum');
-      const next = status === 'WIP' ? 'Done' : (status === 'Done' ? 'Done' : 'WIP');
-      const disabled = status === 'Done' || status === 'Transkrip Siap' || !COLUMN_MAP.statusEdit;
-      const cls = status === 'WIP'
-        ? 'bg-amber-500 hover:bg-amber-600'
-        : (status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600 hover:bg-blue-700');
-      return `<button type="button" class="landscape-status-btn ${cls} ${disabled ? 'opacity-80 cursor-default' : ''} text-white text-xs font-extrabold px-4 py-2 rounded-xl shadow-sm transition-all interactive-btn"
-          data-rid="${rid}" data-next-status="${next}" ${disabled ? 'disabled' : ''}>
-          ${label}
-        </button>`;
+      const locked = status === 'Transkrip Siap' || !COLUMN_MAP.statusEdit;
+      const current = status === 'WIP' ? 'WIP' : (status === 'Done' ? 'Done' : 'Belum');
+      const seg = (key, label, activeCls) => {
+        const isActive = current === key;
+        const disabledAttr = (locked || isActive) ? 'disabled' : '';
+        const stateCls = locked
+          ? 'bg-slate-50 text-slate-300 cursor-not-allowed'
+          : (isActive ? `${activeCls} text-white cursor-default` : 'bg-white text-slate-400 hover:bg-slate-50 cursor-pointer');
+        return `<button type="button" class="landscape-status-seg px-2.5 py-1.5 text-[10px] font-extrabold transition-colors ${stateCls}" data-rid="${rid}" data-status="${key}" ${disabledAttr}>${label}</button>`;
+      };
+      return `<div class="inline-flex items-center rounded-xl border border-slate-200 overflow-hidden" title="${locked ? 'Belum ada skenario, menunggu ditugaskan' : 'Klik untuk mengubah status'}">
+          ${seg('Belum', 'Belum', 'bg-blue-600')}
+          <div class="w-px bg-slate-200 self-stretch"></div>
+          ${seg('WIP', 'WIP', 'bg-amber-500')}
+          <div class="w-px bg-slate-200 self-stretch"></div>
+          ${seg('Done', 'Done', 'bg-emerald-500')}
+        </div>`;
     }
 
     function cariRawItem(rid) {
@@ -3290,21 +3298,22 @@ const HEADER_SUBTITLE = {
       }
     }
 
-    // Editor hanya boleh mengubah Status Edit. Alurnya: (siap edit) -> WIP -> Done.
-    // Transisi diselaraskan dengan tombol aksi (renderAksiButton): tombol hanya nonaktif
-    // saat status Done atau Transkrip Siap, jadi validasi di sini tidak boleh lebih ketat
-    // dari itu (sebelumnya hanya menerima status "Skenario Siap" persis, sehingga status
-    // lain yang belum dikerjakan gagal diklik meski tombolnya terlihat aktif).
+    // Editor bisa mengubah Status Edit bolak-balik ke Belum / WIP / Done kapan saja
+    // (tidak harus maju berurutan). Hanya dikunci saat status masih "Transkrip Siap"
+    // karena skenarionya memang belum ada / belum ditugaskan.
     async function ubahStatusLandscape(rid, statusBaru) {
       const item = cariRawItem(rid);
       if (!item || !COLUMN_MAP.statusEdit) return;
       const statusSaatIni = normalizeStatus(item[COLUMN_MAP.statusEdit]);
-      if (statusSaatIni === 'Done' || statusSaatIni === 'Transkrip Siap') return;
-      if (statusBaru === 'WIP' && statusSaatIni === 'WIP') return;
-      if (statusBaru === 'Done' && statusSaatIni !== 'WIP') return;
+      if (statusSaatIni === 'Transkrip Siap') return;
+      const currentKey = statusSaatIni === 'WIP' ? 'WIP' : (statusSaatIni === 'Done' ? 'Done' : 'Belum');
+      if (statusBaru === currentKey) return;
+      // "Belum" ditulis sebagai "Skenario Siap" supaya tetap konsisten dengan status
+      // yang sudah dipakai di seluruh dashboard (kartu, chart, filter, dsb).
+      const nilaiBaru = statusBaru === 'Belum' ? 'Skenario Siap' : statusBaru;
       const kriteria = buatKriteriaBaris(item);
       const { data, error } = await db.from(NAMA_TABEL_PLANNING)
-        .update({ [COLUMN_MAP.statusEdit]: statusBaru })
+        .update({ [COLUMN_MAP.statusEdit]: nilaiBaru })
         .match(kriteria)
         .select();
       if (error) { alert('Gagal mengubah status Landscape: ' + error.message); return; }
@@ -3354,12 +3363,22 @@ const HEADER_SUBTITLE = {
       if (s === 'Done') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
       return 'bg-slate-100 text-slate-600 border border-slate-200';
     }
+    // Status Belum Edit / WIP / Done ditampilkan sebagai 3 segmen yang bisa diklik
+    // bolak-balik ke status mana pun, tidak harus maju berurutan.
     function portraitStatusButton(status, id) {
       const normalized = portraitStatusNormal(status);
-      const next = normalized === 'WIP' ? 'Done' : (normalized === 'Done' ? 'Done' : 'WIP');
-      const disabled = normalized === 'Done';
-      const label = normalized === 'Belum Edit' ? 'Belum' : normalized;
-      return `<button type="button" class="portrait-status-btn inline-flex items-center justify-center min-w-[92px] px-3.5 py-2 rounded-xl text-[11px] font-extrabold transition ${portraitStatusClass(normalized)} ${disabled ? 'opacity-80 cursor-default' : 'hover:opacity-80'}" data-id="${portraitEscape(id)}" data-next-status="${next}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+      const seg = (key, label, activeCls) => {
+        const isActive = normalized === key;
+        const stateCls = isActive ? `${activeCls} text-white cursor-default` : 'bg-white text-slate-400 hover:bg-slate-50 cursor-pointer';
+        return `<button type="button" class="portrait-status-seg px-2.5 py-1.5 text-[10px] font-extrabold transition-colors ${stateCls}" data-id="${portraitEscape(id)}" data-status="${key}" ${isActive ? 'disabled' : ''}>${label}</button>`;
+      };
+      return `<div class="inline-flex items-center rounded-xl border border-slate-200 overflow-hidden">
+          ${seg('Belum Edit', 'Belum', 'bg-slate-700')}
+          <div class="w-px bg-slate-200 self-stretch"></div>
+          ${seg('WIP', 'WIP', 'bg-amber-500')}
+          <div class="w-px bg-slate-200 self-stretch"></div>
+          ${seg('Done', 'Done', 'bg-emerald-500')}
+        </div>`;
     }
     function portraitDetectColumns(row) {
       const keys = Object.keys(row || {});
@@ -3486,7 +3505,7 @@ const HEADER_SUBTITLE = {
         <td class="py-4 px-4 whitespace-nowrap"><span class="badge-pill ${portraitStatusClass(item[portraitColumnMap.status])}">${portraitStatusNormal(item[portraitColumnMap.status]) === 'Belum Edit' ? 'Belum' : portraitStatusNormal(item[portraitColumnMap.status])}</span></td>
         <td class="py-4 px-4 text-right whitespace-nowrap">${portraitStatusButton(item[portraitColumnMap.status], item[portraitColumnMap.id])}</td>
       </tr>`).join('');
-      tbody.querySelectorAll('.portrait-status-btn').forEach(btn => btn.addEventListener('click', () => ubahStatusPortrait(btn.dataset.id, btn.dataset.nextStatus)));
+      tbody.querySelectorAll('.portrait-status-seg').forEach(btn => btn.addEventListener('click', () => ubahStatusPortrait(btn.dataset.id, btn.dataset.status)));
     }
         async function muatPortraitEditor() {
       const banner = document.getElementById('portrait-diagnostic-banner');
@@ -3512,9 +3531,7 @@ const HEADER_SUBTITLE = {
       const current = portraitRawGlobal.find(item => String(item[portraitColumnMap.id]) === String(id));
       if (!current || !portraitColumnMap.status) return;
       const statusSekarang = portraitStatusNormal(current[portraitColumnMap.status]);
-      if (statusSekarang === 'Done') return;
-      const expectedNext = statusSekarang === 'WIP' ? 'Done' : 'WIP';
-      if (statusBaru !== expectedNext) return;
+      if (statusBaru === statusSekarang) return;
       const editor = portraitColumnMap.editor ? String(current[portraitColumnMap.editor] ?? '').trim() : '';
       if (currentEditorName && editor.toLowerCase() !== currentEditorName.toLowerCase()) { alert('Anda hanya dapat mengubah video yang ditugaskan kepada Anda.'); return; }
       const { data, error } = await db.from(NAMA_TABEL_POTRAIT).update({ [portraitColumnMap.status]: statusBaru }).eq(portraitColumnMap.id, id).select();
@@ -3545,9 +3562,18 @@ const HEADER_SUBTITLE = {
     }
     function carouselStatusButton(status, id) {
       const normalized = carouselStatusNormal(status);
-      const next = normalized === 'Undone' ? 'WIP' : 'Done';
-      const disabled = normalized === 'Done';
-      return `<button type="button" class="carousel-status-btn inline-flex items-center justify-center min-w-[92px] px-3.5 py-2 rounded-xl text-[11px] font-extrabold transition ${carouselStatusClass(normalized)} ${disabled ? 'opacity-80 cursor-default' : 'hover:opacity-80'}" data-id="${carouselEscape(id)}" data-next-status="${next}" ${disabled ? 'disabled' : ''}>${normalized}</button>`;
+      const seg = (key, label, activeCls) => {
+        const isActive = normalized === key;
+        const stateCls = isActive ? `${activeCls} text-white cursor-default` : 'bg-white text-slate-400 hover:bg-slate-50 cursor-pointer';
+        return `<button type="button" class="carousel-status-seg px-2.5 py-1.5 text-[10px] font-extrabold transition-colors ${stateCls}" data-id="${carouselEscape(id)}" data-status="${key}" ${isActive ? 'disabled' : ''}>${label}</button>`;
+      };
+      return `<div class="inline-flex items-center rounded-xl border border-slate-200 overflow-hidden">
+          ${seg('Undone', 'Undone', 'bg-slate-700')}
+          <div class="w-px bg-slate-200 self-stretch"></div>
+          ${seg('WIP', 'WIP', 'bg-amber-500')}
+          <div class="w-px bg-slate-200 self-stretch"></div>
+          ${seg('Done', 'Done', 'bg-emerald-500')}
+        </div>`;
     }
     async function ambilDataCarousel() {
       const result = await ambilSemuaBarisSupabase(NAMA_TABEL_CAROUSEL, {
@@ -3588,7 +3614,7 @@ const HEADER_SUBTITLE = {
           </div>
         </td>
       </tr>`).join('');
-      tbody.querySelectorAll('.carousel-status-btn').forEach(btn => btn.addEventListener('click', () => ubahStatusCarousel(btn.dataset.id, btn.dataset.nextStatus)));
+      tbody.querySelectorAll('.carousel-status-seg').forEach(btn => btn.addEventListener('click', () => ubahStatusCarousel(btn.dataset.id, btn.dataset.status)));
       tbody.querySelectorAll('.carousel-brief-btn').forEach(btn => btn.addEventListener('click', () => bukaBriefCarousel(btn.dataset.id)));
     }
     async function muatCarouselEditor() {
@@ -3612,9 +3638,7 @@ const HEADER_SUBTITLE = {
       const current = carouselRawGlobal.find(item => String(item.id) === String(id));
       if (!current) return;
       const statusSekarang = carouselStatusNormal(current.status);
-      if (statusSekarang === 'Done') return;
-      const expectedNext = statusSekarang === 'Undone' ? 'WIP' : 'Done';
-      if (statusBaru !== expectedNext) return;
+      if (statusBaru === statusSekarang) return;
       const editor = String(current.editor ?? '').trim();
       if (currentEditorName && editor.toLowerCase() !== currentEditorName.toLowerCase()) { alert('Anda hanya dapat mengubah carousel yang ditugaskan kepada Anda.'); return; }
       const { data, error } = await db.from(NAMA_TABEL_CAROUSEL).update({ status: statusBaru }).eq('id', id).select();
