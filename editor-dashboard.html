@@ -792,6 +792,10 @@
           class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
           <i class="fas fa-mobile-screen-button w-5 text-center"></i> Kerjakan Potrait
         </a>
+        <a href="#" id="nav-carousel"
+          class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
+          <i class="fas fa-images w-5 text-center"></i> Kerjakan Carousel
+        </a>
         <a href="#" id="nav-jadwal5s"
           class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]">
           <i class="fas fa-calendar-check w-5 text-center"></i> Jadwal 5S
@@ -1348,6 +1352,82 @@
         </div>
       </div>
       <!-- ============ /VIEW: KERJAKAN POTRAIT ============ -->
+
+      <!-- ============ VIEW: KERJAKAN CAROUSEL ============ -->
+      <div id="view-carousel" class="hidden space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-widest">Planning Carousel</div>
+            <h3 class="text-2xl font-bold text-gray-800 mt-3">Kerjakan Carousel</h3>
+            <p class="text-sm text-gray-500 mt-1">Daftar konten Carousel yang ditugaskan kepada Anda. Anda hanya dapat melihat brief lengkap dan mengubah status pengerjaan.</p>
+          </div>
+          <span id="carousel-editor-label" class="text-xs font-bold px-3 py-2 rounded-xl bg-slate-100 text-slate-600 border border-slate-200">Editor: -</span>
+        </div>
+        <div id="carousel-diagnostic-banner" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm">
+          <p class="font-bold mb-1">⚠️ Data Carousel tidak tampil</p>
+          <p id="carousel-diagnostic-message" class="text-rose-600"></p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Undone</p><p id="carousel-page-undone" class="text-3xl font-black text-gray-800 mt-1">0</p></div>
+          <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><p class="text-xs font-bold uppercase tracking-wider text-amber-600">WIP</p><p id="carousel-page-wip" class="text-3xl font-black text-gray-800 mt-1">0</p></div>
+          <div class="stat-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><p class="text-xs font-bold uppercase tracking-wider text-emerald-600">Done</p><p id="carousel-page-done" class="text-3xl font-black text-gray-800 mt-1">0</p></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead class="sticky top-0 bg-white z-10">
+              <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th class="py-3 px-4">Tema</th>
+                <th class="py-3 px-4">Editor</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+              </thead>
+              <tbody id="carousel-body" class="divide-y divide-gray-50 text-gray-700">
+                <tr><td colspan="4" class="text-center py-10 text-gray-400">Memuat data Carousel...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: KERJAKAN CAROUSEL ============ -->
+
+      <!-- ============ VIEW: DETAIL BRIEF CAROUSEL ============ -->
+      <div id="view-carousel-detail" class="hidden space-y-6">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div>
+            <button type="button" id="carousel-detail-back" class="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 mb-3">
+              <i class="fas fa-arrow-left"></i> Kembali ke Kerjakan Carousel
+            </button>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-widest">Detail Brief Carousel</div>
+            <h3 class="text-2xl font-bold text-gray-800 mt-3" id="carousel-detail-tema">-</h3>
+            <p class="text-sm text-gray-500 mt-1">Editor: <span class="font-semibold text-slate-700" id="carousel-detail-editor">-</span></p>
+          </div>
+          <div id="carousel-detail-status"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="max-h-[65vh] overflow-y-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead class="sticky top-0 bg-white z-10">
+              <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th class="py-3 px-5 w-20">Slide</th>
+                <th class="py-3 px-5">Copywriting</th>
+                <th class="py-3 px-5">Visual</th>
+              </tr>
+              </thead>
+              <tbody id="carousel-detail-body" class="divide-y divide-gray-50"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
+          <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fas fa-quote-left text-indigo-400"></i> Caption</h4>
+          <div id="carousel-detail-caption" class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
+        </div>
+      </div>
+      <!-- ============ /VIEW: DETAIL BRIEF CAROUSEL ============ -->
+
       <!-- ============ VIEW: JADWAL 5S ============ -->
 <div id="view-jadwal5s" class="hidden space-y-6">
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -1629,6 +1709,9 @@
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const NAMA_TABEL_PLANNING = 'Planning_Editor';
     const NAMA_TABEL_POTRAIT = 'Planning_Potrait';
+    const NAMA_TABEL_CAROUSEL = 'Planning_Carousel';
+    const CAROUSEL_STATUSES = ['Undone', 'WIP', 'Done'];
+    const CAROUSEL_SLIDE_COUNT = 10;
 
     // Target pencapaian tetap: 12 video Done per bulan
     const TARGET_KONSTAN = 12;
@@ -1645,6 +1728,7 @@
     let currentEditorName = '';
     let portraitRawGlobal = [];
     let portraitColumnMap = { id: null, judul: null, produk: null, tema: null, brief: null, sellingPoints: null, editor: null, status: null };
+    let carouselRawGlobal = [];
 
     // Peta nama kolom logis -> nama kolom asli di Supabase (dideteksi otomatis)
     let COLUMN_MAP = {
@@ -1746,11 +1830,12 @@
     });
 
     // ===================== NAVIGASI ANTAR MENU (Media Converter dihapus) =====================
-const ALL_VIEWS = ['dashboard', 'crud', 'portrait', 'jadwal5s', 'workflow', 'tools'];
+const ALL_VIEWS = ['dashboard', 'crud', 'portrait', 'carousel', 'jadwal5s', 'workflow', 'tools'];
 const HEADER_SUBTITLE = {
   'dashboard': '| Titik Informasi',
   'crud': '| Kerjakan Landscape',
   'portrait': '| Kerjakan Potrait',
+  'carousel': '| Kerjakan Carousel',
   'jadwal5s': '| Jadwal 5S',
   'workflow': '| Workflow Editing Video',
   'tools': '| Tools AI Production'
@@ -1791,6 +1876,16 @@ const HEADER_SUBTITLE = {
     document.getElementById('dashboard-open-portrait')?.addEventListener('click', async () => {
       tampilkanView('portrait');
       await muatPortraitEditor();
+    });
+
+    document.getElementById('nav-carousel').addEventListener('click', async (e) => {
+      e.preventDefault();
+      tampilkanView('carousel');
+      await muatCarouselEditor();
+    });
+
+    document.getElementById('carousel-detail-back')?.addEventListener('click', () => {
+      tutupBriefCarousel();
     });
 
     document.getElementById('nav-workflow').addEventListener('click', (e) => {
@@ -3399,6 +3494,144 @@ const HEADER_SUBTITLE = {
       renderPortraitDashboard(portraitDataSaya());
     }
 
+    // ===================== PLANNING CAROUSEL UNTUK EDITOR =====================
+    // Akses disamakan dengan Kerjakan Potrait: editor hanya melihat carousel miliknya sendiri
+    // dan hanya dapat mengubah status pengerjaan, tidak dapat mengubah isi brief.
+    function carouselEscape(value) {
+      if (value === null || value === undefined) return '';
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    function carouselStatusNormal(raw) {
+      const s = String(raw ?? '').trim().toLowerCase();
+      if (s === 'wip') return 'WIP';
+      if (s === 'done') return 'Done';
+      return 'Undone';
+    }
+    function carouselStatusClass(status) {
+      const s = carouselStatusNormal(status);
+      if (s === 'WIP') return 'bg-amber-50 text-amber-700 border border-amber-200';
+      if (s === 'Done') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      return 'bg-slate-100 text-slate-600 border border-slate-200';
+    }
+    function carouselStatusButton(status, id) {
+      const normalized = carouselStatusNormal(status);
+      const next = normalized === 'Undone' ? 'WIP' : 'Done';
+      const disabled = normalized === 'Done';
+      return `<button type="button" class="carousel-status-btn inline-flex items-center justify-center min-w-[92px] px-3.5 py-2 rounded-xl text-[11px] font-extrabold transition ${carouselStatusClass(normalized)} ${disabled ? 'opacity-80 cursor-default' : 'hover:opacity-80'}" data-id="${carouselEscape(id)}" data-next-status="${next}" ${disabled ? 'disabled' : ''}>${normalized}</button>`;
+    }
+    async function ambilDataCarousel() {
+      const result = await ambilSemuaBarisSupabase(NAMA_TABEL_CAROUSEL, {
+        orderColumn: 'id',
+        ascending: true
+      });
+
+      if (result.error) {
+        console.error('SUPABASE ERROR (Planning_Carousel):', result.error);
+        return { data: result.data || [], error: result.error };
+      }
+
+      console.log(`[Planning_Carousel] SEMUA data diterima dari Supabase: ${result.data.length} baris.`);
+      return { data: result.data || [], error: null };
+    }
+    function carouselDataSaya() {
+      return carouselRawGlobal.filter(item => {
+        const editor = String(item.editor ?? '').trim();
+        return !currentEditorName || editor.toLowerCase() === currentEditorName.toLowerCase();
+      });
+    }
+    function renderCarouselPage(data) {
+      const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      set('carousel-page-undone', data.filter(i => carouselStatusNormal(i.status) === 'Undone').length);
+      set('carousel-page-wip', data.filter(i => carouselStatusNormal(i.status) === 'WIP').length);
+      set('carousel-page-done', data.filter(i => carouselStatusNormal(i.status) === 'Done').length);
+      const tbody = document.getElementById('carousel-body');
+      if (!tbody) return;
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-400">Belum ada carousel yang ditugaskan kepada Anda.</td></tr>'; return; }
+      tbody.innerHTML = data.map(item => `<tr class="hover:bg-gray-50 align-top">
+        <td class="py-4 px-4 min-w-[240px]"><div class="font-bold text-slate-800 leading-snug">${carouselEscape(item.tema) || '-'}</div></td>
+        <td class="py-4 px-4">${carouselEscape(item.editor) || '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-4 px-4 whitespace-nowrap"><span class="badge-pill ${carouselStatusClass(item.status)}">${carouselStatusNormal(item.status)}</span></td>
+        <td class="py-4 px-4 text-right whitespace-nowrap">
+          <div class="flex items-center justify-end gap-2 flex-wrap">
+            <button type="button" class="carousel-brief-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition" data-id="${carouselEscape(item.id)}"><i class="fas fa-eye"></i> Lihat Brief</button>
+            ${carouselStatusButton(item.status, item.id)}
+          </div>
+        </td>
+      </tr>`).join('');
+      tbody.querySelectorAll('.carousel-status-btn').forEach(btn => btn.addEventListener('click', () => ubahStatusCarousel(btn.dataset.id, btn.dataset.nextStatus)));
+      tbody.querySelectorAll('.carousel-brief-btn').forEach(btn => btn.addEventListener('click', () => bukaBriefCarousel(btn.dataset.id)));
+    }
+    async function muatCarouselEditor() {
+      const banner = document.getElementById('carousel-diagnostic-banner');
+      const message = document.getElementById('carousel-diagnostic-message');
+      const label = document.getElementById('carousel-editor-label');
+      if (label) label.textContent = currentEditorName ? `Editor: ${currentEditorName}` : 'Semua Editor';
+      if (banner) banner.classList.add('hidden');
+      const { data, error } = await ambilDataCarousel();
+      carouselRawGlobal = data;
+      if (error) {
+        if (message) message.textContent = `Gagal membaca tabel "${NAMA_TABEL_CAROUSEL}": ${error.message}`;
+        if (banner) banner.classList.remove('hidden');
+        renderCarouselPage([]);
+        return;
+      }
+      renderCarouselPage(carouselDataSaya());
+    }
+    async function ubahStatusCarousel(id, statusBaru) {
+      if (!id) { alert('ID data Carousel tidak ditemukan.'); return; }
+      const current = carouselRawGlobal.find(item => String(item.id) === String(id));
+      if (!current) return;
+      const statusSekarang = carouselStatusNormal(current.status);
+      if (statusSekarang === 'Done') return;
+      const expectedNext = statusSekarang === 'Undone' ? 'WIP' : 'Done';
+      if (statusBaru !== expectedNext) return;
+      const editor = String(current.editor ?? '').trim();
+      if (currentEditorName && editor.toLowerCase() !== currentEditorName.toLowerCase()) { alert('Anda hanya dapat mengubah carousel yang ditugaskan kepada Anda.'); return; }
+      const { data, error } = await db.from(NAMA_TABEL_CAROUSEL).update({ status: statusBaru }).eq('id', id).select();
+      if (error) { alert('Gagal mengubah status Carousel: ' + error.message); return; }
+      if (!data || data.length === 0) { alert('Status Carousel tidak berubah. Periksa policy UPDATE pada tabel Planning_Carousel.'); return; }
+      await muatCarouselEditor();
+    }
+    function bukaBriefCarousel(id) {
+      const item = carouselRawGlobal.find(row => String(row.id) === String(id));
+      if (!item) return;
+      ALL_VIEWS.forEach(v => document.getElementById('view-' + v)?.classList.add('hidden'));
+      const detailView = document.getElementById('view-carousel-detail');
+      if (detailView) detailView.classList.remove('hidden');
+      document.getElementById('header-subtitle').innerText = '| Detail Brief Carousel';
+      renderCarouselDetail(item);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function tutupBriefCarousel() {
+      document.getElementById('view-carousel-detail')?.classList.add('hidden');
+      tampilkanView('carousel');
+    }
+    function renderCarouselDetail(item) {
+      const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      const setHtml = (id, value) => { const el = document.getElementById(id); if (el) el.innerHTML = value; };
+      setText('carousel-detail-tema', carouselEscape(item.tema) ? String(item.tema) : '-');
+      setText('carousel-detail-editor', carouselEscape(item.editor) ? String(item.editor) : '-');
+      setHtml('carousel-detail-status', `<span class="badge-pill ${carouselStatusClass(item.status)}">${carouselStatusNormal(item.status)}</span>`);
+
+      const tbody = document.getElementById('carousel-detail-body');
+      if (tbody) {
+        let rows = '';
+        for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) {
+          const cw = item[`slide_${i}_copywriting`];
+          const vs = item[`slide_${i}_visual`];
+          rows += `<tr class="align-top">
+            <td class="py-4 px-5"><span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-600 text-white font-black text-sm">${i}</span></td>
+            <td class="py-4 px-5"><div class="whitespace-pre-wrap text-sm text-slate-700 leading-relaxed">${carouselEscape(cw) || '<span class="text-slate-300">-</span>'}</div></td>
+            <td class="py-4 px-5"><div class="whitespace-pre-wrap text-sm text-slate-700 leading-relaxed">${carouselEscape(vs) || '<span class="text-slate-300">-</span>'}</div></td>
+          </tr>`;
+        }
+        tbody.innerHTML = rows;
+      }
+
+      const captionBox = document.getElementById('carousel-detail-caption');
+      if (captionBox) captionBox.innerHTML = carouselEscape(item.caption) || '<span class="text-slate-300">Belum ada caption.</span>';
+    }
+
     // ===================== REALTIME: auto-update saat data berubah dari mana saja =====================
     db.channel('realtime-editor-dashboard')
       .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_PLANNING }, (payload) => {
@@ -3418,6 +3651,13 @@ const HEADER_SUBTITLE = {
         });
       })
       .subscribe((status) => console.log('[Realtime] Status koneksi channel Planning_Potrait:', status));
+
+    db.channel('realtime-editor-carousel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_CAROUSEL }, (payload) => {
+        console.log('[Realtime] Perubahan terdeteksi pada tabel Planning_Carousel:', payload);
+        muatCarouselEditor();
+      })
+      .subscribe((status) => console.log('[Realtime] Status koneksi channel Planning_Carousel:', status));
 
     // ===================== JADWAL 5S (READ-ONLY + TANDAI SELESAI) =====================
 const NAMA_TABEL_JADWAL5S = 'Jadwal_5S';
