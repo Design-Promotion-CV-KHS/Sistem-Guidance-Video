@@ -4584,8 +4584,18 @@
                     <input id="pt-crud-field-produk" type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" placeholder="Contoh: Quick Boxer Rotary" /></div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema</label>
                     <input id="pt-crud-field-tema" type="text" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" /></div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Brief</label>
-                    <textarea id="pt-crud-field-brief" rows="5" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 resize-y"></textarea></div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Brief</label>
+                    <input id="pt-crud-field-brief" type="hidden" />
+                    <div class="flex items-center gap-2 mt-2 flex-wrap">
+                        <label class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-fuchsia-600 bg-fuchsia-50 hover:bg-fuchsia-100 px-3 py-2 rounded-lg border border-fuchsia-200 transition-all">
+                            <i class="fas fa-upload"></i> Upload File Brief (PDF/DOCX/JPG/PNG)
+                            <input type="file" id="pt-upload-brief" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden" />
+                        </label>
+                        <span class="text-xs" id="pt-upload-brief-status"></span>
+                    </div>
+                    <div class="text-xs mt-1.5" id="pt-upload-brief-existing"></div>
+                </div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Selling Points</label>
                     <textarea id="pt-crud-field-selling-points" rows="4" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 resize-y"></textarea></div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -7676,6 +7686,12 @@
             cpUploadFileHandler(this, 'cp-crud-field-scriptWawancara', 'cp-upload-scriptWawancara-status');
         });
 
+        // Upload file untuk Brief Planning Potrait (reuse handler & bucket dari Customer Profile)
+        const ptUploadBrief = document.getElementById('pt-upload-brief');
+        if (ptUploadBrief) ptUploadBrief.addEventListener('change', function () {
+            cpUploadFileHandler(this, 'pt-crud-field-brief', 'pt-upload-brief-status');
+        });
+
         async function cpSimpanForm(e) {
             e.preventDefault();
             const errBox = document.getElementById('cp-crud-form-error');
@@ -9618,7 +9634,7 @@ function edNormalisasiNamaKolom(k) {
                 <td class="py-4 px-5 min-w-[250px]"><div class="font-bold text-slate-800 leading-snug">${ptEscapeHtml(item.judul_video) || '-'}</div></td>
                 <td class="py-4 px-5 min-w-[180px]"><div class="max-w-[220px] whitespace-normal break-words font-semibold text-fuchsia-700">${ptEscapeHtml(item.produk) || '<span class="text-slate-300">-</span>'}</div></td>
                 <td class="py-4 px-5 min-w-[180px]"><div class="max-w-[220px] whitespace-normal break-words">${ptEscapeHtml(item.tema) || '<span class="text-slate-300">-</span>'}</div></td>
-                <td class="py-4 px-5"><div class="max-w-[360px] whitespace-pre-wrap break-words text-slate-600 leading-relaxed">${ptEscapeHtml(item.brief) || '<span class="text-slate-300">-</span>'}</div></td>
+                <td class="py-4 px-5"><div class="max-w-[300px]">${cpRenderFileOrText(item.brief)}</div></td>
                 <td class="py-4 px-5"><div class="max-w-[320px] whitespace-pre-wrap break-words text-slate-600 leading-relaxed">${ptEscapeHtml(item.selling_points) || '<span class="text-slate-300">-</span>'}</div></td>
                 <td class="py-4 px-5 font-bold text-slate-700 whitespace-nowrap">${ptEscapeHtml(item.editor) || '<span class="text-slate-300">-</span>'}</td>
                 <td class="py-4 px-5 whitespace-nowrap">${ptStatusButton(item.status, item.id)}</td>
@@ -9672,6 +9688,9 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('pt-crud-form').reset();
             document.getElementById('pt-crud-field-id').value = '';
             document.getElementById('pt-crud-field-status').value = 'Belum Edit';
+            document.getElementById('pt-crud-field-brief').value = '';
+            document.getElementById('pt-upload-brief-status').innerHTML = '';
+            document.getElementById('pt-upload-brief-existing').innerHTML = '';
             document.getElementById('pt-crud-form-error').classList.add('hidden');
             ptKriteriaEditAktif = null;
         }
@@ -9684,6 +9703,7 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('pt-crud-field-produk').value = item.produk || '';
             document.getElementById('pt-crud-field-tema').value = item.tema || '';
             document.getElementById('pt-crud-field-brief').value = item.brief || '';
+            document.getElementById('pt-upload-brief-existing').innerHTML = cpRenderExistingPreview(item.brief || '');
             document.getElementById('pt-crud-field-selling-points').value = item.selling_points || '';
             setSelectValueEnsureOption(document.getElementById('pt-crud-field-editor'), item.editor || '');
             setSelectValueEnsureOption(document.getElementById('pt-crud-field-status'), ptStatusNormal(item.status));
