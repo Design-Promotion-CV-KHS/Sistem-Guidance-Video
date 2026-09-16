@@ -3719,10 +3719,6 @@
                         <select id="odp-filter-progress"
                             class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
                             <option value="all">Semua Progress</option>
-                            <option value="Belum">Belum</option>
-                            <option value="WIP">WIP</option>
-                            <option value="Proses PP">Proses PP (Opsional)</option>
-                            <option value="Done">Done</option>
                         </select>
                     </div>
                 </div>
@@ -3766,6 +3762,8 @@
                                 <th class="py-4 px-5 bg-slate-100">Tgl Masuk</th>
                                 <th class="py-4 px-5 bg-slate-100">Jenis</th>
                                 <th class="py-4 px-5 bg-slate-100">Item</th>
+                                <th class="py-4 px-5 bg-slate-100">Cetak</th>
+                                <th class="py-4 px-5 bg-slate-100">QTY</th>
                                 <th class="py-4 px-5 bg-slate-100">Deadline</th>
                                 <th class="py-4 px-5 bg-slate-100">Editor</th>
                                 <th class="py-4 px-5 bg-slate-100">Progress</th>
@@ -3774,7 +3772,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="odp-tabel-body">
                             <tr>
-                                <td class="text-center py-8 text-slate-400" colspan="10">Memuat data dari database...
+                                <td class="text-center py-8 text-slate-400" colspan="12">Memuat data dari database...
                                 </td>
                             </tr>
                         </tbody>
@@ -3848,6 +3846,23 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Cetak</label>
+                            <select
+                                class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-400"
+                                id="odp-input-cetak">
+                                <option value="Tidak">Tidak</option>
+                                <option value="Ya">Ya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">QTY</label>
+                            <input
+                                class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                                id="odp-input-qty" type="number" min="1" step="1" placeholder="Jumlah barang" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
                             <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Deadline</label>
                             <input
                                 class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
@@ -3867,11 +3882,9 @@
                         <select
                             class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-400"
                             id="odp-input-progress">
-                            <option value="Belum">Belum</option>
-                            <option value="WIP">WIP</option>
-                            <option value="Proses PP">Proses PP (Opsional)</option>
-                            <option value="Done">Done</option>
                         </select>
+                        <p class="text-[10px] text-slate-400 mt-1">Tahap "Proses PP" hanya muncul jika kolom Cetak
+                            dipilih "Ya".</p>
                     </div>
                     <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 shrink-0">
                         <button
@@ -6540,7 +6553,23 @@
         const NAMA_TABEL_ORDER_DESAIN = 'Order_Desain_Promosi';
         const SUPABASE_STORAGE_BUCKET_ORDER_DESAIN = 'order-desain-promosi-files';
         const ODP_ITEM_OPTIONS = ['Banner', 'Spanduk', 'X Banner', 'Roll Banner', 'Sticker Mobil', 'Umbul-umbul', 'Sticker Promosi', 'Kaos Toko Relasi', 'Poster Promosi', 'Kartu Nama', 'Kaos Suvenir', 'Bill Board', 'Lainnya'];
-        const ODP_PROGRESS_OPTIONS = ['Belum', 'WIP', 'Proses PP', 'Done'];
+        // ==== BARU: Urutan tahap progress Order Desain Promosi ====
+        // "Proses PP" (value unik) hanya ditampilkan/dilewati jika kolom Cetak = "Ya".
+        // Ada 2 tahap "Approval Atasan Promosi" (sebelum & sesudah Proses PP) sehingga
+        // masing-masing punya value unik di database, namun label yang tampil ke user sama.
+        const ODP_PROGRESS_STEPS = [
+            { value: 'Approval Atasan Promosi 1', label: 'Approval Atasan Promosi' },
+            { value: 'Belum Dikerjakan', label: 'Belum Dikerjakan' },
+            { value: 'WIP', label: 'WIP' },
+            { value: 'Review Atasan Promosi', label: 'Review Atasan Promosi' },
+            { value: 'Review Pengorder', label: 'Review Pengorder' },
+            { value: 'Proses PP', label: 'Proses PP', onlyIfCetak: true },
+            { value: 'Approval Atasan Promosi 2', label: 'Approval Atasan Promosi' },
+            { value: 'Approval Pengorder', label: 'Approval Pengorder' },
+            { value: 'Approval Manajemen', label: 'Approval Manajemen' },
+            { value: 'Done', label: 'Done' }
+        ];
+        const ODP_PROGRESS_OPTIONS = ODP_PROGRESS_STEPS.map(s => s.value);
         const ODP_EDITORS = ['Rega', 'Syukri', 'Rinal', 'Ridan', 'Bayu', 'Rafqi', 'Iis', 'Munir'];
         const MASTER_DAFTAR_CABANG = [
             'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
@@ -10779,25 +10808,75 @@ function edNormalisasiNamaKolom(k) {
             return [];
         }
 
+        // Normalisasi nilai progress dari database ke salah satu value baku di ODP_PROGRESS_STEPS.
+        // Tetap mendukung data lama (Belum/WIP/Proses PP/Done) supaya tidak "hilang" tampilannya.
         function odpProgressNormal(raw) {
-            const s = String(raw ?? '').trim().toLowerCase();
-            if (s === 'wip') return 'WIP';
-            if (s === 'done' || s === 'selesai') return 'Done';
-            if (s.includes('pp')) return 'Proses PP';
-            return 'Belum';
+            const s = String(raw ?? '').trim();
+            if (!s) return 'Belum Dikerjakan';
+            const exact = ODP_PROGRESS_STEPS.find(st => st.value.toLowerCase() === s.toLowerCase());
+            if (exact) return exact.value;
+            const sl = s.toLowerCase();
+            if (sl === 'belum') return 'Belum Dikerjakan';
+            if (sl === 'wip') return 'WIP';
+            if (sl === 'done' || sl === 'selesai') return 'Done';
+            if (sl.includes('review atasan')) return 'Review Atasan Promosi';
+            if (sl.includes('review pengorder')) return 'Review Pengorder';
+            if (sl.includes('pp')) return 'Proses PP';
+            if (sl.includes('approval atasan')) return 'Approval Atasan Promosi 1';
+            if (sl.includes('approval pengorder')) return 'Approval Pengorder';
+            if (sl.includes('approval manajemen')) return 'Approval Manajemen';
+            return 'Belum Dikerjakan';
+        }
+
+        // Ambil label yang ditampilkan ke user untuk sebuah value progress.
+        function odpProgressLabel(value) {
+            const step = ODP_PROGRESS_STEPS.find(st => st.value === value);
+            return step ? step.label : value;
         }
 
         const ODP_PROGRESS_BADGE = {
-            'Belum': 'bg-slate-100 text-slate-600 border border-slate-200',
+            'Approval Atasan Promosi 1': 'bg-violet-50 text-violet-600 border border-violet-200',
+            'Belum Dikerjakan': 'bg-slate-100 text-slate-600 border border-slate-200',
             'WIP': 'bg-amber-50 text-amber-600 border border-amber-200',
+            'Review Atasan Promosi': 'bg-orange-50 text-orange-600 border border-orange-200',
+            'Review Pengorder': 'bg-yellow-50 text-yellow-700 border border-yellow-200',
             'Proses PP': 'bg-sky-50 text-sky-600 border border-sky-200',
+            'Approval Atasan Promosi 2': 'bg-violet-50 text-violet-600 border border-violet-200',
+            'Approval Pengorder': 'bg-indigo-50 text-indigo-600 border border-indigo-200',
+            'Approval Manajemen': 'bg-fuchsia-50 text-fuchsia-600 border border-fuchsia-200',
             'Done': 'bg-emerald-50 text-emerald-600 border border-emerald-200'
         };
         function odpBadgeProgress(raw) {
             const status = odpProgressNormal(raw);
-            const cls = ODP_PROGRESS_BADGE[status] || ODP_PROGRESS_BADGE['Belum'];
-            return `<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${cls}">${status}${status === 'Proses PP' ? ' (Opsional)' : ''}</span>`;
+            const cls = ODP_PROGRESS_BADGE[status] || ODP_PROGRESS_BADGE['Belum Dikerjakan'];
+            const stepNumber = ODP_PROGRESS_STEPS.findIndex(st => st.value === status) + 1;
+            return `<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${cls}" title="Tahap ${stepNumber} dari ${ODP_PROGRESS_STEPS.length}">${edEscapeHtml(odpProgressLabel(status))}</span>`;
         }
+
+        // Render ulang opsi <select> Progress pada form, menyesuaikan apakah tahap
+        // "Proses PP" perlu ditampilkan (hanya jika kolom Cetak = "Ya").
+        function odpRenderProgressOptions(preferredValue) {
+            const select = document.getElementById('odp-input-progress');
+            if (!select) return;
+            const cetakVal = (document.getElementById('odp-input-cetak') || {}).value || 'Tidak';
+            const steps = ODP_PROGRESS_STEPS.filter(st => !st.onlyIfCetak || cetakVal === 'Ya');
+            const wanted = preferredValue !== undefined ? preferredValue : select.value;
+            select.innerHTML = steps.map(st => `<option value="${edEscapeHtml(st.value)}">${edEscapeHtml(st.label)}</option>`).join('');
+            if (wanted && steps.some(st => st.value === wanted)) {
+                select.value = wanted;
+            } else {
+                select.value = steps[0].value;
+            }
+        }
+
+        // Render ulang opsi filter Progress di atas tabel (menampilkan seluruh 10 tahap).
+        function odpRenderFilterProgressOptions() {
+            const select = document.getElementById('odp-filter-progress');
+            if (!select) return;
+            select.innerHTML = '<option value="all">Semua Progress</option>' +
+                ODP_PROGRESS_STEPS.map(st => `<option value="${edEscapeHtml(st.value)}">${edEscapeHtml(st.label)}${st.value === 'Proses PP' ? ' (Opsional)' : ''}</option>`).join('');
+        }
+        odpRenderFilterProgressOptions();
 
         function odpRenderItemChecklist(selected = []) {
             const wrap = document.getElementById('odp-item-checklist');
@@ -10866,11 +10945,17 @@ function edNormalisasiNamaKolom(k) {
             document.getElementById('odp-upload-file-status').innerHTML = '';
             document.getElementById('odp-upload-file-existing').innerHTML = '';
             document.getElementById('odp-input-tanggal-masuk').value = odpTodayISO();
+            document.getElementById('odp-input-cetak').value = 'Tidak';
+            document.getElementById('odp-input-qty').value = '';
             odpRenderItemChecklist([]);
             odpPopulateEditorOptions();
+            odpRenderProgressOptions('Belum Dikerjakan');
             const modal = document.getElementById('odp-modal-crud');
             modal.classList.remove('hidden'); modal.classList.add('flex');
         }
+
+        const odpCetakSelect = document.getElementById('odp-input-cetak');
+        if (odpCetakSelect) odpCetakSelect.addEventListener('change', () => odpRenderProgressOptions());
 
         function odpTutupModalForm() {
             const modal = document.getElementById('odp-modal-crud');
@@ -10905,9 +10990,14 @@ function edNormalisasiNamaKolom(k) {
             const deadline = item.deadline || item.Deadline || '';
             document.getElementById('odp-input-deadline').value = deadline ? String(deadline).slice(0, 10) : '';
 
+            const cetakVal = item.cetak || item.Cetak || 'Tidak';
+            document.getElementById('odp-input-cetak').value = (cetakVal === 'Ya') ? 'Ya' : 'Tidak';
+            const qtyVal = item.qty || item.QTY || item.Qty || '';
+            document.getElementById('odp-input-qty').value = qtyVal !== '' ? qtyVal : '';
+
             odpPopulateEditorOptions();
             document.getElementById('odp-input-editor').value = item.nama_editor || item.Nama_Editor || '';
-            document.getElementById('odp-input-progress').value = odpProgressNormal(item.progress || item.Progress);
+            odpRenderProgressOptions(odpProgressNormal(item.progress || item.Progress));
 
             const modal = document.getElementById('odp-modal-crud');
             modal.classList.remove('hidden'); modal.classList.add('flex');
@@ -10923,6 +11013,8 @@ function edNormalisasiNamaKolom(k) {
                 jenis: document.getElementById('odp-input-jenis').value,
                 item: odpGetCheckedItems(),
                 item_lainnya: document.getElementById('odp-input-item-lainnya').value.trim() || null,
+                cetak: document.getElementById('odp-input-cetak').value || 'Tidak',
+                qty: document.getElementById('odp-input-qty').value ? parseInt(document.getElementById('odp-input-qty').value, 10) : null,
                 deadline: document.getElementById('odp-input-deadline').value || null,
                 nama_editor: document.getElementById('odp-input-editor').value.trim() || null,
                 progress: document.getElementById('odp-input-progress').value
@@ -11022,7 +11114,7 @@ function edNormalisasiNamaKolom(k) {
             if (countEl) countEl.innerText = `${filtered.length} dari ${odpListGlobal.length} order`;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="text-center py-8 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
                 return;
             }
 
@@ -11051,6 +11143,10 @@ function edNormalisasiNamaKolom(k) {
                     <td class="py-3.5 px-5">${odpFormatTanggal(item.tanggal_masuk || item.Tanggal_Masuk)}</td>
                     <td class="py-3.5 px-5"><span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${edEscapeHtml(item.jenis || item.Jenis)}</span></td>
                     <td class="py-3.5 px-5 max-w-[220px]">${itemCell}</td>
+                    <td class="py-3.5 px-5">${(item.cetak || item.Cetak) === 'Ya'
+                        ? '<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-50 text-sky-600 border border-sky-200">Ya</span>'
+                        : '<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-500 border border-slate-200">Tidak</span>'}</td>
+                    <td class="py-3.5 px-5 font-bold text-slate-700">${edEscapeHtml(item.qty ?? item.QTY ?? item.Qty ?? '-')}</td>
                     <td class="py-3.5 px-5">${odpFormatTanggal(item.deadline || item.Deadline)}</td>
                     <td class="py-3.5 px-5">${edEscapeHtml(item.nama_editor || item.Nama_Editor)}</td>
                     <td class="py-3.5 px-5">${odpBadgeProgress(item.progress || item.Progress)}</td>
@@ -11077,7 +11173,7 @@ function edNormalisasiNamaKolom(k) {
 
         async function odpMuatData() {
             const tbody = document.getElementById('odp-tabel-body');
-            if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">Memuat data dari database...</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="12" class="text-center py-8 text-slate-400">Memuat data dari database...</td></tr>`;
             const banner = document.getElementById('odp-diagnostic-banner');
             const msgEl = document.getElementById('odp-diagnostic-message');
             if (banner) banner.classList.add('hidden');
@@ -11090,7 +11186,7 @@ function edNormalisasiNamaKolom(k) {
                     banner.classList.remove('hidden');
                     msgEl.innerText = 'Gagal memuat data: ' + error.message + '. Pastikan tabel "Order_Desain_Promosi" sudah dibuat di Supabase dan RLS mengizinkan SELECT untuk role anon.';
                 }
-                if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-400">Gagal memuat data.</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="12" class="text-center py-8 text-rose-400">Gagal memuat data.</td></tr>`;
                 odpRenderKartu();
                 return;
             }
