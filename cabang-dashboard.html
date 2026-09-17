@@ -1394,6 +1394,19 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWRpYnp6ZGJ1ZHdpdGlyaXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTM5MjksImV4cCI6MjEwMzUyOTkyOX0.A3qxv3K3qSyBz87OY5PnVYJLU8k1a0qvWYJja7sucpg';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const NAMA_TABEL = 'Kiriman_Cabang';
+
+    // Normalisasi Grade: hanya ada 3 kategori final (Grade A, Grade B, Reject).
+    // Data lama yang masih tersimpan sebagai "Grade C" / "Grade D" (atau varian
+    // huruf C / D saja) otomatis dibaca sebagai "Reject" di seluruh dashboard cabang.
+    function normalizeGradeCabang(raw) {
+      const grade = String(raw ?? '').trim();
+      if (!grade) return '';
+      const lettersOnly = grade.toUpperCase().replace(/[^A-Z]/g, '');
+      if (lettersOnly === 'GRADEC' || lettersOnly === 'GRADED' || lettersOnly === 'C' || lettersOnly === 'D' || lettersOnly === 'REJECT') {
+        return 'Reject';
+      }
+      return grade;
+    }
     // Tabel Customer Profile di Supabase — sumber data utama halaman ini.
     const NAMA_TABEL_CUSTOMER_PROFILE = 'Customer_Profile';
     // Bucket Supabase Storage untuk upload file Customer Profile & Script Wawancara.
@@ -1978,8 +1991,7 @@
         else if (segmen.includes('REJECT') || segmen.includes('TOLAK')) countReject++;
         else if (segmen.includes('FOOTAGE')) countFootage++;
 
-        let grade = (item.Grade || item.grade || 'Belum Dinilai').trim();
-        if (grade.toUpperCase() === 'C') grade = 'Reject';
+        let grade = normalizeGradeCabang(item.Grade || item.grade) || 'Belum Dinilai';
         gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
       });
 
@@ -2270,7 +2282,7 @@
         const fileVideo = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-';
         const evaluasi = item.Evaluasi || item.evaluasi || '-';
         const alternatifSolusi = item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '-';
-        const grade = item.Grade || item.grade || '-';
+        const grade = normalizeGradeCabang(item.Grade || item.grade) || '-';
 
         let badgeGrade = 'bg-slate-100 text-slate-700 border-slate-200';
         const gUpper = String(grade).toUpperCase();
@@ -2278,7 +2290,7 @@
           badgeGrade = 'bg-emerald-50 text-emerald-700 border-emerald-200';
         } else if (gUpper.includes('B')) {
           badgeGrade = 'bg-amber-50 text-amber-700 border-amber-200';
-        } else if (gUpper.includes('C') || gUpper.includes('D')) {
+        } else if (gUpper.includes('REJECT')) {
           badgeGrade = 'bg-rose-50 text-rose-700 border-rose-200';
         }
 
