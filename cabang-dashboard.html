@@ -795,26 +795,22 @@
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
         <div>
           <h3 class="text-2xl font-black text-slate-900 tracking-tight">Hasil Evaluasi & Alternatif Solusi</h3>
-          <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade per cabang.</p>
+          <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade khusus cabang Anda.</p>
         </div>
 
-        <!-- Filter Berdasarkan Cabang yang Estetik, Interaktif, dan Beranimasi -->
-        <div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer w-full md:w-auto">
+        <!-- Badge Cabang: terkunci otomatis sesuai akun yang login, bukan dropdown bebas -->
+        <div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 w-full md:w-auto">
           <div
             class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
-            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
               </path>
             </svg>
           </div>
           <div class="flex flex-col flex-1">
-            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang
-              Spesifik</label>
-            <select id="filter-evaluasi-cabang"
-              class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
-              <option value="all">Semua Cabang</option>
-            </select>
+            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Cabang Anda</label>
+            <span id="eval-branch-badge" class="text-xs font-bold text-slate-800 mt-0.5">Memuat...</span>
           </div>
         </div>
       </div>
@@ -834,11 +830,11 @@
         <div
           class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:translate-y-[-4px]">
           <div
-            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
-            🏢</div>
+            class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            ❌</div>
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Cabang Terdaftar</p>
-            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="eval-cabang-count">0</h4>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Grade Reject</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="eval-reject-count">0</h4>
           </div>
         </div>
         <div
@@ -2231,47 +2227,48 @@
     async function muatDataEvaluasi() {
       listEvaluasiGlobal = await ambilDataEvaluasiSupabase();
 
-      const selectFilterEval = document.getElementById('filter-evaluasi-cabang');
-      let currentSelected = selectFilterEval.value;
+      // Resolusi ulang nama cabang memakai data Kiriman_Cabang (tabel sumber
+      // Hasil Evaluasi) supaya cocok persis dengan nama cabang di database,
+      // sama seperti pola yang dipakai di Customer Profile.
+      const resolved = cpResolveBranchFromUser(currentBranchUser, listEvaluasiGlobal);
+      if (resolved) currentBranchName = resolved;
 
-      let setCabangEval = new Set();
-      listEvaluasiGlobal.forEach(item => {
-        const c = item.Cabang || item.cabang;
-        if (c) setCabangEval.add(c.trim());
-      });
+      const badgeEl = document.getElementById('eval-branch-badge');
+      if (badgeEl) badgeEl.innerText = currentBranchName || 'Cabang tidak terdeteksi';
 
-      selectFilterEval.innerHTML = `<option value="all">Semua Cabang (${listEvaluasiGlobal.length})</option>`;
-      Array.from(setCabangEval).sort().forEach(c => {
-        const selectedAttr = (c === currentSelected) ? 'selected' : '';
-        selectFilterEval.innerHTML += `<option value="${c}" ${selectedAttr}>${c}</option>`;
-      });
-
-      renderTabelEvaluasi(selectFilterEval.value);
+      renderTabelEvaluasi(currentBranchName);
     }
 
-    function renderTabelEvaluasi(selectedCabang) {
+    function renderTabelEvaluasi(cabangSaya) {
       const tbodyEval = document.getElementById('tabel-evaluasi-body');
 
-      let filteredEval = listEvaluasiGlobal;
-      if (selectedCabang !== 'all') {
+      // Hasil Evaluasi kini terkunci hanya untuk cabang yang sedang login —
+      // tidak ada lagi pilihan "Semua Cabang" di sisi Cabang.
+      let filteredEval = [];
+      if (cabangSaya) {
         filteredEval = listEvaluasiGlobal.filter(item => {
           const c = (item.Cabang || item.cabang || '').trim();
-          return c === selectedCabang;
+          return c === cabangSaya;
         });
       }
 
       const totalEval = filteredEval.length;
-      let setCabangUnik = new Set();
-      filteredEval.forEach(item => {
-        if (item.Cabang || item.cabang) setCabangUnik.add((item.Cabang || item.cabang).trim());
-      });
+      const rejectCount = filteredEval.filter(item => {
+        const g = normalizeGradeCabang(item.Grade || item.grade).toUpperCase();
+        return g.includes('REJECT');
+      }).length;
 
       document.getElementById('eval-total').innerText = totalEval;
-      document.getElementById('eval-cabang-count').innerText = setCabangUnik.size;
+      document.getElementById('eval-reject-count').innerText = rejectCount;
       document.getElementById('eval-grade-info').innerText = totalEval > 0 ? 'Tersedia' : '-';
 
+      if (!cabangSaya) {
+        tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Nama cabang akun Anda belum terdeteksi. Hubungi Admin untuk memastikan akun sudah terhubung dengan data cabang yang benar.</td></tr>`;
+        return;
+      }
+
       if (filteredEval.length === 0) {
-        tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data evaluasi untuk cabang ini.</td></tr>`;
+        tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Belum ada data evaluasi untuk cabang ${cpBranchEscape(cabangSaya)}.</td></tr>`;
         return;
       }
 
@@ -2306,10 +2303,6 @@
         `;
       });
     }
-
-    document.getElementById('filter-evaluasi-cabang').addEventListener('change', (e) => {
-      renderTabelEvaluasi(e.target.value);
-    });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('data_user');
