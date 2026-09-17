@@ -2259,69 +2259,112 @@
       renderTabelEvaluasi(currentBranchName);
     }
 
-    // Menandai evaluasi sebagai sudah dibaca oleh cabang.
-    // Status disimpan di tabel Kiriman_Cabang agar tetap tersimpan setelah refresh.
-    async function tandaiEvaluasiDibaca(idEval, buttonEl) {
-      if (!idEval || !buttonEl) return;
+    // ================================================================
+    // STATUS EVALUASI DIBACA
+    // ================================================================
+    function getEvaluasiIdInfo(item) {
+      if (!item || typeof item !== 'object') return null;
+      const kandidat = ['id', 'ID', 'Id', 'uuid', 'UUID', 'id_kiriman', 'ID_Kiriman'];
+      for (const key of kandidat) {
+        if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') {
+          return { key, value: item[key] };
+        }
+      }
+      return null;
+    }
 
-      const originalHtml = buttonEl.innerHTML;
-      buttonEl.disabled = true;
-      buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Menyimpan...</span>';
+    function evaluasiSudahDibaca(item) {
+      const v = item?.evaluasi_dibaca;
+      const normalized = String(v ?? '').trim().toLowerCase();
+      return v === true || v === 1 || normalized === 'true' || normalized === '1' || normalized === 'yes';
+    }
 
-      const { error } = await db
-        .from(NAMA_TABEL)
-        .update({
-          evaluasi_dibaca: true,
-          evaluasi_dibaca_at: new Date().toISOString()
-        })
-        .eq('id', idEval);
-
-      if (error) {
-        console.error('[Evaluasi] Gagal menyimpan status dibaca:', error);
-        buttonEl.disabled = false;
-        buttonEl.innerHTML = originalHtml;
-        alert('Status evaluasi belum berhasil disimpan. Pastikan kolom evaluasi_dibaca sudah dibuat di Supabase dan policy UPDATE mengizinkan perubahan.');
+    async function ubahStatusEvaluasiDibaca(idEval, statusBaru, buttonEl = null) {
+      if (idEval === undefined || idEval === null || String(idEval).trim() === '') {
+        alert('ID evaluasi tidak ditemukan pada data ini.');
         return;
       }
 
-      // Perbarui data lokal tanpa perlu reload seluruh dashboard.
-      const target = listEvaluasiGlobal.find(item => String(item.id) === String(idEval));
-      if (target) {
-        target.evaluasi_dibaca = true;
-        target.evaluasi_dibaca_at = new Date().toISOString();
+      const oldHtml = buttonEl ? buttonEl.innerHTML : '';
+      if (buttonEl) {
+        buttonEl.disabled = true;
+        buttonEl.style.pointerEvents = 'none';
+        buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Menyimpan...</span>';
       }
 
-      buttonEl.outerHTML = `
-        <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
-          bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold whitespace-nowrap">
-          <i class="fas fa-check-circle"></i>
-          Sudah Dibaca
-        </span>`;
+      try {
+        const target = listEvaluasiGlobal.find(item => {
+          const info = getEvaluasiIdInfo(item);
+          return info && String(info.value) === String(idEval);
+        });
+        const idInfo = getEvaluasiIdInfo(target);
+        if (!idInfo) throw new Error('Primary key pada data evaluasi tidak ditemukan.');
+
+        const timestamp = statusBaru ? new Date().toISOString() : null;
+        const { data, error } = await db
+          .from(NAMA_TABEL)
+          .update({
+            evaluasi_dibaca: Boolean(statusBaru),
+            evaluasi_dibaca_at: timestamp
+          })
+          .eq(idInfo.key, idInfo.value)
+          .select('*');
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error('Tidak ada data yang berubah. Periksa RLS/policy UPDATE pada Kiriman_Cabang.');
+        }
+
+        if (target) {
+          target.evaluasi_dibaca = Boolean(statusBaru);
+          target.evaluasi_dibaca_at = timestamp;
+        }
+
+        renderTabelEvaluasi(currentBranchName);
+      } catch (error) {
+        console.error('[Evaluasi] Gagal mengubah status dibaca:', error);
+        if (buttonEl) {
+          buttonEl.disabled = false;
+          buttonEl.style.pointerEvents = 'auto';
+          buttonEl.innerHTML = oldHtml;
+        }
+        alert('Gagal mengubah status evaluasi: ' + (error?.message || String(error)));
+      }
     }
 
-    function renderStatusDibacaEvaluasi(item, idEval) {
-      const sudahDibaca = item.evaluasi_dibaca === true ||
-        String(item.evaluasi_dibaca).toLowerCase() === 'true' ||
-        item.evaluasi_dibaca === 1 ||
-        String(item.evaluasi_dibaca).toLowerCase() === 'yes';
+    // Event delegation agar tombol tetap berfungsi setelah tabel di-render ulang.
+    document.addEventListener('click', function (event) {
+      const btn = event.target.closest('.btn-status-evaluasi-dibaca');
+      if (!btn) return;
+      event.preventDefault();
+      event.stopPropagation();
+      ubahStatusEvaluasiDibaca(
+        btn.getAttribute('data-eval-id'),
+        btn.getAttribute('data-status-baru') === 'true',
+        btn
+      );
+    });
 
-      if (sudahDibaca) {
-        return `
-          <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
-            bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold whitespace-nowrap">
-            <i class="fas fa-check-circle"></i>
-            Sudah Dibaca
-          </span>`;
-      }
+    function renderStatusDibacaEvaluasi(item, idEval) {
+      const sudahDibaca = evaluasiSudahDibaca(item);
+      const statusBaru = !sudahDibaca;
+      const label = sudahDibaca ? 'Sudah Dibaca' : 'Tandai Sudah Dibaca';
+      const icon = sudahDibaca ? 'check-circle' : 'eye';
+      const cls = sudahDibaca
+        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
+        : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:border-amber-300';
+      const safeId = String(idEval ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       return `
         <button type="button"
-          onclick="tandaiEvaluasiDibaca(${JSON.stringify(idEval)}, this)"
-          class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
-            bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-extrabold
-            hover:bg-amber-100 hover:border-amber-300 transition-all interactive-btn whitespace-nowrap">
-          <i class="fas fa-eye"></i>
-          Tandai Sudah Dibaca
+          class="btn-status-evaluasi-dibaca inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
+            ${cls} border text-[10px] font-extrabold whitespace-nowrap cursor-pointer select-none
+            transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 relative z-20"
+          data-eval-id="${safeId}"
+          data-status-baru="${statusBaru ? 'true' : 'false'}"
+          title="Klik untuk mengubah status evaluasi">
+          <i class="fas fa-${icon}"></i>
+          ${label}
         </button>`;
     }
 
@@ -2360,7 +2403,8 @@
 
       tbodyEval.innerHTML = '';
       filteredEval.forEach((item, index) => {
-        const idEval = item.id || index;
+        const idInfo = getEvaluasiIdInfo(item);
+        const idEval = idInfo ? idInfo.value : '';
         const cabang = item.Cabang || item.cabang || '-';
         const fileVideo = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-';
         const evaluasi = item.Evaluasi || item.evaluasi || '-';
