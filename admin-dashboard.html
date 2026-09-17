@@ -7175,11 +7175,6 @@
                 return;
             }
 
-            const konfirmasi = statusBaru
-                ? 'Tandai evaluasi ini sebagai SUDAH DIBACA?'
-                : 'Ubah status evaluasi ini menjadi BELUM DIBACA?';
-            if (!confirm(konfirmasi)) return;
-
             try {
                 const updatePayload = {
                     evaluasi_dibaca: Boolean(statusBaru),
