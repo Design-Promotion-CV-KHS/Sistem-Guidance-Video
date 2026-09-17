@@ -2249,6 +2249,11 @@
                     id="nav-carousel-crud" onclick="switchTab('carousel-crud')">
                     <i class="fas fa-images w-5 text-center"></i> Planning Carousel
                 </button>
+                <button
+                    class="nav-btn w-full flex items-center gap-3.5 text-left py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02]"
+                    id="nav-editor-of-week" onclick="switchTab('editor-of-week')">
+                    <i class="fas fa-trophy w-5 text-center"></i> Editor of the Week
+                </button>
                 <p class="px-4 pt-4 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Order
                     Desain</p>
                 <button
@@ -3660,6 +3665,123 @@
                 </div>
             </div>
         </div>
+
+        <!-- ============ TAB: EDITOR OF THE WEEK ============ -->
+        <div class="p-8 space-y-6 w-full hidden" id="tab-editor-of-week">
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 shadow-sm bg-gradient-to-r from-amber-500/5 via-white to-white">
+                <div>
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-extrabold uppercase tracking-widest mb-3">
+                        <i class="fas fa-trophy"></i> Editor of the Week
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Kelola Editor of the Week</h3>
+                    <p class="text-sm text-slate-500 mt-1">Pilih editor, upload foto, dan tulis quote untuk ditampilkan
+                        pada bagian atas Workflow Video di Dashboard Editor. Jumlah video dihitung otomatis dari data
+                        Planning Landscape, tidak bisa diinput manual.</p>
+                </div>
+            </div>
+
+            <div id="eow-diagnostic-banner"
+                class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-sm">
+                <p class="font-bold mb-1">⚠️ Data Editor of the Week tidak tampil</p>
+                <p id="eow-diagnostic-message" class="text-rose-600"></p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+                <!-- FORM -->
+                <div class="lg:col-span-3 glass-card rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
+                    <form id="eow-form-crud" class="space-y-5">
+                        <input type="hidden" id="eow-edit-id" />
+
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Foto Editor</label>
+                            <div class="flex items-center gap-4 mt-2">
+                                <div id="eow-foto-preview-wrap"
+                                    class="w-20 h-20 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                                    <img id="eow-foto-preview" src="" class="w-full h-full object-cover hidden"
+                                        alt="Preview foto editor">
+                                    <i id="eow-foto-placeholder-icon" class="fas fa-user text-slate-300 text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <label
+                                        class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+                                        <i class="fas fa-upload"></i> Upload Foto (JPG/PNG)
+                                        <input type="file" id="eow-upload-foto"
+                                            accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden">
+                                    </label>
+                                    <p id="eow-upload-foto-status" class="text-xs mt-1.5"></p>
+                                    <input type="hidden" id="eow-crud-field-foto">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nama Editor</label>
+                            <select id="eow-crud-field-editor" required
+                                class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-indigo-400">
+                                <option value="">- Pilih Editor -</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jumlah
+                                    Video (Otomatis)</p>
+                                <p id="eow-periode-label" class="text-[11px] text-slate-400 mt-0.5">-</p>
+                            </div>
+                            <p class="text-3xl font-black text-slate-800"><span id="eow-jumlah-otomatis">0</span>
+                                <span class="text-xs font-semibold text-slate-400">video</span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Quote /
+                                Kata-kata</label>
+                            <textarea id="eow-crud-field-quote" rows="3" maxlength="220"
+                                placeholder="Contoh: Konsisten setiap minggu adalah kunci hasil yang besar."
+                                class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-indigo-400 resize-none"></textarea>
+                        </div>
+
+                        <div id="eow-form-error"
+                            class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl p-3">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-5 py-3 rounded-2xl transition-all shadow-md interactive-btn">
+                            <i class="fas fa-floppy-disk"></i> Simpan Editor of the Week
+                        </button>
+                        <p class="text-[11px] text-slate-400 text-center">Data ini otomatis tampil di Dashboard Editor
+                            pada bagian paling atas Workflow Video.</p>
+                    </form>
+                </div>
+
+                <!-- PREVIEW -->
+                <div class="lg:col-span-2">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Preview di Dashboard
+                        Editor</p>
+                    <div class="glass-card rounded-2xl p-5 md:p-6 border border-amber-200/70 bg-gradient-to-r from-amber-50/70 via-white to-white sticky top-4">
+                        <div id="eow-preview-isi" class="flex items-center gap-4">
+                            <div id="eow-preview-foto"
+                                class="w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-2xl shrink-0 overflow-hidden ring-4 ring-amber-200/60"
+                                style="background:#f59e0b">?</div>
+                            <div class="min-w-0 flex-1">
+                                <span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">🏆 Editor
+                                    of the Week</span>
+                                <p id="eow-preview-nama" class="text-lg font-black text-slate-800 truncate mt-1">-</p>
+                                <p class="text-xs text-slate-500 font-medium">
+                                    <span id="eow-preview-jumlah" class="font-black text-slate-800">0</span> video
+                                    selesai minggu ini
+                                </p>
+                            </div>
+                        </div>
+                        <p id="eow-preview-quote"
+                            class="hidden text-sm text-slate-600 italic border-t border-amber-200/60 mt-4 pt-3">"-"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============ /TAB: EDITOR OF THE WEEK ============ -->
 
         <!-- ============ TAB: ORDER DESAIN PROMOSI ============ -->
         <div class="p-8 space-y-6 w-full hidden" id="tab-order-desain">
@@ -6571,6 +6693,9 @@
         ];
         const ODP_PROGRESS_OPTIONS = ODP_PROGRESS_STEPS.map(s => s.value);
         const ODP_EDITORS = ['Rega', 'Syukri', 'Rinal', 'Ridan', 'Bayu', 'Rafqi', 'Iis', 'Munir'];
+        // ==== Editor of the Week ====
+        const NAMA_TABEL_EDITOR_OF_WEEK = 'Editor_Of_The_Week';
+        const SUPABASE_STORAGE_BUCKET_EOW = 'editor-of-week-photos';
         const MASTER_DAFTAR_CABANG = [
             'Nganjuk', 'Jogja', 'Cianjur', 'Pekanbaru', 'Banjarmasin',
             'Bandar Lampung', 'Palu', 'Makassar', 'Medan'
@@ -6724,7 +6849,7 @@
         });
 
         /* ================= NAVIGASI TAB UTAMA ================= */
-        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'jadwal-5s', 'riset-promosi', 'editor-crud', 'portrait-crud', 'carousel-crud', 'order-desain', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
+        const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'jadwal-5s', 'riset-promosi', 'editor-crud', 'portrait-crud', 'carousel-crud', 'editor-of-week', 'order-desain', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
         const HEADER_SUBTITLE = {
             'overview': '| Ringkasan, Grafik & Statistik Seluruh Sistem',
             'cabang-crud': '| Kelola Data Cabang',
@@ -6736,6 +6861,7 @@
             'editor-crud': '| Planning Landscape',
             'portrait-crud': '| Planning Potrait',
             'carousel-crud': '| Planning Carousel',
+            'editor-of-week': '| Kelola Editor of the Week',
             'order-desain': '| Kelola Order Desain Promosi',
             'user-crud': '| Kelola User & Role',
             'workflow-tools': '| Workflow Editing Video',
@@ -6790,6 +6916,7 @@
             else if (tabName === 'editor-crud') edMuatDashboard();
             else if (tabName === 'portrait-crud') ptMuatData();
             else if (tabName === 'carousel-crud') pcMuatData();
+            else if (tabName === 'editor-of-week') eowTampilkanTab();
             else if (tabName === 'order-desain') odpMuatData();
             else if (tabName === 'user-crud') usMuatDataUser();
             else if (tabName === 'panduan') tutupPanduanWorkspace();
@@ -9315,6 +9442,282 @@
             if (str === null || str === undefined) return '-';
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
+
+        /* ===================================================================
+           EDITOR OF THE WEEK
+           Admin memilih editor, upload foto, & menulis quote. Jumlah video
+           SELALU dihitung otomatis dari Planning_Editor (edListPlanningGlobal),
+           tidak pernah diinput manual & tidak disimpan ke tabel — supaya
+           angkanya tetap update walau baru dibuka lagi belakangan.
+           Hanya ada 1 baris aktif pada tabel Editor_Of_The_Week (baris terbaru
+           berdasarkan id yang dipakai; simpan akan meng-update baris itu kalau
+           sudah ada, atau membuat baru kalau belum ada sama sekali).
+        =================================================================== */
+        let eowCurrentIdInfo = null;
+        let eowDataLoaded = false;
+
+        /*
+         * PERIODE MINGGUAN (disamakan dengan Dashboard Editor)
+         * Periode tidak mengikuti Senin-Minggu, tapi dibagi per bulan:
+         * 1-7, 8-14, 15-21, 22-28, dan 29-sampai-akhir-bulan.
+         */
+        function getPeriodeTargetMingguan(refDate) {
+            const d = new Date(refDate);
+            if (isNaN(d)) return null;
+            const tahun = d.getFullYear();
+            const bulan = d.getMonth();
+            const tanggal = d.getDate();
+            let awalTanggal;
+            if (tanggal <= 7) awalTanggal = 1;
+            else if (tanggal <= 14) awalTanggal = 8;
+            else if (tanggal <= 21) awalTanggal = 15;
+            else if (tanggal <= 28) awalTanggal = 22;
+            else awalTanggal = 29;
+            const akhirTanggal = awalTanggal === 29
+                ? new Date(tahun, bulan + 1, 0).getDate()
+                : Math.min(awalTanggal + 6, new Date(tahun, bulan + 1, 0).getDate());
+            const awal = new Date(tahun, bulan, awalTanggal, 0, 0, 0, 0);
+            const akhir = new Date(tahun, bulan, akhirTanggal, 23, 59, 59, 999);
+            return { awal, akhir, tahun, bulan };
+        }
+
+        function formatPeriodeMinggu(periode) {
+            const awal = periode.awal.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            const akhir = periode.akhir.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            return `${awal} — ${akhir}`;
+        }
+
+        function parseTanggalDue(value) {
+            if (!value) return null;
+            const raw = String(value).trim();
+            let d = new Date(raw);
+            if (!Number.isNaN(d.getTime())) return d;
+            const m = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+            if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+            return null;
+        }
+
+        function eowWarnaEditor(nama) {
+            let hash = 0;
+            for (let i = 0; i < nama.length; i++) hash = nama.charCodeAt(i) + ((hash << 5) - hash);
+            return COLOR_PALETTE[Math.abs(hash) % COLOR_PALETTE.length];
+        }
+
+        // Jumlah video Done milik satu editor pada periode minggu berjalan.
+        // Selalu dihitung ulang dari edListPlanningGlobal, tidak pernah dari input admin.
+        function eowHitungVideoMinggu(namaEditor) {
+            if (!namaEditor) return 0;
+            const periode = getPeriodeTargetMingguan(new Date());
+            if (!periode) return 0;
+            return edListPlanningGlobal.filter(item => {
+                if (item.editor !== namaEditor || item.statusEdit !== 'Done') return false;
+                const due = parseTanggalDue(item.dueDate);
+                if (!due) return false;
+                return due >= periode.awal && due <= periode.akhir;
+            }).length;
+        }
+
+        function eowPopulateEditorSelect() {
+            const select = document.getElementById('eow-crud-field-editor');
+            if (!select) return;
+            const current = select.value;
+            select.innerHTML = '<option value="">- Pilih Editor -</option>' +
+                ODP_EDITORS.map(e => `<option value="${edEscapeHtml(e)}">${edEscapeHtml(e)}</option>`).join('');
+            if (current) select.value = current;
+        }
+
+        function eowUpdateJumlahOtomatis() {
+            const namaEditor = document.getElementById('eow-crud-field-editor')?.value || '';
+            const periode = getPeriodeTargetMingguan(new Date());
+            const jumlah = eowHitungVideoMinggu(namaEditor);
+            const jumlahEl = document.getElementById('eow-jumlah-otomatis');
+            const periodeEl = document.getElementById('eow-periode-label');
+            if (jumlahEl) jumlahEl.innerText = jumlah;
+            if (periodeEl) periodeEl.innerText = periode ? `Periode ${formatPeriodeMinggu(periode)}` : '-';
+            eowUpdatePreview();
+        }
+
+        function eowUpdatePreview() {
+            const namaEditor = document.getElementById('eow-crud-field-editor')?.value || '';
+            const fotoUrl = document.getElementById('eow-crud-field-foto')?.value || '';
+            const quote = document.getElementById('eow-crud-field-quote')?.value || '';
+            const jumlah = eowHitungVideoMinggu(namaEditor);
+
+            const namaEl = document.getElementById('eow-preview-nama');
+            const jumlahEl = document.getElementById('eow-preview-jumlah');
+            const fotoEl = document.getElementById('eow-preview-foto');
+            const quoteEl = document.getElementById('eow-preview-quote');
+
+            if (namaEl) namaEl.innerText = namaEditor || '-';
+            if (jumlahEl) jumlahEl.innerText = jumlah;
+
+            if (fotoEl) {
+                fotoEl.style.background = namaEditor ? eowWarnaEditor(namaEditor) : '#f59e0b';
+                fotoEl.innerHTML = fotoUrl
+                    ? `<img src="${fotoUrl}" alt="${edEscapeHtml(namaEditor)}" class="w-full h-full object-cover rounded-full">`
+                    : `<span>${namaEditor ? edEscapeHtml(namaEditor.charAt(0).toUpperCase()) : '?'}</span>`;
+            }
+
+            if (quoteEl) {
+                if (quote.trim()) {
+                    quoteEl.classList.remove('hidden');
+                    quoteEl.innerText = `"${quote.trim()}"`;
+                } else {
+                    quoteEl.classList.add('hidden');
+                }
+            }
+        }
+
+        async function eowUploadFotoHandler(inputEl) {
+            const file = inputEl.files && inputEl.files[0];
+            if (!file) return;
+            const allowedExt = ['jpg', 'jpeg', 'png', 'webp'];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const statusEl = document.getElementById('eow-upload-foto-status');
+
+            if (!allowedExt.includes(ext)) {
+                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan JPG, PNG, atau WEBP.</span>';
+                inputEl.value = '';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                statusEl.innerHTML = '<span class="text-rose-500">Ukuran foto maksimal 5MB.</span>';
+                inputEl.value = '';
+                return;
+            }
+
+            statusEl.innerHTML = '<span class="text-indigo-500"><i class="fas fa-spinner fa-spin"></i> Mengupload foto...</span>';
+
+            const namaBersih = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const path = `${Date.now()}_${namaBersih}`;
+
+            const { error } = await db.storage.from(SUPABASE_STORAGE_BUCKET_EOW).upload(path, file, { cacheControl: '3600', upsert: false });
+            if (error) {
+                statusEl.innerHTML = `<span class="text-rose-500">Gagal upload: ${edEscapeHtml(error.message)}. Pastikan storage bucket "${SUPABASE_STORAGE_BUCKET_EOW}" sudah dibuat di Supabase (public).</span>`;
+                inputEl.value = '';
+                return;
+            }
+
+            const { data: publicUrlData } = db.storage.from(SUPABASE_STORAGE_BUCKET_EOW).getPublicUrl(path);
+            const publicUrl = publicUrlData ? publicUrlData.publicUrl : '';
+
+            document.getElementById('eow-crud-field-foto').value = publicUrl;
+            const previewImg = document.getElementById('eow-foto-preview');
+            const placeholderIcon = document.getElementById('eow-foto-placeholder-icon');
+            if (previewImg) { previewImg.src = publicUrl; previewImg.classList.remove('hidden'); }
+            if (placeholderIcon) placeholderIcon.classList.add('hidden');
+            statusEl.innerHTML = `<span class="text-emerald-600"><i class="fas fa-check-circle"></i> Berhasil: ${edEscapeHtml(file.name)}</span>`;
+            inputEl.value = '';
+            eowUpdatePreview();
+        }
+
+        function eowTampilkanDiagnostik(pesan) {
+            const banner = document.getElementById('eow-diagnostic-banner');
+            const msg = document.getElementById('eow-diagnostic-message');
+            if (banner && msg) { msg.innerText = pesan; banner.classList.remove('hidden'); }
+        }
+        function eowSembunyikanDiagnostik() {
+            document.getElementById('eow-diagnostic-banner')?.classList.add('hidden');
+        }
+
+        async function eowMuatData() {
+            eowSembunyikanDiagnostik();
+            eowPopulateEditorSelect();
+
+            const { data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false }).limit(1);
+            if (error) {
+                eowTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_EDITOR_OF_WEEK}": ${error.message} (code: ${error.code || '-'}). Pastikan tabel sudah dibuat di Supabase dengan kolom: id, editor, foto_url, quote — dan RLS mengizinkan akses baca untuk role anon.`);
+                eowCurrentIdInfo = null;
+                eowUpdateJumlahOtomatis();
+                return;
+            }
+
+            eowDataLoaded = true;
+            const row = (data && data[0]) || null;
+
+            if (!row) {
+                eowCurrentIdInfo = null;
+                eowUpdateJumlahOtomatis();
+                eowUpdatePreview();
+                return;
+            }
+
+            const idInfo = getRowIdInfo(row);
+            eowCurrentIdInfo = idInfo;
+
+            const namaEditor = row.editor || row.Editor || '';
+            const fotoUrl = row.foto_url || row.Foto_Url || row.foto || '';
+            const quote = row.quote || row.Quote || '';
+
+            eowPopulateEditorSelect();
+            document.getElementById('eow-crud-field-editor').value = namaEditor;
+            document.getElementById('eow-crud-field-foto').value = fotoUrl;
+            document.getElementById('eow-crud-field-quote').value = quote;
+
+            const previewImg = document.getElementById('eow-foto-preview');
+            const placeholderIcon = document.getElementById('eow-foto-placeholder-icon');
+            if (fotoUrl && previewImg) {
+                previewImg.src = fotoUrl;
+                previewImg.classList.remove('hidden');
+                if (placeholderIcon) placeholderIcon.classList.add('hidden');
+            } else if (previewImg) {
+                previewImg.classList.add('hidden');
+                if (placeholderIcon) placeholderIcon.classList.remove('hidden');
+            }
+
+            eowUpdateJumlahOtomatis();
+        }
+
+        async function eowTampilkanTab() {
+            if (!edListPlanningGlobal || edListPlanningGlobal.length === 0) {
+                await edMuatDashboard();
+            }
+            await eowMuatData();
+        }
+
+        async function eowSimpanForm(e) {
+            e.preventDefault();
+            const errBox = document.getElementById('eow-form-error');
+            errBox.classList.add('hidden');
+
+            const namaEditor = document.getElementById('eow-crud-field-editor').value.trim();
+            if (!namaEditor) { errBox.innerText = 'Nama editor wajib dipilih.'; errBox.classList.remove('hidden'); return; }
+
+            const payload = {
+                editor: namaEditor,
+                foto_url: document.getElementById('eow-crud-field-foto').value.trim(),
+                quote: document.getElementById('eow-crud-field-quote').value.trim()
+            };
+
+            let error, data;
+            if (eowCurrentIdInfo) {
+                ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).update(payload).eq(eowCurrentIdInfo.key, eowCurrentIdInfo.value).select());
+            } else {
+                ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).insert([payload]).select());
+            }
+
+            if (error) {
+                errBox.innerText = 'Gagal menyimpan data: ' + error.message;
+                errBox.classList.remove('hidden');
+                return;
+            }
+            if (!data || data.length === 0) {
+                errBox.innerText = `Data TIDAK tersimpan meskipun tidak ada error. Kemungkinan RLS pada tabel "${NAMA_TABEL_EDITOR_OF_WEEK}" belum punya policy INSERT/UPDATE untuk role anon. Cek di Supabase: Table Editor → ${NAMA_TABEL_EDITOR_OF_WEEK} → RLS.`;
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            alert('Editor of the Week berhasil disimpan!');
+            await eowMuatData();
+        }
+
+        document.getElementById('eow-form-crud')?.addEventListener('submit', eowSimpanForm);
+        document.getElementById('eow-crud-field-editor')?.addEventListener('change', eowUpdateJumlahOtomatis);
+        document.getElementById('eow-crud-field-quote')?.addEventListener('input', eowUpdatePreview);
+        document.getElementById('eow-upload-foto')?.addEventListener('change', function () {
+            eowUploadFotoHandler(this);
+        });
+        /* ===================== /EDITOR OF THE WEEK ===================== */
         const ED_WARNA_STATUS_EDIT = {
             'Transkrip Siap': 'bg-purple-50 text-purple-600 border border-purple-200',
             'Skenario Siap': 'bg-blue-50 text-blue-600 border border-blue-200',
@@ -10822,6 +11225,7 @@ function edNormalisasiNamaKolom(k) {
             else if (currentActiveTab === 'editor-crud') edMuatDashboard();
             else if (currentActiveTab === 'portrait-crud') ptMuatData();
             else if (currentActiveTab === 'carousel-crud') pcMuatData();
+            else if (currentActiveTab === 'editor-of-week') eowMuatData();
         }
 
         db.channel('realtime-admin-kiriman')
@@ -10876,6 +11280,13 @@ function edNormalisasiNamaKolom(k) {
                 if (currentActiveTab === 'riset-promosi') rpMuatData();
             })
             .subscribe((status) => console.log('[Realtime] Status channel Riset_Promosi:', status));
+
+        db.channel('realtime-admin-editor-of-week')
+            .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_EDITOR_OF_WEEK }, (payload) => {
+                console.log('[Realtime] Perubahan pada tabel Editor_Of_The_Week:', payload);
+                if (currentActiveTab === 'editor-of-week') eowMuatData();
+            })
+            .subscribe((status) => console.log('[Realtime] Status channel Editor_Of_The_Week:', status));
 
         db.channel('realtime-admin-order-desain')
             .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_ORDER_DESAIN }, (payload) => {
