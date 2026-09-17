@@ -1435,6 +1435,16 @@
     const CP_TARGET_PER_CABANG_PER_BULAN = 2;
     let currentBranchUser = {};
     let currentBranchName = '';
+
+    // Akun khusus yang datanya Hasil Evaluasi ditampilkan untuk SEMUA cabang
+    // (bukan cuma cabang sendiri). Tambahkan nama_user/username baru di sini
+    // (huruf besar/kecil tidak masalah, sudah dinormalisasi ke lowercase).
+    const EVAL_USER_LIHAT_SEMUA_CABANG = ['heru', 'anif'];
+    function cpIsUserLihatSemuaCabangEvaluasi(user) {
+      const nama = String(user?.nama_user || user?.username || user?.user_name || '').trim().toLowerCase();
+      return EVAL_USER_LIHAT_SEMUA_CABANG.includes(nama);
+    }
+    let evalLihatSemuaCabang = false;
     let branchCpData = [];
     let branchCpDateColumnDetected = null;
     let branchCpTrendChart = null;
@@ -1552,6 +1562,7 @@
     } else {
       const user = JSON.parse(storedUser);
       currentBranchUser = user || {};
+      evalLihatSemuaCabang = cpIsUserLihatSemuaCabangEvaluasi(user);
       const role = (user.role || 'editor').toLowerCase();
       // JANGAN memakai nama_user sebagai nama cabang secara langsung di sini.
       // Resolusi nama cabang yang sebenarnya (termasuk fallback ke nama_user/username)
@@ -2254,7 +2265,11 @@
       if (resolved) currentBranchName = resolved;
 
       const badgeEl = document.getElementById('eval-branch-badge');
-      if (badgeEl) badgeEl.innerText = currentBranchName || 'Cabang tidak terdeteksi';
+      if (badgeEl) {
+        badgeEl.innerText = evalLihatSemuaCabang
+          ? 'Semua Cabang'
+          : (currentBranchName || 'Cabang tidak terdeteksi');
+      }
 
       renderTabelEvaluasi(currentBranchName);
     }
@@ -2371,10 +2386,13 @@
     function renderTabelEvaluasi(cabangSaya) {
       const tbodyEval = document.getElementById('tabel-evaluasi-body');
 
-      // Hasil Evaluasi kini terkunci hanya untuk cabang yang sedang login —
-      // tidak ada lagi pilihan "Semua Cabang" di sisi Cabang.
+      // Hasil Evaluasi biasanya terkunci hanya untuk cabang yang sedang login,
+      // KECUALI akun-akun khusus di EVAL_USER_LIHAT_SEMUA_CABANG yang boleh
+      // melihat data evaluasi seluruh cabang.
       let filteredEval = [];
-      if (cabangSaya) {
+      if (evalLihatSemuaCabang) {
+        filteredEval = listEvaluasiGlobal.slice();
+      } else if (cabangSaya) {
         filteredEval = listEvaluasiGlobal.filter(item => {
           const c = (item.Cabang || item.cabang || '').trim();
           return c === cabangSaya;
@@ -2391,13 +2409,15 @@
       document.getElementById('eval-reject-count').innerText = rejectCount;
       document.getElementById('eval-grade-info').innerText = totalEval > 0 ? 'Tersedia' : '-';
 
-      if (!cabangSaya) {
+      if (!evalLihatSemuaCabang && !cabangSaya) {
         tbodyEval.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Nama cabang akun Anda belum terdeteksi. Hubungi Admin untuk memastikan akun sudah terhubung dengan data cabang yang benar.</td></tr>`;
         return;
       }
 
       if (filteredEval.length === 0) {
-        tbodyEval.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Belum ada data evaluasi untuk cabang ${cpBranchEscape(cabangSaya)}.</td></tr>`;
+        tbodyEval.innerHTML = evalLihatSemuaCabang
+          ? `<tr><td colspan="7" class="text-center py-8 text-slate-400">Belum ada data evaluasi.</td></tr>`
+          : `<tr><td colspan="7" class="text-center py-8 text-slate-400">Belum ada data evaluasi untuk cabang ${cpBranchEscape(cabangSaya)}.</td></tr>`;
         return;
       }
 
