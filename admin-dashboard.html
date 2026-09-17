@@ -4389,8 +4389,7 @@
                         <option value="">- Pilih Grade -</option>
                         <option value="Grade A">Grade A</option>
                         <option value="Grade B">Grade B</option>
-                        <option value="Grade C">Grade C</option>
-                        <option value="Grade D">Grade D</option>
+                        <option value="Reject">Reject</option>
                     </select>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 shrink-0">
@@ -6608,6 +6607,19 @@
             selectEl.value = val;
         }
 
+        // Normalisasi Grade: hanya ada 3 kategori final (Grade A, Grade B, Reject).
+        // Data lama yang masih tersimpan sebagai "Grade C" / "Grade D" (atau varian
+        // huruf C / D saja) otomatis dibaca sebagai "Reject" di seluruh dashboard.
+        function normalizeGrade(raw) {
+            const grade = String(raw ?? '').trim();
+            if (!grade) return '';
+            const lettersOnly = grade.toUpperCase().replace(/[^A-Z]/g, '');
+            if (lettersOnly === 'GRADEC' || lettersOnly === 'GRADED' || lettersOnly === 'C' || lettersOnly === 'D' || lettersOnly === 'REJECT') {
+                return 'Reject';
+            }
+            return grade;
+        }
+
         // Ambil tahun & bulan dari 8 digit awal nama file (format YYYYMMDD...)
         function cbGetYearMonthFromItem(item) {
             const textSumber = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '';
@@ -6905,7 +6917,7 @@
                 else if (segmen.includes('REJECT') || segmen.includes('TOLAK')) countReject++;
                 else if (segmen.includes('FOOTAGE')) countFootage++;
 
-                let grade = (item.Grade || item.grade || 'Belum Dinilai').trim();
+                let grade = normalizeGrade(item.Grade || item.grade) || 'Belum Dinilai';
                 gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
             });
 
@@ -7115,7 +7127,7 @@
                 const cabang = item.Cabang || item.cabang || '-';
                 const fileVideo = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-';
                 const segmen = item.Segmen || item.segmen || '-';
-                const grade = item.Grade || item.grade || '-';
+                const grade = normalizeGrade(item.Grade || item.grade) || '-';
                 tbody.innerHTML += `
           <tr class="hover:bg-slate-50/80 transition-all duration-200">
             <td class="py-4 px-5 font-mono text-xs text-slate-400">${idDisplay}</td>
@@ -7181,13 +7193,13 @@
                 const fileVideo = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-';
                 const evaluasi = item.Evaluasi || item.evaluasi || '-';
                 const alternatifSolusi = item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '-';
-                const grade = item.Grade || item.grade || '-';
+                const grade = normalizeGrade(item.Grade || item.grade) || '-';
 
                 let badgeGrade = 'bg-slate-100 text-slate-700 border-slate-200';
                 const gUpper = String(grade).toUpperCase();
                 if (gUpper.includes('A')) badgeGrade = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                 else if (gUpper.includes('B')) badgeGrade = 'bg-amber-50 text-amber-700 border-amber-200';
-                else if (gUpper.includes('C') || gUpper.includes('D')) badgeGrade = 'bg-rose-50 text-rose-700 border-rose-200';
+                else if (gUpper.includes('REJECT')) badgeGrade = 'bg-rose-50 text-rose-700 border-rose-200';
 
                 tbodyEval.innerHTML += `
           <tr class="hover:bg-slate-50/80 transition-all duration-200">
@@ -7232,7 +7244,7 @@
             document.getElementById('cb-input-file').value = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '';
             document.getElementById('cb-input-evaluasi').value = item.Evaluasi || item.evaluasi || '';
             document.getElementById('cb-input-solusi').value = item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '';
-            setSelectValueEnsureOption(document.getElementById('cb-input-grade'), item.Grade || item.grade || '');
+            setSelectValueEnsureOption(document.getElementById('cb-input-grade'), normalizeGrade(item.Grade || item.grade));
             const modal = document.getElementById('cb-modal-crud');
             modal.classList.remove('hidden'); modal.classList.add('flex');
         }
