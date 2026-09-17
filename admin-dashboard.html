@@ -3013,12 +3013,13 @@
                                 <th class="py-4 px-5 bg-slate-100">Evaluasi</th>
                                 <th class="py-4 px-5 bg-slate-100">Alternatif Solusi</th>
                                 <th class="py-4 px-5 bg-slate-100">Grade / Status</th>
+                                <th class="py-4 px-5 bg-slate-100 text-center">Status Dibaca</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
                             id="cb-tabel-evaluasi-body">
                             <tr>
-                                <td class="text-center py-8 text-slate-400" colspan="6">Memuat data evaluasi...</td>
+                                <td class="text-center py-8 text-slate-400" colspan="7">Memuat data evaluasi...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -7168,6 +7169,73 @@
             cbRenderTabelEvaluasi(selectFilterEval.value);
         }
 
+        async function cbUbahStatusDibaca(idEval, statusBaru, kolomId = null) {
+            if (idEval === undefined || idEval === null || idEval === '') {
+                alert('ID evaluasi tidak ditemukan.');
+                return;
+            }
+
+            const konfirmasi = statusBaru
+                ? 'Tandai evaluasi ini sebagai SUDAH DIBACA?'
+                : 'Ubah status evaluasi ini menjadi BELUM DIBACA?';
+            if (!confirm(konfirmasi)) return;
+
+            try {
+                const updatePayload = {
+                    evaluasi_dibaca: Boolean(statusBaru),
+                    evaluasi_dibaca_at: statusBaru ? new Date().toISOString() : null
+                };
+
+                // Gunakan nama primary key yang benar-benar ditemukan pada row,
+                // jangan mengasumsikan selalu bernama `id`.
+                const idInfo = kolomId
+                    ? { key: kolomId, value: idEval }
+                    : getRowIdInfo(cbListEvaluasiGlobal.find(item => {
+                        const info = getRowIdInfo(item);
+                        return info && String(info.value) === String(idEval);
+                    }) || {});
+
+                if (!idInfo) {
+                    throw new Error('Kolom ID/primary key Kiriman_Cabang tidak ditemukan.');
+                }
+
+                const { data, error } = await db
+                    .from(NAMA_TABEL_KIRIMAN)
+                    .update(updatePayload)
+                    .eq(idInfo.key, idInfo.value)
+                    .select('*');
+
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    throw new Error('Data tidak berubah. Kemungkinan UPDATE ditolak RLS/policy Supabase, atau ID tidak cocok.');
+                }
+
+                const idx = cbListEvaluasiGlobal.findIndex(item => {
+                    const info = getRowIdInfo(item);
+                    return info && String(info.value) === String(idEval);
+                });
+                if (idx !== -1) {
+                    cbListEvaluasiGlobal[idx].evaluasi_dibaca = Boolean(statusBaru);
+                    cbListEvaluasiGlobal[idx].evaluasi_dibaca_at = updatePayload.evaluasi_dibaca_at;
+                }
+
+                cbRenderTabelEvaluasi(document.getElementById('cb-filter-evaluasi-cabang').value);
+            } catch (error) {
+                console.error('[Evaluasi] Gagal mengubah status dibaca:', error);
+                alert('Gagal mengubah status dibaca: ' + (error?.message || String(error)));
+            }
+        }
+
+        // Gunakan event delegation, sehingga tombol tetap berfungsi meskipun
+        // isi tbody dirender ulang berkali-kali oleh filter/realtime.
+        document.getElementById('cb-tabel-evaluasi-body').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action="ubah-status-dibaca"]');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            cbUbahStatusDibaca(btn.dataset.evalId, btn.dataset.statusBaru === 'true', btn.dataset.kolomId || null);
+        });
+
         function cbRenderTabelEvaluasi(selectedCabang) {
             const tbodyEval = document.getElementById('cb-tabel-evaluasi-body');
             let filteredEval = cbListEvaluasiGlobal;
@@ -7183,17 +7251,23 @@
             document.getElementById('cb-eval-grade-info').innerText = totalEval > 0 ? 'Tersedia' : '-';
 
             if (filteredEval.length === 0) {
-                tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data evaluasi untuk cabang ini.</td></tr>`;
+                tbodyEval.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data evaluasi untuk cabang ini.</td></tr>`;
                 return;
             }
             tbodyEval.innerHTML = '';
             filteredEval.forEach((item, index) => {
-                const idEval = item.id || index;
+                const idInfo = getRowIdInfo(item);
+                const idEval = idInfo ? idInfo.value : '';
+                const kolomId = idInfo ? idInfo.key : '';
                 const cabang = item.Cabang || item.cabang || '-';
                 const fileVideo = item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-';
                 const evaluasi = item.Evaluasi || item.evaluasi || '-';
                 const alternatifSolusi = item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '-';
                 const grade = normalizeGrade(item.Grade || item.grade) || '-';
+                const sudahDibaca = item.evaluasi_dibaca === true ||
+                    String(item.evaluasi_dibaca).toLowerCase() === 'true' ||
+                    String(item.evaluasi_dibaca) === '1' ||
+                    String(item.evaluasi_dibaca).toLowerCase() === 'yes';
 
                 let badgeGrade = 'bg-slate-100 text-slate-700 border-slate-200';
                 const gUpper = String(grade).toUpperCase();
@@ -7209,6 +7283,12 @@
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-sm">${evaluasi}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-sm">${alternatifSolusi}</td>
             <td class="py-4 px-5 whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeGrade}">${grade !== '-' ? grade : 'Normal'}</span></td>
+            <td class="py-4 px-5 text-center whitespace-nowrap">
+              ${sudahDibaca
+                ? `<button type="button" data-action="ubah-status-dibaca" data-eval-id="${String(idEval).replace(/\"/g, '&quot;')}" data-status-baru="false" data-kolom-id="${kolomId}" class="relative z-10 pointer-events-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition-all" title="Klik untuk mengubah kembali menjadi belum dibaca"><i class="fa-solid fa-circle-check"></i> Sudah Dibaca</button>`
+                : `<button type="button" data-action="ubah-status-dibaca" data-eval-id="${String(idEval).replace(/\"/g, '&quot;')}" data-status-baru="true" data-kolom-id="${kolomId}" class="relative z-10 pointer-events-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-all" title="Klik untuk menandai sudah dibaca"><i class="fa-regular fa-eye"></i> Belum Dibaca</button>`
+              }
+            </td>
           </tr>`;
             });
         }
