@@ -2264,7 +2264,7 @@
     // ================================================================
     function getEvaluasiIdInfo(item) {
       if (!item || typeof item !== 'object') return null;
-      const kandidat = ['id', 'ID', 'Id', 'uuid', 'UUID', 'id_kiriman', 'ID_Kiriman'];
+      const kandidat = ['id_video', 'Id_Video', 'ID_Video', 'id', 'ID', 'Id', 'uuid', 'UUID', 'id_kiriman', 'ID_Kiriman'];
       for (const key of kandidat) {
         if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') {
           return { key, value: item[key] };
