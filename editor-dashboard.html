@@ -23,7 +23,6 @@
     }
   </script>
   <style>
-
     .glass-card {
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(16px);
@@ -913,6 +912,30 @@
           </div>
         </div>
 
+        <!-- ============ EDITOR OF THE WEEK ============ -->
+        <div
+          class="glass-card rounded-2xl p-5 md:p-6 border border-amber-200/70 bg-gradient-to-r from-amber-50/70 via-white to-white">
+          <div id="eow-isi" class="flex items-center gap-4 md:gap-5">
+            <div id="eow-foto"
+              class="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-white font-black text-2xl shrink-0 overflow-hidden ring-4 ring-amber-200/60"
+              style="background:#f59e0b">?</div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center flex-wrap gap-2 mb-1">
+                <span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">🏆 Editor of the Week</span>
+                <span id="eow-periode" class="text-[11px] text-slate-400 font-semibold"></span>
+              </div>
+              <p id="eow-nama" class="text-xl md:text-2xl font-black text-slate-800 truncate">-</p>
+              <p class="text-sm text-slate-500 font-medium">
+                <span id="eow-jumlah" class="font-black text-slate-800">0</span> video selesai minggu ini
+              </p>
+            </div>
+          </div>
+          <p id="eow-quote" class="hidden text-sm text-slate-600 italic border-t border-amber-200/60 mt-4 pt-3">"-"</p>
+          <p id="eow-kosong" class="hidden text-sm text-gray-400 text-center py-2">Editor of the Week belum diatur
+            oleh admin.</p>
+        </div>
+        <!-- ============ /EDITOR OF THE WEEK ============ -->
+
         <!-- KARTU STATISTIK -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -1492,7 +1515,8 @@
           <div>
             <h3 class="text-2xl font-bold text-gray-800">Jadwal 5S</h3>
             <p class="text-sm text-gray-500 mt-1">Anda hanya dapat melihat jadwal dan menandai kegiatan sebagai
-              <b>Selesai</b>.</p>
+              <b>Selesai</b>.
+            </p>
           </div>
           <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 w-full md:w-72">
             <div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -1579,7 +1603,8 @@
         <div class="flex flex-wrap items-center gap-3">
           <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
             <div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-tag text-xs"></i></div>
+              <i class="fas fa-tag text-xs"></i>
+            </div>
             <div class="flex flex-col">
               <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Jenis</label>
               <select id="odp-filter-jenis"
@@ -1592,7 +1617,8 @@
           </div>
           <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
             <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-bars-progress text-xs"></i></div>
+              <i class="fas fa-bars-progress text-xs"></i>
+            </div>
             <div class="flex flex-col">
               <label class="text-[9px] font-extrabold text-amber-600 uppercase tracking-widest">Progress</label>
               <select id="odp-filter-progress"
@@ -1603,7 +1629,8 @@
           </div>
           <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
             <div class="w-7 h-7 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-user text-xs"></i></div>
+              <i class="fas fa-user text-xs"></i>
+            </div>
             <div class="flex flex-col">
               <label class="text-[9px] font-extrabold text-fuchsia-600 uppercase tracking-widest">Editor</label>
               <select id="odp-filter-editor"
@@ -1614,7 +1641,8 @@
           </div>
           <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 flex-1 min-w-[220px]">
             <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-search text-xs"></i></div>
+              <i class="fas fa-search text-xs"></i>
+            </div>
             <div class="flex flex-col flex-1">
               <label class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest">Cari</label>
               <input id="odp-filter-search" type="text" placeholder="Cari nama pengorder, editor, atau item..."
@@ -1784,28 +1812,7 @@
             berkualitas.</p>
         </div>
 
-        <!-- ============ EDITOR OF THE WEEK ============ -->
-        <div class="glass-card rounded-2xl p-5 md:p-6 border border-amber-200/70 bg-gradient-to-r from-amber-50/70 via-white to-white">
-          <div id="eow-isi" class="flex items-center gap-4 md:gap-5">
-            <div id="eow-foto"
-              class="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-white font-black text-2xl shrink-0 overflow-hidden ring-4 ring-amber-200/60"
-              style="background:#f59e0b">?</div>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center flex-wrap gap-2 mb-1">
-                <span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">🏆 Editor of the Week</span>
-                <span id="eow-periode" class="text-[11px] text-slate-400 font-semibold"></span>
-              </div>
-              <p id="eow-nama" class="text-xl md:text-2xl font-black text-slate-800 truncate">-</p>
-              <p class="text-sm text-slate-500 font-medium">
-                <span id="eow-jumlah" class="font-black text-slate-800">0</span> video selesai minggu ini
-              </p>
-            </div>
-          </div>
-          <p id="eow-quote" class="hidden text-sm text-slate-600 italic border-t border-amber-200/60 mt-4 pt-3">"-"</p>
-          <p id="eow-kosong" class="hidden text-sm text-gray-400 text-center py-2">Editor of the Week belum diatur
-            oleh admin.</p>
-        </div>
-        <!-- ============ /EDITOR OF THE WEEK ============ -->
+
 
         <div class="wf-container">
           <div class="wf-workflow-grid">
