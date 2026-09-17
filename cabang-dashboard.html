@@ -516,7 +516,8 @@
           class="relative w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
           <i class="fas fa-id-card w-5 text-center text-slate-400"></i>
           <span>Customer Profile</span>
-          <span id="cp-branch-badge" class="hidden ml-auto min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-black items-center justify-center">0</span>
+          <span id="cp-branch-badge"
+            class="hidden ml-auto min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-black items-center justify-center">0</span>
         </button>
         <button onclick="switchTab('riset-promosi')" id="nav-riset-promosi"
           class="w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
@@ -694,11 +695,13 @@
             <div>
               <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                 Statistik Customer Profile
-                <span class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span
+                  class="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
                 </span>
               </h4>
-              <p class="text-xs text-slate-400 mt-1">Menampilkan capaian Customer Profile sesuai <b>Filter Cabang</b> dan <b>Filter Bulan</b> di atas. Pilih cabang untuk melihat kiriman cabang tersebut secara langsung.</p>
+              <p class="text-xs text-slate-400 mt-1">Menampilkan capaian Customer Profile sesuai <b>Filter Cabang</b>
+                dan <b>Filter Bulan</b> di atas. Pilih cabang untuk melihat kiriman cabang tersebut secara langsung.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <span id="dash-cp-filter-branch-badge"
@@ -795,7 +798,8 @@
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
         <div>
           <h3 class="text-2xl font-black text-slate-900 tracking-tight">Hasil Evaluasi & Alternatif Solusi</h3>
-          <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade khusus cabang Anda.</p>
+          <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade khusus cabang
+            Anda.</p>
         </div>
 
         <!-- Badge Cabang: terkunci otomatis sesuai akun yang login, bukan dropdown bebas -->
@@ -861,11 +865,12 @@
                 <th class="py-4 px-5 bg-slate-100">Evaluasi</th>
                 <th class="py-4 px-5 bg-slate-100">Alternatif Solusi</th>
                 <th class="py-4 px-5 bg-slate-100">Grade / Status</th>
+                <th class="py-4 px-5 bg-slate-100 text-center">Status Dibaca</th>
               </tr>
             </thead>
             <tbody id="tabel-evaluasi-body" class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
               <tr>
-                <td colspan="6" class="text-center py-8 text-slate-400">Memuat data evaluasi...</td>
+                <td colspan="7" class="text-center py-8 text-slate-400">Memuat data evaluasi...</td>
               </tr>
             </tbody>
           </table>
@@ -878,11 +883,15 @@
       <div
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
         <div>
-          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest mb-3">
+          <span
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest mb-3">
             <i class="fas fa-id-card"></i> Mode Lihat
           </span>
           <h3 class="text-2xl font-black text-slate-900 tracking-tight">Customer Profile - Seluruh Cabang</h3>
-          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Data Customer Profile dari seluruh cabang (data universal, sama seperti yang dilihat Admin). Gunakan Filter Cabang di bawah untuk melihat cabang tertentu. Cabang hanya bisa <b>melihat status</b> dan <b>menambahkan/mengupload Customer Profile milik cabang sendiri</b> — tidak ada ubah/hapus data cabang lain.</p>
+          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Data Customer Profile dari seluruh cabang (data universal,
+            sama seperti yang dilihat Admin). Gunakan Filter Cabang di bawah untuk melihat cabang tertentu. Cabang hanya
+            bisa <b>melihat status</b> dan <b>menambahkan/mengupload Customer Profile milik cabang sendiri</b> — tidak
+            ada ubah/hapus data cabang lain.</p>
         </div>
         <button type="button" id="cp-btn-tambah-data"
           class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all shadow-md interactive-btn shrink-0">
@@ -897,16 +906,17 @@
         <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
         <p class="text-rose-600" id="cp-diagnostic-message"></p>
       </div>
-      <div class="hidden bg-sky-50 border border-sky-200 text-sky-700 rounded-2xl p-4 text-xs"
-        id="cp-no-date-warning">
-        ℹ️ Kolom tanggal/waktu Customer Profile tidak terdeteksi. Sistem akan membaca kolom <code>Tanggal</code> terlebih dahulu, lalu mencoba variasi nama tanggal/waktu lainnya untuk grafik per bulan.
+      <div class="hidden bg-sky-50 border border-sky-200 text-sky-700 rounded-2xl p-4 text-xs" id="cp-no-date-warning">
+        ℹ️ Kolom tanggal/waktu Customer Profile tidak terdeteksi. Sistem akan membaca kolom <code>Tanggal</code>
+        terlebih dahulu, lalu mencoba variasi nama tanggal/waktu lainnya untuk grafik per bulan.
       </div>
       <!-- Filter & Ringkasan -->
       <div
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
         <div>
           <h3 class="text-xl font-black text-slate-900 tracking-tight">Statistik Kiriman Customer Profile</h3>
-          <p class="text-sm text-slate-500 mt-1">Target tetap dihitung dari seluruh 9 cabang: 2 customer profile per cabang setiap bulan (total 18/bulan). Filter hanya mengubah data yang ditampilkan.</p>
+          <p class="text-sm text-slate-500 mt-1">Target tetap dihitung dari seluruh 9 cabang: 2 customer profile per
+            cabang setiap bulan (total 18/bulan). Filter hanya mengubah data yang ditampilkan.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
           <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
@@ -997,7 +1007,9 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE
               </span>
             </h4>
-            <p class="text-xs text-slate-400 mt-1">Default menampilkan seluruh bulan pada tahun berjalan. Filter Cabang membatasi data ke cabang yang dipilih, sedangkan Filter Bulan menampilkan bulan tersebut saja. Target: 18 customer profile/bulan untuk semua cabang atau 2 untuk satu cabang.</p>
+            <p class="text-xs text-slate-400 mt-1">Default menampilkan seluruh bulan pada tahun berjalan. Filter Cabang
+              membatasi data ke cabang yang dipilih, sedangkan Filter Bulan menampilkan bulan tersebut saja. Target: 18
+              customer profile/bulan untuk semua cabang atau 2 untuk satu cabang.</p>
           </div>
           <span
             class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200"
@@ -1010,9 +1022,12 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
           <div>
             <h4 class="text-sm font-bold text-slate-800">Target Customer Profile per Cabang</h4>
-            <p class="text-xs text-slate-400 mt-0.5">Membandingkan capaian dengan target 2 customer profile per cabang pada periode yang dipilih.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Membandingkan capaian dengan target 2 customer profile per cabang
+              pada periode yang dipilih.</p>
           </div>
-          <span id="cp-target-status-badge" class="shrink-0 text-[10px] font-extrabold px-2.5 py-1 rounded-full border bg-slate-50 text-slate-500 border-slate-200">Memuat status target...</span>
+          <span id="cp-target-status-badge"
+            class="shrink-0 text-[10px] font-extrabold px-2.5 py-1 rounded-full border bg-slate-50 text-slate-500 border-slate-200">Memuat
+            status target...</span>
         </div>
         <div class="h-[340px]"><canvas id="cp-chartPerCabang"></canvas></div>
       </div>
@@ -1021,8 +1036,7 @@
         <div class="overflow-x-auto max-h-[550px] overflow-y-auto">
           <table class="w-full text-left border-collapse">
             <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
-              <tr
-                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+              <tr class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                 <th class="py-4 px-5 bg-slate-100">ID</th>
                 <th class="py-4 px-5 bg-slate-100">Cabang</th>
                 <th class="py-4 px-5 bg-slate-100">Nama</th>
@@ -1032,8 +1046,7 @@
                 <th class="py-4 px-5 bg-slate-100">Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
-              id="cp-tabel-body">
+            <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="cp-tabel-body">
               <tr>
                 <td class="text-center py-8 text-slate-400" colspan="7">Memuat data dari database...
                 </td>
@@ -1049,11 +1062,13 @@
       <div
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
         <div>
-          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest mb-3">
+          <span
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest mb-3">
             <i class="fas fa-flask"></i> Mode Lihat
           </span>
           <h3 class="text-2xl font-black text-slate-900 tracking-tight">Riset Promosi</h3>
-          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Pantau rencana, progres, dan dokumen riset promosi produk yang dikelola Admin/Tim Marketing secara real-time. Cabang hanya bisa <b>melihat</b> data ini.</p>
+          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Pantau rencana, progres, dan dokumen riset promosi produk
+            yang dikelola Admin/Tim Marketing secara real-time. Cabang hanya bisa <b>melihat</b> data ini.</p>
         </div>
       </div>
       <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
@@ -1066,7 +1081,8 @@
         class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
         <div>
           <h3 class="text-xl font-black text-slate-900 tracking-tight">Daftar Riset Promosi</h3>
-          <p class="text-sm text-slate-500 mt-1">Cari berdasarkan nama riset, produk, atau PIC — atau saring per status.</p>
+          <p class="text-sm text-slate-500 mt-1">Cari berdasarkan nama riset, produk, atau PIC — atau saring per status.
+          </p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
           <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
@@ -1094,8 +1110,7 @@
             </div>
             <div class="flex flex-col">
               <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter Status</label>
-              <select
-                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+              <select class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
                 id="rp-branch-filter-status">
                 <option value="all">Semua Status</option>
                 <option value="Perencanaan">Perencanaan</option>
@@ -1143,8 +1158,7 @@
         <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
           <table class="w-full text-left border-collapse">
             <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
-              <tr
-                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+              <tr class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                 <th class="py-4 px-5 bg-slate-100">ID</th>
                 <th class="py-4 px-5 bg-slate-100">Nama Riset</th>
                 <th class="py-4 px-5 bg-slate-100">Produk Terkait</th>
@@ -1157,8 +1171,7 @@
                 <th class="py-4 px-5 bg-slate-100">Hasil</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
-              id="rp-branch-tabel-body">
+            <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="rp-branch-tabel-body">
               <tr>
                 <td class="text-center py-8 text-slate-400" colspan="10">Memuat data dari database...</td>
               </tr>
@@ -1317,7 +1330,8 @@
       </div>
       <form class="p-6 space-y-4" id="cp-crud-form">
         <div class="bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl p-3 text-xs">
-          Data yang ditambahkan di sini otomatis tercatat atas nama cabang Anda. Status (Sudah/Belum Ada Video) akan diatur oleh Admin setelah video diproses.
+          Data yang ditambahkan di sini otomatis tercatat atas nama cabang Anda. Status (Sudah/Belum Ada Video) akan
+          diatur oleh Admin setelah video diproses.
         </div>
         <div>
           <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Cabang *</label>
@@ -1347,12 +1361,15 @@
 
         <!-- ===== Customer Profile: upload file (PDF/DOCX/JPG/PNG) ===== -->
         <div>
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload Customer Profile (PDF/DOCX/JPG/PNG) *</label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload Customer Profile
+            (PDF/DOCX/JPG/PNG) *</label>
           <input id="cp-crud-field-customerProfile" type="hidden" />
           <div class="flex items-center gap-2 mt-2 flex-wrap">
-            <label class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+            <label
+              class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
               <i class="fas fa-upload"></i> Pilih File Customer Profile
-              <input type="file" id="cp-upload-customerProfile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden" />
+              <input type="file" id="cp-upload-customerProfile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                class="hidden" />
             </label>
             <span class="text-xs" id="cp-upload-customerProfile-status"></span>
           </div>
@@ -1360,12 +1377,15 @@
 
         <!-- ===== Script Wawancara: upload file opsional (PDF/DOCX/JPG/PNG) ===== -->
         <div>
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload Script Wawancara (Opsional)</label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload Script Wawancara
+            (Opsional)</label>
           <input id="cp-crud-field-scriptWawancara" type="hidden" />
           <div class="flex items-center gap-2 mt-2 flex-wrap">
-            <label class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
+            <label
+              class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
               <i class="fas fa-upload"></i> Pilih File Script Wawancara
-              <input type="file" id="cp-upload-scriptWawancara" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden" />
+              <input type="file" id="cp-upload-scriptWawancara" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                class="hidden" />
             </label>
             <span class="text-xs" id="cp-upload-scriptWawancara-status"></span>
           </div>
@@ -2239,6 +2259,72 @@
       renderTabelEvaluasi(currentBranchName);
     }
 
+    // Menandai evaluasi sebagai sudah dibaca oleh cabang.
+    // Status disimpan di tabel Kiriman_Cabang agar tetap tersimpan setelah refresh.
+    async function tandaiEvaluasiDibaca(idEval, buttonEl) {
+      if (!idEval || !buttonEl) return;
+
+      const originalHtml = buttonEl.innerHTML;
+      buttonEl.disabled = true;
+      buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Menyimpan...</span>';
+
+      const { error } = await db
+        .from(NAMA_TABEL)
+        .update({
+          evaluasi_dibaca: true,
+          evaluasi_dibaca_at: new Date().toISOString()
+        })
+        .eq('id', idEval);
+
+      if (error) {
+        console.error('[Evaluasi] Gagal menyimpan status dibaca:', error);
+        buttonEl.disabled = false;
+        buttonEl.innerHTML = originalHtml;
+        alert('Status evaluasi belum berhasil disimpan. Pastikan kolom evaluasi_dibaca sudah dibuat di Supabase dan policy UPDATE mengizinkan perubahan.');
+        return;
+      }
+
+      // Perbarui data lokal tanpa perlu reload seluruh dashboard.
+      const target = listEvaluasiGlobal.find(item => String(item.id) === String(idEval));
+      if (target) {
+        target.evaluasi_dibaca = true;
+        target.evaluasi_dibaca_at = new Date().toISOString();
+      }
+
+      buttonEl.outerHTML = `
+        <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
+          bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold whitespace-nowrap">
+          <i class="fas fa-check-circle"></i>
+          Sudah Dibaca
+        </span>`;
+    }
+
+    function renderStatusDibacaEvaluasi(item, idEval) {
+      const sudahDibaca = item.evaluasi_dibaca === true ||
+        String(item.evaluasi_dibaca).toLowerCase() === 'true' ||
+        item.evaluasi_dibaca === 1 ||
+        String(item.evaluasi_dibaca).toLowerCase() === 'yes';
+
+      if (sudahDibaca) {
+        return `
+          <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
+            bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold whitespace-nowrap">
+            <i class="fas fa-check-circle"></i>
+            Sudah Dibaca
+          </span>`;
+      }
+
+      return `
+        <button type="button"
+          onclick="tandaiEvaluasiDibaca(${JSON.stringify(idEval)}, this)"
+          class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl
+            bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-extrabold
+            hover:bg-amber-100 hover:border-amber-300 transition-all interactive-btn whitespace-nowrap">
+          <i class="fas fa-eye"></i>
+          Tandai Sudah Dibaca
+        </button>`;
+    }
+
     function renderTabelEvaluasi(cabangSaya) {
       const tbodyEval = document.getElementById('tabel-evaluasi-body');
 
@@ -2263,12 +2349,12 @@
       document.getElementById('eval-grade-info').innerText = totalEval > 0 ? 'Tersedia' : '-';
 
       if (!cabangSaya) {
-        tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Nama cabang akun Anda belum terdeteksi. Hubungi Admin untuk memastikan akun sudah terhubung dengan data cabang yang benar.</td></tr>`;
+        tbodyEval.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Nama cabang akun Anda belum terdeteksi. Hubungi Admin untuk memastikan akun sudah terhubung dengan data cabang yang benar.</td></tr>`;
         return;
       }
 
       if (filteredEval.length === 0) {
-        tbodyEval.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Belum ada data evaluasi untuk cabang ${cpBranchEscape(cabangSaya)}.</td></tr>`;
+        tbodyEval.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Belum ada data evaluasi untuk cabang ${cpBranchEscape(cabangSaya)}.</td></tr>`;
         return;
       }
 
@@ -2299,6 +2385,7 @@
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-sm">${evaluasi}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-sm">${alternatifSolusi}</td>
             <td class="py-4 px-5 whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeGrade}">${grade !== '-' ? grade : 'Normal'}</span></td>
+            <td class="py-4 px-5 whitespace-nowrap text-center">${renderStatusDibacaEvaluasi(item, idEval)}</td>
           </tr>
         `;
       });
@@ -2387,7 +2474,7 @@
       const found = keys.find(k => {
         const n = normalized(k);
         return n.includes('tanggal') || n.includes('createdat') || n.includes('createddate') ||
-               n.includes('datetime') || n.includes('timestamp') || n === 'date';
+          n.includes('datetime') || n.includes('timestamp') || n === 'date';
       });
       if (found) branchCpDateColumnDetected = found;
     }
@@ -2752,7 +2839,7 @@
               padding: 12,
               cornerRadius: 10,
               callbacks: {
-                afterBody: function(items) {
+                afterBody: function (items) {
                   if (!items || !items.length) return '';
                   const index = items[0].dataIndex;
                   const actual = actualValues[index] || 0;
