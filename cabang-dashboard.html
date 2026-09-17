@@ -1842,6 +1842,7 @@
         else if (segmen.includes('FOOTAGE')) countFootage++;
 
         let grade = (item.Grade || item.grade || 'Belum Dinilai').trim();
+        if (grade.toUpperCase() === 'C') grade = 'Reject';
         gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
       });
 
@@ -1861,8 +1862,6 @@
         chartValues = [rekapCabang[selectedCabangFilter] || 0];
       }
 
-      const barColors = chartLabels.map((_, index) => COLOR_PALETTE[index % COLOR_PALETTE.length]);
-
       // ===== Target garis untuk Grafik Jumlah Kiriman Per Cabang =====
       // Kalau Filter Bulan = "Semua Bulan" -> target kumulatif (2 x nomor bulan kalender saat ini,
       // misal September = bulan ke-9 -> target 2*9=18, Oktober -> 2*10=20, dst).
@@ -1875,6 +1874,10 @@
       const targetLabel = isSemuaBulan
         ? `Target Kumulatif (2 × ${bulanBerjalanNum} bulan = ${targetPerCabang} video)`
         : `Target (${TARGET_PER_CABANG_PER_BULAN} video/bulan)`;
+
+      // Warna bar mengikuti pola yang sama dengan "Tren Kiriman Video per Bulan":
+      // biru jika belum mencapai target, hijau jika sudah mencapai/melampaui target.
+      const barColors = chartValues.map(v => v >= targetPerCabang ? '#10b981' : '#6366f1');
 
       const badgeTargetEl = document.getElementById('target-kiriman-badge');
       if (badgeTargetEl) {
