@@ -11273,13 +11273,13 @@ function edNormalisasiNamaKolom(k) {
         }
 
         function odpRenderKartu() {
-            const counts = { 'Belum': 0, 'WIP': 0, 'Proses PP': 0, 'Done': 0 };
+            const counts = { 'Belum Dikerjakan': 0, 'WIP': 0, 'Proses PP': 0, 'Done': 0 };
             odpListGlobal.forEach(it => {
                 const s = odpProgressNormal(it.progress || it.Progress);
                 counts[s] = (counts[s] || 0) + 1;
             });
             const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-            setText('odp-card-belum', counts['Belum']);
+            setText('odp-card-belum', counts['Belum Dikerjakan']);
             setText('odp-card-wip', counts['WIP']);
             setText('odp-card-pp', counts['Proses PP']);
             setText('odp-card-done', counts['Done']);
