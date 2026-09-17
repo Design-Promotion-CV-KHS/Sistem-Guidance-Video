@@ -518,6 +518,11 @@
           <span>Customer Profile</span>
           <span id="cp-branch-badge" class="hidden ml-auto min-w-[20px] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-black items-center justify-center">0</span>
         </button>
+        <button onclick="switchTab('riset-promosi')" id="nav-riset-promosi"
+          class="w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
+          <i class="fas fa-flask w-5 text-center text-slate-400"></i>
+          Riset Promosi
+        </button>
         <button onclick="switchTab('panduan')" id="nav-panduan"
           class="w-full flex items-center gap-3.5 text-left py-3 px-4 hover:bg-slate-800/60 rounded-2xl text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white hover:scale-[1.02]">
           <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1043,6 +1048,130 @@
       </div>
     </div>
 
+    <!-- KONTEN TAB: RISET PROMOSI (VIEW ONLY UNTUK ROLE CABANG) -->
+    <div id="tab-riset-promosi" class="p-8 space-y-6 w-full hidden">
+      <div
+        class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm bg-gradient-to-r from-indigo-500/5 via-white to-white">
+        <div>
+          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black uppercase tracking-widest mb-3">
+            <i class="fas fa-flask"></i> Mode Lihat
+          </span>
+          <h3 class="text-2xl font-black text-slate-900 tracking-tight">Riset Promosi</h3>
+          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Pantau rencana, progres, dan dokumen riset promosi produk yang dikelola Admin/Tim Marketing secara real-time. Cabang hanya bisa <b>melihat</b> data ini.</p>
+        </div>
+      </div>
+      <div class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-5 text-sm"
+        id="rp-branch-diagnostic-banner">
+        <p class="font-bold mb-1">⚠️ Data tidak tampil</p>
+        <p class="text-rose-600" id="rp-branch-diagnostic-message"></p>
+      </div>
+      <!-- Filter & Ringkasan -->
+      <div
+        class="glass-card p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+        <div>
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">Daftar Riset Promosi</h3>
+          <p class="text-sm text-slate-500 mt-1">Cari berdasarkan nama riset, produk, atau PIC — atau saring per status.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+            <div
+              class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-4.35-4.35m1.35-5.15a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Cari Riset</label>
+              <input type="text" id="rp-branch-filter-search" placeholder="Nama riset, produk, atau PIC..."
+                class="text-xs font-bold text-slate-800 bg-transparent outline-none mt-0.5 w-40" />
+            </div>
+          </div>
+          <div class="custom-filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5 cursor-pointer">
+            <div
+              class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Filter Status</label>
+              <select
+                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                id="rp-branch-filter-status">
+                <option value="all">Semua Status</option>
+                <option value="Perencanaan">Perencanaan</option>
+                <option value="Berjalan">Berjalan</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Ditunda">Ditunda</option>
+                <option value="Dibatalkan">Dibatalkan</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Kartu ringkas -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div
+            class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            🧪</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Riset (Sesuai Filter)</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="rp-branch-card-total">0</h4>
+          </div>
+        </div>
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div
+            class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            ⏳</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Sedang Berjalan</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="rp-branch-card-berjalan">0</h4>
+          </div>
+        </div>
+        <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl shadow-inner">
+            ✅</div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Selesai</p>
+            <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="rp-branch-card-selesai">0</h4>
+          </div>
+        </div>
+      </div>
+      <!-- Tabel data -->
+      <div class="glass-card rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
+              <tr
+                class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <th class="py-4 px-5 bg-slate-100">ID</th>
+                <th class="py-4 px-5 bg-slate-100">Nama Riset</th>
+                <th class="py-4 px-5 bg-slate-100">Produk Terkait</th>
+                <th class="py-4 px-5 bg-slate-100">Tujuan Riset</th>
+                <th class="py-4 px-5 bg-slate-100">PIC / Tim</th>
+                <th class="py-4 px-5 bg-slate-100">Mulai</th>
+                <th class="py-4 px-5 bg-slate-100">Target Selesai</th>
+                <th class="py-4 px-5 bg-slate-100">Status</th>
+                <th class="py-4 px-5 bg-slate-100">Proposal</th>
+                <th class="py-4 px-5 bg-slate-100">Hasil</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium"
+              id="rp-branch-tabel-body">
+              <tr>
+                <td class="text-center py-8 text-slate-400" colspan="10">Memuat data dari database...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- KONTEN TAB 3: PANDUAN TAKE VIDEO -->
     <div id="tab-panduan" class="p-8 space-y-6 w-full hidden">
       <div class="glass-card p-6 md:p-8 rounded-3xl shadow-sm">
@@ -1437,10 +1566,12 @@
       const tabEvaluasi = document.getElementById('tab-evaluasi');
       const tabPanduan = document.getElementById('tab-panduan');
       const tabCustomerProfile = document.getElementById('tab-customer-profile');
+      const tabRisetPromosi = document.getElementById('tab-riset-promosi');
 
       const navDashboard = document.getElementById('nav-dashboard');
       const navEvaluasi = document.getElementById('nav-evaluasi');
       const navCustomerProfile = document.getElementById('nav-customer-profile');
+      const navRisetPromosi = document.getElementById('nav-riset-promosi');
       const navPanduan = document.getElementById('nav-panduan');
 
       const activeClass = "w-full flex items-center gap-3.5 text-left py-3 px-4 bg-indigo-600 rounded-2xl text-sm font-medium text-white shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:scale-[1.02]";
@@ -1450,9 +1581,11 @@
       tabEvaluasi.classList.add('hidden');
       tabPanduan.classList.add('hidden');
       tabCustomerProfile.classList.add('hidden');
+      tabRisetPromosi.classList.add('hidden');
       navDashboard.className = inactiveClass;
       navEvaluasi.className = inactiveClass;
       navCustomerProfile.className = inactiveClass;
+      navRisetPromosi.className = inactiveClass;
       navPanduan.className = inactiveClass;
 
       if (tabName === 'dashboard') {
@@ -1468,6 +1601,10 @@
         navCustomerProfile.className = activeClass;
         cpMuatDashboard();
         renderCustomerProfileDashboardStats();
+      } else if (tabName === 'riset-promosi') {
+        tabRisetPromosi.classList.remove('hidden');
+        navRisetPromosi.className = activeClass;
+        rpBranchMuatData();
       } else if (tabName === 'panduan') {
         tabPanduan.classList.remove('hidden');
         navPanduan.className = activeClass;
@@ -2908,6 +3045,151 @@
     }
     const cpCrudFormEl = document.getElementById('cp-crud-form');
     if (cpCrudFormEl) cpCrudFormEl.addEventListener('submit', cpBranchSimpanForm);
+
+    /* ================================================================
+       RISET PROMOSI — MODE CABANG (VIEW ONLY)
+       Sumber data: tabel Supabase Riset_Promosi (sama dengan yang
+       dikelola Admin). Cabang hanya bisa MELIHAT, tidak ada
+       tambah/ubah/hapus di sisi cabang.
+    ================================================================ */
+    const NAMA_TABEL_RISET_PROMOSI = 'Riset_Promosi';
+    let rpBranchListGlobal = [];
+
+    function rpBranchGetNama(item) { return cpBranchGetField(item, 'Nama_Riset', 'Nama Riset', 'nama_riset'); }
+    function rpBranchGetProduk(item) { return cpBranchGetField(item, 'Produk_Terkait', 'Produk Terkait', 'produk_terkait'); }
+    function rpBranchGetTujuan(item) { return cpBranchGetField(item, 'Tujuan_Riset', 'Tujuan Riset', 'tujuan_riset'); }
+    function rpBranchGetPic(item) { return cpBranchGetField(item, 'PIC', 'pic', 'Tim', 'tim'); }
+    function rpBranchGetTglMulai(item) { return cpBranchGetField(item, 'Tanggal_Mulai', 'Tanggal Mulai', 'tanggal_mulai'); }
+    function rpBranchGetTglSelesai(item) { return cpBranchGetField(item, 'Target_Selesai', 'Target Selesai', 'target_selesai', 'Tanggal_Target_Selesai'); }
+    function rpBranchGetStatus(item) { return cpBranchGetField(item, 'Status', 'status') || 'Perencanaan'; }
+    function rpBranchGetProposalRaw(item) { return cpBranchGetField(item, 'Link_Proposal', 'Link Proposal', 'link_proposal'); }
+    function rpBranchGetHasilRaw(item) { return cpBranchGetField(item, 'Link_Hasil', 'Link Hasil', 'link_hasil'); }
+
+    function rpBranchParseFiles(raw) {
+      if (!raw) return [];
+      if (Array.isArray(raw)) return raw;
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { return []; }
+    }
+
+    function rpBranchTruncateText(text, maxLen = 16) {
+      if (!text) return '-';
+      const clean = String(text);
+      return clean.length > maxLen ? clean.substring(0, maxLen) + '…' : clean;
+    }
+
+    function rpBranchStatusBadgeClass(status) {
+      switch (status) {
+        case 'Berjalan': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        case 'Selesai': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        case 'Ditunda': return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'Dibatalkan': return 'bg-rose-50 text-rose-700 border-rose-200';
+        default: return 'bg-slate-100 text-slate-600 border-slate-200';
+      }
+    }
+
+    function rpBranchRenderFileChips(raw) {
+      const files = rpBranchParseFiles(raw);
+      if (!files.length) return '<span class="text-slate-300">-</span>';
+      return files.map(f => {
+        const info = cpBranchGetFileIconInfo(f.url || '');
+        return `<a href="${cpBranchEscape(f.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-bold mb-1 mr-1 transition-all ${info.color}"><i class="fas ${info.icon}"></i> ${cpBranchEscape(rpBranchTruncateText(f.name || info.label))}</a>`;
+      }).join('');
+    }
+
+    async function rpBranchMuatData() {
+      const diagBanner = document.getElementById('rp-branch-diagnostic-banner');
+      const diagMsg = document.getElementById('rp-branch-diagnostic-message');
+      if (diagBanner) diagBanner.classList.add('hidden');
+
+      const { data, error } = await db.from(NAMA_TABEL_RISET_PROMOSI).select('*');
+      if (error) {
+        console.error('SUPABASE ERROR (Riset_Promosi):', error);
+        rpBranchListGlobal = [];
+        if (diagBanner && diagMsg) {
+          diagMsg.innerText = `Gagal mengambil data dari tabel "${NAMA_TABEL_RISET_PROMOSI}": ${error.message}`;
+          diagBanner.classList.remove('hidden');
+        }
+      } else {
+        rpBranchListGlobal = data || [];
+      }
+      rpBranchRenderSemua();
+    }
+
+    function rpBranchGetFiltered() {
+      const search = (document.getElementById('rp-branch-filter-search')?.value || '').toLowerCase().trim();
+      const status = document.getElementById('rp-branch-filter-status')?.value || 'all';
+      return rpBranchListGlobal.filter(item => {
+        const nama = rpBranchGetNama(item).toLowerCase();
+        const produk = rpBranchGetProduk(item).toLowerCase();
+        const pic = rpBranchGetPic(item).toLowerCase();
+        const matchSearch = !search || nama.includes(search) || produk.includes(search) || pic.includes(search);
+        const matchStatus = status === 'all' || rpBranchGetStatus(item) === status;
+        return matchSearch && matchStatus;
+      });
+    }
+
+    function rpBranchRenderSemua() {
+      const filtered = rpBranchGetFiltered();
+      rpBranchRenderCards(filtered);
+      rpBranchRenderTabel(filtered);
+    }
+
+    function rpBranchRenderCards(filtered) {
+      const total = filtered.length;
+      const berjalan = filtered.filter(i => rpBranchGetStatus(i) === 'Berjalan').length;
+      const selesai = filtered.filter(i => rpBranchGetStatus(i) === 'Selesai').length;
+      document.getElementById('rp-branch-card-total').innerText = total;
+      document.getElementById('rp-branch-card-berjalan').innerText = berjalan;
+      document.getElementById('rp-branch-card-selesai').innerText = selesai;
+    }
+
+    function rpBranchRenderTabel(filtered) {
+      const tbody = document.getElementById('rp-branch-tabel-body');
+      if (!tbody) return;
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">Belum ada data riset promosi untuk filter ini.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = filtered.map((item, index) => {
+        const idDisplay = item.id ?? (index + 1);
+        const status = rpBranchGetStatus(item);
+        return `
+          <tr class="hover:bg-slate-50/80 transition-all duration-200 align-top">
+            <td class="py-4 px-5 font-mono text-xs text-slate-400">#${cpBranchEscape(idDisplay)}</td>
+            <td class="py-4 px-5 font-bold text-slate-800">${cpBranchEscape(rpBranchGetNama(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs">${cpBranchEscape(rpBranchGetProduk(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-[220px]">${cpBranchEscape(rpBranchGetTujuan(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs">${cpBranchEscape(rpBranchGetPic(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs whitespace-nowrap">${cpBranchEscape(rpBranchGetTglMulai(item) || '-')}</td>
+            <td class="py-4 px-5 text-slate-600 text-xs whitespace-nowrap">${cpBranchEscape(rpBranchGetTglSelesai(item) || '-')}</td>
+            <td class="py-4 px-5 whitespace-nowrap">
+              <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-extrabold border ${rpBranchStatusBadgeClass(status)}">${cpBranchEscape(status)}</span>
+            </td>
+            <td class="py-4 px-5 max-w-[180px]">${rpBranchRenderFileChips(rpBranchGetProposalRaw(item))}</td>
+            <td class="py-4 px-5 max-w-[180px]">${rpBranchRenderFileChips(rpBranchGetHasilRaw(item))}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    const rpBranchFilterSearch = document.getElementById('rp-branch-filter-search');
+    if (rpBranchFilterSearch) rpBranchFilterSearch.addEventListener('input', rpBranchRenderSemua);
+
+    const rpBranchFilterStatus = document.getElementById('rp-branch-filter-status');
+    if (rpBranchFilterStatus) rpBranchFilterStatus.addEventListener('change', rpBranchRenderSemua);
+
+    // Realtime: jika Admin menambah/mengubah Riset Promosi, cabang otomatis lihat perubahan
+    // saat tab Riset Promosi sedang aktif.
+    db.channel('realtime-cabang-riset-promosi')
+      .on('postgres_changes', { event: '*', schema: 'public', table: NAMA_TABEL_RISET_PROMOSI }, (payload) => {
+        console.log('[Realtime] Perubahan pada tabel Riset_Promosi:', payload);
+        if (!document.getElementById('tab-riset-promosi').classList.contains('hidden')) rpBranchMuatData();
+      })
+      .subscribe((status) => {
+        console.log('[Realtime] Status channel Riset_Promosi (cabang):', status);
+      });
 
     // ===================== REALTIME CUSTOMER PROFILE =====================
     // Jika tabel Customer_Profile diaktifkan pada Supabase Realtime,
