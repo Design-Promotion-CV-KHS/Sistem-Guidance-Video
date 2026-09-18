@@ -174,7 +174,7 @@
 
     .eow-art-panel {
       position: relative;
-      aspect-ratio: 16 / 6;
+      aspect-ratio: 16 / 9;
       border-radius: 14px;
       overflow: hidden;
       border: 2px solid #ffffff;
@@ -183,7 +183,7 @@
 
     @media (min-width: 768px) {
       .eow-art-panel {
-        aspect-ratio: 16 / 5;
+        aspect-ratio: 16 / 7;
       }
     }
 
@@ -991,49 +991,73 @@
         </div>
 
         <!-- ============ EDITOR OF THE WEEK ============ -->
-        <div class="eow-frame max-w-md">
-          <div class="eow-inner p-3 md:p-3.5">
-            <!-- Header: badge status + HP ala kartu -->
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span
-                class="badge-pill bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-sm !text-[9px] !px-2 !py-1">🏆
-                Editor of the Week</span>
-              <div
-                class="flex items-center gap-1 bg-white border border-amber-300 rounded-full pl-2 pr-1.5 py-0.5 shadow-sm">
-                <span class="text-[8px] font-extrabold text-amber-500 uppercase tracking-widest">Video</span>
-                <span id="eow-jumlah"
-                  class="text-xs font-black text-slate-800 leading-none min-w-[1ch] text-right">0</span>
-              </div>
-            </div>
+        <div class="flex items-center justify-center gap-4 md:gap-8">
+          <!-- Dekorasi kiri: trofi juara 1 -->
+          <div class="hidden md:flex flex-col items-center gap-1.5 shrink-0 w-20">
+            <div
+              class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 border-2 border-amber-300 flex items-center justify-center text-2xl shadow-sm">
+              🏆</div>
+            <span
+              class="badge-pill bg-amber-500 text-white !text-[9px] !px-2 !py-0.5 shadow-sm">Juara 1</span>
+            <p class="text-[10px] text-slate-400 font-semibold text-center leading-snug">Top editor<br>minggu ini
+            </p>
+          </div>
 
-            <div id="eow-isi">
+          <div class="eow-frame max-w-md w-full">
+            <div class="eow-inner p-3 md:p-3.5">
+              <!-- Header: badge status + HP ala kartu -->
               <div class="flex items-center justify-between gap-2 mb-2">
-                <p id="eow-nama" class="text-sm md:text-base font-black text-slate-800 truncate">-</p>
-                <span id="eow-periode"
-                  class="text-[9px] text-slate-400 font-bold shrink-0 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5"></span>
-              </div>
-
-              <!-- Panel artwork / foto editor -->
-              <div class="eow-art-panel">
-                <div id="eow-foto"
-                  class="absolute inset-0 flex items-center justify-center text-white font-black text-2xl md:text-3xl"
-                  style="background:#f59e0b">?</div>
-              </div>
-
-              <div class="eow-stat-row flex items-center gap-2 mt-2.5 rounded-lg px-2.5 py-1.5">
                 <span
-                  class="w-6 h-6 rounded-md bg-amber-100 text-amber-600 flex items-center justify-center text-[11px] shrink-0">✂️</span>
-                <p class="text-[11px] md:text-xs font-bold text-slate-600 leading-snug">Video selesai diedit minggu
-                  ini</p>
+                  class="badge-pill bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-sm !text-[9px] !px-2 !py-1">🏆
+                  Editor of the Week</span>
+                <div
+                  class="flex items-center gap-1 bg-white border border-amber-300 rounded-full pl-2 pr-1.5 py-0.5 shadow-sm">
+                  <span class="text-[8px] font-extrabold text-amber-500 uppercase tracking-widest">Video</span>
+                  <span id="eow-jumlah"
+                    class="text-xs font-black text-slate-800 leading-none min-w-[1ch] text-right">0</span>
+                </div>
               </div>
+
+              <div id="eow-isi">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <p id="eow-nama" class="text-sm md:text-base font-black text-slate-800 truncate">-</p>
+                  <span id="eow-periode"
+                    class="text-[9px] text-slate-400 font-bold shrink-0 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5"></span>
+                </div>
+
+                <!-- Panel artwork / foto editor -->
+                <div class="eow-art-panel">
+                  <div id="eow-foto"
+                    class="absolute inset-0 flex items-center justify-center text-white font-black text-2xl md:text-3xl"
+                    style="background:#f59e0b">?</div>
+                </div>
+
+                <div class="eow-stat-row flex items-center gap-2 mt-2.5 rounded-lg px-2.5 py-1.5">
+                  <span
+                    class="w-6 h-6 rounded-md bg-amber-100 text-amber-600 flex items-center justify-center text-[11px] shrink-0">✂️</span>
+                  <p class="text-[11px] md:text-xs font-bold text-slate-600 leading-snug">Video selesai diedit minggu
+                    ini</p>
+                </div>
+              </div>
+              <p id="eow-quote"
+                class="hidden text-[11px] md:text-xs text-slate-500 italic border-t border-dashed border-amber-200/80 mt-2.5 pt-2">
+                "-"</p>
+              <p id="eow-kosong" class="hidden text-xs text-gray-400 text-center py-5">🏆 Editor of the Week belum
+                diatur oleh admin.</p>
             </div>
-            <p id="eow-quote"
-              class="hidden text-[11px] md:text-xs text-slate-500 italic border-t border-dashed border-amber-200/80 mt-2.5 pt-2">
-              "-"</p>
-            <p id="eow-kosong" class="hidden text-xs text-gray-400 text-center py-5">🏆 Editor of the Week belum
-              diatur oleh admin.</p>
+          </div>
+
+          <!-- Dekorasi kanan: reward mie ayam -->
+          <div class="hidden md:flex flex-col items-center gap-1.5 shrink-0 w-24 text-center">
+            <div
+              class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-100 to-amber-50 border-2 border-orange-300 flex items-center justify-center text-3xl shadow-sm">
+              🍜</div>
+            <p class="text-[10px] text-slate-500 font-bold leading-snug">Edit <span
+                class="text-orange-600">4 video</span> dalam 1 minggu, dapatkan <span
+                class="text-orange-600">1 mie ayam</span>! 🎉</p>
           </div>
         </div>
+        <!-- ============ /EDITOR OF THE WEEK ============ -->
         <!-- ============ /EDITOR OF THE WEEK ============ -->
 
         <!-- KARTU STATISTIK -->
