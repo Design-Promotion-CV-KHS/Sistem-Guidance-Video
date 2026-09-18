@@ -130,8 +130,8 @@
     /* ============ EDITOR OF THE WEEK — kartu ala trading card ============ */
     .eow-frame {
       position: relative;
-      border-radius: 26px;
-      padding: 3px;
+      border-radius: 20px;
+      padding: 2px;
       background: linear-gradient(135deg, #fde68a 0%, #f59e0b 30%, #fcd34d 55%, #f59e0b 80%, #fde68a 100%);
       box-shadow: 0 18px 40px -14px rgba(217, 119, 6, 0.45), 0 4px 12px -2px rgba(217, 119, 6, 0.2);
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -146,7 +146,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 26px;
+      border-radius: 20px;
       background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.85) 35%, transparent 50%);
       background-size: 250% 250%;
       animation: eow-shine 5s ease-in-out infinite;
@@ -168,17 +168,23 @@
 
     .eow-inner {
       position: relative;
-      border-radius: 23px;
+      border-radius: 18px;
       background: linear-gradient(180deg, #fffdf7 0%, #fff9ec 45%, #ffffff 100%);
     }
 
     .eow-art-panel {
       position: relative;
-      aspect-ratio: 16 / 10;
-      border-radius: 16px;
+      aspect-ratio: 16 / 6;
+      border-radius: 14px;
       overflow: hidden;
-      border: 3px solid #ffffff;
+      border: 2px solid #ffffff;
       box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.45), inset 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (min-width: 768px) {
+      .eow-art-panel {
+        aspect-ratio: 16 / 5;
+      }
     }
 
     .eow-art-panel::after {
@@ -985,46 +991,46 @@
         </div>
 
         <!-- ============ EDITOR OF THE WEEK ============ -->
-        <div class="eow-frame">
-          <div class="eow-inner p-4 md:p-5">
+        <div class="eow-frame max-w-md">
+          <div class="eow-inner p-3 md:p-3.5">
             <!-- Header: badge status + HP ala kartu -->
-            <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center justify-between gap-2 mb-2">
               <span
-                class="badge-pill bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-sm">🏆 Editor of
-                the Week</span>
+                class="badge-pill bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-sm !text-[9px] !px-2 !py-1">🏆
+                Editor of the Week</span>
               <div
-                class="flex items-center gap-1.5 bg-white border border-amber-300 rounded-full pl-3 pr-2.5 py-1 shadow-sm">
-                <span class="text-[9px] font-extrabold text-amber-500 uppercase tracking-widest">Video</span>
+                class="flex items-center gap-1 bg-white border border-amber-300 rounded-full pl-2 pr-1.5 py-0.5 shadow-sm">
+                <span class="text-[8px] font-extrabold text-amber-500 uppercase tracking-widest">Video</span>
                 <span id="eow-jumlah"
-                  class="text-base font-black text-slate-800 leading-none min-w-[1ch] text-right">0</span>
+                  class="text-xs font-black text-slate-800 leading-none min-w-[1ch] text-right">0</span>
               </div>
             </div>
 
             <div id="eow-isi">
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <p id="eow-nama" class="text-lg md:text-2xl font-black text-slate-800 truncate">-</p>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <p id="eow-nama" class="text-sm md:text-base font-black text-slate-800 truncate">-</p>
                 <span id="eow-periode"
-                  class="text-[10px] text-slate-400 font-bold shrink-0 bg-slate-50 border border-slate-100 rounded-full px-2.5 py-1"></span>
+                  class="text-[9px] text-slate-400 font-bold shrink-0 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5"></span>
               </div>
 
               <!-- Panel artwork / foto editor -->
               <div class="eow-art-panel">
                 <div id="eow-foto"
-                  class="absolute inset-0 flex items-center justify-center text-white font-black text-6xl md:text-7xl"
+                  class="absolute inset-0 flex items-center justify-center text-white font-black text-2xl md:text-3xl"
                   style="background:#f59e0b">?</div>
               </div>
 
-              <div class="eow-stat-row flex items-center gap-2.5 mt-3.5 rounded-xl px-3 py-2.5">
+              <div class="eow-stat-row flex items-center gap-2 mt-2.5 rounded-lg px-2.5 py-1.5">
                 <span
-                  class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm shrink-0">✂️</span>
-                <p class="text-xs md:text-sm font-bold text-slate-600 leading-snug">Video selesai diedit minggu ini
-                </p>
+                  class="w-6 h-6 rounded-md bg-amber-100 text-amber-600 flex items-center justify-center text-[11px] shrink-0">✂️</span>
+                <p class="text-[11px] md:text-xs font-bold text-slate-600 leading-snug">Video selesai diedit minggu
+                  ini</p>
               </div>
             </div>
             <p id="eow-quote"
-              class="hidden text-xs md:text-sm text-slate-500 italic border-t border-dashed border-amber-200/80 mt-3.5 pt-3">
+              class="hidden text-[11px] md:text-xs text-slate-500 italic border-t border-dashed border-amber-200/80 mt-2.5 pt-2">
               "-"</p>
-            <p id="eow-kosong" class="hidden text-sm text-gray-400 text-center py-8">🏆 Editor of the Week belum
+            <p id="eow-kosong" class="hidden text-xs text-gray-400 text-center py-5">🏆 Editor of the Week belum
               diatur oleh admin.</p>
           </div>
         </div>
