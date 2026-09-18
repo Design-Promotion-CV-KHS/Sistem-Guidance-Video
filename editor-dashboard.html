@@ -993,9 +993,9 @@
         <!-- ============ EDITOR OF THE WEEK ============ -->
         <div class="flex items-center justify-center gap-4 md:gap-8">
           <!-- Dekorasi kiri: trofi juara 1 -->
-          <div class="hidden md:flex flex-col items-center gap-1.5 shrink-0 w-20">
+          <div class="hidden md:flex flex-col items-center gap-2 shrink-0 w-24">
             <div
-              class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 border-2 border-amber-300 flex items-center justify-center text-2xl shadow-sm">
+              class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 border-2 border-amber-300 flex items-center justify-center text-4xl shadow-sm">
               🏆</div>
             <span
               class="badge-pill bg-amber-500 text-white !text-[9px] !px-2 !py-0.5 shadow-sm">Juara 1</span>
@@ -1047,14 +1047,24 @@
             </div>
           </div>
 
-          <!-- Dekorasi kanan: reward mie ayam -->
-          <div class="hidden md:flex flex-col items-center gap-1.5 shrink-0 w-24 text-center">
+          <!-- Dekorasi kanan: reward mie ayam + progress bar -->
+          <div class="hidden md:flex flex-col items-center gap-2 shrink-0 w-28 text-center">
             <div
-              class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-100 to-amber-50 border-2 border-orange-300 flex items-center justify-center text-3xl shadow-sm">
+              class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-amber-50 border-2 border-orange-300 flex items-center justify-center text-4xl shadow-sm">
               🍜</div>
             <p class="text-[10px] text-slate-500 font-bold leading-snug">Edit <span
                 class="text-orange-600">4 video</span> dalam 1 minggu, dapatkan <span
                 class="text-orange-600">1 mie ayam</span>! 🎉</p>
+            <div class="w-full">
+              <div class="w-full h-2 rounded-full bg-orange-100 overflow-hidden border border-orange-200">
+                <div id="eow-mieayam-bar"
+                  class="h-full rounded-full bg-gradient-to-r from-orange-400 to-amber-500 transition-all duration-700"
+                  style="width:0%"></div>
+              </div>
+              <p id="eow-mieayam-label" class="text-[10px] font-extrabold text-orange-500 mt-1">0/4</p>
+              <p id="eow-mieayam-caption" class="text-[10px] text-slate-400 font-semibold italic leading-snug mt-0.5">
+              </p>
+            </div>
           </div>
         </div>
         <!-- ============ /EDITOR OF THE WEEK ============ -->
@@ -3282,6 +3292,34 @@
       renderEditorOfTheWeek();
     }
 
+    // ==== BARU: progress bar reward "mie ayam" — terhubung ke jumlah video
+    // yang berhasil diedit editor of the week pada minggu berjalan. Target: 4 video.
+    // Setiap tahap progress dikasih keterangan santai/lucu biar tambah semangat. ====
+    function perbaruiProgressMieAyam(jumlahVideo) {
+      const TARGET_MIE_AYAM = 4;
+      const barEl = document.getElementById('eow-mieayam-bar');
+      const labelEl = document.getElementById('eow-mieayam-label');
+      const captionEl = document.getElementById('eow-mieayam-caption');
+      if (!barEl) return;
+
+      const n = Number(jumlahVideo) || 0;
+      const capped = Math.min(n, TARGET_MIE_AYAM);
+      const persen = (capped / TARGET_MIE_AYAM) * 100;
+      barEl.style.width = persen + '%';
+      if (labelEl) labelEl.innerText = `${capped}/${TARGET_MIE_AYAM}`;
+
+      const keteranganPerTahap = {
+        0: 'Ayo mulai, kumpulkan 4 video! 💪',
+        1: 'Perjalanan masih jauh...',
+        2: 'Selak entek mi ayam e! 🍜',
+        3: 'Yo sitik meneh!',
+        4: 'Selamat, kamu dapat mi ayam! 🎉'
+      };
+      if (captionEl) captionEl.innerText = keteranganPerTahap[capped] ?? '';
+
+      if (barEl) barEl.classList.toggle('!bg-emerald-500', capped >= TARGET_MIE_AYAM);
+    }
+
     function renderEditorOfTheWeek() {
       const fotoEl = document.getElementById('eow-foto');
       const namaEl = document.getElementById('eow-nama');
@@ -3301,6 +3339,7 @@
         if (isiEl) isiEl.classList.add('hidden');
         if (quoteEl) quoteEl.classList.add('hidden');
         if (kosongEl) kosongEl.classList.remove('hidden');
+        perbaruiProgressMieAyam(0);
         return;
       }
 
@@ -3318,6 +3357,7 @@
 
       namaEl.innerText = namaEditor;
       if (jumlahEl) jumlahEl.innerText = jumlah;
+      perbaruiProgressMieAyam(jumlah);
 
       const fotoUrl = eowDataGlobal.foto_url || eowDataGlobal.Foto_Url || eowDataGlobal.foto || '';
       fotoEl.style.background = warnaEditor(namaEditor);
