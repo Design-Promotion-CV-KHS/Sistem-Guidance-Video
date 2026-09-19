@@ -997,8 +997,7 @@
             <div
               class="w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 border-4 border-amber-300 flex items-center justify-center text-6xl lg:text-7xl shadow-md">
               🏆</div>
-            <span
-              class="badge-pill bg-amber-500 text-white !text-[11px] !px-3 !py-1 shadow-sm">Juara 1</span>
+            <span class="badge-pill bg-amber-500 text-white !text-[11px] !px-3 !py-1 shadow-sm">Juara 1</span>
             <p class="text-xs text-slate-400 font-semibold text-center leading-snug">Top editor<br>minggu ini
             </p>
           </div>
@@ -1052,11 +1051,11 @@
             <div
               class="w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-orange-100 to-amber-50 border-4 border-orange-300 flex items-center justify-center text-6xl lg:text-7xl shadow-md">
               🍜</div>
-            <p class="text-xs text-slate-500 font-bold leading-snug">Edit <span
-                class="text-orange-600">4 video</span> dalam 1 minggu, dapatkan <span
-                class="text-orange-600">1 mie ayam</span>! 🎉</p>
+            <p class="text-xs text-slate-500 font-bold leading-snug">Edit <span class="text-orange-600">4 video</span>
+              dalam 1 minggu, dapatkan <span class="text-orange-600">1 mie ayam</span>! 🎉</p>
             <div class="w-full">
-              <div class="w-full h-3.5 rounded-full bg-orange-100 overflow-hidden border-2 border-orange-300 shadow-inner">
+              <div
+                class="w-full h-3.5 rounded-full bg-orange-100 overflow-hidden border-2 border-orange-300 shadow-inner">
                 <div id="eow-mieayam-bar"
                   class="h-full rounded-full bg-gradient-to-r from-orange-400 to-amber-500 transition-all duration-700"
                   style="width:0%"></div>
@@ -3282,7 +3281,20 @@
     }
 
     async function muatEditorOfTheWeek() {
-      const { data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false }).limit(1);
+      // Utamakan baris yang SENGAJA dipilih admin untuk tampil (ditampilkan = true).
+      // Kalau tidak ada yang dipilih manual, otomatis ambil data Editor of the Week
+      // yang paling baru disimpan (id terbesar) — sama seperti sebelumnya.
+      let { data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*')
+        .order('ditampilkan', { ascending: false, nullsFirst: false })
+        .order('id', { ascending: false })
+        .limit(1);
+
+      // Fallback kalau tabel Supabase belum punya kolom "ditampilkan" (belum sempat
+      // ditambahkan admin) — tetap ambil data terbaru seperti versi lama.
+      if (error && /ditampilkan|schema cache|column/i.test(error.message || '')) {
+        ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false }).limit(1));
+      }
+
       if (error) {
         console.error('[Editor of the Week] Gagal memuat:', error);
         eowDataGlobal = null;
