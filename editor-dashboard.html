@@ -3281,18 +3281,32 @@
     }
 
     async function muatEditorOfTheWeek() {
-      // Utamakan baris yang SENGAJA dipilih admin untuk tampil (ditampilkan = true).
-      // Kalau tidak ada yang dipilih manual, otomatis ambil data Editor of the Week
-      // yang paling baru disimpan (id terbesar) — sama seperti sebelumnya.
-      let { data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*')
-        .order('ditampilkan', { ascending: false, nullsFirst: false })
-        .order('id', { ascending: false })
-        .limit(1);
+      let data = null, error = null;
+      try {
+        // Utamakan baris yang SENGAJA dipilih admin untuk tampil (ditampilkan = true).
+        // Kalau tidak ada yang dipilih manual, otomatis ambil data Editor of the Week
+        // yang paling baru disimpan (id terbesar) — sama seperti sebelumnya.
+        const hasil = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*')
+          .order('ditampilkan', { ascending: false, nullsFirst: false })
+          .order('id', { ascending: false })
+          .limit(1);
+        data = hasil.data;
+        error = hasil.error;
+      } catch (e) {
+        error = e;
+      }
 
-      // Fallback kalau tabel Supabase belum punya kolom "ditampilkan" (belum sempat
-      // ditambahkan admin) — tetap ambil data terbaru seperti versi lama.
-      if (error && /ditampilkan|schema cache|column/i.test(error.message || '')) {
-        ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false }).limit(1));
+      // Fallback: kalau query di atas gagal karena apa pun (kolom "ditampilkan" belum ada
+      // di tabel Supabase, masalah koneksi sesaat, dsb), coba lagi dengan cara lama
+      // (ambil data terbaru berdasarkan id) supaya kartu Editor of the Week tetap tampil.
+      if (error) {
+        try {
+          const hasilFallback = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false }).limit(1);
+          data = hasilFallback.data;
+          error = hasilFallback.error;
+        } catch (e2) {
+          error = e2;
+        }
       }
 
       if (error) {
