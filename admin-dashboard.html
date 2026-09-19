@@ -5847,12 +5847,19 @@
                             class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl p-3">
                         </div>
 
-                        <button type="submit"
-                            class="w-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-5 py-3 rounded-2xl transition-all shadow-md interactive-btn">
-                            <i class="fas fa-floppy-disk"></i> Simpan Editor of the Week
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button type="submit"
+                                class="flex-1 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-5 py-3 rounded-2xl transition-all shadow-md interactive-btn">
+                                <i class="fas fa-floppy-disk"></i> Simpan Editor of the Week
+                            </button>
+                            <button type="button" id="eow-btn-reset"
+                                class="shrink-0 bg-white hover:bg-slate-50 text-slate-600 text-sm font-bold px-5 py-3 rounded-2xl transition-all border border-slate-200 interactive-btn">
+                                <i class="fas fa-rotate-left"></i> Reset
+                            </button>
+                        </div>
                         <p class="text-[11px] text-slate-400 text-center">Data ini otomatis tampil di Dashboard Editor
-                            pada bagian paling atas Workflow Video.</p>
+                            pada bagian paling atas Workflow Video. Setiap kali "Simpan" ditekan tanpa memilih baris
+                            riwayat, sistem akan membuat entri Editor of the Week baru (bukan menimpa data lama).</p>
                     </form>
                 </div>
 
@@ -5879,6 +5886,39 @@
                         <p id="eow-preview-quote"
                             class="hidden text-sm text-slate-600 italic border-t border-amber-200/60 mt-4 pt-3">"-"</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- TABEL RIWAYAT / DATA EDITOR OF THE WEEK -->
+            <div class="glass-card rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-base font-black text-slate-900">Riwayat & Data Editor of the Week</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Semua data yang pernah disimpan (nama, foto,
+                            kata-kata/quote, jumlah video saat disimpan). Klik <i class="fas fa-pen"></i> untuk
+                            mengubah data lama, atau <i class="fas fa-trash"></i> untuk menghapus.</p>
+                    </div>
+                    <span id="eow-riwayat-count"
+                        class="text-[11px] font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">0 data</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-[10px] font-extrabold uppercase tracking-widest text-slate-400 border-b border-slate-200">
+                                <th class="py-2.5 pr-3">Foto</th>
+                                <th class="py-2.5 pr-3">Nama Editor</th>
+                                <th class="py-2.5 pr-3">Jumlah Video</th>
+                                <th class="py-2.5 pr-3">Periode</th>
+                                <th class="py-2.5 pr-3">Kata-kata / Quote</th>
+                                <th class="py-2.5 pr-3 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eow-riwayat-tbody">
+                            <tr>
+                                <td colspan="6" class="py-6 text-center text-xs text-slate-400">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -11539,30 +11579,86 @@
             document.getElementById('eow-diagnostic-banner')?.classList.add('hidden');
         }
 
-        async function eowMuatData() {
-            eowSembunyikanDiagnostik();
-            eowPopulateEditorSelect();
+        // Menyimpan seluruh baris riwayat Editor of the Week yang sudah dimuat dari Supabase,
+        // dipakai untuk mengisi tabel riwayat dan mencari data saat tombol "Edit" ditekan.
+        let eowRiwayatData = [];
 
-            const { data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false }).limit(1);
-            if (error) {
-                eowTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_EDITOR_OF_WEEK}": ${error.message} (code: ${error.code || '-'}). Pastikan tabel sudah dibuat di Supabase dengan kolom: id, editor, foto_url, quote — dan RLS mengizinkan akses baca untuk role anon.`);
-                eowCurrentIdInfo = null;
-                eowUpdateJumlahOtomatis();
+        // Reset form ke kondisi kosong (mode "tambah data baru"). Tidak menghapus data
+        // yang sudah tersimpan di tabel — hanya mengosongkan input di layar.
+        function eowResetForm() {
+            eowCurrentIdInfo = null;
+            document.getElementById('eow-edit-id').value = '';
+            document.getElementById('eow-crud-field-editor').value = '';
+            document.getElementById('eow-crud-field-foto').value = '';
+            document.getElementById('eow-crud-field-quote').value = '';
+            document.getElementById('eow-upload-foto-status').innerHTML = '';
+
+            const previewImg = document.getElementById('eow-foto-preview');
+            const placeholderIcon = document.getElementById('eow-foto-placeholder-icon');
+            if (previewImg) { previewImg.src = ''; previewImg.classList.add('hidden'); }
+            if (placeholderIcon) placeholderIcon.classList.remove('hidden');
+
+            const errBox = document.getElementById('eow-form-error');
+            if (errBox) errBox.classList.add('hidden');
+
+            eowUpdateJumlahOtomatis();
+        }
+
+        // Render tabel riwayat/data Editor of the Week (nama, foto, quote, jumlah video, periode).
+        function eowRenderRiwayatTable(rows) {
+            const tbody = document.getElementById('eow-riwayat-tbody');
+            const countEl = document.getElementById('eow-riwayat-count');
+            if (!tbody) return;
+            if (countEl) countEl.innerText = `${rows.length} data`;
+
+            if (!rows || rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-xs text-slate-400">Belum ada data Editor of the Week yang tersimpan.</td></tr>';
                 return;
             }
 
-            eowDataLoaded = true;
-            const row = (data && data[0]) || null;
+            tbody.innerHTML = rows.map(row => {
+                const idInfo = getRowIdInfo(row);
+                const idAttr = idInfo ? edEscapeHtml(String(idInfo.value)) : '';
+                const namaEditor = row.editor || row.Editor || '-';
+                const fotoUrl = row.foto_url || row.Foto_Url || row.foto || '';
+                const quote = row.quote || row.Quote || '';
+                const jumlah = (row.jumlah_video !== undefined && row.jumlah_video !== null) ? row.jumlah_video : '-';
+                const periode = row.periode || row.periode_label || '-';
+                const fotoCell = fotoUrl
+                    ? `<img src="${fotoUrl}" alt="${edEscapeHtml(namaEditor)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">`
+                    : `<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:${eowWarnaEditor(namaEditor)}">${edEscapeHtml((namaEditor || '?').charAt(0).toUpperCase())}</div>`;
 
-            if (!row) {
-                eowCurrentIdInfo = null;
-                eowUpdateJumlahOtomatis();
-                eowUpdatePreview();
-                return;
-            }
+                return `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/60 align-middle">
+                        <td class="py-2.5 pr-3">${fotoCell}</td>
+                        <td class="py-2.5 pr-3 font-bold text-slate-800">${edEscapeHtml(namaEditor)}</td>
+                        <td class="py-2.5 pr-3 font-bold text-slate-700">${edEscapeHtml(String(jumlah))} video</td>
+                        <td class="py-2.5 pr-3 text-xs text-slate-500 whitespace-nowrap">${edEscapeHtml(periode)}</td>
+                        <td class="py-2.5 pr-3 text-xs text-slate-500 max-w-[220px] truncate" title="${edEscapeHtml(quote)}">${quote ? edEscapeHtml(quote) : '-'}</td>
+                        <td class="py-2.5 pr-3 text-right whitespace-nowrap">
+                            <button type="button" onclick="eowEditRiwayat('${idAttr}')"
+                                class="text-indigo-600 hover:text-indigo-800 px-2" title="Edit data ini">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button type="button" onclick="eowHapusRiwayat('${idAttr}')"
+                                class="text-rose-500 hover:text-rose-700 px-2" title="Hapus data ini">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
 
-            const idInfo = getRowIdInfo(row);
-            eowCurrentIdInfo = idInfo;
+        // Isi form dengan salah satu data riwayat (agar bisa diubah lalu disimpan ulang).
+        function eowEditRiwayat(idValue) {
+            const row = eowRiwayatData.find(r => {
+                const info = getRowIdInfo(r);
+                return info && String(info.value) === String(idValue);
+            });
+            if (!row) return;
+
+            eowCurrentIdInfo = getRowIdInfo(row);
+            document.getElementById('eow-edit-id').value = idValue;
 
             const namaEditor = row.editor || row.Editor || '';
             const fotoUrl = row.foto_url || row.Foto_Url || row.foto || '';
@@ -11585,6 +11681,76 @@
             }
 
             eowUpdateJumlahOtomatis();
+            document.getElementById('eow-form-crud')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Hapus salah satu data riwayat Editor of the Week.
+        async function eowHapusRiwayat(idValue) {
+            const row = eowRiwayatData.find(r => {
+                const info = getRowIdInfo(r);
+                return info && String(info.value) === String(idValue);
+            });
+            if (!row) return;
+            const idInfo = getRowIdInfo(row);
+            if (!idInfo) return;
+            if (!confirm('Hapus data Editor of the Week ini? Tindakan ini tidak bisa dibatalkan.')) return;
+
+            const { error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).delete().eq(idInfo.key, idInfo.value);
+            if (error) {
+                alert('Gagal menghapus data: ' + error.message);
+                return;
+            }
+            if (eowCurrentIdInfo && String(eowCurrentIdInfo.value) === String(idValue)) {
+                eowResetForm();
+            }
+            await eowMuatData();
+        }
+
+        async function eowMuatData() {
+            eowSembunyikanDiagnostik();
+            eowPopulateEditorSelect();
+
+            const { data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).select('*').order('id', { ascending: false });
+            if (error) {
+                eowTampilkanDiagnostik(`Gagal mengambil data dari tabel "${NAMA_TABEL_EDITOR_OF_WEEK}": ${error.message} (code: ${error.code || '-'}). Pastikan tabel sudah dibuat di Supabase dengan kolom: id, editor, foto_url, quote, jumlah_video, periode — dan RLS mengizinkan akses baca untuk role anon.`);
+                eowRiwayatData = [];
+                eowRenderRiwayatTable([]);
+                eowUpdateJumlahOtomatis();
+                return;
+            }
+
+            eowDataLoaded = true;
+            eowRiwayatData = data || [];
+            eowRenderRiwayatTable(eowRiwayatData);
+
+            // Preview atas & baris "Editor of the Week" yang tampil di Dashboard Editor selalu
+            // mengikuti data TERBARU (baris paling atas), bukan otomatis mengisi form —
+            // form dibiarkan kosong (mode tambah baru) kecuali admin klik "Edit" di tabel riwayat.
+            const rowTerbaru = eowRiwayatData[0] || null;
+            if (rowTerbaru) {
+                const namaEditor = rowTerbaru.editor || rowTerbaru.Editor || '';
+                const fotoUrl = rowTerbaru.foto_url || rowTerbaru.Foto_Url || rowTerbaru.foto || '';
+                const quote = rowTerbaru.quote || rowTerbaru.Quote || '';
+                document.getElementById('eow-preview-nama').innerText = namaEditor || '-';
+                const jumlahEl = document.getElementById('eow-preview-jumlah');
+                if (jumlahEl) jumlahEl.innerText = (rowTerbaru.jumlah_video !== undefined && rowTerbaru.jumlah_video !== null) ? rowTerbaru.jumlah_video : eowHitungVideoMinggu(namaEditor);
+                const fotoEl = document.getElementById('eow-preview-foto');
+                if (fotoEl) {
+                    fotoEl.style.background = namaEditor ? eowWarnaEditor(namaEditor) : '#f59e0b';
+                    fotoEl.innerHTML = fotoUrl
+                        ? `<img src="${fotoUrl}" alt="${edEscapeHtml(namaEditor)}" class="w-full h-full object-cover rounded-full">`
+                        : `<span>${namaEditor ? edEscapeHtml(namaEditor.charAt(0).toUpperCase()) : '?'}</span>`;
+                }
+                const quoteEl = document.getElementById('eow-preview-quote');
+                if (quoteEl) {
+                    if (quote && quote.trim()) { quoteEl.classList.remove('hidden'); quoteEl.innerText = `"${quote.trim()}"`; }
+                    else { quoteEl.classList.add('hidden'); }
+                }
+            }
+
+            if (!document.getElementById('eow-crud-field-editor').value) {
+                eowUpdateJumlahOtomatis();
+            }
         }
 
         async function eowTampilkanTab() {
@@ -11602,10 +11768,15 @@
             const namaEditor = document.getElementById('eow-crud-field-editor').value.trim();
             if (!namaEditor) { errBox.innerText = 'Nama editor wajib dipilih.'; errBox.classList.remove('hidden'); return; }
 
+            const periode = getPeriodeTargetMingguan(new Date());
             const payload = {
                 editor: namaEditor,
                 foto_url: document.getElementById('eow-crud-field-foto').value.trim(),
-                quote: document.getElementById('eow-crud-field-quote').value.trim()
+                quote: document.getElementById('eow-crud-field-quote').value.trim(),
+                // Jumlah video & periode disimpan sebagai "snapshot" otomatis pada saat tombol Simpan
+                // ditekan, supaya riwayat minggu-minggu sebelumnya tidak berubah lagi setelah tersimpan.
+                jumlah_video: eowHitungVideoMinggu(namaEditor),
+                periode: periode ? formatPeriodeMinggu(periode) : ''
             };
 
             let error, data;
@@ -11627,10 +11798,12 @@
             }
 
             alert('Editor of the Week berhasil disimpan!');
+            eowResetForm();
             await eowMuatData();
         }
 
         document.getElementById('eow-form-crud')?.addEventListener('submit', eowSimpanForm);
+        document.getElementById('eow-btn-reset')?.addEventListener('click', eowResetForm);
         document.getElementById('eow-crud-field-editor')?.addEventListener('change', eowUpdateJumlahOtomatis);
         document.getElementById('eow-crud-field-quote')?.addEventListener('input', eowUpdatePreview);
         document.getElementById('eow-upload-foto')?.addEventListener('change', function () {
