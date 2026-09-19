@@ -5896,7 +5896,11 @@
                         <h4 class="text-base font-black text-slate-900">Riwayat & Data Editor of the Week</h4>
                         <p class="text-xs text-slate-500 mt-0.5">Semua data yang pernah disimpan (nama, foto,
                             kata-kata/quote, jumlah video saat disimpan). Klik <i class="fas fa-pen"></i> untuk
-                            mengubah data lama, atau <i class="fas fa-trash"></i> untuk menghapus.</p>
+                            mengubah data lama, <i class="fas fa-star"></i> untuk menampilkan data itu secara manual
+                            di Dashboard Editor, atau <i class="fas fa-trash"></i> untuk menghapus.</p>
+                        <p id="eow-mode-badge" class="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <i class="fas fa-bolt"></i> Mode Otomatis — menampilkan data terbaru
+                        </p>
                     </div>
                     <span id="eow-riwayat-count"
                         class="text-[11px] font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">0 data</span>
@@ -5910,12 +5914,13 @@
                                 <th class="py-2.5 pr-3">Jumlah Video</th>
                                 <th class="py-2.5 pr-3">Periode</th>
                                 <th class="py-2.5 pr-3">Kata-kata / Quote</th>
+                                <th class="py-2.5 pr-3">Status Tampil</th>
                                 <th class="py-2.5 pr-3 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="eow-riwayat-tbody">
                             <tr>
-                                <td colspan="6" class="py-6 text-center text-xs text-slate-400">Memuat data...</td>
+                                <td colspan="7" class="py-6 text-center text-xs text-slate-400">Memuat data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -11582,6 +11587,8 @@
         // Menyimpan seluruh baris riwayat Editor of the Week yang sudah dimuat dari Supabase,
         // dipakai untuk mengisi tabel riwayat dan mencari data saat tombol "Edit" ditekan.
         let eowRiwayatData = [];
+        // ID baris yang SEDANG tampil sebagai Editor of the Week aktif (manual atau otomatis).
+        let eowIdBarisAktif = null;
 
         // Reset form ke kondisi kosong (mode "tambah data baru"). Tidak menghapus data
         // yang sudah tersimpan di tabel — hanya mengosongkan input di layar.
@@ -11612,7 +11619,7 @@
             if (countEl) countEl.innerText = `${rows.length} data`;
 
             if (!rows || rows.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-xs text-slate-400">Belum ada data Editor of the Week yang tersimpan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-xs text-slate-400">Belum ada data Editor of the Week yang tersimpan.</td></tr>';
                 return;
             }
 
@@ -11624,9 +11631,21 @@
                 const quote = row.quote || row.Quote || '';
                 const jumlah = (row.jumlah_video !== undefined && row.jumlah_video !== null) ? row.jumlah_video : '-';
                 const periode = row.periode || row.periode_label || '-';
+                const isDipilihManual = row.ditampilkan === true;
+                const isYangTampilSaatIni = idInfo && eowIdBarisAktif !== null && String(idInfo.value) === String(eowIdBarisAktif);
                 const fotoCell = fotoUrl
                     ? `<img src="${fotoUrl}" alt="${edEscapeHtml(namaEditor)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">`
                     : `<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:${eowWarnaEditor(namaEditor)}">${edEscapeHtml((namaEditor || '?').charAt(0).toUpperCase())}</div>`;
+
+                const statusCell = isDipilihManual
+                    ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200"><i class="fas fa-star"></i> Dipilih Manual</span>'
+                    : (isYangTampilSaatIni
+                        ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200"><i class="fas fa-bolt"></i> Otomatis (terbaru)</span>'
+                        : '<span class="text-[10px] text-slate-300">-</span>');
+
+                const tombolTampil = isDipilihManual
+                    ? `<button type="button" onclick="eowKembalikanOtomatis()" class="text-slate-400 hover:text-slate-600 px-2" title="Kembalikan ke mode otomatis"><i class="fas fa-rotate-left"></i></button>`
+                    : `<button type="button" onclick="eowJadikanTampil('${idAttr}')" class="text-amber-500 hover:text-amber-600 px-2" title="Tampilkan data ini secara manual di Dashboard Editor"><i class="fas fa-star"></i></button>`;
 
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50/60 align-middle">
@@ -11635,7 +11654,9 @@
                         <td class="py-2.5 pr-3 font-bold text-slate-700">${edEscapeHtml(String(jumlah))} video</td>
                         <td class="py-2.5 pr-3 text-xs text-slate-500 whitespace-nowrap">${edEscapeHtml(periode)}</td>
                         <td class="py-2.5 pr-3 text-xs text-slate-500 max-w-[220px] truncate" title="${edEscapeHtml(quote)}">${quote ? edEscapeHtml(quote) : '-'}</td>
+                        <td class="py-2.5 pr-3">${statusCell}</td>
                         <td class="py-2.5 pr-3 text-right whitespace-nowrap">
+                            ${tombolTampil}
                             <button type="button" onclick="eowEditRiwayat('${idAttr}')"
                                 class="text-indigo-600 hover:text-indigo-800 px-2" title="Edit data ini">
                                 <i class="fas fa-pen"></i>
@@ -11647,6 +11668,46 @@
                         </td>
                     </tr>`;
             }).join('');
+        }
+
+        // Admin memaksa salah satu data riwayat untuk tampil sebagai Editor of the Week
+        // (menimpa pilihan otomatis). Hanya boleh ada 1 baris dengan ditampilkan = true.
+        async function eowJadikanTampil(idValue) {
+            const row = eowRiwayatData.find(r => {
+                const info = getRowIdInfo(r);
+                return info && String(info.value) === String(idValue);
+            });
+            if (!row) return;
+            const idInfo = getRowIdInfo(row);
+            if (!idInfo) return;
+
+            const kolomId = idInfo.key;
+            // Matikan dulu status manual pada semua baris, lalu nyalakan hanya pada baris terpilih.
+            const { error: errClear } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).update({ ditampilkan: false }).not(kolomId, 'is', null);
+            if (errClear && /ditampilkan|schema cache|column/i.test(errClear.message || '')) {
+                eowTampilkanDiagnostik(`Kolom "ditampilkan" belum ada di tabel "${NAMA_TABEL_EDITOR_OF_WEEK}" (${errClear.message}). Fitur pilih manual belum bisa dipakai sebelum kolom ini ditambahkan di Supabase.`);
+                return;
+            }
+            const { error: errSet } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).update({ ditampilkan: true }).eq(idInfo.key, idInfo.value);
+            if (errSet) {
+                alert('Gagal menjadikan data ini tampil: ' + errSet.message);
+                return;
+            }
+            await eowMuatData();
+        }
+
+        // Kembalikan ke mode otomatis (sistem memilih data terbaru lagi).
+        async function eowKembalikanOtomatis() {
+            const rowManual = eowRiwayatData.find(r => r.ditampilkan === true);
+            if (!rowManual) return;
+            const idInfo = getRowIdInfo(rowManual);
+            if (!idInfo) return;
+            const { error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).update({ ditampilkan: false }).eq(idInfo.key, idInfo.value);
+            if (error) {
+                alert('Gagal mengembalikan ke mode otomatis: ' + error.message);
+                return;
+            }
+            await eowMuatData();
         }
 
         // Isi form dengan salah satu data riwayat (agar bisa diubah lalu disimpan ulang).
@@ -11721,12 +11782,31 @@
 
             eowDataLoaded = true;
             eowRiwayatData = data || [];
+
+            // Baris yang tampil sebagai Editor of the Week aktif:
+            // 1) kalau ADA baris yang ditandai "ditampilkan = true" (dipilih manual oleh admin), pakai itu.
+            // 2) kalau TIDAK ADA, sistem otomatis memakai baris paling baru (id terbesar).
+            const rowManual = eowRiwayatData.find(r => r.ditampilkan === true);
+            const rowAktif = rowManual || eowRiwayatData[0] || null;
+            const infoAktif = rowAktif ? getRowIdInfo(rowAktif) : null;
+            eowIdBarisAktif = infoAktif ? infoAktif.value : null;
+
+            const modeBadge = document.getElementById('eow-mode-badge');
+            if (modeBadge) {
+                if (rowManual) {
+                    modeBadge.className = 'inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200';
+                    modeBadge.innerHTML = `<i class="fas fa-star"></i> Mode Manual — ditampilkan: ${edEscapeHtml(rowManual.editor || rowManual.Editor || '-')}`;
+                } else {
+                    modeBadge.className = 'inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                    modeBadge.innerHTML = '<i class="fas fa-bolt"></i> Mode Otomatis — menampilkan data terbaru';
+                }
+            }
+
             eowRenderRiwayatTable(eowRiwayatData);
 
-            // Preview atas & baris "Editor of the Week" yang tampil di Dashboard Editor selalu
-            // mengikuti data TERBARU (baris paling atas), bukan otomatis mengisi form —
-            // form dibiarkan kosong (mode tambah baru) kecuali admin klik "Edit" di tabel riwayat.
-            const rowTerbaru = eowRiwayatData[0] || null;
+            // Preview atas & baris "Editor of the Week" yang tampil di Dashboard Editor mengikuti
+            // rowAktif di atas (hasil pilihan manual jika ada, atau otomatis data terbaru).
+            const rowTerbaru = rowAktif;
             if (rowTerbaru) {
                 const namaEditor = rowTerbaru.editor || rowTerbaru.Editor || '';
                 const fotoUrl = rowTerbaru.foto_url || rowTerbaru.Foto_Url || rowTerbaru.foto || '';
@@ -11784,6 +11864,20 @@
                 ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).update(payload).eq(eowCurrentIdInfo.key, eowCurrentIdInfo.value).select());
             } else {
                 ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).insert([payload]).select());
+            }
+
+            // Fallback: kalau tabel Supabase belum punya kolom "jumlah_video" / "periode"
+            // (belum sempat ditambahkan admin), coba simpan lagi tanpa kedua kolom itu supaya
+            // fitur nama/foto/quote tetap bisa jalan. Jumlah video tetap tampil otomatis di
+            // preview & Dashboard Editor karena selalu dihitung ulang secara live.
+            if (error && /jumlah_video|periode|schema cache|column/i.test(error.message || '')) {
+                eowTampilkanDiagnostik(`Kolom "jumlah_video"/"periode" belum ada di tabel "${NAMA_TABEL_EDITOR_OF_WEEK}" (${error.message}). Data tetap disimpan tanpa riwayat jumlah video/periode. Tambahkan kolomnya di Supabase agar riwayat lengkap — lihat petunjuk SQL di panduan.`);
+                const payloadFallback = { editor: payload.editor, foto_url: payload.foto_url, quote: payload.quote };
+                if (eowCurrentIdInfo) {
+                    ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).update(payloadFallback).eq(eowCurrentIdInfo.key, eowCurrentIdInfo.value).select());
+                } else {
+                    ({ data, error } = await db.from(NAMA_TABEL_EDITOR_OF_WEEK).insert([payloadFallback]).select());
+                }
             }
 
             if (error) {
