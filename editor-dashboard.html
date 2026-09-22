@@ -2498,6 +2498,12 @@
       populateFilters();
       renderSemua();
       renderCrudTable();
+
+      // BARU: kartu Editor of the Week menghitung jumlah video secara live dari
+      // listPlanningGlobal di atas. Tanpa baris ini, angkanya tidak ikut ter-refresh
+      // saat data Planning_Editor berubah lewat realtime (video baru di-Done-kan/diupload),
+      // sampai ada trigger render lain.
+      renderEditorOfTheWeek();
     }
 
     function populateFilters() {
@@ -3374,11 +3380,13 @@
 
       // Jumlah video SELALU dihitung live dari Planning_Editor untuk editor ini,
       // tidak pernah diambil dari tabel Editor_Of_The_Week.
+      // BARU: dihitung berdasarkan Tanggal Upload (targetUpload), bukan Due Date lagi —
+      // supaya video yang baru selesai & diupload langsung terhitung di minggu yang tepat.
       const jumlah = periode ? listPlanningGlobal.filter(item => {
         if (item.editor !== namaEditor || item.statusEdit !== 'Done') return false;
-        const due = parseTanggalDue(item.dueDate);
-        if (!due) return false;
-        return due >= periode.awal && due <= periode.akhir;
+        const tglUpload = parseTanggalDue(item.targetUpload);
+        if (!tglUpload) return false;
+        return tglUpload >= periode.awal && tglUpload <= periode.akhir;
       }).length : 0;
 
       namaEl.innerText = namaEditor;
