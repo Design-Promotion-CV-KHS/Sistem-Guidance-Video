@@ -11475,9 +11475,11 @@
             if (!periode) return 0;
             return edListPlanningGlobal.filter(item => {
                 if (item.editor !== namaEditor || item.statusEdit !== 'Done') return false;
-                const due = parseTanggalDue(item.dueDate);
-                if (!due) return false;
-                return due >= periode.awal && due <= periode.akhir;
+                // BARU: dihitung berdasarkan Tanggal Upload (targetUpload), bukan Due Date lagi —
+                // supaya video yang baru selesai & diupload hari ini langsung terhitung minggu ini.
+                const tglUpload = parseTanggalDue(item.targetUpload);
+                if (!tglUpload) return false;
+                return tglUpload >= periode.awal && tglUpload <= periode.akhir;
             }).length;
         }
 
