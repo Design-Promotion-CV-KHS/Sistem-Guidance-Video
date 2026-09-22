@@ -11845,9 +11845,10 @@
         }
 
         async function eowTampilkanTab() {
-            if (!edListPlanningGlobal || edListPlanningGlobal.length === 0) {
-                await edMuatDashboard();
-            }
+            // BARU: selalu ambil ulang data Planning terbaru dari Supabase setiap kali tab ini
+            // dibuka (bukan cuma saat cache masih kosong), supaya video yang baru saja
+            // diupdate/diupload hari ini langsung ikut terhitung, tidak pakai data lama di memori.
+            await edMuatDashboard();
             await eowMuatData();
         }
 
