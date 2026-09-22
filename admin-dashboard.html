@@ -11623,14 +11623,21 @@
                 return;
             }
 
+            // BARU: jumlah video & periode di tabel Riwayat TIDAK lagi dibaca dari kolom
+            // "beku" (snapshot) di database, tapi selalu dihitung ulang live setiap kali
+            // tabel ini dirender — supaya semua baris riwayat selalu mengikuti kondisi &
+            // tanggal terkini (bukan tanggal saat data itu pertama kali disimpan).
+            const periodeTerkini = getPeriodeTargetMingguan(new Date());
+            const periodeLabelTerkini = periodeTerkini ? formatPeriodeMinggu(periodeTerkini) : '-';
+
             tbody.innerHTML = rows.map(row => {
                 const idInfo = getRowIdInfo(row);
                 const idAttr = idInfo ? edEscapeHtml(String(idInfo.value)) : '';
                 const namaEditor = row.editor || row.Editor || '-';
                 const fotoUrl = row.foto_url || row.Foto_Url || row.foto || '';
                 const quote = row.quote || row.Quote || '';
-                const jumlah = (row.jumlah_video !== undefined && row.jumlah_video !== null) ? row.jumlah_video : '-';
-                const periode = row.periode || row.periode_label || '-';
+                const jumlah = eowHitungVideoMinggu(namaEditor);
+                const periode = periodeLabelTerkini;
                 const isDipilihManual = row.ditampilkan === true;
                 const isYangTampilSaatIni = idInfo && eowIdBarisAktif !== null && String(idInfo.value) === String(eowIdBarisAktif);
                 const fotoCell = fotoUrl
@@ -11813,7 +11820,9 @@
                 const quote = rowTerbaru.quote || rowTerbaru.Quote || '';
                 document.getElementById('eow-preview-nama').innerText = namaEditor || '-';
                 const jumlahEl = document.getElementById('eow-preview-jumlah');
-                if (jumlahEl) jumlahEl.innerText = (rowTerbaru.jumlah_video !== undefined && rowTerbaru.jumlah_video !== null) ? rowTerbaru.jumlah_video : eowHitungVideoMinggu(namaEditor);
+                // BARU: selalu hitung ulang live dari data Planning terkini, jangan pakai
+                // angka "beku" yang tersimpan saat data ini pertama kali disimpan.
+                if (jumlahEl) jumlahEl.innerText = eowHitungVideoMinggu(namaEditor);
                 const fotoEl = document.getElementById('eow-preview-foto');
                 if (fotoEl) {
                     fotoEl.style.background = namaEditor ? eowWarnaEditor(namaEditor) : '#f59e0b';
