@@ -11021,7 +11021,9 @@
             container.innerHTML = namaEditorSorted.map(editorName => {
                 const doneMinggu = data.filter(i => {
                     if (i.editor !== editorName || i.statusEdit !== 'Done') return false;
-                    const d = edParseTanggal(i.dueDate);
+                    // Dihitung berdasarkan Tanggal Upload (targetUpload), bukan Due Date —
+                    // supaya video yang baru selesai & diupload minggu ini langsung terhitung.
+                    const d = edParseTanggal(i.targetUpload);
                     if (!d) return false;
                     d.setHours(0, 0, 0, 0);
                     return d >= minggu.mulai && d <= minggu.selesai;
