@@ -4972,25 +4972,39 @@
                     <p class="text-sm text-slate-500 mt-1">Tinjau evaluasi video, alternatif solusi, serta grade per
                         cabang.</p>
                 </div>
-                <div
-                    class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer w-full md:w-auto">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <div
-                        class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <path
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                            </path>
-                        </svg>
+                        class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer w-full md:w-auto">
+                        <div
+                            class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col flex-1">
+                            <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang
+                                Spesifik</label>
+                            <select
+                                class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
+                                id="cb-filter-evaluasi-cabang">
+                                <option value="all">Semua Cabang</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="flex flex-col flex-1">
-                        <label class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang
-                            Spesifik</label>
-                        <select
-                            class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5"
-                            id="cb-filter-evaluasi-cabang">
-                            <option value="all">Semua Cabang</option>
-                        </select>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="cb-btn-export-excel"
+                            class="inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-bold px-4 py-2.5 rounded-2xl border border-emerald-200 transition-all shadow-sm interactive-btn"
+                            title="Unduh data evaluasi (sesuai filter aktif) sebagai Excel (.xlsx)">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button type="button" id="cb-btn-export-word"
+                            class="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-bold px-4 py-2.5 rounded-2xl border border-blue-200 transition-all shadow-sm interactive-btn"
+                            title="Unduh data evaluasi (sesuai filter aktif) sebagai Word (.doc)">
+                            <i class="fas fa-file-word"></i> Word
+                        </button>
                     </div>
                 </div>
             </div>
@@ -5583,6 +5597,18 @@
                     </div>
                 </div>
                 <span id="pt-filter-count" class="text-xs font-semibold text-slate-400 ml-auto"></span>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="pt-btn-export-excel"
+                        class="inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-bold px-4 py-2.5 rounded-2xl border border-emerald-200 transition-all shadow-sm interactive-btn"
+                        title="Unduh data Planning Potrait (sesuai filter aktif) sebagai Excel (.xlsx)">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button type="button" id="pt-btn-export-word"
+                        class="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-bold px-4 py-2.5 rounded-2xl border border-blue-200 transition-all shadow-sm interactive-btn"
+                        title="Unduh data Planning Potrait (sesuai filter aktif) sebagai Word (.doc)">
+                        <i class="fas fa-file-word"></i> Word
+                    </button>
+                </div>
             </div>
             <div id="pt-diagnostic-banner"
                 class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-sm">
@@ -5690,6 +5716,18 @@
                     </div>
                 </div>
                 <span id="pc-filter-count" class="text-xs font-semibold text-slate-400 ml-auto"></span>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="pc-btn-export-excel"
+                        class="inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-bold px-4 py-2.5 rounded-2xl border border-emerald-200 transition-all shadow-sm interactive-btn"
+                        title="Unduh data Planning Carousel (sesuai filter aktif) sebagai Excel (.xlsx)">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button type="button" id="pc-btn-export-word"
+                        class="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-blue-700 text-xs font-bold px-4 py-2.5 rounded-2xl border border-blue-200 transition-all shadow-sm interactive-btn"
+                        title="Unduh data Planning Carousel (sesuai filter aktif) sebagai Word (.doc)">
+                        <i class="fas fa-file-word"></i> Word
+                    </button>
+                </div>
             </div>
             <div id="pc-diagnostic-banner"
                 class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-sm">
@@ -7336,9 +7374,19 @@
                     <h1>Jadwal 5S</h1>
                     <p>Kelola jadwal kegiatan 5S berdasarkan tanggal, PIC, lokasi, dan status.</p>
                 </div>
-                <button class="j5s-btn j5s-btn-primary" type="button" onclick="j5sBukaForm()">
-                    <i class="fas fa-plus"></i> Tambah Jadwal
-                </button>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="j5s-btn j5s-btn-light" type="button" onclick="j5sExportExcel()"
+                        title="Unduh jadwal 5S (sesuai pencarian aktif) sebagai Excel (.xlsx)">
+                        <i class="fas fa-file-excel" style="color:#15803d;"></i> Excel
+                    </button>
+                    <button class="j5s-btn j5s-btn-light" type="button" onclick="j5sExportWord()"
+                        title="Unduh jadwal 5S (sesuai pencarian aktif) sebagai Word (.doc)">
+                        <i class="fas fa-file-word" style="color:#1d4ed8;"></i> Word
+                    </button>
+                    <button class="j5s-btn j5s-btn-primary" type="button" onclick="j5sBukaForm()">
+                        <i class="fas fa-plus"></i> Tambah Jadwal
+                    </button>
+                </div>
             </div>
             <div class="j5s-toolbar">
                 <input id="j5s-search" class="j5s-search" type="search"
@@ -9379,6 +9427,142 @@
             });
         }
         document.getElementById('cb-filter-evaluasi-cabang').addEventListener('change', (e) => cbRenderTabelEvaluasi(e.target.value));
+
+        /* ==== Export Evaluasi Cabang: helper terpusat mengambil baris SESUAI FILTER
+           yang sedang aktif di tabel Hasil Evaluasi, dipakai bersama oleh export
+           Excel & Word agar hasilnya selalu konsisten dengan tampilan layar. ==== */
+        function cbGetBarisEvaluasiTerfilter() {
+            const selectedCabang = document.getElementById('cb-filter-evaluasi-cabang')?.value || 'all';
+            let filteredEval = cbListEvaluasiGlobal || [];
+            if (selectedCabang !== 'all') {
+                filteredEval = filteredEval.filter(item => (item.Cabang || item.cabang || '').trim() === selectedCabang);
+            }
+            return filteredEval;
+        }
+
+        function cbBacaStatusDibaca(item) {
+            const v = item.evaluasi_dibaca;
+            const sudah = v === true || String(v).toLowerCase() === 'true' || String(v) === '1' || String(v).toLowerCase() === 'yes';
+            return sudah ? 'Sudah Dibaca' : 'Belum Dibaca';
+        }
+
+        /* ---------- Export Excel (.xlsx) — Hasil Evaluasi Cabang ---------- */
+        function cbExportExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
+                return;
+            }
+            const baris = cbGetBarisEvaluasiTerfilter();
+            if (!baris.length) {
+                alert('Tidak ada data evaluasi untuk diexport pada filter saat ini.');
+                return;
+            }
+
+            const header = ['ID', 'Cabang', 'File / Sumber Video', 'Evaluasi', 'Alternatif Solusi', 'Grade', 'Status Dibaca'];
+            const rows = baris.map(item => {
+                const idInfo = getRowIdInfo(item);
+                return [
+                    idInfo ? idInfo.value : '',
+                    item.Cabang || item.cabang || '-',
+                    item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-',
+                    item.Evaluasi || item.evaluasi || '-',
+                    item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '-',
+                    normalizeGrade(item.Grade || item.grade) || '-',
+                    cbBacaStatusDibaca(item)
+                ];
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+            ws['!cols'] = [
+                { wch: 10 }, { wch: 18 }, { wch: 34 }, { wch: 44 }, { wch: 44 }, { wch: 12 }, { wch: 16 }
+            ];
+            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: header.length - 1 } }) };
+            ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Hasil Evaluasi Cabang');
+
+            const now = new Date();
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            XLSX.writeFile(wb, `Hasil_Evaluasi_Cabang_${stamp}.xlsx`);
+        }
+
+        /* ---------- Export Word (.doc rapi) — Hasil Evaluasi Cabang ---------- */
+        function cbExportWord() {
+            const baris = cbGetBarisEvaluasiTerfilter();
+            if (!baris.length) {
+                alert('Tidak ada data evaluasi untuk diexport pada filter saat ini.');
+                return;
+            }
+
+            const header = ['ID', 'Cabang', 'File / Sumber Video', 'Evaluasi', 'Alternatif Solusi', 'Grade', 'Status Dibaca'];
+            const headerHtml = header.map(h => `<th>${edEscapeHtml(h)}</th>`).join('');
+            const rowsHtml = baris.map(item => {
+                const idInfo = getRowIdInfo(item);
+                const cells = [
+                    idInfo ? idInfo.value : '',
+                    item.Cabang || item.cabang || '-',
+                    item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '-',
+                    item.Evaluasi || item.evaluasi || '-',
+                    item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '-',
+                    normalizeGrade(item.Grade || item.grade) || '-',
+                    cbBacaStatusDibaca(item)
+                ];
+                return `<tr>${cells.map(c => `<td>${edEscapeHtml(c) === '-' ? '' : edEscapeHtml(c)}</td>`).join('')}</tr>`;
+            }).join('');
+
+            const selectedCabang = document.getElementById('cb-filter-evaluasi-cabang')?.value || 'all';
+            const now = new Date();
+            const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            const htmlDoc = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Hasil Evaluasi Cabang</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>90</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page { size: A4 landscape; margin: 1.2cm; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
+  h1 { font-size: 18pt; margin-bottom: 2px; color: #0f172a; }
+  .subtitle { font-size: 9.5pt; color: #64748b; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+  th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+</style>
+</head>
+<body>
+  <h1>Hasil Evaluasi &amp; Alternatif Solusi Cabang</h1>
+  <p class="subtitle">Cabang: ${edEscapeHtml(selectedCabang === 'all' ? 'Semua Cabang' : selectedCabang)} &bull; Diexport pada ${tanggalCetak} &bull; Total ${baris.length} data</p>
+  <table>
+    <thead><tr>${headerHtml}</tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</body>
+</html>`;
+
+            const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Hasil_Evaluasi_Cabang_${stamp}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        document.getElementById('cb-btn-export-excel')?.addEventListener('click', cbExportExcel);
+        document.getElementById('cb-btn-export-word')?.addEventListener('click', cbExportWord);
 
         let cbCurrentEditIdInfo = null;
 
@@ -12762,6 +12946,86 @@
             if (!data || data.length === 0) { alert('Data tidak terhapus. Periksa policy DELETE pada tabel Planning_Potrait.'); return; }
             await ptMuatData();
         }
+        /* ---------- Export Excel (.xlsx) — Planning Potrait ---------- */
+        function ptExportExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
+                return;
+            }
+            const data = ptGetFiltered();
+            if (!data.length) {
+                alert('Tidak ada data Planning Potrait untuk diexport pada filter saat ini.');
+                return;
+            }
+            const header = ['Judul Video', 'Produk', 'Tema', 'Brief', 'Selling Points', 'Editor', 'Status'];
+            const rows = data.map(item => ([
+                item.judul_video || '-', item.produk || '-', item.tema || '-', item.brief || '-',
+                item.selling_points || '-', item.editor || '-', ptStatusNormal(item.status)
+            ]));
+            const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+            ws['!cols'] = [{ wch: 30 }, { wch: 18 }, { wch: 18 }, { wch: 34 }, { wch: 30 }, { wch: 16 }, { wch: 12 }];
+            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: header.length - 1 } }) };
+            ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Planning Potrait');
+            const now = new Date();
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            XLSX.writeFile(wb, `Planning_Potrait_${stamp}.xlsx`);
+        }
+
+        /* ---------- Export Word (.doc rapi) — Planning Potrait ---------- */
+        function ptExportWord() {
+            const data = ptGetFiltered();
+            if (!data.length) {
+                alert('Tidak ada data Planning Potrait untuk diexport pada filter saat ini.');
+                return;
+            }
+            const header = ['Judul Video', 'Produk', 'Tema', 'Brief', 'Selling Points', 'Editor', 'Status'];
+            const headerHtml = header.map(h => `<th>${ptEscapeHtml(h)}</th>`).join('');
+            const rowsHtml = data.map(item => {
+                const cells = [item.judul_video, item.produk, item.tema, item.brief, item.selling_points, item.editor, ptStatusNormal(item.status)];
+                return `<tr>${cells.map(c => `<td>${ptEscapeHtml(c || '')}</td>`).join('')}</tr>`;
+            }).join('');
+            const now = new Date();
+            const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            const htmlDoc = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Planning Potrait</title>
+<!--[if gte mso 9]>
+<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>90</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>
+<![endif]-->
+<style>
+  @page { size: A4 landscape; margin: 1.2cm; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
+  h1 { font-size: 18pt; margin-bottom: 2px; color: #0f172a; }
+  .subtitle { font-size: 9.5pt; color: #64748b; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+  th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+</style>
+</head>
+<body>
+  <h1>Data Planning Potrait</h1>
+  <p class="subtitle">Diexport pada ${tanggalCetak} &bull; Total ${data.length} data (mengikuti filter yang sedang aktif)</p>
+  <table><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>
+</body>
+</html>`;
+            const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Planning_Potrait_${stamp}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+        document.getElementById('pt-btn-export-excel')?.addEventListener('click', ptExportExcel);
+        document.getElementById('pt-btn-export-word')?.addEventListener('click', ptExportWord);
+
         document.getElementById('pt-btn-tambah-data').addEventListener('click', ptBukaModalTambah);
         document.getElementById('pt-crud-modal-close').addEventListener('click', ptTutupModal);
         document.getElementById('pt-crud-cancel-btn').addEventListener('click', ptTutupModal);
@@ -13281,13 +13545,15 @@
             if (CAROUSEL_EDITORS.includes(current)) select.value = current;
         }
 
-        function pcRenderTable() {
-            const tbody = document.getElementById('pc-crud-body');
-            if (!tbody) return;
+        // ==== BARU: helper terpusat mengambil baris Planning Carousel yang SEDANG
+        // TAMPIL (sudah difilter sesuai search/status/editor). Dipakai bersama oleh
+        // render tabel dan fitur export Excel/Word agar hasil export selalu
+        // konsisten dengan apa yang terlihat di layar. ====
+        function pcGetFilteredRows() {
             const search = String(document.getElementById('pc-filter-search')?.value || '').trim().toLowerCase();
             const statusFilter = String(document.getElementById('pc-filter-status')?.value || 'all');
             const editorFilter = String(document.getElementById('pc-filter-editor')?.value || 'all');
-            const rows = pcListGlobal.filter(row => {
+            return pcListGlobal.filter(row => {
                 const statusOk = statusFilter === 'all' || String(row.status || '') === statusFilter;
                 if (!statusOk) return false;
                 const editorOk = editorFilter === 'all' || String(row.editor || '') === editorFilter;
@@ -13298,6 +13564,12 @@
                 ].flat().join(' ').toLowerCase();
                 return haystack.includes(search);
             });
+        }
+
+        function pcRenderTable() {
+            const tbody = document.getElementById('pc-crud-body');
+            if (!tbody) return;
+            const rows = pcGetFilteredRows();
 
             const countEl = document.getElementById('pc-filter-count');
             if (countEl) countEl.textContent = `${rows.length} dari ${pcListGlobal.length} data`;
@@ -13416,6 +13688,116 @@
                 alert('Gagal menghapus data: ' + (error?.message || String(error)));
             }
         }
+
+        /* ---------- Export Excel (.xlsx) — Planning Carousel ---------- */
+        function pcExportExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
+                return;
+            }
+            const rows = pcGetFilteredRows();
+            if (!rows.length) {
+                alert('Tidak ada data Planning Carousel untuk diexport pada filter saat ini.');
+                return;
+            }
+
+            const slideHeaders = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [`Slide ${i + 1} - Copywriting`, `Slide ${i + 1} - Visual`]).flat();
+            const header = ['Tema', 'Editor', ...slideHeaders, 'Caption', 'Status'];
+            const dataRows = rows.map(row => {
+                const slideCells = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [
+                    pcText(row[`slide_${i + 1}_copywriting`]),
+                    pcText(row[`slide_${i + 1}_visual`])
+                ]).flat();
+                return [pcText(row.tema), pcText(row.editor), ...slideCells, pcText(row.caption), pcText(row.status)];
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
+            ws['!cols'] = [
+                { wch: 26 }, { wch: 16 },
+                ...Array.from({ length: CAROUSEL_SLIDE_COUNT * 2 }, () => ({ wch: 28 })),
+                { wch: 34 }, { wch: 12 }
+            ];
+            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: dataRows.length, c: header.length - 1 } }) };
+            ws['!freeze'] = { xSplit: 2, ySplit: 1 };
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Planning Carousel');
+
+            const now = new Date();
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            XLSX.writeFile(wb, `Planning_Carousel_${stamp}.xlsx`);
+        }
+
+        /* ---------- Export Word (.doc rapi) — Planning Carousel ----------
+           Ringkas per-tema (tanpa breakdown per-slide) agar dokumen Word tetap
+           enak dibaca; untuk rincian tiap slide, gunakan export Excel. */
+        function pcExportWord() {
+            const rows = pcGetFilteredRows();
+            if (!rows.length) {
+                alert('Tidak ada data Planning Carousel untuk diexport pada filter saat ini.');
+                return;
+            }
+
+            const header = ['Tema', 'Editor', 'Jumlah Slide Terisi', 'Caption', 'Status'];
+            const headerHtml = header.map(h => `<th>${pcEscapeHtml(h)}</th>`).join('');
+            const rowsHtml = rows.map(row => {
+                const jumlahSlideTerisi = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => i + 1)
+                    .filter(n => String(row[`slide_${n}_copywriting`] || '').trim() || String(row[`slide_${n}_visual`] || '').trim()).length;
+                const cells = [pcText(row.tema), pcText(row.editor), `${jumlahSlideTerisi} / ${CAROUSEL_SLIDE_COUNT}`, pcText(row.caption), pcText(row.status)];
+                return `<tr>${cells.map(c => `<td>${pcEscapeHtml(c) === '-' ? '' : pcEscapeHtml(c)}</td>`).join('')}</tr>`;
+            }).join('');
+
+            const now = new Date();
+            const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            const htmlDoc = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Planning Carousel</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>90</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page { size: A4 landscape; margin: 1.2cm; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
+  h1 { font-size: 18pt; margin-bottom: 2px; color: #0f172a; }
+  .subtitle { font-size: 9.5pt; color: #64748b; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+  th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+</style>
+</head>
+<body>
+  <h1>Data Planning Carousel</h1>
+  <p class="subtitle">Diexport pada ${tanggalCetak} &bull; Total ${rows.length} data (mengikuti filter yang sedang aktif) &bull; Ringkasan per tema &mdash; rincian tiap slide tersedia pada export Excel</p>
+  <table>
+    <thead><tr>${headerHtml}</tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</body>
+</html>`;
+
+            const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Planning_Carousel_${stamp}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        document.getElementById('pc-btn-export-excel')?.addEventListener('click', pcExportExcel);
+        document.getElementById('pc-btn-export-word')?.addEventListener('click', pcExportWord);
 
         document.getElementById('pc-btn-tambah-data')?.addEventListener('click', pcBukaModalTambah);
         document.getElementById('pc-crud-modal-close')?.addEventListener('click', pcTutupModal);
@@ -21594,15 +21976,87 @@
                 return 'j5s-status-lainnya';
             }
 
+            // Helper terpusat: ambil baris Jadwal 5S sesuai pencarian aktif, dipakai
+            // bersama oleh render tabel dan fitur export Excel/Word.
+            function j5sGetFiltered() {
+                const q = String(document.getElementById('j5s-search')?.value || '').trim().toLowerCase();
+                return j5sData.filter(r => [
+                    r.id, r.tanggal, r.pic, r.PIC, r.lokasi, r.status
+                ].map(x => String(x ?? '')).join(' ').toLowerCase().includes(q));
+            }
+
+            window.j5sExportExcel = function () {
+                if (typeof XLSX === 'undefined') {
+                    alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
+                    return;
+                }
+                const rows = j5sGetFiltered();
+                if (!rows.length) { alert('Tidak ada data Jadwal 5S untuk diexport.'); return; }
+                const header = ['ID', 'Tanggal', 'PIC', 'Lokasi', 'Status'];
+                const data = rows.map(r => [String(r.id ?? ''), formatDate(r.tanggal), r.pic ?? r.PIC ?? '-', r.lokasi || '-', r.status || '-']);
+                const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+                ws['!cols'] = [{ wch: 20 }, { wch: 14 }, { wch: 20 }, { wch: 24 }, { wch: 16 }];
+                ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: data.length, c: header.length - 1 } }) };
+                ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Jadwal 5S');
+                const now = new Date();
+                const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+                XLSX.writeFile(wb, `Jadwal_5S_${stamp}.xlsx`);
+            };
+
+            window.j5sExportWord = function () {
+                const rows = j5sGetFiltered();
+                if (!rows.length) { alert('Tidak ada data Jadwal 5S untuk diexport.'); return; }
+                const header = ['ID', 'Tanggal', 'PIC', 'Lokasi', 'Status'];
+                const headerHtml = header.map(h => `<th>${esc(h)}</th>`).join('');
+                const rowsHtml = rows.map(r => {
+                    const cells = [String(r.id ?? ''), formatDate(r.tanggal), r.pic ?? r.PIC ?? '-', r.lokasi || '-', r.status || '-'];
+                    return `<tr>${cells.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`;
+                }).join('');
+                const now = new Date();
+                const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                const htmlDoc = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Jadwal 5S</title>
+<!--[if gte mso 9]>
+<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>90</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>
+<![endif]-->
+<style>
+  @page { size: A4 portrait; margin: 1.5cm; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
+  h1 { font-size: 18pt; margin-bottom: 2px; color: #0f172a; }
+  .subtitle { font-size: 9.5pt; color: #64748b; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 10pt; }
+  th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+</style>
+</head>
+<body>
+  <h1>Jadwal 5S</h1>
+  <p class="subtitle">Diexport pada ${tanggalCetak} &bull; Total ${rows.length} jadwal</p>
+  <table><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>
+</body>
+</html>`;
+                const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+                const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Jadwal_5S_${stamp}.doc`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            };
+
             window.j5sRender = function () {
                 const tbody = document.getElementById('j5s-table-body');
                 const count = document.getElementById('j5s-count');
-                const q = String(document.getElementById('j5s-search')?.value || '').trim().toLowerCase();
+                const rows = j5sGetFiltered();
                 if (!tbody) return;
-
-                const rows = j5sData.filter(r => [
-                    r.id, r.tanggal, r.pic, r.PIC, r.lokasi, r.status
-                ].map(x => String(x ?? '')).join(' ').toLowerCase().includes(q));
 
                 if (count) count.textContent = `${rows.length.toLocaleString('id-ID')} jadwal`;
 
