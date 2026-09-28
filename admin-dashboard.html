@@ -6112,12 +6112,12 @@
                     <input id="odp-edit-id" type="hidden" />
                     <div>
                         <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload File Order
-                            (PDF/DOCX/JPG/PNG)</label>
+                            (PDF/DOCX/XLSX/XLS/CSV/JPG/PNG)</label>
                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                             <label
                                 class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
                                 <i class="fas fa-upload"></i> Pilih File
-                                <input type="file" id="odp-upload-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                <input type="file" id="odp-upload-file" accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
                                     class="hidden"
                                     onchange="odpUploadFileHandler(this,'odp-input-file-url','odp-upload-file-status')" />
                             </label>
@@ -6766,7 +6766,7 @@
                         tanggal sebelumnya).</p>
                 </div>
 
-                <!-- ===== Customer Profile: upload file (PDF/DOCX/JPG/PNG) ===== -->
+                <!-- ===== Customer Profile: upload file (PDF/DOCX/XLSX/CSV/JPG/PNG) ===== -->
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Customer Profile</label>
                     <textarea
@@ -6776,8 +6776,8 @@
                     <div class="flex items-center gap-2 mt-2 flex-wrap">
                         <label
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
-                            <i class="fas fa-upload"></i> Upload File (PDF/DOCX/JPG/PNG)
-                            <input type="file" id="cp-upload-customerProfile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            <i class="fas fa-upload"></i> Upload File (PDF/DOCX/XLSX/XLS/CSV/JPG/PNG)
+                            <input type="file" id="cp-upload-customerProfile" accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
                                 class="hidden" />
                         </label>
                         <span class="text-xs" id="cp-upload-customerProfile-status"></span>
@@ -6785,7 +6785,7 @@
                     <div class="text-xs mt-1.5" id="cp-upload-customerProfile-existing"></div>
                 </div>
 
-                <!-- ===== Script Wawancara: upload file (PDF/DOCX/JPG/PNG) ===== -->
+                <!-- ===== Script Wawancara: upload file (PDF/DOCX/XLSX/CSV/JPG/PNG) ===== -->
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Script Wawancara</label>
                     <textarea
@@ -6795,8 +6795,8 @@
                     <div class="flex items-center gap-2 mt-2 flex-wrap">
                         <label
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
-                            <i class="fas fa-upload"></i> Upload File (PDF/DOCX/JPG/PNG)
-                            <input type="file" id="cp-upload-scriptWawancara" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            <i class="fas fa-upload"></i> Upload File (PDF/DOCX/XLSX/XLS/CSV/JPG/PNG)
+                            <input type="file" id="cp-upload-scriptWawancara" accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
                                 class="hidden" />
                         </label>
                         <span class="text-xs" id="cp-upload-scriptWawancara-status"></span>
@@ -6907,7 +6907,7 @@
                     </select>
                 </div>
 
-                <!-- ===== Dokumen Proposal: upload multi-file (PDF/DOCX/JPG/PNG) ===== -->
+                <!-- ===== Dokumen Proposal: upload multi-file (PDF/DOCX/PPT/PPTX/XLSX/XLS/CSV/JPG/PNG) ===== -->
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Dokumen Proposal</label>
                     <input id="rp-crud-field-proposal" type="hidden" value="[]" />
@@ -6916,7 +6916,7 @@
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
                             <i class="fas fa-upload"></i> Upload File Proposal (bisa lebih dari 1)
                             <input type="file" id="rp-upload-proposal"
-                                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png" multiple class="hidden" />
+                                accept=".pdf,.doc,.docx,.ppt,.pptx,.xlsx,.xls,.csv,.jpg,.jpeg,.png" multiple class="hidden" />
                             multiple class="hidden" />
                         </label>
                         <span class="text-xs" id="rp-upload-proposal-status"></span>
@@ -6924,7 +6924,7 @@
                     <div class="mt-2" id="rp-proposal-file-list"></div>
                 </div>
 
-                <!-- ===== Dokumen Hasil: upload multi-file (PDF/DOCX/JPG/PNG) ===== -->
+                <!-- ===== Dokumen Hasil: upload multi-file (PDF/DOCX/PPT/PPTX/XLSX/XLS/CSV/JPG/PNG) ===== -->
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Dokumen Hasil</label>
                     <input id="rp-crud-field-hasil" type="hidden" value="[]" />
@@ -6932,7 +6932,7 @@
                         <label
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg border border-indigo-200 transition-all">
                             <i class="fas fa-upload"></i> Upload File Hasil (bisa lebih dari 1)
-                            <input type="file" id="rp-upload-hasil" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png"
+                            <input type="file" id="rp-upload-hasil" accept=".pdf,.doc,.docx,.ppt,.pptx,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
                                 multiple class="hidden" />
                             class="hidden" />
                         </label>
@@ -7189,8 +7189,8 @@
                     <div class="flex items-center gap-2 mt-2 flex-wrap">
                         <label
                             class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-fuchsia-600 bg-fuchsia-50 hover:bg-fuchsia-100 px-3 py-2 rounded-lg border border-fuchsia-200 transition-all">
-                            <i class="fas fa-upload"></i> Upload File Brief (PDF/DOCX/JPG/PNG)
-                            <input type="file" id="pt-upload-brief" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            <i class="fas fa-upload"></i> Upload File Brief (PDF/DOCX/XLSX/XLS/CSV/JPG/PNG)
+                            <input type="file" id="pt-upload-brief" accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.jpg,.jpeg,.png"
                                 class="hidden" />
                         </label>
                         <span class="text-xs" id="pt-upload-brief-status"></span>
@@ -10173,12 +10173,12 @@
             const file = inputEl.files && inputEl.files[0];
             if (!file) return;
 
-            const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+            const allowedExt = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'csv', 'jpg', 'jpeg', 'png'];
             const ext = file.name.split('.').pop().toLowerCase();
             const statusEl = document.getElementById(statusElId);
 
             if (!allowedExt.includes(ext)) {
-                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, JPG, atau PNG.</span>';
+                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, XLSX/XLS, CSV, JPG, atau PNG.</span>';
                 inputEl.value = '';
                 return;
             }
@@ -10628,7 +10628,7 @@
             const files = inputEl.files ? Array.from(inputEl.files) : [];
             if (!files.length) return;
 
-            const allowedExt = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png'];
+            const allowedExt = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xlsx', 'xls', 'csv', 'jpg', 'jpeg', 'png'];
             const statusEl = document.getElementById(statusElId);
             const hiddenField = document.getElementById(hiddenFieldId);
             let current = rpParseFiles(hiddenField.value);
@@ -10639,7 +10639,7 @@
             for (const file of files) {
                 const ext = file.name.split('.').pop().toLowerCase();
                 if (!allowedExt.includes(ext)) {
-                    pesanError.push(`"${file.name}": format tidak didukung (gunakan PDF, DOC/DOCX, PPT/PPTX, JPG, atau PNG).`);
+                    pesanError.push(`"${file.name}": format tidak didukung (gunakan PDF, DOC/DOCX, PPT/PPTX, XLSX/XLS, CSV, JPG, atau PNG).`);
                     continue;
                 }
                 if (file.size > 15 * 1024 * 1024) {
@@ -14031,12 +14031,12 @@
             const file = inputEl.files && inputEl.files[0];
             if (!file) return;
 
-            const allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+            const allowedExt = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'csv', 'jpg', 'jpeg', 'png'];
             const ext = file.name.split('.').pop().toLowerCase();
             const statusEl = document.getElementById(statusElId);
 
             if (!allowedExt.includes(ext)) {
-                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, JPG, atau PNG.</span>';
+                statusEl.innerHTML = '<span class="text-rose-500">Format tidak didukung. Gunakan PDF, DOC/DOCX, XLSX/XLS, CSV, JPG, atau PNG.</span>';
                 inputEl.value = '';
                 return;
             }
