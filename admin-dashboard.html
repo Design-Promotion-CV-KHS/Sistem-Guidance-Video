@@ -5162,7 +5162,7 @@
                 </div>
             </div>
             <!-- Kartu ringkas -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-5">
                 <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
                     <div
                         class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner">
@@ -5190,6 +5190,26 @@
                         <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Bulan Berjalan vs Target
                         </p>
                         <h4 class="text-xl font-black text-slate-900 mt-0.5" id="cp-card-target-info">-</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                        ⏰</div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Urgent Shooting (≤3 Hari)
+                        </p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-urgent-count">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xl shadow-inner">
+                        📝</div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Belum Diapprove
+                            Koordinator</p>
+                        <h4 class="text-2xl font-black text-slate-900 mt-0.5" id="cp-card-belum-approve-count">0</h4>
                     </div>
                 </div>
             </div>
@@ -5233,13 +5253,15 @@
                                 <th class="py-4 px-5 bg-slate-100">Produk</th>
                                 <th class="py-4 px-5 bg-slate-100">Customer Profile</th>
                                 <th class="py-4 px-5 bg-slate-100">Script Wawancara</th>
+                                <th class="py-4 px-5 bg-slate-100">Tanggal Shooting</th>
                                 <th class="py-4 px-5 bg-slate-100">Status</th>
+                                <th class="py-4 px-5 bg-slate-100">Approval Koordinator</th>
                                 <th class="py-4 px-5 text-center bg-slate-100">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium" id="cp-tabel-body">
                             <tr>
-                                <td class="text-center py-8 text-slate-400" colspan="8">Memuat data dari database...
+                                <td class="text-center py-8 text-slate-400" colspan="10">Memuat data dari database...
                                 </td>
                             </tr>
                         </tbody>
@@ -6765,6 +6787,14 @@
                     <p class="text-[11px] text-gray-400 mt-1">Isi sesuai tanggal video/wawancara ini dikirim (boleh
                         tanggal sebelumnya).</p>
                 </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tanggal Shooting</label>
+                    <input
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400"
+                        id="cp-crud-field-tanggalShooting" type="date" />
+                    <p class="text-[11px] text-gray-400 mt-1">Isi tanggal rencana/pelaksanaan shooting. Dipakai untuk
+                        menandai customer profile yang urgent supaya bisa diprioritaskan.</p>
+                </div>
 
                 <!-- ===== Customer Profile: upload file (PDF/DOCX/XLSX/CSV/JPG/PNG) ===== -->
                 <div>
@@ -6812,6 +6842,18 @@
                         <option value="Belum Ada Video">Belum Ada Video</option>
                         <option value="Sudah Ada Video">Sudah Ada Video</option>
                     </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Approval Koordinator
+                        Seksi</label>
+                    <select
+                        class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-400"
+                        id="cp-crud-field-approval">
+                        <option value="Belum Diapprove">Belum Diapprove</option>
+                        <option value="Sudah Diapprove">Sudah Diapprove</option>
+                    </select>
+                    <p class="text-[11px] text-gray-400 mt-1">Diubah oleh koordinator seksi setelah memeriksa
+                        customer profile & script wawancara ini.</p>
                 </div>
                 <div class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"
                     id="cp-crud-form-error"></div>
@@ -9698,6 +9740,45 @@
             return 'Belum Ada Video';
         }
         function cpGetTanggal(item) { return cpGetField(item, 'Tanggal', 'tanggal'); }
+        function cpGetTanggalShooting(item) { return cpGetField(item, 'Tanggal Shooting', 'Tanggal_Shooting', 'tanggal_shooting'); }
+        function cpGetApproval(item) { return cpGetField(item, 'Approval', 'approval', 'Approval Koordinator', 'Approval_Koordinator', 'approval_koordinator'); }
+        function cpApprovalNormal(raw) {
+            const s = String(raw ?? '').trim().toLowerCase();
+            if (s === 'sudah diapprove' || s === 'approved' || s === 'sudah') return 'Sudah Diapprove';
+            return 'Belum Diapprove';
+        }
+        // Urgent = tanggal shooting sudah dekat (<= 3 hari lagi) atau sudah lewat, dan video belum jadi.
+        function cpHitungUrgensiShooting(item) {
+            const tglRaw = cpGetTanggalShooting(item);
+            if (!tglRaw) return { urgent: false, lewat: false, sisaHari: null };
+            const tgl = new Date(tglRaw);
+            if (isNaN(tgl)) return { urgent: false, lewat: false, sisaHari: null };
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            tgl.setHours(0, 0, 0, 0);
+            const sisaHari = Math.round((tgl - today) / 86400000);
+            const belumSelesai = cpStatusNormal(cpGetStatus(item)) !== 'Sudah Ada Video';
+            const urgent = belumSelesai && sisaHari <= 3;
+            return { urgent, lewat: sisaHari < 0, sisaHari };
+        }
+        function cpBadgeUrgensi(item) {
+            const info = cpHitungUrgensiShooting(item);
+            if (!info.urgent) return '';
+            if (info.lewat) {
+                return `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-rose-600 px-2 py-0.5 rounded-full ml-1"><i class="fas fa-triangle-exclamation"></i> URGENT · LEWAT ${Math.abs(info.sisaHari)}H</span>`;
+            }
+            if (info.sisaHari === 0) {
+                return `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-rose-600 px-2 py-0.5 rounded-full ml-1"><i class="fas fa-triangle-exclamation"></i> URGENT · HARI INI</span>`;
+            }
+            return `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-orange-500 px-2 py-0.5 rounded-full ml-1"><i class="fas fa-triangle-exclamation"></i> URGENT · ${info.sisaHari}H LAGI</span>`;
+        }
+        function cpBadgeApproval(item) {
+            const status = cpApprovalNormal(cpGetApproval(item));
+            if (status === 'Sudah Diapprove') {
+                return `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"><i class="fas fa-circle-check"></i> Sudah Diapprove</span>`;
+            }
+            return `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full"><i class="fas fa-clock"></i> Belum Diapprove</span>`;
+        }
 
         // Deteksi otomatis nama kolom tanggal/waktu yang ada pada baris data (untuk pengelompokan bulan)
         function cpDetectDateColumn(sampleRow) {
@@ -9810,6 +9891,12 @@
             document.getElementById('cp-card-total').innerText = filtered.length;
             const cabangSet = new Set(filtered.map(i => cpGetCabang(i).trim()).filter(Boolean));
             document.getElementById('cp-card-cabang-count').innerText = cabangSet.size;
+
+            const urgentCount = filtered.filter(item => cpHitungUrgensiShooting(item).urgent).length;
+            document.getElementById('cp-card-urgent-count').innerText = urgentCount;
+
+            const belumApproveCount = filtered.filter(item => cpApprovalNormal(cpGetApproval(item)) !== 'Sudah Diapprove').length;
+            document.getElementById('cp-card-belum-approve-count').innerText = belumApproveCount;
 
             const now = new Date();
             const bulanBerjalanKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -10215,10 +10302,18 @@
         function cpRenderTabel(filtered) {
             const tbody = document.getElementById('cp-tabel-body');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = filtered.map(item => {
+            // Urutkan supaya yang urgent (shooting mepet/sudah lewat & belum jadi) tampil paling atas.
+            const sorted = [...filtered].sort((a, b) => {
+                const infoA = cpHitungUrgensiShooting(a);
+                const infoB = cpHitungUrgensiShooting(b);
+                if (infoA.urgent !== infoB.urgent) return infoA.urgent ? -1 : 1;
+                if (infoA.urgent && infoB.urgent) return (infoA.sisaHari ?? 999) - (infoB.sisaHari ?? 999);
+                return 0;
+            });
+            tbody.innerHTML = sorted.map(item => {
                 const idInfo = getRowIdInfo(item);
                 const idDisplay = idInfo ? `#${edEscapeHtml(idInfo.value)}` : '⚠️ Tanpa ID';
                 const cabang = edEscapeHtml(cpGetCabang(item) || '-');
@@ -10228,6 +10323,10 @@
                 const script = cpGetScriptWawancara(item);
                 const status = cpStatusNormal(cpGetStatus(item));
                 const statusSudah = status === 'Sudah Ada Video';
+                const tglShootingRaw = cpGetTanggalShooting(item);
+                const tglShootingDisplay = tglShootingRaw ? edEscapeHtml(tglShootingRaw) : '-';
+                const approval = cpApprovalNormal(cpGetApproval(item));
+                const approvalSudah = approval === 'Sudah Diapprove';
                 return `
           <tr class="hover:bg-slate-50/80 transition-all duration-200">
             <td class="py-4 px-5 font-mono text-xs text-slate-400">${idDisplay}</td>
@@ -10236,10 +10335,17 @@
             <td class="py-4 px-5 text-slate-600">${produk}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(profil)}</td>
             <td class="py-4 px-5 text-slate-600 text-xs leading-relaxed max-w-xs">${cpRenderFileOrText(script)}</td>
+            <td class="py-4 px-5 text-slate-600 whitespace-nowrap">${tglShootingDisplay}${cpBadgeUrgensi(item)}</td>
             <td class="py-4 px-5 whitespace-nowrap">
               <button type="button" data-rid="${cpListGlobal.indexOf(item)}" title="Klik untuk mengubah status"
                 class="cp-btn-status inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${statusSudah ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'}">
                 <i class="fas ${statusSudah ? 'fa-circle-check' : 'fa-circle-xmark'} text-[10px]"></i>${status}
+              </button>
+            </td>
+            <td class="py-4 px-5 whitespace-nowrap">
+              <button type="button" data-rid="${cpListGlobal.indexOf(item)}" title="Klik untuk mengubah status approval koordinator seksi"
+                class="cp-btn-approval inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${approvalSudah ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'}">
+                <i class="fas ${approvalSudah ? 'fa-circle-check' : 'fa-clock'} text-[10px]"></i>${approval}
               </button>
             </td>
             <td class="py-4 px-5 text-center space-x-2 whitespace-nowrap">
@@ -10250,6 +10356,7 @@
             }).join('');
 
             tbody.querySelectorAll('.cp-btn-status').forEach(btn => btn.addEventListener('click', () => cpToggleStatus(btn.dataset.rid)));
+            tbody.querySelectorAll('.cp-btn-approval').forEach(btn => btn.addEventListener('click', () => cpToggleApproval(btn.dataset.rid)));
             tbody.querySelectorAll('.cp-btn-edit').forEach(btn => btn.addEventListener('click', () => cpBukaModalEdit(btn.dataset.rid)));
             tbody.querySelectorAll('.cp-btn-hapus').forEach(btn => btn.addEventListener('click', () => cpHapusData(btn.dataset.rid)));
         }
@@ -10306,9 +10413,11 @@
             document.getElementById('cp-crud-field-nama').value = cpGetNama(item);
             document.getElementById('cp-crud-field-produk').value = cpGetProduk(item);
             document.getElementById('cp-crud-field-tanggal').value = cpGetTanggal(item);
+            document.getElementById('cp-crud-field-tanggalShooting').value = cpGetTanggalShooting(item);
             document.getElementById('cp-crud-field-customerProfile').value = cpGetCustomerProfile(item);
             document.getElementById('cp-crud-field-scriptWawancara').value = cpGetScriptWawancara(item);
             document.getElementById('cp-crud-field-status').value = cpStatusNormal(cpGetStatus(item));
+            document.getElementById('cp-crud-field-approval').value = cpApprovalNormal(cpGetApproval(item));
             document.getElementById('cp-upload-customerProfile-existing').innerHTML = cpRenderExistingPreview(cpGetCustomerProfile(item));
             document.getElementById('cp-upload-scriptWawancara-existing').innerHTML = cpRenderExistingPreview(cpGetScriptWawancara(item));
             document.getElementById('cp-crud-modal').classList.remove('hidden');
@@ -10365,9 +10474,11 @@
                 Nama: namaVal,
                 Produk: document.getElementById('cp-crud-field-produk').value.trim(),
                 Tanggal: tanggalVal,
+                'Tanggal Shooting': document.getElementById('cp-crud-field-tanggalShooting').value,
                 'Customer Profile': document.getElementById('cp-crud-field-customerProfile').value,
                 'Script Wawancara': document.getElementById('cp-crud-field-scriptWawancara').value,
-                'Status': cpStatusNormal(document.getElementById('cp-crud-field-status').value)
+                'Status': cpStatusNormal(document.getElementById('cp-crud-field-status').value),
+                'Approval': cpApprovalNormal(document.getElementById('cp-crud-field-approval').value)
             };
 
             const idVal = document.getElementById('cp-crud-field-id').value;
@@ -10403,6 +10514,26 @@
             if (error) { alert('Gagal mengubah status: ' + error.message); return; }
             if (!data || data.length === 0) {
                 alert(`Status tidak berubah. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy UPDATE untuk role anon, atau kolom "Status" belum dibuat/di-rename di tabel Supabase.`);
+                return;
+            }
+            await cpMuatDashboard();
+            if (currentActiveTab === 'overview') renderOverview();
+        }
+
+        async function cpToggleApproval(rid) {
+            const item = cpCariRawItem(rid);
+            if (!item) return;
+            const idInfo = getRowIdInfo(item);
+            if (!idInfo) {
+                alert('Approval tidak bisa diubah langsung karena tidak ditemukan kolom ID unik pada data ini. Gunakan tombol Edit.');
+                return;
+            }
+            const current = cpApprovalNormal(cpGetApproval(item));
+            const next = current === 'Sudah Diapprove' ? 'Belum Diapprove' : 'Sudah Diapprove';
+            const { data, error } = await db.from(NAMA_TABEL_CUSTOMER_PROFILE).update({ 'Approval': next }).eq(idInfo.key, idInfo.value).select();
+            if (error) { alert('Gagal mengubah approval: ' + error.message); return; }
+            if (!data || data.length === 0) {
+                alert(`Approval tidak berubah. Kemungkinan RLS pada tabel "${NAMA_TABEL_CUSTOMER_PROFILE}" belum punya policy UPDATE untuk role anon, atau kolom "Approval" belum dibuat di tabel Supabase.`);
                 return;
             }
             await cpMuatDashboard();
