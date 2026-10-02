@@ -711,8 +711,13 @@
         }
 
         /* Planning Landscape: status edit & prioritas dibuat menonjol agar cepat dipindai. */
-        #ed-crud-table td { vertical-align: top; }
-        #ed-crud-table th { vertical-align: middle; }
+        #ed-crud-table td {
+            vertical-align: top;
+        }
+
+        #ed-crud-table th {
+            vertical-align: middle;
+        }
 
         /* Planning Editor: semua kolom ditampilkan, dengan scroll internal horizontal/vertical. */
         #ed-crud-table {
@@ -8869,6 +8874,163 @@
             return null;
         }
 
+        // ============================================================
+        // INTEGRASI WAITING LIST -> PLANNING LANDSCAPE
+        // Data Kiriman_Cabang dengan Segmen = WAITING LIST otomatis dibuat/
+        // diperbarui di Planning_Editor. Relasi menggunakan kolom
+        // Planning_Editor.sumber_kiriman_id.
+        // Periode Planning diambil dari 8 digit awal File_Direktori_Sumber_Video
+        // (YYYYMMDD). Jika format tanggal tidak tersedia, fallback ke created_at,
+        // lalu ke bulan berjalan.
+        // ============================================================
+        const CB_BULAN_PLANNING = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        function cbGetPlanningPeriodFromItem(item) {
+            const fromFile = cbGetYearMonthFromItem(item);
+            if (fromFile) {
+                const monthNum = parseInt(fromFile.month, 10);
+                return {
+                    bulan: CB_BULAN_PLANNING[monthNum - 1],
+                    tahun: fromFile.year,
+                    key: fromFile.key
+                };
+            }
+
+            const createdAt = item?.created_at || item?.Created_At || item?.tanggal_kiriman || item?.Tanggal_Kiriman;
+            if (createdAt) {
+                const d = new Date(createdAt);
+                if (!Number.isNaN(d.getTime())) {
+                    return {
+                        bulan: CB_BULAN_PLANNING[d.getMonth()],
+                        tahun: String(d.getFullYear()),
+                        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                    };
+                }
+            }
+
+            const now = new Date();
+            return {
+                bulan: CB_BULAN_PLANNING[now.getMonth()],
+                tahun: String(now.getFullYear()),
+                key: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+            };
+        }
+
+        function cbGetKirimanSourceId(item) {
+            const info = getRowIdInfo(item);
+            return info ? String(info.value) : '';
+        }
+
+        async function cbSyncWaitingListToPlanning(item) {
+            if (!item || !window.db) return { ok: false, skipped: true };
+
+            const sourceId = cbGetKirimanSourceId(item);
+            if (!sourceId) {
+                console.warn('[Waiting List] Tidak bisa sinkron: primary key Kiriman_Cabang tidak ditemukan.', item);
+                return { ok: false, skipped: true, message: 'ID Kiriman_Cabang tidak ditemukan.' };
+            }
+
+            const segmen = String(item.Segmen || item.segmen || '').trim().toUpperCase();
+
+            // Pastikan kolom relasi tersedia di Planning_Editor.
+            // SQL migration untuk kolom ini diberikan bersama file.
+            let existing = null;
+            const lookup = await db
+                .from(NAMA_TABEL_PLANNING)
+                .select('*')
+                .eq('sumber_kiriman_id', sourceId)
+                .limit(1);
+
+            if (lookup.error) {
+                console.error('[Waiting List] Gagal mencari relasi Planning_Editor:', lookup.error);
+                return {
+                    ok: false,
+                    message: `Kolom/relasi sumber belum siap: ${lookup.error.message}`
+                };
+            }
+            existing = lookup.data?.[0] || null;
+
+            // Jika Segmen bukan WAITING LIST lagi, hapus planning yang dibuat dari
+            // Kiriman_Cabang ini agar dua menu tidak menyimpan status yang berbeda.
+            if (segmen !== 'WAITING LIST') {
+                if (existing) {
+                    const del = await db
+                        .from(NAMA_TABEL_PLANNING)
+                        .delete()
+                        .eq('sumber_kiriman_id', sourceId)
+                        .select();
+                    if (del.error) {
+                        console.error('[Waiting List] Gagal menghapus planning terkait:', del.error);
+                        return { ok: false, message: del.error.message };
+                    }
+                }
+                return { ok: true, removed: Boolean(existing) };
+            }
+
+            const period = cbGetPlanningPeriodFromItem(item);
+            const judul = String(
+                item.File_Direktori_Sumber_Video ||
+                item['File Direktori Sumber Video'] ||
+                ''
+            ).trim();
+            const cabang = String(item.Cabang || item.cabang || '').trim();
+
+            if (!judul) {
+                return { ok: false, message: 'File Direktori Sumber Video kosong, sehingga judul Planning tidak dapat dibuat.' };
+            }
+
+            const payload = {
+                sumber_kiriman_id: sourceId
+            };
+
+            // Planning_Editor bisa saja masih kosong, sehingga edDetectColumns()
+            // belum pernah mendapat sample row. Gunakan nama kolom standar sebagai
+            // fallback yang sama dengan form Planning Landscape.
+            const planningBulanCol = edCOLUMN_MAP?.bulan || 'Bulan';
+            const planningTahunCol = edCOLUMN_MAP?.tahun || 'Tahun';
+            const planningJudulCol = edCOLUMN_MAP?.judul || 'Judul Video';
+            const planningKeteranganCol = edCOLUMN_MAP?.keterangan || 'Keterangan';
+
+            payload[planningBulanCol] = period.bulan;
+            payload[planningTahunCol] = period.tahun;
+            payload[planningJudulCol] = judul;
+
+            const keteranganText = `WAITING LIST • Cabang: ${cabang || '-'}`;
+            const currentKeterangan = existing?.[planningKeteranganCol];
+            payload[planningKeteranganCol] = currentKeterangan
+                ? currentKeterangan
+                : keteranganText;
+
+            if (existing) {
+                const upd = await db
+                    .from(NAMA_TABEL_PLANNING)
+                    .update(payload)
+                    .eq('sumber_kiriman_id', sourceId)
+                    .select();
+
+                if (upd.error) {
+                    console.error('[Waiting List] Gagal memperbarui Planning_Editor:', upd.error);
+                    return { ok: false, message: upd.error.message };
+                }
+                return { ok: true, action: 'updated', data: upd.data?.[0] || null };
+            }
+
+            const ins = await db
+                .from(NAMA_TABEL_PLANNING)
+                .insert([payload])
+                .select();
+
+            if (ins.error) {
+                console.error('[Waiting List] Gagal menambahkan ke Planning_Editor:', ins.error);
+                return { ok: false, message: ins.error.message };
+            }
+
+            return { ok: true, action: 'inserted', data: ins.data?.[0] || null };
+        }
+
         function cbGetBulanBerjalanKey() {
             const now = new Date();
             const y = String(now.getFullYear());
@@ -9703,25 +9865,80 @@
                 Alternatif_Solusi: document.getElementById('cb-input-solusi').value,
                 Grade: document.getElementById('cb-input-grade').value
             };
+
+            let savedKiriman = null;
+
             if (id && cbCurrentEditIdInfo) {
-                const { data, error } = await db.from(NAMA_TABEL_KIRIMAN).update(payload).eq(cbCurrentEditIdInfo.key, cbCurrentEditIdInfo.value).select();
+                const { data, error } = await db
+                    .from(NAMA_TABEL_KIRIMAN)
+                    .update(payload)
+                    .eq(cbCurrentEditIdInfo.key, cbCurrentEditIdInfo.value)
+                    .select();
+
                 if (error) { alert('Gagal memperbarui: ' + error.message); return; }
                 if (!data || data.length === 0) {
                     alert('Data TIDAK diperbarui meskipun tidak ada error. Kemungkinan RLS pada tabel "Kiriman_Cabang" belum punya policy UPDATE untuk role anon. Cek di Supabase: Table Editor → Kiriman_Cabang → RLS.');
                     return;
                 }
-                alert('Data evaluasi berhasil diperbarui!');
+
+                savedKiriman = data[0];
+
+                // Jika menjadi WAITING LIST, otomatis masuk/update Planning Landscape.
+                // Jika status diubah dari WAITING LIST ke status lain, planning terkait
+                // ikut dihapus agar data tetap sinkron.
+                const sync = await cbSyncWaitingListToPlanning(savedKiriman);
+                if (!sync.ok) {
+                    alert(
+                        'Data Cabang berhasil diperbarui, tetapi sinkronisasi ke Planning Landscape gagal.\n\n' +
+                        (sync.message || 'Periksa kolom sumber_kiriman_id pada Planning_Editor dan policy RLS Supabase.')
+                    );
+                    return;
+                }
+
+                alert(
+                    sync.removed
+                        ? 'Data cabang berhasil diperbarui dan data Planning Landscape terkait dihapus karena bukan WAITING LIST lagi.'
+                        : (sync.action === 'updated'
+                            ? 'Data cabang dan Planning Landscape berhasil diperbarui.'
+                            : 'Data cabang berhasil diperbarui.')
+                );
             } else {
-                const { data, error } = await db.from(NAMA_TABEL_KIRIMAN).insert([payload]).select();
+                const { data, error } = await db
+                    .from(NAMA_TABEL_KIRIMAN)
+                    .insert([payload])
+                    .select();
+
                 if (error) { alert('Gagal menambah: ' + error.message); return; }
                 if (!data || data.length === 0) {
                     alert('Data TIDAK berhasil ditambahkan meskipun tidak ada error. Kemungkinan RLS pada tabel "Kiriman_Cabang" belum punya policy INSERT untuk role anon. Cek di Supabase: Table Editor → Kiriman_Cabang → RLS.');
                     return;
                 }
-                alert('Data evaluasi berhasil ditambah!');
+
+                savedKiriman = data[0];
+
+                // Hanya WAITING LIST yang disinkronkan ke Planning Landscape.
+                if (String(payload.Segmen || '').trim().toUpperCase() === 'WAITING LIST') {
+                    const sync = await cbSyncWaitingListToPlanning(savedKiriman);
+                    if (!sync.ok) {
+                        alert(
+                            'Data Cabang berhasil ditambahkan, tetapi belum masuk Planning Landscape.\n\n' +
+                            (sync.message || 'Periksa kolom sumber_kiriman_id pada Planning_Editor dan policy RLS Supabase.')
+                        );
+                        await cbMuatDataTabel();
+                        return;
+                    }
+                    alert('Data cabang berhasil ditambahkan dan otomatis masuk ke Planning Landscape.');
+                } else {
+                    alert('Data evaluasi berhasil ditambah!');
+                }
             }
+
             cbTutupModalForm();
-            cbMuatDataTabel();
+            await cbMuatDataTabel();
+
+            // Refresh Planning Landscape bila sedang dibuka, sehingga row baru langsung terlihat.
+            if (typeof edMuatDashboard === 'function') await edMuatDashboard();
+
             if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
             if (currentActiveTab === 'overview') renderOverview();
         });
@@ -9745,7 +9962,20 @@
                 console.warn('[Hapus Data] 0 baris terhapus untuk', idInfo.key, '=', idInfo.value);
                 return;
             }
-            alert('Data berhasil dihapus!');
+
+            // Hapus juga row Planning Landscape yang dibuat dari Kiriman_Cabang ini.
+            const cleanupPlanning = await db
+                .from(NAMA_TABEL_PLANNING)
+                .delete()
+                .eq('sumber_kiriman_id', String(idInfo.value))
+                .select();
+
+            if (cleanupPlanning.error) {
+                console.warn('[Hapus Data] Kiriman terhapus, tetapi planning terkait gagal dibersihkan:', cleanupPlanning.error);
+                alert('Data cabang berhasil dihapus, tetapi Planning Landscape terkait belum berhasil dibersihkan. Periksa policy DELETE pada Planning_Editor.');
+            } else {
+                alert('Data berhasil dihapus!');
+            }
             cbMuatDataTabel();
             if (currentActiveTab === 'cabang-dashboard') cbRenderDashboardAndChart();
             if (currentActiveTab === 'overview') renderOverview();
@@ -11106,7 +11336,7 @@
             judul: null, editor: null, dueDate: null, video: null, thumbnail: null,
             targetUpload: null, approveDirut: null, approveNarasumber: null,
             statusUpload: null, produk: null, tema: null, sellingPoints: null,
-            prioritas: null, keterangan: null
+            prioritas: null, keterangan: null, sumberKirimanId: null
         };
         // Urutan kolom mengikuti urutan kolom yang dikembalikan Supabase.
         let edALL_COLUMNS = [];
@@ -11142,6 +11372,7 @@
             edCOLUMN_MAP.sellingPoints = cariKolom('Selling Points', 'Selling_Points', 'selling_points', 'SellingPoints', 'sellingpoints');
             edCOLUMN_MAP.prioritas = cariKolom('Prioritas', 'prioritas', 'Priority', 'priority');
             edCOLUMN_MAP.keterangan = cariKolom('Keterangan', 'keterangan', 'Catatan', 'catatan', 'Notes', 'notes');
+            edCOLUMN_MAP.sumberKirimanId = cariKolom('sumber_kiriman_id', 'Sumber_Kiriman_ID', 'Sumber Kiriman ID');
         }
 
         function edTampilkanDiagnostik(pesan) {
@@ -12836,11 +13067,11 @@
                 const rid = idx;
                 return `<tr class="hover:bg-gray-50 align-top">
                     ${columns.map(column => {
-                        let isi = edTampilanNilaiKolom(item, column, rid);
-                        if (edCOLUMN_MAP.statusEdit === column) isi = edStatusEditBadge(item[column]);
-                        if (edCOLUMN_MAP.prioritas === column) isi = edPrioritasBadge(item[column]);
-                        return `<td class="py-3 px-4 align-top min-w-[110px]">${isi}</td>`;
-                    }).join('')}
+                    let isi = edTampilanNilaiKolom(item, column, rid);
+                    if (edCOLUMN_MAP.statusEdit === column) isi = edStatusEditBadge(item[column]);
+                    if (edCOLUMN_MAP.prioritas === column) isi = edPrioritasBadge(item[column]);
+                    return `<td class="py-3 px-4 align-top min-w-[110px]">${isi}</td>`;
+                }).join('')}
                     <td class="py-3 px-4 text-right whitespace-nowrap align-top sticky right-0 bg-white/95 backdrop-blur-sm border-l border-gray-100">
                         <button class="ed-btn-crud-edit text-blue-600 hover:underline text-xs font-bold mr-3" data-rid="${rid}">Edit</button>
                         <button class="ed-btn-crud-hapus text-rose-600 hover:underline text-xs font-bold" data-rid="${rid}">Hapus</button>
