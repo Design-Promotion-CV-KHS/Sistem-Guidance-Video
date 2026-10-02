@@ -7130,6 +7130,7 @@
                     <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
                         id="ed-crud-field-statusEdit">
+                        <option value="WAITING LIST">WAITING LIST</option>
                         <option value="Transkrip Siap">Transkrip Siap</option>
                         <option value="Skenario Siap">Skenario Siap</option>
                         <option value="WIP">WIP</option>
@@ -8993,10 +8994,16 @@
             const planningTahunCol = edCOLUMN_MAP?.tahun || 'Tahun';
             const planningJudulCol = edCOLUMN_MAP?.judul || 'Judul Video';
             const planningKeteranganCol = edCOLUMN_MAP?.keterangan || 'Keterangan';
+            const planningStatusCol = edCOLUMN_MAP?.statusEdit || 'Status Edit';
 
             payload[planningBulanCol] = period.bulan;
             payload[planningTahunCol] = period.tahun;
             payload[planningJudulCol] = judul;
+            // Data yang baru masuk dari Kelola Data Cabang tetap WAITING LIST
+            // sampai editor mengubah statusnya di Planning Landscape.
+            if (!existing || !existing[planningStatusCol]) {
+                payload[planningStatusCol] = 'WAITING LIST';
+            }
 
             const keteranganText = `WAITING LIST • Cabang: ${cabang || '-'}`;
             const currentKeterangan = existing?.[planningKeteranganCol];
@@ -9852,6 +9859,66 @@
             setSelectValueEnsureOption(document.getElementById('cb-input-grade'), normalizeGrade(item.Grade || item.grade));
             const modal = document.getElementById('cb-modal-crud');
             modal.classList.remove('hidden'); modal.classList.add('flex');
+        }
+
+        // Sinkronisasi balik: status Planning Landscape menjadi status Segmen
+        // pada Kiriman_Cabang berdasarkan sumber_kiriman_id.
+        // WAITING LIST / status persiapan -> WAITING LIST
+        // WIP -> WIP
+        // Done -> DONE
+        async function cbSyncPlanningStatusToKiriman(planningItem) {
+            if (!planningItem || !window.db) return { ok: false, skipped: true };
+
+            const sourceId = String(
+                (edCOLUMN_MAP?.sumberKirimanId ? planningItem[edCOLUMN_MAP.sumberKirimanId] : null) ??
+                planningItem.sumber_kiriman_id ??
+                planningItem.Sumber_Kiriman_ID ??
+                ''
+            ).trim();
+            if (!sourceId) return { ok: true, skipped: true, message: 'Planning ini bukan berasal dari Kelola Data Cabang.' };
+
+            const rawStatus = String(
+                (edCOLUMN_MAP?.statusEdit ? planningItem[edCOLUMN_MAP.statusEdit] : null) ??
+                planningItem['Status Edit'] ??
+                planningItem.Status_Edit ??
+                planningItem.status_edit ??
+                ''
+            ).trim();
+            const normalized = rawStatus.toUpperCase();
+
+            let segmenBaru = null;
+            if (normalized === 'WIP') segmenBaru = 'WIP';
+            else if (normalized === 'DONE' || normalized === 'SUDAH DONE') segmenBaru = 'DONE';
+            else if (normalized === 'WAITING LIST' || normalized === 'TRANSKRIP SIAP' || normalized === 'SKENARIO SIAP' || normalized === 'SIAP DISKENARIO' || normalized === '1. SIAP DI SKENARIO') segmenBaru = 'WAITING LIST';
+
+            if (!segmenBaru) return { ok: true, skipped: true, message: `Status Planning "${rawStatus}" tidak memetakan status Kiriman_Cabang.` };
+
+            const upd = await db
+                .from(NAMA_TABEL_KIRIMAN)
+                .update({ Segmen: segmenBaru })
+                .eq('id', sourceId)
+                .select();
+
+            // Primary key Kiriman_Cabang tidak selalu bernama id. Jika update dengan id
+            // tidak menemukan baris, coba key umum yang dipakai getRowIdInfo().
+            if (upd.error) {
+                console.warn('[Planning -> Cabang] Update dengan id gagal:', upd.error);
+            } else if (upd.data && upd.data.length > 0) {
+                return { ok: true, updated: true, segmen: segmenBaru };
+            }
+
+            const lookup = await db.from(NAMA_TABEL_KIRIMAN).select('*').limit(1000);
+            if (lookup.error) return { ok: false, message: lookup.error.message };
+            const target = (lookup.data || []).find(row => {
+                const info = getRowIdInfo(row);
+                return info && String(info.value) === sourceId;
+            });
+            if (!target) return { ok: false, message: `Data Kiriman_Cabang dengan ID ${sourceId} tidak ditemukan.` };
+
+            const info = getRowIdInfo(target);
+            const upd2 = await db.from(NAMA_TABEL_KIRIMAN).update({ Segmen: segmenBaru }).eq(info.key, info.value).select();
+            if (upd2.error) return { ok: false, message: upd2.error.message };
+            return { ok: true, updated: true, segmen: segmenBaru };
         }
 
         document.getElementById('cb-form-crud-data').addEventListener('submit', async (e) => {
@@ -13273,6 +13340,18 @@
                 errBox.classList.remove('hidden');
                 return;
             }
+
+            // Jika planning berasal dari Kelola Data Cabang, status Segmen Cabang
+            // otomatis mengikuti Status Edit di Planning Landscape.
+            const savedPlanning = data[0];
+            const syncCabang = await cbSyncPlanningStatusToKiriman(savedPlanning);
+            if (!syncCabang.ok) {
+                errBox.innerText = 'Planning Landscape berhasil disimpan, tetapi status Kelola Data Cabang gagal disinkronkan.\n\n' + (syncCabang.message || 'Periksa ID relasi dan policy RLS pada Kiriman_Cabang.');
+                errBox.classList.remove('hidden');
+                await edMuatDashboard();
+                return;
+            }
+
             edTutupModalCrud();
             await edMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
