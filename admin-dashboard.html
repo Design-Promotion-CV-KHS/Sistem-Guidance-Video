@@ -8925,6 +8925,40 @@
             return info ? String(info.value) : '';
         }
 
+        async function cbBackfillWaitingListToPlanning() {
+            // Reconcile data lama/yang dibuat sebelum fitur integrasi aktif.
+            // Jadi user tidak perlu edit atau menambah ulang data Cabang agar masuk Planning.
+            if (!window.db) return { ok: false, skipped: true };
+
+            const { data: waitingRows, error } = await db
+                .from(NAMA_TABEL_KIRIMAN)
+                .select('*')
+                .ilike('Segmen', 'WAITING LIST');
+
+            if (error) {
+                console.error('[Waiting List] Gagal mengambil data untuk backfill:', error);
+                return { ok: false, message: error.message };
+            }
+
+            let inserted = 0;
+            let updated = 0;
+            let failed = 0;
+
+            for (const item of (waitingRows || [])) {
+                const result = await cbSyncWaitingListToPlanning(item);
+                if (!result.ok) {
+                    failed++;
+                    console.warn('[Waiting List] Backfill gagal untuk item:', item, result.message);
+                } else if (result.action === 'inserted') {
+                    inserted++;
+                } else if (result.action === 'updated') {
+                    updated++;
+                }
+            }
+
+            return { ok: failed === 0, inserted, updated, failed };
+        }
+
         async function cbSyncWaitingListToPlanning(item) {
             if (!item || !window.db) return { ok: false, skipped: true };
 
@@ -11451,6 +11485,19 @@
 
         async function edMuatDashboard() {
             edSembunyikanDiagnostik();
+
+            // Selalu sinkronkan ulang seluruh Kiriman_Cabang berstatus WAITING LIST
+            // sebelum Planning Landscape dibaca. Ini menangani data yang sudah ada
+            // sebelum fitur integrasi dipasang, termasuk beberapa video sekaligus.
+            try {
+                const backfill = await cbBackfillWaitingListToPlanning();
+                if (!backfill.ok && !backfill.skipped) {
+                    console.warn('[Planning Landscape] Backfill WAITING LIST belum sempurna:', backfill);
+                }
+            } catch (syncError) {
+                console.error('[Planning Landscape] Error backfill WAITING LIST:', syncError);
+            }
+
             const { data: rawPlanning, error } = await ambilDataPlanning();
             edPlanningRawGlobal = rawPlanning;
 
