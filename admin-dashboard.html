@@ -9030,34 +9030,25 @@
             const planningKeteranganCol = edCOLUMN_MAP?.keterangan || 'Keterangan';
             const planningStatusCol = edCOLUMN_MAP?.statusEdit || 'Status Edit';
 
+            // PENTING: jika row Planning sudah ada, jangan menimpa Bulan/Tahun/Judul
+            // yang mungkin sudah diedit manual oleh user. Backfill hanya bertugas
+            // membuat row baru dan memastikan relasinya tetap ada. Sebelumnya kode
+            // selalu mengisi ulang Bulan/Tahun dari tanggal kiriman sehingga perubahan
+            // Januari -> Oktober kembali ke Januari setiap kali dashboard dimuat.
+            if (existing) {
+                return { ok: true, action: 'existing', data: existing };
+            }
+
             payload[planningBulanCol] = period.bulan;
             payload[planningTahunCol] = period.tahun;
             payload[planningJudulCol] = judul;
             // Data yang baru masuk dari Kelola Data Cabang tetap WAITING LIST
             // sampai editor mengubah statusnya di Planning Landscape.
-            if (!existing || !existing[planningStatusCol]) {
-                payload[planningStatusCol] = 'WAITING LIST';
-            }
+            payload[planningStatusCol] = 'WAITING LIST';
 
             const keteranganText = `WAITING LIST • Cabang: ${cabang || '-'}`;
-            const currentKeterangan = existing?.[planningKeteranganCol];
-            payload[planningKeteranganCol] = currentKeterangan
-                ? currentKeterangan
-                : keteranganText;
+            payload[planningKeteranganCol] = keteranganText;
 
-            if (existing) {
-                const upd = await db
-                    .from(NAMA_TABEL_PLANNING)
-                    .update(payload)
-                    .eq('sumber_kiriman_id', sourceId)
-                    .select();
-
-                if (upd.error) {
-                    console.error('[Waiting List] Gagal memperbarui Planning_Editor:', upd.error);
-                    return { ok: false, message: upd.error.message };
-                }
-                return { ok: true, action: 'updated', data: upd.data?.[0] || null };
-            }
 
             const ins = await db
                 .from(NAMA_TABEL_PLANNING)
