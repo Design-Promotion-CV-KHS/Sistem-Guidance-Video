@@ -817,6 +817,21 @@
             <span id="eval-branch-badge" class="text-xs font-bold text-slate-800 mt-0.5">Memuat...</span>
           </div>
         </div>
+
+        <!-- Filter Cabang: hanya tampil untuk akun yang boleh melihat semua cabang -->
+        <div id="eval-filter-cabang-wrap" class="custom-filter-box px-4 py-2.5 rounded-2xl items-center gap-3 w-full md:w-auto hidden">
+          <div
+            class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+            <i class="fas fa-filter text-xs"></i>
+          </div>
+          <div class="flex flex-col flex-1">
+            <label for="eval-filter-cabang" class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Cabang</label>
+            <select id="eval-filter-cabang" onchange="evalFilterCabangChanged()"
+              class="text-xs font-bold text-slate-800 mt-0.5 bg-transparent outline-none cursor-pointer min-w-[160px]">
+              <option value="all">Semua Cabang</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- Ringkasan Kartu Evaluasi -->
@@ -859,13 +874,27 @@
           <table class="w-full text-left border-collapse">
             <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm">
               <tr class="border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                <th class="py-4 px-5 bg-slate-100">ID</th>
-                <th class="py-4 px-5 bg-slate-100">Cabang</th>
-                <th class="py-4 px-5 bg-slate-100">File / Sumber Video</th>
-                <th class="py-4 px-5 bg-slate-100">Evaluasi</th>
-                <th class="py-4 px-5 bg-slate-100">Alternatif Solusi</th>
-                <th class="py-4 px-5 bg-slate-100">Grade / Status</th>
-                <th class="py-4 px-5 bg-slate-100 text-center">Status Dibaca</th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors" data-sort-key="id" onclick="sortEvaluasi('id')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 ">ID <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors" data-sort-key="cabang" onclick="sortEvaluasi('cabang')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 ">Cabang <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors" data-sort-key="file" onclick="sortEvaluasi('file')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 ">File / Sumber Video <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors" data-sort-key="evaluasi" onclick="sortEvaluasi('evaluasi')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 ">Evaluasi <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors" data-sort-key="alternatif" onclick="sortEvaluasi('alternatif')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 ">Alternatif Solusi <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors" data-sort-key="grade" onclick="sortEvaluasi('grade')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 ">Grade / Status <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
+                <th class="eval-sort-th py-4 px-5 bg-slate-100 cursor-pointer select-none hover:bg-slate-200 transition-colors text-center" data-sort-key="dibaca" onclick="sortEvaluasi('dibaca')" title="Klik untuk mengurutkan">
+                  <span class="inline-flex items-center gap-1.5 justify-center">Status Dibaca <i class="eval-sort-icon fas fa-sort text-slate-300 text-[10px]"></i></span>
+                </th>
               </tr>
             </thead>
             <tbody id="tabel-evaluasi-body" class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
@@ -2279,6 +2308,38 @@
           : (currentBranchName || 'Cabang tidak terdeteksi');
       }
 
+      siapkanFilterCabangEvaluasi();
+      renderTabelEvaluasi(currentBranchName);
+    }
+
+    // ================================================================
+    // FILTER CABANG HASIL EVALUASI (khusus akun yang melihat semua cabang)
+    // ================================================================
+    function siapkanFilterCabangEvaluasi() {
+      const wrap = document.getElementById('eval-filter-cabang-wrap');
+      const select = document.getElementById('eval-filter-cabang');
+      if (!wrap || !select) return;
+      if (!evalLihatSemuaCabang) {
+        wrap.classList.add('hidden'); wrap.classList.remove('flex');
+        select.value = 'all';
+        return;
+      }
+      wrap.classList.remove('hidden'); wrap.classList.add('flex');
+
+      const set = new Map();
+      MASTER_DAFTAR_CABANG.forEach(c => set.set(cpNormalizeBranch(c), c));
+      listEvaluasiGlobal.forEach(item => {
+        const c = String(item.Cabang || item.cabang || '').trim();
+        if (c && !set.has(cpNormalizeBranch(c))) set.set(cpNormalizeBranch(c), c);
+      });
+      const daftar = Array.from(set.values()).sort((a, b) => a.localeCompare(b, 'id'));
+      const dipilih = select.value;
+      select.innerHTML = '<option value="all">Semua Cabang</option>' +
+        daftar.map(c => `<option value="${cpBranchEscape(c)}">${cpBranchEscape(c)}</option>`).join('');
+      select.value = daftar.includes(dipilih) ? dipilih : 'all';
+    }
+
+    function evalFilterCabangChanged() {
       renderTabelEvaluasi(currentBranchName);
     }
 
@@ -2391,6 +2452,69 @@
         </button>`;
     }
 
+    // ================================================================
+    // SORT TABEL HASIL EVALUASI (klik header kolom: naik -> turun -> default)
+    // ================================================================
+    let evalSortKey = null;
+    let evalSortDir = 'asc';
+
+    function getEvalSortValue(item, key) {
+      switch (key) {
+        case 'id': {
+          const info = getEvaluasiIdInfo(item);
+          const v = info ? info.value : '';
+          const n = Number(v);
+          return (v !== '' && !isNaN(n)) ? n : String(v).toLowerCase();
+        }
+        case 'cabang': return String(item.Cabang || item.cabang || '').trim().toLowerCase();
+        case 'file': return String(item.File_Direktori_Sumber_Video || item['File Direktori Sumber Video'] || '').trim().toLowerCase();
+        case 'evaluasi': return String(item.Evaluasi || item.evaluasi || '').trim().toLowerCase();
+        case 'alternatif': return String(item.Alternatif_Solusi || item['Alternatif Solusi'] || item.alternatif_solusi || '').trim().toLowerCase();
+        case 'grade': return String(normalizeGradeCabang(item.Grade || item.grade) || '').trim().toLowerCase();
+        case 'dibaca': return evaluasiSudahDibaca(item) ? 1 : 0;
+      }
+      return '';
+    }
+
+    function urutkanEvaluasi(list) {
+      if (!evalSortKey) return list;
+      const dir = evalSortDir === 'asc' ? 1 : -1;
+      return list.slice().sort((a, b) => {
+        const va = getEvalSortValue(a, evalSortKey);
+        const vb = getEvalSortValue(b, evalSortKey);
+        // nilai kosong selalu di bawah
+        const ea = va === '' , eb = vb === '';
+        if (ea && !eb) return 1;
+        if (!ea && eb) return -1;
+        if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+        return String(va).localeCompare(String(vb), 'id', { numeric: true, sensitivity: 'base' }) * dir;
+      });
+    }
+
+    function sortEvaluasi(key) {
+      if (evalSortKey !== key) {
+        evalSortKey = key;
+        evalSortDir = 'asc';
+      } else if (evalSortDir === 'asc') {
+        evalSortDir = 'desc';
+      } else {
+        evalSortKey = null;   // klik ke-3: kembali ke urutan asli
+        evalSortDir = 'asc';
+      }
+      renderTabelEvaluasi(currentBranchName);
+    }
+
+    function updateIkonSortEvaluasi() {
+      document.querySelectorAll('.eval-sort-th').forEach(th => {
+        const icon = th.querySelector('.eval-sort-icon');
+        if (!icon) return;
+        const aktif = th.getAttribute('data-sort-key') === evalSortKey;
+        icon.className = 'eval-sort-icon fas text-[10px] ' + (aktif
+          ? (evalSortDir === 'asc' ? 'fa-sort-up text-indigo-600' : 'fa-sort-down text-indigo-600')
+          : 'fa-sort text-slate-300');
+      });
+    }
+
     function renderTabelEvaluasi(cabangSaya) {
       const tbodyEval = document.getElementById('tabel-evaluasi-body');
 
@@ -2400,12 +2524,20 @@
       let filteredEval = [];
       if (evalLihatSemuaCabang) {
         filteredEval = listEvaluasiGlobal.slice();
+        const pilih = document.getElementById('eval-filter-cabang')?.value || 'all';
+        if (pilih !== 'all') {
+          filteredEval = filteredEval.filter(item =>
+            cpNormalizeBranch(item.Cabang || item.cabang || '') === cpNormalizeBranch(pilih));
+        }
       } else if (cabangSaya) {
         filteredEval = listEvaluasiGlobal.filter(item => {
           const c = (item.Cabang || item.cabang || '').trim();
           return c === cabangSaya;
         });
       }
+
+      filteredEval = urutkanEvaluasi(filteredEval);
+      updateIkonSortEvaluasi();
 
       const totalEval = filteredEval.length;
       const rejectCount = filteredEval.filter(item => {
@@ -2423,8 +2555,9 @@
       }
 
       if (filteredEval.length === 0) {
+        const pilihCab = document.getElementById('eval-filter-cabang')?.value || 'all';
         tbodyEval.innerHTML = evalLihatSemuaCabang
-          ? `<tr><td colspan="7" class="text-center py-8 text-slate-400">Belum ada data evaluasi.</td></tr>`
+          ? `<tr><td colspan="7" class="text-center py-8 text-slate-400">${pilihCab !== 'all' ? 'Belum ada data evaluasi untuk cabang ' + cpBranchEscape(pilihCab) + '.' : 'Belum ada data evaluasi.'}</td></tr>`
           : `<tr><td colspan="7" class="text-center py-8 text-slate-400">Belum ada data evaluasi untuk cabang ${cpBranchEscape(cabangSaya)}.</td></tr>`;
         return;
       }
