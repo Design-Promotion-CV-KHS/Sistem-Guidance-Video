@@ -1439,10 +1439,17 @@
     // Akun khusus yang datanya Hasil Evaluasi ditampilkan untuk SEMUA cabang
     // (bukan cuma cabang sendiri). Tambahkan nama_user/username baru di sini
     // (huruf besar/kecil tidak masalah, sudah dinormalisasi ke lowercase).
-    const EVAL_USER_LIHAT_SEMUA_CABANG = ['heru', 'anif'];
+    const EVAL_USER_LIHAT_SEMUA_CABANG = ['heru', 'anif', 'cianjur'];
+    // Cabang yang akunnya boleh melihat Hasil Evaluasi SELURUH cabang.
+    // Dicocokkan juga lewat field cabang/nama_cabang/username milik akun,
+    // jadi akun Cianjur tetap terdeteksi walau nama_user-nya tidak persis "cianjur".
+    const EVAL_CABANG_LIHAT_SEMUA = ['cianjur'];
     function cpIsUserLihatSemuaCabangEvaluasi(user) {
       const nama = String(user?.nama_user || user?.username || user?.user_name || '').trim().toLowerCase();
-      return EVAL_USER_LIHAT_SEMUA_CABANG.includes(nama);
+      if (EVAL_USER_LIHAT_SEMUA_CABANG.includes(nama)) return true;
+      const kandidat = ['cabang', 'Cabang', 'nama_cabang', 'Nama Cabang', 'nama cabang', 'branch', 'branch_name', 'branchName', 'kode_cabang', 'kodeCabang']
+        .map(k => String(user?.[k] ?? '').trim().toLowerCase());
+      return kandidat.some(v => EVAL_CABANG_LIHAT_SEMUA.includes(v));
     }
     let evalLihatSemuaCabang = false;
     let branchCpData = [];
@@ -2263,6 +2270,7 @@
       // sama seperti pola yang dipakai di Customer Profile.
       const resolved = cpResolveBranchFromUser(currentBranchUser, listEvaluasiGlobal);
       if (resolved) currentBranchName = resolved;
+      if (EVAL_CABANG_LIHAT_SEMUA.includes(String(currentBranchName || '').trim().toLowerCase())) evalLihatSemuaCabang = true;
 
       const badgeEl = document.getElementById('eval-branch-badge');
       if (badgeEl) {
