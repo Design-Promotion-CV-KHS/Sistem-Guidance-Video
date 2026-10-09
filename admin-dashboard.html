@@ -12725,6 +12725,25 @@
             if (current) setSelectValueEnsureOption(select, current);
         }
 
+        // ==== Aturan Prioritas/Cadangan per bulan (rolling) ====
+        // Di bulan berjalan hanya yang "Prioritas" yang tampil. Item "Cadangan" yang bulannya
+        // <= bulan berjalan otomatis digeser ke bulan berikutnya (Desember -> Januari).
+        function edBulanBerjalanIdx() {
+            const nama = new Date().toLocaleString('en-US', { month: 'numeric', timeZone: 'Asia/Jakarta' });
+            return parseInt(nama, 10) - 1;
+        }
+        function edBulanEfektif(item) {
+            const raw = edCOLUMN_MAP.bulan ? item[edCOLUMN_MAP.bulan] : null;
+            const bulan = raw ? String(raw).trim() : '';
+            const idx = URUTAN_BULAN.indexOf(bulan);
+            if (idx === -1) return bulan;
+            const pr = edCOLUMN_MAP.prioritas ? String(item[edCOLUMN_MAP.prioritas] ?? '').trim().toLowerCase() : '';
+            if (pr !== 'cadangan') return bulan;
+            const sekarang = edBulanBerjalanIdx();
+            if (idx > sekarang) return bulan;
+            return URUTAN_BULAN[(sekarang + 1) % 12];
+        }
+
         function edPopulateCrudFilters() {
             const selStatusEdit = document.getElementById('ed-crud-filter-status-edit');
             const selStatusUpload = document.getElementById('ed-crud-filter-status-upload');
@@ -12755,7 +12774,7 @@
             const editorSet = new Set(ambilNilai('editor').filter(e => e.toLowerCase() !== 'all editor'));
             selEditor.innerHTML = '<option value="all">Semua Editor</option>' + Array.from(editorSet).sort().map(e => `<option value="${edEscapeHtml(e)}" ${e === curEditor ? 'selected' : ''}>${edEscapeHtml(e)}</option>`).join('');
 
-            const bulanSet = new Set(ambilNilai('bulan'));
+            const bulanSet = new Set(edPlanningRawGlobal.map(i => edBulanEfektif(i)).filter(Boolean));
             const bulanSorted = Array.from(bulanSet).sort((a, b) => {
                 const ia = URUTAN_BULAN.indexOf(a), ib = URUTAN_BULAN.indexOf(b);
                 if (ia === -1 && ib === -1) return a.localeCompare(b);
@@ -12799,8 +12818,8 @@
         // lebih enak dibaca. Baris dengan bulan yang tidak dikenali/kosong ditaruh di paling akhir.
         function edUrutkanIndeksBerdasarkanBulan(daftarIdx) {
             return daftarIdx.slice().sort((a, b) => {
-                const bulanA = edCOLUMN_MAP.bulan ? edPlanningRawGlobal[a.idx][edCOLUMN_MAP.bulan] : null;
-                const bulanB = edCOLUMN_MAP.bulan ? edPlanningRawGlobal[b.idx][edCOLUMN_MAP.bulan] : null;
+                const bulanA = edCOLUMN_MAP.bulan ? edBulanEfektif(edPlanningRawGlobal[a.idx]) : null;
+                const bulanB = edCOLUMN_MAP.bulan ? edBulanEfektif(edPlanningRawGlobal[b.idx]) : null;
                 const ia = bulanA ? URUTAN_BULAN.indexOf(String(bulanA).trim()) : -1;
                 const ib = bulanB ? URUTAN_BULAN.indexOf(String(bulanB).trim()) : -1;
                 const posA = ia === -1 ? 999 : ia;
@@ -12827,7 +12846,7 @@
                 if (fStatusEdit !== 'all' && normalizeStatus(edCOLUMN_MAP.statusEdit ? item[edCOLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
                 if (fStatusUpload !== 'all' && (edCOLUMN_MAP.statusUpload ? item[edCOLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
                 if (fEditor !== 'all' && (edCOLUMN_MAP.editor ? item[edCOLUMN_MAP.editor] : null) !== fEditor) return false;
-                if (fBulan !== 'all' && (edCOLUMN_MAP.bulan ? item[edCOLUMN_MAP.bulan] : null) !== fBulan) return false;
+                if (fBulan !== 'all' && (edCOLUMN_MAP.bulan ? edBulanEfektif(item) : null) !== fBulan) return false;
                 if (fSearch) {
                     const gabungan = ['judul', 'produk', 'tema', 'sellingPoints', 'prioritas', 'keterangan', 'editor', 'musim']
                         .map(key => edNilaiKolom(item, key))
@@ -12859,7 +12878,7 @@
 
             const header = ['Bulan', 'Judul Video', 'Tema', 'Selling Points', 'Prioritas', 'Keterangan', 'Tahun', 'Produk', 'Editor', 'Status Edit', 'Due Date', 'Tanggal Upload', 'Status Upload', 'Musim', 'Link Transkrip', 'Link Skenario'];
             const rows = baris.map(({ item }) => ([
-                edNilaiKolom(item, 'bulan'),
+                edBulanEfektif(item),
                 edNilaiKolom(item, 'judul'),
                 edNilaiKolom(item, 'tema'),
                 edNilaiKolom(item, 'sellingPoints'),
@@ -12907,7 +12926,7 @@
             const headerHtml = header.map(h => `<th>${edEscapeHtml(h)}</th>`).join('');
             const rowsHtml = baris.map(({ item }) => {
                 const cells = [
-                    edNilaiKolom(item, 'bulan'), edNilaiKolom(item, 'judul'), edNilaiKolom(item, 'tema'),
+                    edBulanEfektif(item), edNilaiKolom(item, 'judul'), edNilaiKolom(item, 'tema'),
                     edNilaiKolom(item, 'sellingPoints'), edNilaiKolom(item, 'prioritas'), edNilaiKolom(item, 'keterangan'),
                     edNilaiKolom(item, 'tahun'), edNilaiKolom(item, 'produk'), edNilaiKolom(item, 'editor'), normalizeStatus(edNilaiKolom(item, 'statusEdit')) || '',
                     edNilaiKolom(item, 'dueDate'), edNilaiKolom(item, 'targetUpload'), edNilaiKolom(item, 'statusUpload'),
@@ -13169,6 +13188,13 @@
                     let isi = edTampilanNilaiKolom(item, column, rid);
                     if (edCOLUMN_MAP.statusEdit === column) isi = edStatusEditBadge(item[column]);
                     if (edCOLUMN_MAP.prioritas === column) isi = edPrioritasBadge(item[column]);
+                    if (edCOLUMN_MAP.bulan === column) {
+                        const efektif = edBulanEfektif(item);
+                        const asli = String(item[column] ?? '').trim();
+                        if (efektif && asli && efektif !== asli) {
+                            isi = `<span class="font-semibold">${edEscapeHtml(efektif)}</span><div class="text-[10px] text-blue-600 font-bold" title="Cadangan otomatis digeser ke bulan berikutnya">geser dari ${edEscapeHtml(asli)}</div>`;
+                        }
+                    }
                     return `<td class="py-3 px-4 align-top min-w-[110px]">${isi}</td>`;
                 }).join('')}
                     <td class="py-3 px-4 text-right whitespace-nowrap align-top sticky right-0 bg-white/95 backdrop-blur-sm border-l border-gray-100">
