@@ -13302,23 +13302,29 @@
             return query;
         }
 
-        // Menghapus data sumber di Kiriman_Cabang untuk baris Planning yang berasal dari
-        // WAITING LIST. Tanpa langkah ini, backfill di edMuatDashboard() akan membuat
-        // ulang baris Planning yang baru saja dihapus.
-        async function edHapusKirimanSumber(sourceId) {
+        // Saat baris Planning WAITING LIST dihapus, data sumbernya di Kiriman_Cabang TIDAK
+        // dihapus, melainkan Segmen-nya diubah dari WAITING LIST menjadi FOOTAGE. Karena
+        // sudah bukan WAITING LIST, backfill di edMuatDashboard() tidak akan membuat ulang
+        // baris Planning tersebut. Jika Segmen sumber bukan WAITING LIST (misalnya sudah
+        // WIP/DONE), data sumber dibiarkan apa adanya.
+        async function edUbahKirimanKeFootage(sourceId) {
             const keys = ['id_video', 'id', 'ID', 'Id', 'uuid', 'UUID', '_id', 'row_id'];
             for (const key of keys) {
                 const cek = await db.from(NAMA_TABEL_KIRIMAN).select('*').eq(key, sourceId).limit(1);
                 if (cek.error) continue;                       // kolom ini tidak ada di tabel
                 if (!cek.data || cek.data.length === 0) continue;
-                const del = await db.from(NAMA_TABEL_KIRIMAN).delete().eq(key, sourceId).select();
-                if (del.error) return { ok: false, message: del.error.message };
-                if (!del.data || del.data.length === 0) {
-                    return { ok: false, message: 'Data kiriman cabang tidak terhapus. Kemungkinan RLS pada tabel "' + NAMA_TABEL_KIRIMAN + '" belum punya policy DELETE untuk role anon.' };
+
+                const segmenSaatIni = String(cek.data[0].Segmen || cek.data[0].segmen || '').trim().toUpperCase();
+                if (segmenSaatIni !== 'WAITING LIST') return { ok: true, changed: false };
+
+                const upd = await db.from(NAMA_TABEL_KIRIMAN).update({ Segmen: 'FOOTAGE' }).eq(key, sourceId).select();
+                if (upd.error) return { ok: false, message: upd.error.message };
+                if (!upd.data || upd.data.length === 0) {
+                    return { ok: false, message: 'Status kiriman cabang tidak berubah. Kemungkinan RLS pada tabel "' + NAMA_TABEL_KIRIMAN + '" belum punya policy UPDATE untuk role anon.' };
                 }
-                return { ok: true, deleted: true };
+                return { ok: true, changed: true };
             }
-            return { ok: true, deleted: false };               // data sumber memang sudah tidak ada
+            return { ok: true, changed: false };               // data sumber sudah tidak ada
         }
 
         async function edHapusDataCrud(rid) {
@@ -13333,8 +13339,8 @@
             let pesanKonfirmasi;
             if (sumberId) {
                 pesanKonfirmasi = 'Data ini berasal dari Kelola Data Cabang (WAITING LIST).\n\n' +
-                    'Menghapusnya juga akan menghapus data kiriman cabang aslinya, karena jika tidak, data ini akan otomatis dibuat ulang setiap Planning Landscape dibuka.\n\n' +
-                    'Tindakan ini tidak bisa dibatalkan. Lanjutkan?';
+                    'Baris ini akan dihapus dari Planning Landscape, dan status di Kelola Data Cabang akan diubah dari WAITING LIST menjadi FOOTAGE (data cabang tidak dihapus).\n\n' +
+                    'Lanjutkan?';
             } else if (edCOLUMN_MAP.id) {
                 pesanKonfirmasi = 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.';
             } else {
@@ -13342,12 +13348,13 @@
             }
             if (!confirm(pesanKonfirmasi)) return;
 
-            // 1) Hapus data sumber di Kiriman_Cabang lebih dulu. Jika gagal, berhenti di sini
-            //    supaya tidak ada baris Planning yang terhapus lalu muncul lagi.
+            // 1) Ubah Segmen sumber di Kiriman_Cabang: WAITING LIST -> FOOTAGE lebih dulu.
+            //    Jika gagal, berhenti di sini supaya baris Planning tidak terhapus lalu
+            //    muncul lagi lewat backfill.
             if (sumberId) {
-                const src = await edHapusKirimanSumber(sumberId);
+                const src = await edUbahKirimanKeFootage(sumberId);
                 if (!src.ok) {
-                    alert('Gagal menghapus data sumber di Kelola Data Cabang:\n\n' + src.message + '\n\nData Planning Landscape belum dihapus.');
+                    alert('Gagal mengubah status di Kelola Data Cabang menjadi FOOTAGE:\n\n' + src.message + '\n\nData Planning Landscape belum dihapus.');
                     return;
                 }
             }
