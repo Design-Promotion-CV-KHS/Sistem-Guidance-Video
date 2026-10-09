@@ -11477,17 +11477,11 @@
         async function edMuatDashboard() {
             edSembunyikanDiagnostik();
 
-            // Selalu sinkronkan ulang seluruh Kiriman_Cabang berstatus WAITING LIST
-            // sebelum Planning Landscape dibaca. Ini menangani data yang sudah ada
-            // sebelum fitur integrasi dipasang, termasuk beberapa video sekaligus.
-            try {
-                const backfill = await cbBackfillWaitingListToPlanning();
-                if (!backfill.ok && !backfill.skipped) {
-                    console.warn('[Planning Landscape] Backfill WAITING LIST belum sempurna:', backfill);
-                }
-            } catch (syncError) {
-                console.error('[Planning Landscape] Error backfill WAITING LIST:', syncError);
-            }
+            // CATATAN: backfill WAITING LIST -> Planning TIDAK lagi dijalankan otomatis setiap
+            // Planning Landscape dibuka. Dulu itu membuat baris yang sudah dihapus muncul lagi.
+            // Sinkronisasi tetap berjalan saat data cabang ditambah/diubah di Kelola Data Cabang
+            // (lihat cbSyncWaitingListToPlanning). Fungsi cbBackfillWaitingListToPlanning()
+            // dibiarkan tersedia bila suatu saat perlu dijalankan manual.
 
             const { data: rawPlanning, error } = await ambilDataPlanning();
             edPlanningRawGlobal = rawPlanning;
@@ -13302,31 +13296,6 @@
             return query;
         }
 
-        // Saat baris Planning WAITING LIST dihapus, data sumbernya di Kiriman_Cabang TIDAK
-        // dihapus, melainkan Segmen-nya diubah dari WAITING LIST menjadi FOOTAGE. Karena
-        // sudah bukan WAITING LIST, backfill di edMuatDashboard() tidak akan membuat ulang
-        // baris Planning tersebut. Jika Segmen sumber bukan WAITING LIST (misalnya sudah
-        // WIP/DONE), data sumber dibiarkan apa adanya.
-        async function edUbahKirimanKeFootage(sourceId) {
-            const keys = ['id_video', 'id', 'ID', 'Id', 'uuid', 'UUID', '_id', 'row_id'];
-            for (const key of keys) {
-                const cek = await db.from(NAMA_TABEL_KIRIMAN).select('*').eq(key, sourceId).limit(1);
-                if (cek.error) continue;                       // kolom ini tidak ada di tabel
-                if (!cek.data || cek.data.length === 0) continue;
-
-                const segmenSaatIni = String(cek.data[0].Segmen || cek.data[0].segmen || '').trim().toUpperCase();
-                if (segmenSaatIni !== 'WAITING LIST') return { ok: true, changed: false };
-
-                const upd = await db.from(NAMA_TABEL_KIRIMAN).update({ Segmen: 'FOOTAGE' }).eq(key, sourceId).select();
-                if (upd.error) return { ok: false, message: upd.error.message };
-                if (!upd.data || upd.data.length === 0) {
-                    return { ok: false, message: 'Status kiriman cabang tidak berubah. Kemungkinan RLS pada tabel "' + NAMA_TABEL_KIRIMAN + '" belum punya policy UPDATE untuk role anon.' };
-                }
-                return { ok: true, changed: true };
-            }
-            return { ok: true, changed: false };               // data sumber sudah tidak ada
-        }
-
         async function edHapusDataCrud(rid) {
             const item = edCariRawItem(rid);
             if (!item) return;
@@ -13338,9 +13307,7 @@
 
             let pesanKonfirmasi;
             if (sumberId) {
-                pesanKonfirmasi = 'Data ini berasal dari Kelola Data Cabang (WAITING LIST).\n\n' +
-                    'Baris ini akan dihapus dari Planning Landscape, dan status di Kelola Data Cabang akan diubah dari WAITING LIST menjadi FOOTAGE (data cabang tidak dihapus).\n\n' +
-                    'Lanjutkan?';
+                pesanKonfirmasi = 'Baris ini hanya dihapus dari Planning Landscape. Data di Kelola Data Cabang tidak diubah dan tidak dihapus.\n\nLanjutkan?';
             } else if (edCOLUMN_MAP.id) {
                 pesanKonfirmasi = 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.';
             } else {
@@ -13348,18 +13315,8 @@
             }
             if (!confirm(pesanKonfirmasi)) return;
 
-            // 1) Ubah Segmen sumber di Kiriman_Cabang: WAITING LIST -> FOOTAGE lebih dulu.
-            //    Jika gagal, berhenti di sini supaya baris Planning tidak terhapus lalu
-            //    muncul lagi lewat backfill.
-            if (sumberId) {
-                const src = await edUbahKirimanKeFootage(sumberId);
-                if (!src.ok) {
-                    alert('Gagal mengubah status di Kelola Data Cabang menjadi FOOTAGE:\n\n' + src.message + '\n\nData Planning Landscape belum dihapus.');
-                    return;
-                }
-            }
-
-            // 2) Hapus baris Planning. Prioritas kriteria: id unik > sumber_kiriman_id > semua kolom.
+            // Prioritas kriteria: id unik > sumber_kiriman_id > semua kolom.
+            // Kiriman_Cabang sengaja tidak disentuh sama sekali.
             let kriteria;
             if (edCOLUMN_MAP.id) kriteria = { [edCOLUMN_MAP.id]: item[edCOLUMN_MAP.id] };
             else if (sumberId) kriteria = { [kolomSumber]: item[kolomSumber] ?? sumberId };
@@ -13373,7 +13330,6 @@
             }
             await edMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
-            if (typeof cbMuatDataTabel === 'function' && currentActiveTab === 'cabang-crud') cbMuatDataTabel();
         }
 
         async function edSimpanFormCrud(e) {
