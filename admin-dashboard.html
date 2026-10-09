@@ -13291,15 +13291,74 @@
         }
         function edTutupModalCrud() { document.getElementById('ed-crud-modal').classList.add('hidden'); }
 
+        // Menerapkan kriteria baris ke query Supabase. Nilai NULL WAJIB memakai .is(),
+        // karena .match({kolom: null}) menghasilkan "kolom=eq.null" yang tidak pernah
+        // cocok dengan baris manapun. Baris WAITING LIST hasil sinkron dari Kelola Data
+        // Cabang banyak kolom kosong (NULL), sehingga dulu delete/update-nya 0 baris.
+        function edTerapkanKriteria(query, kriteria) {
+            Object.entries(kriteria).forEach(([k, v]) => {
+                query = (v === null) ? query.is(k, null) : query.eq(k, v);
+            });
+            return query;
+        }
+
+        // Menghapus data sumber di Kiriman_Cabang untuk baris Planning yang berasal dari
+        // WAITING LIST. Tanpa langkah ini, backfill di edMuatDashboard() akan membuat
+        // ulang baris Planning yang baru saja dihapus.
+        async function edHapusKirimanSumber(sourceId) {
+            const keys = ['id_video', 'id', 'ID', 'Id', 'uuid', 'UUID', '_id', 'row_id'];
+            for (const key of keys) {
+                const cek = await db.from(NAMA_TABEL_KIRIMAN).select('*').eq(key, sourceId).limit(1);
+                if (cek.error) continue;                       // kolom ini tidak ada di tabel
+                if (!cek.data || cek.data.length === 0) continue;
+                const del = await db.from(NAMA_TABEL_KIRIMAN).delete().eq(key, sourceId).select();
+                if (del.error) return { ok: false, message: del.error.message };
+                if (!del.data || del.data.length === 0) {
+                    return { ok: false, message: 'Data kiriman cabang tidak terhapus. Kemungkinan RLS pada tabel "' + NAMA_TABEL_KIRIMAN + '" belum punya policy DELETE untuk role anon.' };
+                }
+                return { ok: true, deleted: true };
+            }
+            return { ok: true, deleted: false };               // data sumber memang sudah tidak ada
+        }
+
         async function edHapusDataCrud(rid) {
             const item = edCariRawItem(rid);
             if (!item) return;
-            const pesanKonfirmasi = edCOLUMN_MAP.id
-                ? 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.'
-                : 'Yakin ingin menghapus data ini? Karena tabel belum punya kolom id unik, penghapusan dicocokkan dari seluruh kolom baris ini — kalau ada baris lain yang datanya identik persis, baris itu ikut terhapus. Lanjutkan?';
+
+            const kolomSumber = edCOLUMN_MAP.sumberKirimanId || 'sumber_kiriman_id';
+            const sumberId = String(
+                item[kolomSumber] ?? item.sumber_kiriman_id ?? item.Sumber_Kiriman_ID ?? ''
+            ).trim();
+
+            let pesanKonfirmasi;
+            if (sumberId) {
+                pesanKonfirmasi = 'Data ini berasal dari Kelola Data Cabang (WAITING LIST).\n\n' +
+                    'Menghapusnya juga akan menghapus data kiriman cabang aslinya, karena jika tidak, data ini akan otomatis dibuat ulang setiap Planning Landscape dibuka.\n\n' +
+                    'Tindakan ini tidak bisa dibatalkan. Lanjutkan?';
+            } else if (edCOLUMN_MAP.id) {
+                pesanKonfirmasi = 'Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.';
+            } else {
+                pesanKonfirmasi = 'Yakin ingin menghapus data ini? Karena tabel belum punya kolom id unik, penghapusan dicocokkan dari seluruh kolom baris ini — kalau ada baris lain yang datanya identik persis, baris itu ikut terhapus. Lanjutkan?';
+            }
             if (!confirm(pesanKonfirmasi)) return;
-            const kriteria = edBuatKriteriaBaris(item);
-            const { data, error } = await db.from(NAMA_TABEL_PLANNING).delete().match(kriteria).select();
+
+            // 1) Hapus data sumber di Kiriman_Cabang lebih dulu. Jika gagal, berhenti di sini
+            //    supaya tidak ada baris Planning yang terhapus lalu muncul lagi.
+            if (sumberId) {
+                const src = await edHapusKirimanSumber(sumberId);
+                if (!src.ok) {
+                    alert('Gagal menghapus data sumber di Kelola Data Cabang:\n\n' + src.message + '\n\nData Planning Landscape belum dihapus.');
+                    return;
+                }
+            }
+
+            // 2) Hapus baris Planning. Prioritas kriteria: id unik > sumber_kiriman_id > semua kolom.
+            let kriteria;
+            if (edCOLUMN_MAP.id) kriteria = { [edCOLUMN_MAP.id]: item[edCOLUMN_MAP.id] };
+            else if (sumberId) kriteria = { [kolomSumber]: item[kolomSumber] ?? sumberId };
+            else kriteria = edBuatKriteriaBaris(item);
+
+            const { data, error } = await edTerapkanKriteria(db.from(NAMA_TABEL_PLANNING).delete(), kriteria).select();
             if (error) { alert('Gagal menghapus data: ' + error.message); return; }
             if (!data || data.length === 0) {
                 alert('Data TIDAK terhapus meskipun tidak ada error. Kemungkinan RLS pada tabel "Planning_Editor" belum punya policy DELETE untuk role anon. Cek di Supabase: Table Editor → Planning_Editor → RLS.');
@@ -13307,6 +13366,7 @@
             }
             await edMuatDashboard();
             if (currentActiveTab === 'overview') renderOverview();
+            if (typeof cbMuatDataTabel === 'function' && currentActiveTab === 'cabang-crud') cbMuatDataTabel();
         }
 
         async function edSimpanFormCrud(e) {
@@ -13368,7 +13428,7 @@
             const idVal = document.getElementById('ed-crud-field-id').value;
             let error, data;
             if (idVal !== '' && edKriteriaEditAktif) {
-                ({ data, error } = await db.from(NAMA_TABEL_PLANNING).update(payload).match(edKriteriaEditAktif).select());
+                ({ data, error } = await edTerapkanKriteria(db.from(NAMA_TABEL_PLANNING).update(payload), edKriteriaEditAktif).select());
             } else {
                 ({ data, error } = await db.from(NAMA_TABEL_PLANNING).insert([payload]).select());
             }
