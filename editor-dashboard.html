@@ -1464,6 +1464,7 @@
                   <th class="py-3 px-4">Bulan</th>
                   <th class="py-3 px-4">Tahun</th>
                   <th class="py-3 px-4">Judul Video</th>
+                  <th class="py-3 px-4">Prioritas</th>
                   <th class="py-3 px-4">Transkrip</th>
                   <th class="py-3 px-4">Skenario</th>
                   <th class="py-3 px-4">Editor</th>
@@ -1477,7 +1478,7 @@
               </thead>
               <tbody id="crud-body" class="divide-y divide-gray-50 text-gray-700">
                 <tr>
-                  <td colspan="12" class="text-center py-8 text-gray-400">Memuat data...</td>
+                  <td colspan="13" class="text-center py-8 text-gray-400">Memuat data...</td>
                 </tr>
               </tbody>
             </table>
@@ -2216,7 +2217,7 @@
     let COLUMN_MAP = {
       id: null, bulan: null, tahun: null, statusEdit: null, editor: null,
       judul: null, transkrip: null, skenario: null, dueDate: null, targetUpload: null,
-      statusUpload: null, musim: null
+      statusUpload: null, musim: null, prioritas: null
     };
 
     // --- Helper: ambil field dengan beberapa kemungkinan nama kolom (spasi/underscore/casing) ---
@@ -2260,6 +2261,7 @@
       COLUMN_MAP.targetUpload = cariKolom('Target Upload', 'Target_Upload', 'target_upload');
       COLUMN_MAP.statusUpload = cariKolom('Status Upload', 'Status_Upload', 'status_upload');
       COLUMN_MAP.musim = cariKolom('Musim', 'musim');
+      COLUMN_MAP.prioritas = cariKolom('Prioritas', 'prioritas', 'Priority', 'priority');
     }
 
     const storedUser = localStorage.getItem('data_user');
@@ -3728,7 +3730,7 @@
       selEditor.innerHTML = '<option value="all">Semua Editor</option>' +
         Array.from(editorSet).sort().map(e => `<option value="${escapeHtml(e)}" ${e === curEditor ? 'selected' : ''}>${escapeHtml(e)}</option>`).join('');
 
-      const bulanSet = new Set(ambilNilai('bulan'));
+      const bulanSet = new Set(planningRawGlobal.map(i => bulanEfektif(i)).filter(Boolean));
       const bulanSorted = Array.from(bulanSet).sort((a, b) => {
         const ia = URUTAN_BULAN.indexOf(a), ib = URUTAN_BULAN.indexOf(b);
         if (ia === -1 && ib === -1) return a.localeCompare(b);
@@ -3747,12 +3749,40 @@
       gambarBarisCrud();
     }
 
-    // Mengurutkan indeks baris berdasarkan Bulan (urutan kalender Januari→Desember) agar tabel
-    // lebih enak dibaca. Baris dengan bulan yang tidak dikenali/kosong ditaruh di paling akhir.
+    // ==== Aturan Prioritas/Cadangan per bulan (rolling) — SAMA dengan Planning Landscape di admin ====
+    // Item "Cadangan" yang bulannya <= bulan berjalan otomatis digeser ke bulan berikutnya
+    // (Desember -> Januari). Item "Prioritas"/lainnya tetap di bulan aslinya.
+    function bulanBerjalanIdx() {
+      const nama = new Date().toLocaleString('en-US', { month: 'numeric', timeZone: 'Asia/Jakarta' });
+      return parseInt(nama, 10) - 1;
+    }
+    function bulanEfektif(item) {
+      const raw = COLUMN_MAP.bulan ? item[COLUMN_MAP.bulan] : null;
+      const bulan = raw ? String(raw).trim() : '';
+      const idx = URUTAN_BULAN.indexOf(bulan);
+      if (idx === -1) return bulan;
+      const pr = COLUMN_MAP.prioritas ? String(item[COLUMN_MAP.prioritas] ?? '').trim().toLowerCase() : '';
+      if (pr !== 'cadangan') return bulan;
+      const sekarang = bulanBerjalanIdx();
+      if (idx > sekarang) return bulan;
+      return URUTAN_BULAN[(sekarang + 1) % 12];
+    }
+    function badgePrioritas(raw) {
+      const s = String(raw ?? '').trim();
+      if (!s) return '<span class="text-gray-300">-</span>';
+      const n = s.toLowerCase();
+      let cls = 'bg-slate-100 text-slate-600 border-slate-200';
+      if (n === 'prioritas') cls = 'bg-rose-50 text-rose-700 border-rose-200';
+      else if (n === 'cadangan') cls = 'bg-blue-50 text-blue-700 border-blue-200';
+      return `<span class="inline-flex items-center justify-center min-w-[78px] px-2.5 py-1.5 rounded-lg border text-[10px] font-extrabold ${cls}">${escapeHtml(s)}</span>`;
+    }
+
+    // Mengurutkan indeks baris berdasarkan Bulan EFEKTIF (urutan kalender Januari→Desember, Cadangan
+    // sudah digeser) agar urutannya sama dengan admin. Bulan tidak dikenali/kosong ditaruh di paling akhir.
     function urutkanIndeksBerdasarkanBulan(daftarIdx) {
       return daftarIdx.slice().sort((a, b) => {
-        const bulanA = COLUMN_MAP.bulan ? planningRawGlobal[a.idx][COLUMN_MAP.bulan] : null;
-        const bulanB = COLUMN_MAP.bulan ? planningRawGlobal[b.idx][COLUMN_MAP.bulan] : null;
+        const bulanA = COLUMN_MAP.bulan ? bulanEfektif(planningRawGlobal[a.idx]) : null;
+        const bulanB = COLUMN_MAP.bulan ? bulanEfektif(planningRawGlobal[b.idx]) : null;
         const ia = bulanA ? URUTAN_BULAN.indexOf(String(bulanA).trim()) : -1;
         const ib = bulanB ? URUTAN_BULAN.indexOf(String(bulanB).trim()) : -1;
         const posA = ia === -1 ? 999 : ia;
@@ -3771,7 +3801,7 @@
       const countLabel = document.getElementById('crud-filter-count');
 
       if (!planningRawGlobal || planningRawGlobal.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-400">Belum ada data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" class="text-center py-8 text-gray-400">Belum ada data.</td></tr>';
         countLabel.innerText = '';
         return;
       }
@@ -3788,17 +3818,17 @@
           if (fStatusEdit !== 'all' && normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
           if (fStatusUpload !== 'all' && (COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
           if (fEditor !== 'all' && assignedEditor !== fEditor) return false;
-          if (fBulan !== 'all' && (COLUMN_MAP.bulan ? item[COLUMN_MAP.bulan] : null) !== fBulan) return false;
+          if (fBulan !== 'all' && (COLUMN_MAP.bulan ? bulanEfektif(item) : null) !== fBulan) return false;
           return true;
         });
 
       // Urutkan berdasarkan Bulan supaya tabel lebih enak dibaca
       barisTerfilter = urutkanIndeksBerdasarkanBulan(barisTerfilter);
 
-      countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${planningRawGlobal.length} baris (diurutkan per Bulan)`;
+      countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${planningRawGlobal.length} baris (diurutkan per Bulan & prioritas, sama seperti admin)`;
 
       if (barisTerfilter.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>';
         return;
       }
 
@@ -3810,7 +3840,14 @@
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="py-3 px-4">${val(item, 'bulan')}</td>
+            <td class="py-3 px-4">${(() => {
+              const efektif = bulanEfektif(item);
+              const asli = COLUMN_MAP.bulan ? String(item[COLUMN_MAP.bulan] ?? '').trim() : '';
+              if (efektif && asli && efektif !== asli) {
+                return `<span class="font-semibold">${escapeHtml(efektif)}</span><div class="text-[10px] text-blue-600 font-bold" title="Cadangan otomatis digeser ke bulan berikutnya">geser dari ${escapeHtml(asli)}</div>`;
+              }
+              return val(item, 'bulan');
+            })()}</td>
             <td class="py-3 px-4">${val(item, 'tahun')}</td>
             <td class="py-3 px-4 max-w-[320px]">
               <div class="flex items-start gap-2">
@@ -3820,6 +3857,7 @@
                 </button>
               </div>
             </td>
+            <td class="py-3 px-4 whitespace-nowrap">${badgePrioritas(COLUMN_MAP.prioritas ? item[COLUMN_MAP.prioritas] : null)}</td>
             <td class="py-3 px-4 whitespace-nowrap">${renderDocLink(item, 'transkrip')}</td>
             <td class="py-3 px-4 whitespace-nowrap">${renderDocLink(item, 'skenario')}</td>
             <td class="py-3 px-4">${val(item, 'editor')}</td>
