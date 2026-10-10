@@ -814,6 +814,12 @@
             max-width: 150px;
         }
 
+        #tab-carousel-crud .pc-col-tanggal {
+            min-width: 130px;
+            max-width: 150px;
+            white-space: nowrap;
+        }
+
         #tab-carousel-crud .pc-col-copy,
         #tab-carousel-crud .pc-col-visual {
             min-width: 280px;
@@ -5739,7 +5745,7 @@
                         <select id="pc-filter-status"
                             class="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer mt-0.5">
                             <option value="all">Semua Status</option>
-                            <option value="Undone">Undone</option>
+                            <option value="Undone" selected>Undone</option>
                             <option value="WIP">WIP</option>
                             <option value="Done">Done</option>
                         </select>
@@ -5801,6 +5807,7 @@
                                 <tr>
                                     <th class="py-3 px-5 pc-col-tema pc-rowspan-head" rowspan="2">Tema</th>
                                     <th class="py-3 px-5 pc-col-editor pc-rowspan-head" rowspan="2">Editor</th>
+                                    <th class="py-3 px-5 pc-col-tanggal pc-rowspan-head" rowspan="2">Tanggal Upload</th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span
                                             class="pc-slide-group-label">SLIDE 1</span></th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span
@@ -5850,7 +5857,7 @@
                             </thead>
                             <tbody id="pc-crud-body">
                                 <tr>
-                                    <td colspan="25" class="text-center py-10 text-slate-400">Memuat data dari
+                                    <td colspan="26" class="text-center py-10 text-slate-400">Memuat data dari
                                         database...</td>
                                 </tr>
                             </tbody>
@@ -7350,7 +7357,7 @@
             <form class="p-6 space-y-5" id="pc-crud-form">
                 <input id="pc-crud-field-id" type="hidden" />
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                     <div>
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tema *</label>
                         <input id="pc-crud-field-tema" required type="text" placeholder="Contoh: Tips Perawatan Mesin"
@@ -7379,6 +7386,11 @@
                             <option value="WIP">WIP</option>
                             <option value="Done">Done</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tanggal Upload</label>
+                        <input id="pc-crud-field-tanggal" type="datetime-local"
+                            class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
                     </div>
                 </div>
 
@@ -14127,6 +14139,33 @@
             return 'pc-status pc-status-undone';
         }
 
+        // Format tanggal upload (kolom created_at) -> "10 Okt 2026" + jam di bawahnya
+        function pcFormatTanggalUpload(value) {
+            if (!value) return { tanggal: '-', jam: '' };
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return { tanggal: '-', jam: '' };
+            return {
+                tanggal: d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+                jam: d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':')
+            };
+        }
+
+        // Ubah nilai created_at (ISO) -> format input datetime-local (waktu lokal browser)
+        function pcToDatetimeLocal(value) {
+            const d = value ? new Date(value) : new Date();
+            if (isNaN(d.getTime())) return '';
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+        }
+
+        // Urutan status: Undone dulu, lalu WIP, terakhir Done
+        function pcStatusRank(status) {
+            const s = String(status || '').trim().toLowerCase();
+            if (s === 'done') return 2;
+            if (s === 'wip') return 1;
+            return 0;
+        }
+
         function pcRenderSlideFields(values = {}) {
             const wrap = document.getElementById('pc-crud-slide-fields');
             if (!wrap) return;
@@ -14160,6 +14199,7 @@
             document.getElementById('pc-crud-field-id').value = '';
             document.getElementById('pc-crud-field-editor').value = '';
             document.getElementById('pc-crud-field-status').value = 'Undone';
+            document.getElementById('pc-crud-field-tanggal').value = pcToDatetimeLocal();
             document.getElementById('pc-crud-form-error').classList.add('hidden');
             document.getElementById('pc-crud-form-error').textContent = '';
             pcCurrentEditId = null;
@@ -14183,6 +14223,7 @@
             document.getElementById('pc-crud-field-tema').value = item.tema || '';
             setSelectValueEnsureOption(document.getElementById('pc-crud-field-editor'), item.editor || '');
             document.getElementById('pc-crud-field-caption').value = item.caption || '';
+            document.getElementById('pc-crud-field-tanggal').value = pcToDatetimeLocal(item.created_at);
             document.getElementById('pc-crud-field-status').value = CAROUSEL_STATUSES.includes(item.status) ? item.status : 'Undone';
             const slideValues = {};
             for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) { slideValues[`slide_${i}_copywriting`] = item[`slide_${i}_copywriting`] || ''; slideValues[`slide_${i}_visual`] = item[`slide_${i}_visual`] || ''; }
@@ -14200,7 +14241,7 @@
             const banner = document.getElementById('pc-diagnostic-banner');
             const message = document.getElementById('pc-diagnostic-message');
             if (banner) banner.classList.add('hidden');
-            tbody.innerHTML = '<tr><td colspan="25" class="text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data dari database...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="26" class="text-center py-10 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data dari database...</td></tr>';
 
             try {
                 if (!window.db) throw new Error('Koneksi Supabase tidak tersedia.');
@@ -14215,7 +14256,7 @@
             } catch (error) {
                 console.error('[Planning Carousel] Gagal memuat:', error);
                 pcListGlobal = [];
-                tbody.innerHTML = '<tr><td colspan="25" class="text-center py-10 text-rose-500 font-semibold">Gagal memuat data Planning Carousel.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="26" class="text-center py-10 text-rose-500 font-semibold">Gagal memuat data Planning Carousel.</td></tr>';
                 if (banner && message) {
                     message.textContent = error?.message || String(error);
                     banner.classList.remove('hidden');
@@ -14239,7 +14280,7 @@
             const search = String(document.getElementById('pc-filter-search')?.value || '').trim().toLowerCase();
             const statusFilter = String(document.getElementById('pc-filter-status')?.value || 'all');
             const editorFilter = String(document.getElementById('pc-filter-editor')?.value || 'all');
-            return pcListGlobal.filter(row => {
+            const filtered = pcListGlobal.filter(row => {
                 const statusOk = statusFilter === 'all' || String(row.status || '') === statusFilter;
                 if (!statusOk) return false;
                 const editorOk = editorFilter === 'all' || String(row.editor || '') === editorFilter;
@@ -14249,6 +14290,12 @@
                 ...Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [row[`slide_${i + 1}_copywriting`], row[`slide_${i + 1}_visual`]])
                 ].flat().join(' ').toLowerCase();
                 return haystack.includes(search);
+            });
+            // Undone paling atas, WIP berikutnya, Done paling bawah; dalam status yang sama yang terbaru diunggah di atas.
+            return filtered.sort((x, y) => {
+                const r = pcStatusRank(x.status) - pcStatusRank(y.status);
+                if (r !== 0) return r;
+                return (new Date(y.created_at).getTime() || 0) - (new Date(x.created_at).getTime() || 0);
             });
         }
 
@@ -14268,7 +14315,7 @@
             document.getElementById('pc-card-done').textContent = done;
 
             if (!rows.length) {
-                tbody.innerHTML = '<tr><td colspan="25" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="26" class="text-center py-12 text-slate-400">Belum ada data yang sesuai.</td></tr>';
                 return;
             }
 
@@ -14278,10 +14325,12 @@
                     return `<td class="pc-col-slide"><div class="pc-cell-text">${pcEscapeHtml(pcText(row[`slide_${n}_copywriting`]))}</div></td>
                             <td class="pc-col-slide"><div class="pc-cell-text">${pcEscapeHtml(pcText(row[`slide_${n}_visual`]))}</div></td>`;
                 }).join('');
+                const tgl = pcFormatTanggalUpload(row.created_at);
                 return `
                     <tr>
                         <td class="pc-col-tema"><div class="font-extrabold text-slate-900 leading-snug">${pcEscapeHtml(pcText(row.tema))}</div></td>
                         <td class="pc-col-editor"><div class="font-semibold text-fuchsia-700">${pcEscapeHtml(pcText(row.editor))}</div></td>
+                        <td class="pc-col-tanggal"><div class="font-semibold text-slate-700">${pcEscapeHtml(tgl.tanggal)}</div>${tgl.jam ? `<div class="text-[10px] text-slate-400 mt-0.5">${pcEscapeHtml(tgl.jam)} WIB</div>` : ''}</td>
                         ${slideCells}
                         <td class="pc-col-caption"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.caption))}</div></td>
                         <td><span class="${pcStatusClass(row.status)}">${pcEscapeHtml(pcText(row.status))}</span></td>
@@ -14319,6 +14368,11 @@
                 caption: document.getElementById('pc-crud-field-caption').value.trim(),
                 status: CAROUSEL_STATUSES.includes(status) ? status : 'Undone'
             };
+            const tanggalVal = document.getElementById('pc-crud-field-tanggal')?.value;
+            if (tanggalVal) {
+                const tgl = new Date(tanggalVal);
+                if (!isNaN(tgl.getTime())) payload.created_at = tgl.toISOString();
+            }
             for (let i = 1; i <= CAROUSEL_SLIDE_COUNT; i++) {
                 payload[`slide_${i}_copywriting`] = document.getElementById(`pc-crud-field-slide-${i}-copywriting`)?.value.trim() || '';
                 payload[`slide_${i}_visual`] = document.getElementById(`pc-crud-field-slide-${i}-visual`)?.value.trim() || '';
@@ -14388,23 +14442,24 @@
             }
 
             const slideHeaders = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [`Slide ${i + 1} - Copywriting`, `Slide ${i + 1} - Visual`]).flat();
-            const header = ['Tema', 'Editor', ...slideHeaders, 'Caption', 'Status'];
+            const header = ['Tema', 'Editor', 'Tanggal Upload', ...slideHeaders, 'Caption', 'Status'];
             const dataRows = rows.map(row => {
                 const slideCells = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => [
                     pcText(row[`slide_${i + 1}_copywriting`]),
                     pcText(row[`slide_${i + 1}_visual`])
                 ]).flat();
-                return [pcText(row.tema), pcText(row.editor), ...slideCells, pcText(row.caption), pcText(row.status)];
+                const tgl = pcFormatTanggalUpload(row.created_at);
+                return [pcText(row.tema), pcText(row.editor), tgl.jam ? `${tgl.tanggal} ${tgl.jam}` : tgl.tanggal, ...slideCells, pcText(row.caption), pcText(row.status)];
             });
 
             const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
             ws['!cols'] = [
-                { wch: 26 }, { wch: 16 },
+                { wch: 26 }, { wch: 16 }, { wch: 20 },
                 ...Array.from({ length: CAROUSEL_SLIDE_COUNT * 2 }, () => ({ wch: 28 })),
                 { wch: 34 }, { wch: 12 }
             ];
             ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: dataRows.length, c: header.length - 1 } }) };
-            ws['!freeze'] = { xSplit: 2, ySplit: 1 };
+            ws['!freeze'] = { xSplit: 3, ySplit: 1 };
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Planning Carousel');
@@ -14424,12 +14479,13 @@
                 return;
             }
 
-            const header = ['Tema', 'Editor', 'Jumlah Slide Terisi', 'Caption', 'Status'];
+            const header = ['Tema', 'Editor', 'Tanggal Upload', 'Jumlah Slide Terisi', 'Caption', 'Status'];
             const headerHtml = header.map(h => `<th>${pcEscapeHtml(h)}</th>`).join('');
             const rowsHtml = rows.map(row => {
                 const jumlahSlideTerisi = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => i + 1)
                     .filter(n => String(row[`slide_${n}_copywriting`] || '').trim() || String(row[`slide_${n}_visual`] || '').trim()).length;
-                const cells = [pcText(row.tema), pcText(row.editor), `${jumlahSlideTerisi} / ${CAROUSEL_SLIDE_COUNT}`, pcText(row.caption), pcText(row.status)];
+                const tglW = pcFormatTanggalUpload(row.created_at);
+                const cells = [pcText(row.tema), pcText(row.editor), tglW.tanggal, `${jumlahSlideTerisi} / ${CAROUSEL_SLIDE_COUNT}`, pcText(row.caption), pcText(row.status)];
                 return `<tr>${cells.map(c => `<td>${pcEscapeHtml(c) === '-' ? '' : pcEscapeHtml(c)}</td>`).join('')}</tr>`;
             }).join('');
 
