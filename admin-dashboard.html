@@ -6129,6 +6129,7 @@
                                     <th class="py-3 px-5 pc-col-tema pc-rowspan-head" rowspan="2">Tema</th>
                                     <th class="py-3 px-5 pc-col-editor pc-rowspan-head" rowspan="2">Editor</th>
                                     <th class="py-3 px-5 pc-col-tanggal pc-rowspan-head" rowspan="2">Tanggal Upload</th>
+                                    <th class="py-3 px-5 pc-col-referensi pc-rowspan-head" rowspan="2">Referensi</th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span
                                             class="pc-slide-group-label">SLIDE 1</span></th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span
@@ -6149,7 +6150,6 @@
                                             class="pc-slide-group-label">SLIDE 9</span></th>
                                     <th class="py-3 px-3 pc-slide-group" colspan="2"><span
                                             class="pc-slide-group-label">SLIDE 10</span></th>
-                                    <th class="py-3 px-5 pc-col-referensi pc-rowspan-head" rowspan="2">Referensi</th>
                                     <th class="py-3 px-5 pc-col-caption pc-rowspan-head" rowspan="2">Caption</th>
                                     <th class="py-3 px-5 pc-rowspan-head" rowspan="2">Status</th>
                                     <th class="py-3 px-5 pc-actions pc-rowspan-head" rowspan="2">Aksi</th>
@@ -14239,8 +14239,8 @@
                         <td class="pc-col-tema"><div class="font-extrabold text-slate-900 leading-snug">${pcEscapeHtml(pcText(row.tema))}</div></td>
                         <td class="pc-col-editor"><div class="font-semibold text-fuchsia-700">${pcEscapeHtml(pcText(row.editor))}</div></td>
                         <td class="pc-col-tanggal"><div class="font-semibold text-slate-700">${pcEscapeHtml(tgl.tanggal)}</div>${tgl.jam ? `<div class="text-[10px] text-slate-400 mt-0.5">${pcEscapeHtml(tgl.jam)} WIB</div>` : ''}</td>
-                        ${slideCells}
                         <td class="pc-col-referensi"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.referensi))}</div>${pcRenderFileLinks(row.referensi_files || [])}</td>
+                        ${slideCells}
                         <td class="pc-col-caption"><div class="pc-cell-text">${pcEscapeHtml(pcText(row.caption))}</div></td>
                         <td><span class="${pcStatusClass(row.status)}">${pcEscapeHtml(pcText(row.status))}</span></td>
                         <td class="pc-actions">
