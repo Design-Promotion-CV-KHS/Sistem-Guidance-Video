@@ -861,6 +861,7 @@
             min-width: 300px;
             max-width: 360px;
         }
+
         #tab-carousel-crud .pc-col-referensi {
             min-width: 260px;
             max-width: 340px;
@@ -4588,13 +4589,63 @@
                 Dashboard Admin <span class="text-slate-400 font-normal hidden sm:inline" id="header-subtitle">|
                     Ringkasan Seluruh Data</span>
             </h2>
-            <div
-                class="flex items-center gap-3 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-sm transition-transform hover:scale-105">
-                <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-sm"
-                    id="avatar-initial">?</div>
-                <span class="text-sm font-semibold text-slate-700 hidden sm:inline" id="user-name">Memuat...</span>
+            <div class="relative" id="sw-profile-wrap">
+                <button type="button" id="sw-profile-btn" aria-haspopup="true" aria-expanded="false"
+                    title="Klik untuk ganti role"
+                    class="flex items-center gap-3 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-sm transition-transform hover:scale-105 cursor-pointer focus:outline-none">
+                    <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-sm"
+                        id="avatar-initial">?</div>
+                    <span class="text-sm font-semibold text-slate-700 hidden sm:inline" id="user-name">Memuat...</span>
+                    <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+                </button>
+                <div id="sw-menu"
+                    class="hidden absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50">
+                    <p class="px-3 pt-2 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Tampilkan sebagai</p>
+                    <button type="button" data-sw-role="admin"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 text-left">
+                        <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-user-shield"></i></span>
+                        <span class="flex-1">Admin</span>
+                        <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">Aktif</span>
+                    </button>
+                    <button type="button" data-sw-role="editor"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 text-left">
+                        <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fas fa-film"></i></span>
+                        <span class="flex-1">Editor</span>
+                        <i class="fas fa-chevron-right text-[10px] text-slate-300"></i>
+                    </button>
+                    <button type="button" data-sw-role="cabang"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 text-left">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fas fa-store"></i></span>
+                        <span class="flex-1">Cabang</span>
+                        <i class="fas fa-chevron-right text-[10px] text-slate-300"></i>
+                    </button>
+                    <p class="px-3 pt-2 pb-1 text-[10px] text-slate-400 leading-snug">Pindah tanpa login ulang. Anda bisa kembali ke Admin lewat tombol di pojok layar.</p>
+                </div>
             </div>
         </header>
+        <!-- ============ MODAL: PILIH AKUN UNTUK SWITCH ROLE ============ -->
+        <div id="sw-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 flex flex-col max-h-[85vh]">
+                <div class="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900" id="sw-modal-title">Masuk sebagai</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Pilih akun yang ingin Anda lihat tampilannya.</p>
+                    </div>
+                    <button type="button" id="sw-modal-close" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500"><i class="fas fa-xmark"></i></button>
+                </div>
+                <div class="p-4 border-b border-slate-100">
+                    <input type="text" id="sw-search" placeholder="Cari nama akun..."
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                </div>
+                <div id="sw-list" class="p-3 overflow-y-auto flex-1 space-y-1.5 min-h-[120px]"></div>
+                <div class="p-4 border-t border-slate-100">
+                    <button type="button" id="sw-use-admin-name"
+                        class="w-full text-xs font-semibold text-slate-500 hover:text-slate-800 underline underline-offset-2">
+                        Tidak ada akun? Masuk sebagai role ini memakai nama saya
+                    </button>
+                </div>
+            </div>
+        </div>
         <!-- ============ TAB: OVERVIEW ADMIN ============ -->
         <div class="p-5 md:p-6 space-y-4 w-full" id="tab-overview">
             <div
@@ -7722,14 +7773,17 @@
                 <div class="pt-4 border-t border-slate-100 space-y-4">
                     <div>
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Referensi</label>
-                        <textarea id="pc-crud-field-referensi" rows="3" placeholder="Catatan referensi, arahan desain, tautan, atau sumber konten..."
+                        <textarea id="pc-crud-field-referensi" rows="3"
+                            placeholder="Catatan referensi, arahan desain, tautan, atau sumber konten..."
                             class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-y"></textarea>
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Upload File Referensi</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Upload File
+                            Referensi</label>
                         <input id="pc-crud-field-files" type="file" multiple
                             class="block w-full mt-1 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:font-bold file:text-indigo-700 hover:file:bg-indigo-100" />
-                        <p class="text-[11px] text-slate-400 mt-1">Bisa memilih beberapa file sekaligus: JPG, PNG, PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, ZIP, video, audio, dan format lain.</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Bisa memilih beberapa file sekaligus: JPG, PNG, PDF,
+                            DOC/DOCX, XLS/XLSX, PPT/PPTX, ZIP, video, audio, dan format lain.</p>
                         <div id="pc-crud-existing-files" class="mt-2 space-y-1 text-xs"></div>
                     </div>
                 </div>
@@ -9048,6 +9102,142 @@
             localStorage.removeItem('data_user');
             window.location.href = 'index.html';
         });
+
+        /* ================= SWITCH ROLE TANPA LOGIN (khusus admin) =================
+           Admin bisa "masuk" sebagai akun editor / cabang untuk mengecek tampilan.
+           Data admin asli disimpan di localStorage 'data_user_admin_backup', lalu
+           data_user diganti dengan akun yang dipilih. Untuk kembali ke admin,
+           file admin-return-banner.js (dipasang di editor-dashboard.html &
+           cabang-dashboard.html) menampilkan tombol "Kembali ke Admin". */
+        const SW_BACKUP_KEY = 'data_user_admin_backup';
+        const SW_DASHBOARD_URL = { editor: 'editor-dashboard.html', cabang: 'cabang-dashboard.html' };
+        let swTargetRole = null;
+        let swUsersCache = null;
+
+        // Bersihkan backup lama jika sekarang sudah kembali sebagai admin
+        try {
+            const cur = JSON.parse(localStorage.getItem('data_user') || 'null');
+            if (cur && String(cur.role || '').toLowerCase() === 'admin') localStorage.removeItem(SW_BACKUP_KEY);
+        } catch (e) { }
+
+        function swEsc(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function swFindKey(row, ...cands) {
+            const keys = Object.keys(row || {});
+            for (const c of cands) { const k = keys.find(x => x.toLowerCase() === c.toLowerCase()); if (k) return k; }
+            return null;
+        }
+
+        const swMenu = document.getElementById('sw-menu');
+        const swProfileBtn = document.getElementById('sw-profile-btn');
+        const swModal = document.getElementById('sw-modal');
+
+        function swToggleMenu(show) {
+            const willShow = typeof show === 'boolean' ? show : swMenu.classList.contains('hidden');
+            swMenu.classList.toggle('hidden', !willShow);
+            swProfileBtn.setAttribute('aria-expanded', String(willShow));
+        }
+        swProfileBtn.addEventListener('click', (e) => { e.stopPropagation(); swToggleMenu(); });
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('sw-profile-wrap').contains(e.target)) swToggleMenu(false);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { swToggleMenu(false); swTutupModal(); }
+        });
+        swMenu.querySelectorAll('[data-sw-role]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const role = btn.getAttribute('data-sw-role');
+                swToggleMenu(false);
+                if (role === 'admin') return; // sudah di admin
+                swBukaModal(role);
+            });
+        });
+
+        function swTutupModal() {
+            swModal.classList.add('hidden');
+            swModal.classList.remove('flex');
+        }
+        document.getElementById('sw-modal-close').addEventListener('click', swTutupModal);
+        swModal.addEventListener('click', (e) => { if (e.target === swModal) swTutupModal(); });
+        document.getElementById('sw-search').addEventListener('input', swRenderList);
+        document.getElementById('sw-use-admin-name').addEventListener('click', () => {
+            const admin = JSON.parse(localStorage.getItem('data_user') || '{}');
+            swMasukSebagai({ nama_user: admin.nama_user || 'Admin', id_user: admin.id_user || '' });
+        });
+
+        async function swBukaModal(role) {
+            swTargetRole = role;
+            document.getElementById('sw-modal-title').innerText = 'Masuk sebagai ' + (role === 'editor' ? 'Editor' : 'Cabang');
+            document.getElementById('sw-search').value = '';
+            swModal.classList.remove('hidden');
+            swModal.classList.add('flex');
+            const list = document.getElementById('sw-list');
+            list.innerHTML = '<p class="text-center text-sm text-slate-400 py-8"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat akun...</p>';
+            if (!swUsersCache) {
+                const { data, error } = await db.from(NAMA_TABEL_USER).select('*');
+                if (error) {
+                    list.innerHTML = '<p class="text-center text-sm text-rose-500 py-8">Gagal memuat akun: ' + swEsc(error.message) + '</p>';
+                    return;
+                }
+                swUsersCache = data || [];
+            }
+            swRenderList();
+        }
+
+        function swRenderList() {
+            const list = document.getElementById('sw-list');
+            const q = document.getElementById('sw-search').value.trim().toLowerCase();
+            const rows = swUsersCache || [];
+            const matches = rows.filter(r => {
+                const kRole = swFindKey(r, 'role');
+                if (!kRole || String(r[kRole] || '').trim().toLowerCase() !== swTargetRole) return false;
+                if (!q) return true;
+                const kName = swFindKey(r, 'nama_user', 'username', 'user_name');
+                return String(kName ? r[kName] : '').toLowerCase().includes(q);
+            });
+            if (!matches.length) {
+                list.innerHTML = '<p class="text-center text-sm text-slate-400 py-8">Tidak ada akun dengan role ini.</p>';
+                return;
+            }
+            list.innerHTML = matches.map((r, i) => {
+                const kName = swFindKey(r, 'nama_user', 'username', 'user_name');
+                const kId = swFindKey(r, 'id_user', 'id', 'uuid');
+                const nama = kName ? r[kName] : '(tanpa nama)';
+                const idv = kId ? r[kId] : '-';
+                return '<button type="button" data-sw-idx="' + rows.indexOf(r) + '" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-colors">' +
+                    '<span class="w-9 h-9 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center">' + swEsc(String(nama).charAt(0).toUpperCase()) + '</span>' +
+                    '<span class="flex-1 min-w-0"><span class="block text-sm font-bold text-slate-800 truncate">' + swEsc(nama) + '</span>' +
+                    '<span class="block text-[11px] text-slate-400">ID: ' + swEsc(idv) + '</span></span>' +
+                    '<i class="fas fa-arrow-right text-xs text-slate-300"></i></button>';
+            }).join('');
+            list.querySelectorAll('[data-sw-idx]').forEach(btn => {
+                btn.addEventListener('click', () => swMasukSebagai(rows[Number(btn.getAttribute('data-sw-idx'))]));
+            });
+        }
+
+        function swMasukSebagai(row) {
+            const role = swTargetRole;
+            const adminAsli = localStorage.getItem('data_user');
+            if (!adminAsli || !SW_DASHBOARD_URL[role]) return;
+
+            // Simpan admin asli HANYA jika belum ada backup (hindari menimpa dengan akun hasil switch)
+            if (!localStorage.getItem(SW_BACKUP_KEY)) localStorage.setItem(SW_BACKUP_KEY, adminAsli);
+
+            const obj = Object.assign({}, row);
+            ['password', 'pass', 'Password'].forEach(k => delete obj[k]); // jangan simpan password
+            const kName = swFindKey(row, 'nama_user', 'username', 'user_name');
+            const kId = swFindKey(row, 'id_user', 'id', 'uuid');
+            if (obj.nama_user === undefined) obj.nama_user = kName ? row[kName] : '';
+            if (obj.id_user === undefined) obj.id_user = kId ? row[kId] : '';
+            const kRole = swFindKey(row, 'role');
+            obj.role = (kRole && row[kRole]) ? row[kRole] : role;
+            if (String(obj.role).toLowerCase() !== role) obj.role = role;
+            obj._viewing_as = true; // penanda mode lihat-sebagai-admin
+
+            localStorage.setItem('data_user', JSON.stringify(obj));
+            window.location.href = SW_DASHBOARD_URL[role];
+        }
 
         /* ================= NAVIGASI TAB UTAMA ================= */
         const ALL_TABS = ['overview', 'cabang-crud', 'cabang-evaluasi', 'customer-profile', 'stock-gudang', 'jadwal-5s', 'riset-promosi', 'editor-crud', 'portrait-crud', 'carousel-crud', 'editor-of-week', 'order-desain', 'user-crud', 'workflow-tools', 'panduan', 'tools'];
