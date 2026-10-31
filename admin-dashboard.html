@@ -7455,9 +7455,15 @@
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tema</label>
-                    <input
+                    <select
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
-                        id="ed-crud-field-tema" placeholder="Contoh: Testimoni Petani" type="text" />
+                        id="ed-crud-field-tema">
+                        <option value="">- Pilih Tema -</option>
+                        <option value="Testimoni Petani">Testimoni Petani</option>
+                        <option value="Mas Quick Jalan Jalan">Mas Quick Jalan Jalan</option>
+                        <option value="Fitur Keunggulan">Fitur Keunggulan</option>
+                        <option value="Konten Promosi Lainnya">Konten Promosi Lainnya</option>
+                    </select>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Selling Points</label>
@@ -13453,7 +13459,7 @@
             document.getElementById('ed-crud-field-tahun').value = edCOLUMN_MAP.tahun ? (item[edCOLUMN_MAP.tahun] || '') : '';
             document.getElementById('ed-crud-field-judul').value = edCOLUMN_MAP.judul ? (item[edCOLUMN_MAP.judul] || '') : '';
             document.getElementById('ed-crud-field-produk').value = edCOLUMN_MAP.produk ? (item[edCOLUMN_MAP.produk] || '') : '';
-            document.getElementById('ed-crud-field-tema').value = edCOLUMN_MAP.tema ? (item[edCOLUMN_MAP.tema] || '') : '';
+            setSelectValueEnsureOption(document.getElementById('ed-crud-field-tema'), edCOLUMN_MAP.tema ? (item[edCOLUMN_MAP.tema] || '') : '');
             document.getElementById('ed-crud-field-sellingPoints').value = edCOLUMN_MAP.sellingPoints ? (item[edCOLUMN_MAP.sellingPoints] || '') : '';
             setSelectValueEnsureOption(document.getElementById('ed-crud-field-prioritas'), edCOLUMN_MAP.prioritas ? (item[edCOLUMN_MAP.prioritas] || '') : '');
             document.getElementById('ed-crud-field-keterangan').value = edCOLUMN_MAP.keterangan ? (item[edCOLUMN_MAP.keterangan] || '') : '';
