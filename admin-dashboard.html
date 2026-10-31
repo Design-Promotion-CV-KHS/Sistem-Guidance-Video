@@ -12913,6 +12913,15 @@
 
         // Mengurutkan indeks baris berdasarkan Bulan (urutan kalender Januari→Desember) agar tabel
         // lebih enak dibaca. Baris dengan bulan yang tidak dikenali/kosong ditaruh di paling akhir.
+        function edRankPrioritas(item) {
+            const v = edCOLUMN_MAP.prioritas ? String(item[edCOLUMN_MAP.prioritas] ?? '').trim().toLowerCase() : '';
+            if (v === 'prioritas 1' || v === 'prioritas') return 0; // "Prioritas" = data lama
+            if (v === 'prioritas 2') return 1;
+            if (v === 'opsional' || v === 'cadangan') return 2; // "Cadangan" = data lama
+            if (v === '') return 4;
+            return 3;
+        }
+
         function edUrutkanIndeksBerdasarkanBulan(daftarIdx) {
             return daftarIdx.slice().sort((a, b) => {
                 const bulanA = edCOLUMN_MAP.bulan ? edBulanEfektif(edPlanningRawGlobal[a.idx]) : null;
@@ -12922,6 +12931,10 @@
                 const posA = ia === -1 ? 999 : ia;
                 const posB = ib === -1 ? 999 : ib;
                 if (posA !== posB) return posA - posB;
+                // Dalam bulan yang sama: Prioritas 1 -> Prioritas 2 -> Opsional -> lainnya/kosong
+                const rankA = edRankPrioritas(edPlanningRawGlobal[a.idx]);
+                const rankB = edRankPrioritas(edPlanningRawGlobal[b.idx]);
+                if (rankA !== rankB) return rankA - rankB;
                 return a.idx - b.idx; // tie-breaker: pertahankan urutan asli data
             });
         }
