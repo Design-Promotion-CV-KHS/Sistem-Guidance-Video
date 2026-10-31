@@ -5822,6 +5822,11 @@
                         <i class="fas fa-file-excel"></i> Excel
                     </button>
                     <button
+                        class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md interactive-btn"
+                        id="ed-btn-export-pdf" type="button">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button
                         class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md interactive-btn"
                         id="ed-btn-export-word" type="button">
                         <i class="fas fa-file-word"></i> Word
@@ -5853,7 +5858,7 @@
                         <label class="text-[9px] font-extrabold text-rose-600 uppercase tracking-widest">Cari</label>
                         <input
                             class="text-xs font-bold text-gray-800 bg-transparent outline-none mt-0.5 w-full placeholder:font-semibold placeholder:text-gray-300"
-                            id="ed-crud-filter-search" placeholder="Cari judul, produk, tema, editor..." type="text" />
+                            id="ed-crud-filter-search" placeholder="Cari source video, produk, tema, editor..." type="text" />
                     </div>
                     <button class="hidden text-gray-300 hover:text-gray-500 shrink-0" id="ed-crud-filter-search-clear"
                         title="Hapus pencarian" type="button">
@@ -7437,7 +7442,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Judul Video *</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Source Video *</label>
                     <input
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
                         id="ed-crud-field-judul" required="" type="text" />
@@ -7467,9 +7472,9 @@
                         class="w-full mt-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"
                         id="ed-crud-field-prioritas">
                         <option value="">- Pilih Prioritas -</option>
-                        <option value="Prioritas">Prioritas</option>
-                        <option value="Cadangan">Cadangan</option>
-                        <option value="Hold">Hold</option>
+                        <option value="Prioritas 1">Prioritas 1</option>
+                        <option value="Prioritas 2">Prioritas 2</option>
+                        <option value="Opsional">Opsional</option>
                     </select>
                 </div>
                 <div>
@@ -7603,7 +7608,7 @@
                         id="ed-crud-field-skenario" placeholder="https://docs.google.com/document/d/..." type="url" />
                 </div>
                 <div class="text-[11px] text-slate-400 bg-slate-50 border border-slate-100 rounded-xl p-3">
-                    <span class="font-semibold text-slate-600">Wajib diisi:</span> Judul Video, Editor, Due Date, dan
+                    <span class="font-semibold text-slate-600">Wajib diisi:</span> Source Video, Editor, Due Date, dan
                     Tanggal Upload.
                     Produk, Tema, Selling Points, Status Upload, Musim, Transkrip, dan Skenario dapat dikosongkan dan
                     dilengkapi nanti.
@@ -12956,6 +12961,33 @@
             return edCOLUMN_MAP[key] ? (item[edCOLUMN_MAP[key]] ?? '') : '';
         }
 
+        /* ---------- Struktur export (Excel / PDF / Word) ----------
+           Kolom: No, Bulan, Produk, Tema, Selling Points, Prioritas, Keterangan, Editor.
+           Di bagian bawah ditambahkan blok approval tanda tangan. ---------- */
+        const ED_EXPORT_HEADER = ['No', 'Bulan', 'Produk', 'Tema', 'Selling Points', 'Prioritas', 'Keterangan', 'Editor'];
+        const ED_EXPORT_APPROVAL = [
+            { jabatan: 'Kepala Seksi Madya Desain Promosi', nama: 'Dionisius Amadeus F.S' },
+            { jabatan: 'Koordinator Pemasaran Promosi', nama: 'Cahyono Hadi' },
+            { jabatan: 'Asisten Kepala Bidang', nama: 'Eko Purwanto' }
+        ];
+
+        function edBuatBarisExport(baris) {
+            return baris.map(({ item }, i) => ([
+                i + 1,
+                edBulanEfektif(item),
+                edNilaiKolom(item, 'produk'),
+                edNilaiKolom(item, 'tema'),
+                edNilaiKolom(item, 'sellingPoints'),
+                edNilaiKolom(item, 'prioritas'),
+                edNilaiKolom(item, 'keterangan'),
+                edNilaiKolom(item, 'editor')
+            ]));
+        }
+
+        function edStampTanggal(now) {
+            return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+        }
+
         /* ---------- Export Excel (.xlsx) ---------- */
         function edExportExcel() {
             if (typeof XLSX === 'undefined') {
@@ -12968,111 +13000,135 @@
                 return;
             }
 
-            const header = ['Bulan', 'Judul Video', 'Tema', 'Selling Points', 'Prioritas', 'Keterangan', 'Tahun', 'Produk', 'Editor', 'Status Edit', 'Due Date', 'Tanggal Upload', 'Status Upload', 'Musim', 'Link Transkrip', 'Link Skenario'];
-            const rows = baris.map(({ item }) => ([
-                edBulanEfektif(item),
-                edNilaiKolom(item, 'judul'),
-                edNilaiKolom(item, 'tema'),
-                edNilaiKolom(item, 'sellingPoints'),
-                edNilaiKolom(item, 'prioritas'),
-                edNilaiKolom(item, 'keterangan'),
-                edNilaiKolom(item, 'tahun'),
-                edNilaiKolom(item, 'produk'),
-                edNilaiKolom(item, 'editor'),
-                normalizeStatus(edNilaiKolom(item, 'statusEdit')) || '',
-                edNilaiKolom(item, 'dueDate'),
-                edNilaiKolom(item, 'targetUpload'),
-                edNilaiKolom(item, 'statusUpload'),
-                edNilaiKolom(item, 'musim'),
-                edNilaiKolom(item, 'transkrip'),
-                edNilaiKolom(item, 'skenario')
-            ]));
+            const rows = edBuatBarisExport(baris);
+            const aoa = [ED_EXPORT_HEADER, ...rows];
 
-            const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
-            // Lebar kolom dibuat proporsional supaya file rapi & mudah dibaca saat dibuka.
-            ws['!cols'] = [
-                { wch: 12 }, { wch: 42 }, { wch: 22 }, { wch: 36 }, { wch: 14 }, { wch: 42 },
-                { wch: 8 }, { wch: 20 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 16 },
-                { wch: 14 }, { wch: 12 }, { wch: 40 }, { wch: 40 }
+            // Blok approval tanda tangan (3 kolom: kolom B-C, D-E, F-H)
+            const approvalStart = aoa.length + 1; // baris 'Menyetujui,' (setelah 1 baris kosong)
+            const titleRow = new Array(ED_EXPORT_HEADER.length).fill('');
+            const jabatanRow = new Array(ED_EXPORT_HEADER.length).fill('');
+            const spaceRow = new Array(ED_EXPORT_HEADER.length).fill('');
+            const namaRow = new Array(ED_EXPORT_HEADER.length).fill('');
+            const kolomApproval = [1, 3, 5]; // index kolom awal tiap approval
+            titleRow[1] = 'Menyetujui,';
+            ED_EXPORT_APPROVAL.forEach((a, k) => {
+                jabatanRow[kolomApproval[k]] = a.jabatan;
+                namaRow[kolomApproval[k]] = a.nama;
+            });
+            aoa.push([], titleRow, jabatanRow, spaceRow, spaceRow, spaceRow, namaRow);
+
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            ws['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 22 }, { wch: 26 }, { wch: 40 }, { wch: 14 }, { wch: 42 }, { wch: 16 }];
+            ws['!merges'] = [
+                { s: { r: approvalStart, c: 1 }, e: { r: approvalStart, c: 2 } },
+                ...kolomApproval.flatMap((c, k) => {
+                    const lastCol = k === 2 ? 7 : c + 1;
+                    return [approvalStart + 1, approvalStart + 5].map(r => ({ s: { r, c }, e: { r, c: lastCol } }));
+                })
             ];
-            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: header.length - 1 } }) };
+            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: ED_EXPORT_HEADER.length - 1 } }) };
             ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+            // Siap cetak: A4 landscape, muat 1 halaman lebar
+            ws['!pageSetup'] = { orientation: 'landscape', paperSize: 9, fitToWidth: 1, fitToHeight: 0 };
+            ws['!margins'] = { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 };
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Planning Editor');
-
-            const now = new Date();
-            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-            XLSX.writeFile(wb, `Planning_Editor_${stamp}.xlsx`);
+            XLSX.writeFile(wb, `Planning_Editor_${edStampTanggal(new Date())}.xlsx`);
         }
 
-        /* ---------- Export Word (.doc rapi, dapat dibuka langsung oleh Microsoft Word) ---------- */
+        /* ---------- HTML dokumen cetak (dipakai PDF & Word) ---------- */
+        function edBuatHtmlCetak(baris, mode) {
+            const now = new Date();
+            const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            const rows = edBuatBarisExport(baris);
+            const headerHtml = ED_EXPORT_HEADER.map(h => `<th>${edEscapeHtml(h)}</th>`).join('');
+            const rowsHtml = rows.map(r => `<tr>${r.map((c, i) => {
+                const v = edEscapeHtml(c) === '-' ? '' : edEscapeHtml(c);
+                return `<td${i === 0 ? ' class="c"' : ''}>${v}</td>`;
+            }).join('')}</tr>`).join('');
+            const approvalHtml = ED_EXPORT_APPROVAL.map(a => `
+                <td class="ttd"><div class="jabatan">${edEscapeHtml(a.jabatan)}</div><div class="ruang"></div><div class="nama">${edEscapeHtml(a.nama)}</div></td>`).join('');
+            const wordHead = mode === 'word' ? `
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>90</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->` : '';
+
+            return `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Planning Editor</title>${wordHead}
+<style>
+  @page { size: A4 landscape; margin: 1.2cm; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
+  h1 { font-size: 16pt; margin: 0 0 2px; color: #0f172a; }
+  .subtitle { font-size: 9pt; color: #64748b; margin: 0 0 12px; }
+  table.data { border-collapse: collapse; width: 100%; font-size: 9pt; }
+  table.data thead { display: table-header-group; }
+  table.data th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
+  table.data td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+  table.data td.c { text-align: center; }
+  table.data tr { page-break-inside: avoid; }
+  .approval-wrap { margin-top: 22px; page-break-inside: avoid; }
+  .approval-title { font-size: 10pt; font-weight: bold; margin-bottom: 6px; }
+  table.approval { border-collapse: collapse; width: 100%; font-size: 10pt; table-layout: fixed; }
+  table.approval td.ttd { width: 33.33%; text-align: center; vertical-align: top; padding: 0 12px; }
+  .jabatan { font-weight: bold; min-height: 32px; }
+  .ruang { height: 70px; }
+  .nama { font-weight: bold; text-decoration: underline; }
+</style>
+</head>
+<body>
+  <h1>Data Planning Editor</h1>
+  <p class="subtitle">Diexport pada ${tanggalCetak} &bull; Total ${baris.length} data (mengikuti filter yang sedang aktif)</p>
+  <table class="data">
+    <thead><tr>${headerHtml}</tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+  <div class="approval-wrap">
+    <div class="approval-title">Menyetujui,</div>
+    <table class="approval"><tr>${approvalHtml}</tr></table>
+  </div>
+</body>
+</html>`;
+        }
+
+        /* ---------- Export PDF (dialog cetak browser -> Save as PDF / Print) ---------- */
+        function edExportPdf() {
+            const baris = edGetBarisTerfilterUrut();
+            if (baris.length === 0) {
+                alert('Tidak ada data untuk diexport pada filter saat ini.');
+                return;
+            }
+            const html = edBuatHtmlCetak(baris, 'pdf');
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+            document.body.appendChild(iframe);
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(html);
+            doc.close();
+            const bersihkan = () => setTimeout(() => iframe.remove(), 1000);
+            iframe.contentWindow.onafterprint = bersihkan;
+            setTimeout(() => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                // cadangan jika onafterprint tidak terpanggil
+                setTimeout(bersihkan, 60000);
+            }, 400);
+        }
+
+        /* ---------- Export Word (.doc, tata letak sama dengan PDF) ---------- */
         function edExportWord() {
             const baris = edGetBarisTerfilterUrut();
             if (baris.length === 0) {
                 alert('Tidak ada data untuk diexport pada filter saat ini.');
                 return;
             }
-
-            const header = ['Bulan', 'Judul Video', 'Tema', 'Selling Points', 'Prioritas', 'Keterangan', 'Tahun', 'Produk', 'Editor', 'Status Edit', 'Due Date', 'Target Upload', 'Status Upload', 'Musim'];
-            const headerHtml = header.map(h => `<th>${edEscapeHtml(h)}</th>`).join('');
-            const rowsHtml = baris.map(({ item }) => {
-                const cells = [
-                    edBulanEfektif(item), edNilaiKolom(item, 'judul'), edNilaiKolom(item, 'tema'),
-                    edNilaiKolom(item, 'sellingPoints'), edNilaiKolom(item, 'prioritas'), edNilaiKolom(item, 'keterangan'),
-                    edNilaiKolom(item, 'tahun'), edNilaiKolom(item, 'produk'), edNilaiKolom(item, 'editor'), normalizeStatus(edNilaiKolom(item, 'statusEdit')) || '',
-                    edNilaiKolom(item, 'dueDate'), edNilaiKolom(item, 'targetUpload'), edNilaiKolom(item, 'statusUpload'),
-                    edNilaiKolom(item, 'musim')
-                ];
-                return `<tr>${cells.map(c => `<td>${edEscapeHtml(c) === '-' ? '' : edEscapeHtml(c)}</td>`).join('')}</tr>`;
-            }).join('');
-
-            const now = new Date();
-            const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-
-            // Dibangun sebagai dokumen HTML dengan namespace Word (teknik "Word HTML")
-            // sehingga saat disimpan dengan ekstensi .doc, Microsoft Word membukanya
-            // sebagai dokumen biasa lengkap dengan tabel & styling yang rapi.
-            const htmlDoc = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-<meta charset="utf-8">
-<title>Planning Editor</title>
-<!--[if gte mso 9]>
-<xml>
-<w:WordDocument>
-<w:View>Print</w:View>
-<w:Zoom>90</w:Zoom>
-<w:DoNotOptimizeForBrowser/>
-</w:WordDocument>
-</xml>
-<![endif]-->
-<style>
-  @page { size: A4 landscape; margin: 1.2cm; }
-  body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
-  h1 { font-size: 18pt; margin-bottom: 2px; color: #0f172a; }
-  .subtitle { font-size: 9.5pt; color: #64748b; margin-bottom: 14px; }
-  table { border-collapse: collapse; width: 100%; font-size: 9pt; }
-  th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
-  td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
-  tr:nth-child(even) td { background: #f8fafc; }
-</style>
-</head>
-<body>
-  <h1>Data Planning Editor</h1>
-  <p class="subtitle">Diexport pada ${tanggalCetak} &bull; Total ${baris.length} data (mengikuti filter yang sedang aktif)</p>
-  <table>
-    <thead><tr>${headerHtml}</tr></thead>
-    <tbody>${rowsHtml}</tbody>
-  </table>
-</body>
-</html>`;
-
+            const htmlDoc = edBuatHtmlCetak(baris, 'word');
             const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
-            const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `Planning_Editor_${stamp}.doc`;
+            link.download = `Planning_Editor_${edStampTanggal(new Date())}.doc`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -13080,6 +13136,7 @@
         }
 
         document.getElementById('ed-btn-export-excel').addEventListener('click', edExportExcel);
+        document.getElementById('ed-btn-export-pdf').addEventListener('click', edExportPdf);
         document.getElementById('ed-btn-export-word').addEventListener('click', edExportWord);
 
         async function edCopyJudulVideo(button) {
@@ -13114,13 +13171,13 @@
                 if (icon) icon.className = 'fas fa-check text-xs';
                 button.classList.remove('bg-gray-50', 'text-gray-400', 'border-gray-200');
                 button.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
-                button.title = 'Judul berhasil disalin';
+                button.title = 'Source video berhasil disalin';
 
                 setTimeout(() => {
                     if (icon) icon.className = originalIcon;
                     button.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
                     button.classList.add('bg-gray-50', 'text-gray-400', 'border-gray-200');
-                    button.title = 'Copy judul video';
+                    button.title = 'Copy source video';
                 }, 1200);
             } catch (error) {
                 console.error('Gagal menyalin judul video:', error);
@@ -13231,8 +13288,9 @@
             if (!s) return '<span class="text-gray-300">-</span>';
             const n = s.toLowerCase();
             let cls = 'bg-slate-100 text-slate-600 border-slate-200';
-            if (n === 'prioritas') cls = 'bg-rose-50 text-rose-700 border-rose-200';
-            else if (n === 'cadangan') cls = 'bg-blue-50 text-blue-700 border-blue-200';
+            if (n === 'prioritas 1' || n === 'prioritas') cls = 'bg-rose-50 text-rose-700 border-rose-200';
+            else if (n === 'prioritas 2') cls = 'bg-amber-50 text-amber-700 border-amber-200';
+            else if (n === 'opsional' || n === 'cadangan') cls = 'bg-blue-50 text-blue-700 border-blue-200';
             else if (n === 'hold') cls = 'bg-slate-100 text-slate-600 border-slate-200';
             return `<span class="inline-flex items-center justify-center min-w-[78px] px-2.5 py-1.5 rounded-lg border text-[10px] font-extrabold ${cls}">${edEscapeHtml(s)}</span>`;
         }
@@ -13243,7 +13301,7 @@
 
             const columns = edUrutanKolomLandscape();
             head.innerHTML = `<tr class="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-                ${columns.map(c => `<th class="py-3 px-4 whitespace-nowrap bg-white">${edEscapeHtml(c)}</th>`).join('')}
+                ${columns.map(c => `<th class="py-3 px-4 whitespace-nowrap bg-white">${edEscapeHtml(edCOLUMN_MAP.judul === c ? 'Source Video' : c)}</th>`).join('')}
                 <th class="py-3 px-4 text-right whitespace-nowrap bg-white">Aksi</th>
             </tr>`;
         }
@@ -13493,7 +13551,7 @@
             // Field inti yang wajib: Judul Video, Editor, Due Date, dan Tanggal Upload.
             // Field lain seperti Produk, Tema, Selling Points, Transkrip, dan Skenario sengaja fleksibel.
             const fieldWajib = [
-                [judulVal, 'Judul Video wajib diisi.'],
+                [judulVal, 'Source Video wajib diisi.'],
                 [editorVal, 'Editor wajib dipilih.'],
                 [dueDateVal, 'Due Date wajib diisi.'],
                 [targetUploadVal, 'Tanggal Upload wajib diisi.']
