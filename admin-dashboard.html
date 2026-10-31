@@ -12975,9 +12975,9 @@
         }
 
         /* ---------- Struktur export (Excel / PDF / Word) ----------
-           Kolom: No, Bulan, Produk, Tema, Selling Points, Prioritas, Keterangan, Editor.
+           Kolom: No, Bulan, Produk, Tema, Selling Points, Prioritas, Source Video, Keterangan, Editor.
            Di bagian bawah ditambahkan blok approval tanda tangan. ---------- */
-        const ED_EXPORT_HEADER = ['No', 'Bulan', 'Produk', 'Tema', 'Selling Points', 'Prioritas', 'Keterangan', 'Editor'];
+        const ED_EXPORT_HEADER = ['No', 'Bulan', 'Produk', 'Tema', 'Selling Points', 'Prioritas', 'Source Video', 'Keterangan', 'Editor'];
         const ED_EXPORT_APPROVAL = [
             { jabatan: 'Kepala Seksi Madya Desain Promosi', nama: 'Dionisius Amadeus F.S' },
             { jabatan: 'Koordinator Pemasaran Promosi', nama: 'Cahyono Hadi' },
@@ -12992,6 +12992,7 @@
                 edNilaiKolom(item, 'tema'),
                 edNilaiKolom(item, 'sellingPoints'),
                 edNilaiKolom(item, 'prioritas'),
+                edNilaiKolom(item, 'judul'),
                 edNilaiKolom(item, 'keterangan'),
                 edNilaiKolom(item, 'editor')
             ]));
@@ -13016,13 +13017,13 @@
             const rows = edBuatBarisExport(baris);
             const aoa = [ED_EXPORT_HEADER, ...rows];
 
-            // Blok approval tanda tangan (3 kolom: kolom B-C, D-E, F-H)
+            // Blok approval tanda tangan (3 kolom: kolom B-D, E-F, G-I)
             const approvalStart = aoa.length + 1; // baris 'Menyetujui,' (setelah 1 baris kosong)
             const titleRow = new Array(ED_EXPORT_HEADER.length).fill('');
             const jabatanRow = new Array(ED_EXPORT_HEADER.length).fill('');
             const spaceRow = new Array(ED_EXPORT_HEADER.length).fill('');
             const namaRow = new Array(ED_EXPORT_HEADER.length).fill('');
-            const kolomApproval = [1, 3, 5]; // index kolom awal tiap approval
+            const kolomApproval = [1, 4, 6]; // index kolom awal tiap approval
             titleRow[1] = 'Menyetujui,';
             ED_EXPORT_APPROVAL.forEach((a, k) => {
                 jabatanRow[kolomApproval[k]] = a.jabatan;
@@ -13031,11 +13032,11 @@
             aoa.push([], titleRow, jabatanRow, spaceRow, spaceRow, spaceRow, namaRow);
 
             const ws = XLSX.utils.aoa_to_sheet(aoa);
-            ws['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 22 }, { wch: 26 }, { wch: 40 }, { wch: 14 }, { wch: 42 }, { wch: 16 }];
+            ws['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 22 }, { wch: 26 }, { wch: 40 }, { wch: 14 }, { wch: 42 }, { wch: 42 }, { wch: 16 }];
             ws['!merges'] = [
                 { s: { r: approvalStart, c: 1 }, e: { r: approvalStart, c: 2 } },
                 ...kolomApproval.flatMap((c, k) => {
-                    const lastCol = k === 2 ? 7 : c + 1;
+                    const lastCol = [3, 5, 8][k];
                     return [approvalStart + 1, approvalStart + 5].map(r => ({ s: { r, c }, e: { r, c: lastCol } }));
                 })
             ];
