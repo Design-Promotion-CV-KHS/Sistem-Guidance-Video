@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <!-- Library untuk export Laporan Rekap Stock Gudang (Excel rapi & Word) -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
@@ -13008,53 +13009,145 @@
             return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
         }
 
-        /* ---------- Export Excel (.xlsx) ---------- */
-        function edExportExcel() {
-            if (typeof XLSX === 'undefined') {
-                alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
-                return;
-            }
+        /* ---------- Export Excel (.xlsx) — rapi, wrap text, siap cetak ----------
+           Memakai ExcelJS agar bisa memberi style (border, wrap text, warna header,
+           tinggi baris otomatis, pengaturan halaman cetak). */
+        function edBuatWorkbookExcel(rows, tanggalCetak) {
+            const wb = new ExcelJS.Workbook();
+            wb.creator = 'Admin Dashboard';
+            const ws = wb.addWorksheet('Planning Editor', {
+                views: [{ state: 'frozen', ySplit: 4 }],
+                pageSetup: {
+                    paperSize: 9,              // A4
+                    orientation: 'landscape',
+                    fitToPage: true,           // semua kolom dimuat dalam 1 halaman lebar
+                    fitToWidth: 1,
+                    fitToHeight: 0,            // tinggi bebas (otomatis banyak halaman)
+                    horizontalCentered: true,
+                    margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.6, header: 0.3, footer: 0.3 }
+                },
+                headerFooter: { oddFooter: '&LPlanning Editor&RHalaman &P dari &N' }
+            });
+
+            const lebar = [5, 11, 18, 20, 30, 12, 30, 30, 14];
+            const jumlahKol = lebar.length;
+            ws.columns = lebar.map(w => ({ width: w }));
+
+            const garis = { style: 'thin', color: { argb: 'FF94A3B8' } };
+            const border = { top: garis, left: garis, bottom: garis, right: garis };
+            const FONT = 'Calibri';
+
+            // Judul + keterangan
+            ws.mergeCells(1, 1, 1, jumlahKol);
+            ws.getCell(1, 1).value = 'Data Planning Editor';
+            ws.getCell(1, 1).font = { name: FONT, size: 16, bold: true, color: { argb: 'FF0F172A' } };
+            ws.getCell(1, 1).alignment = { vertical: 'middle', horizontal: 'left' };
+            ws.getRow(1).height = 26;
+            ws.mergeCells(2, 1, 2, jumlahKol);
+            ws.getCell(2, 1).value = `Diexport pada ${tanggalCetak} • Total ${rows.length} data`;
+            ws.getCell(2, 1).font = { name: FONT, size: 10, color: { argb: 'FF64748B' } };
+            ws.getRow(2).height = 16;
+            ws.getRow(3).height = 6;
+
+            // Header tabel
+            const hdr = ws.getRow(4);
+            ED_EXPORT_HEADER.forEach((h, i) => {
+                const c = hdr.getCell(i + 1);
+                c.value = h;
+                c.font = { name: FONT, size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+                c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                c.border = border;
+            });
+            hdr.height = 24;
+
+            // Estimasi tinggi baris dari jumlah baris teks setelah di-wrap (agar pasti terbaca & tercetak penuh)
+            const hitungBaris = (teks, lebarKol) => {
+                const kapasitas = Math.max(1, Math.floor(lebarKol * 1.1)); // ±karakter per baris di font 10
+                return String(teks ?? '').split(/\r?\n/)
+                    .reduce((total, bagian) => total + Math.max(1, Math.ceil(bagian.length / kapasitas)), 0);
+            };
+
+            rows.forEach((r, ri) => {
+                const row = ws.getRow(5 + ri);
+                let maxBaris = 1;
+                r.forEach((val, ci) => {
+                    const teks = (val === null || val === undefined || val === '-') ? '' : val;
+                    const c = row.getCell(ci + 1);
+                    c.value = teks;
+                    c.font = { name: FONT, size: 10, color: { argb: 'FF1F2937' } };
+                    c.alignment = {
+                        vertical: 'top',
+                        horizontal: (ci === 0 || ci === 1 || ci === 5) ? 'center' : 'left',
+                        wrapText: true
+                    };
+                    c.border = border;
+                    if (ri % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                    maxBaris = Math.max(maxBaris, hitungBaris(teks, lebar[ci]));
+                });
+                row.height = Math.max(20, maxBaris * 13 + 7);
+            });
+
+            // Header tabel diulang di setiap halaman cetak
+            ws.pageSetup.printTitlesRow = '4:4';
+
+            // ===== Blok approval tanda tangan =====
+            const awal = 5 + rows.length + 1;
+            const grup = [[1, 4], [5, 7], [8, 9]]; // kolom awal-akhir tiap tanda tangan
+            ws.mergeCells(awal, 1, awal, 4);
+            ws.getCell(awal, 1).value = 'Menyetujui,';
+            ws.getCell(awal, 1).font = { name: FONT, size: 11, bold: true };
+            ws.getCell(awal, 1).alignment = { horizontal: 'left', vertical: 'middle' };
+            ws.getRow(awal).height = 20;
+
+            ED_EXPORT_APPROVAL.forEach((a, k) => {
+                const [c1, c2] = grup[k];
+                ws.mergeCells(awal + 1, c1, awal + 1, c2);
+                const j = ws.getCell(awal + 1, c1);
+                j.value = a.jabatan;
+                j.font = { name: FONT, size: 10.5, bold: true };
+                j.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+
+                ws.mergeCells(awal + 2, c1, awal + 2, c2); // ruang tanda tangan
+                ws.mergeCells(awal + 3, c1, awal + 3, c2);
+                const n = ws.getCell(awal + 3, c1);
+                n.value = a.nama;
+                n.font = { name: FONT, size: 10.5, bold: true, underline: true };
+                n.alignment = { horizontal: 'center', vertical: 'middle' };
+            });
+            ws.getRow(awal + 1).height = 32;
+            ws.getRow(awal + 2).height = 62;
+            ws.getRow(awal + 3).height = 20;
+
+            return wb;
+        }
+
+        async function edExportExcel() {
             const baris = edGetBarisTerfilterUrut();
             if (baris.length === 0) {
                 alert('Tidak ada data untuk diexport pada filter saat ini.');
                 return;
             }
-
-            const rows = edBuatBarisExport(baris);
-            const aoa = [ED_EXPORT_HEADER, ...rows];
-
-            // Blok approval tanda tangan (3 kolom: kolom B-D, E-F, G-I)
-            const approvalStart = aoa.length + 1; // baris 'Menyetujui,' (setelah 1 baris kosong)
-            const titleRow = new Array(ED_EXPORT_HEADER.length).fill('');
-            const jabatanRow = new Array(ED_EXPORT_HEADER.length).fill('');
-            const spaceRow = new Array(ED_EXPORT_HEADER.length).fill('');
-            const namaRow = new Array(ED_EXPORT_HEADER.length).fill('');
-            const kolomApproval = [1, 4, 6]; // index kolom awal tiap approval
-            titleRow[1] = 'Menyetujui,';
-            ED_EXPORT_APPROVAL.forEach((a, k) => {
-                jabatanRow[kolomApproval[k]] = a.jabatan;
-                namaRow[kolomApproval[k]] = a.nama;
-            });
-            aoa.push([], titleRow, jabatanRow, spaceRow, spaceRow, spaceRow, namaRow);
-
-            const ws = XLSX.utils.aoa_to_sheet(aoa);
-            ws['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 22 }, { wch: 26 }, { wch: 40 }, { wch: 14 }, { wch: 42 }, { wch: 42 }, { wch: 16 }];
-            ws['!merges'] = [
-                { s: { r: approvalStart, c: 1 }, e: { r: approvalStart, c: 2 } },
-                ...kolomApproval.flatMap((c, k) => {
-                    const lastCol = [3, 5, 8][k];
-                    return [approvalStart + 1, approvalStart + 5].map(r => ({ s: { r, c }, e: { r, c: lastCol } }));
-                })
-            ];
-            ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: ED_EXPORT_HEADER.length - 1 } }) };
-            ws['!freeze'] = { xSplit: 0, ySplit: 1 };
-            // Siap cetak: A4 landscape, muat 1 halaman lebar
-            ws['!pageSetup'] = { orientation: 'landscape', paperSize: 9, fitToWidth: 1, fitToHeight: 0 };
-            ws['!margins'] = { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 };
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Planning Editor');
-            XLSX.writeFile(wb, `Planning_Editor_${edStampTanggal(new Date())}.xlsx`);
+            if (typeof ExcelJS === 'undefined') {
+                alert('Modul export Excel gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang halaman.');
+                return;
+            }
+            try {
+                const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                const wb = edBuatWorkbookExcel(edBuatBarisExport(baris), tanggalCetak);
+                const buffer = await wb.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Planning_Editor_${edStampTanggal(new Date())}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+            } catch (err) {
+                console.error('Gagal export Excel:', err);
+                alert('Export Excel gagal. Silakan coba lagi.');
+            }
         }
 
         /* ---------- HTML dokumen cetak (dipakai PDF & Word) ---------- */
@@ -13062,7 +13155,8 @@
             const now = new Date();
             const tanggalCetak = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             const rows = edBuatBarisExport(baris);
-            const headerHtml = ED_EXPORT_HEADER.map(h => `<th>${edEscapeHtml(h)}</th>`).join('');
+            const lebarPersen = [4, 8, 11, 12, 17, 8, 16, 16, 8]; // total 100% agar semua kolom muat satu halaman
+            const headerHtml = ED_EXPORT_HEADER.map((h, i) => `<th style="width:${lebarPersen[i]}%">${edEscapeHtml(h)}</th>`).join('');
             const rowsHtml = rows.map(r => `<tr>${r.map((c, i) => {
                 const v = edEscapeHtml(c) === '-' ? '' : edEscapeHtml(c);
                 return `<td${i === 0 ? ' class="c"' : ''}>${v}</td>`;
@@ -13082,7 +13176,8 @@
   body { font-family: Calibri, Arial, sans-serif; color: #1f2937; }
   h1 { font-size: 16pt; margin: 0 0 2px; color: #0f172a; }
   .subtitle { font-size: 9pt; color: #64748b; margin: 0 0 12px; }
-  table.data { border-collapse: collapse; width: 100%; font-size: 9pt; }
+  table.data { border-collapse: collapse; width: 100%; font-size: 9pt; table-layout: fixed; }
+  table.data th, table.data td { word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; }
   table.data thead { display: table-header-group; }
   table.data th { background: #0f172a; color: #ffffff; padding: 6px 8px; text-align: left; border: 1px solid #0f172a; }
   table.data td { padding: 6px 8px; border: 1px solid #cbd5e1; vertical-align: top; }
