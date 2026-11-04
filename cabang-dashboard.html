@@ -847,23 +847,6 @@
             </div>
           </div>
           <div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-calendar-alt text-xs"></i>
-            </div>
-            <div class="flex flex-col">
-              <label for="eval-filter-bulan" class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-widest">Filter Bulan</label>
-              <select id="eval-filter-bulan" class="text-xs font-bold mt-0.5 bg-transparent outline-none cursor-pointer">
-                <option value="all">Semua Bulan</option>
-                <option value="01">Januari</option><option value="02">Februari</option>
-                <option value="03">Maret</option><option value="04">April</option>
-                <option value="05">Mei</option><option value="06">Juni</option>
-                <option value="07">Juli</option><option value="08">Agustus</option>
-                <option value="09">September</option><option value="10">Oktober</option>
-                <option value="11">November</option><option value="12">Desember</option>
-              </select>
-            </div>
-          </div>
-          <div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3">
             <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
               <i class="fas fa-sort-amount-down-alt text-xs"></i>
             </div>
@@ -872,7 +855,6 @@
               <select id="eval-filter-urutan" class="text-xs font-bold mt-0.5 bg-transparent outline-none cursor-pointer">
                 <option value="oldest">Terlama → Terbaru</option>
                 <option value="newest">Terbaru → Terlama</option>
-                <option value="name">Nama A → Z</option>
               </select>
             </div>
           </div>
@@ -2412,8 +2394,8 @@
       renderTabelEvaluasi(currentBranchName);
     }
 
-    // Filter pencarian, bulan, dan urutan pada Hasil Evaluasi.
-    ['eval-filter-nama', 'eval-filter-bulan', 'eval-filter-urutan'].forEach(id => {
+    // Filter pencarian dan urutan tanggal pada Hasil Evaluasi.
+    ['eval-filter-nama', 'eval-filter-urutan'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.addEventListener(id === 'eval-filter-nama' ? 'input' : 'change', () => {
@@ -2425,10 +2407,8 @@
 
     function resetFilterEvaluasi() {
       const nama = document.getElementById('eval-filter-nama');
-      const bulan = document.getElementById('eval-filter-bulan');
       const urutan = document.getElementById('eval-filter-urutan');
       if (nama) nama.value = '';
-      if (bulan) bulan.value = 'all';
       if (urutan) urutan.value = 'oldest';
       evalSortKey = null;
       renderTabelEvaluasi(currentBranchName);
@@ -2608,7 +2588,6 @@
 
       const mode = document.getElementById('eval-filter-urutan')?.value || 'oldest';
       return list.slice().sort((a, b) => {
-        if (mode === 'name') return getNamaEvaluasi(a).localeCompare(getNamaEvaluasi(b), 'id', { numeric: true, sensitivity: 'base' });
         const ta = getTanggalEvaluasi(a), tb = getTanggalEvaluasi(b);
         // Data yang tanggalnya tidak terbaca tetap ditampilkan setelah data bertanggal.
         if (ta === null && tb !== null) return 1;
@@ -2665,21 +2644,12 @@
       }
 
       const kataKunci = String(document.getElementById('eval-filter-nama')?.value || '').trim().toLocaleLowerCase('id');
-      const bulanDipilih = document.getElementById('eval-filter-bulan')?.value || 'all';
 
       if (kataKunci) {
         filteredEval = filteredEval.filter(item => {
           const nama = getNamaEvaluasi(item).toLocaleLowerCase('id');
           const evaluasi = String(item.Evaluasi || item.evaluasi || '').toLocaleLowerCase('id');
           return nama.includes(kataKunci) || evaluasi.includes(kataKunci);
-        });
-      }
-
-      if (bulanDipilih !== 'all') {
-        filteredEval = filteredEval.filter(item => {
-          const timestamp = getTanggalEvaluasi(item);
-          if (timestamp === null) return false;
-          return String(new Date(timestamp).getMonth() + 1).padStart(2, '0') === bulanDipilih;
         });
       }
 
