@@ -846,18 +846,6 @@
                 class="w-full text-xs font-semibold mt-0.5 bg-transparent border-0 outline-none p-0 focus:ring-0">
             </div>
           </div>
-          <div class="custom-filter-box px-4 py-2.5 rounded-2xl flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-sort-amount-down-alt text-xs"></i>
-            </div>
-            <div class="flex flex-col">
-              <label for="eval-filter-urutan" class="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest">Urutan Data</label>
-              <select id="eval-filter-urutan" class="text-xs font-bold mt-0.5 bg-transparent outline-none cursor-pointer">
-                <option value="oldest">Terlama → Terbaru</option>
-                <option value="newest">Terbaru → Terlama</option>
-              </select>
-            </div>
-          </div>
           <button type="button" onclick="resetFilterEvaluasi()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 px-3 py-2 rounded-xl border border-indigo-100 hover:bg-indigo-50 transition">
             <i class="fas fa-undo-alt mr-1"></i> Reset
           </button>
@@ -2395,7 +2383,7 @@
     }
 
     // Filter pencarian dan urutan tanggal pada Hasil Evaluasi.
-    ['eval-filter-nama', 'eval-filter-urutan'].forEach(id => {
+    ['eval-filter-nama'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.addEventListener(id === 'eval-filter-nama' ? 'input' : 'change', () => {
@@ -2407,9 +2395,7 @@
 
     function resetFilterEvaluasi() {
       const nama = document.getElementById('eval-filter-nama');
-      const urutan = document.getElementById('eval-filter-urutan');
       if (nama) nama.value = '';
-      if (urutan) urutan.value = 'oldest';
       evalSortKey = null;
       renderTabelEvaluasi(currentBranchName);
     }
@@ -2585,17 +2571,8 @@
           return String(va).localeCompare(String(vb), 'id', { numeric: true, sensitivity: 'base' }) * dir;
         });
       }
-
-      const mode = document.getElementById('eval-filter-urutan')?.value || 'oldest';
-      return list.slice().sort((a, b) => {
-        const ta = getTanggalEvaluasi(a), tb = getTanggalEvaluasi(b);
-        // Data yang tanggalnya tidak terbaca tetap ditampilkan setelah data bertanggal.
-        if (ta === null && tb !== null) return 1;
-        if (ta !== null && tb === null) return -1;
-        if (ta !== null && tb !== null && ta !== tb) return mode === 'newest' ? tb - ta : ta - tb;
-        // Jika tanggal sama/tidak tersedia, gunakan nama file secara natural.
-        return getNamaEvaluasi(a).localeCompare(getNamaEvaluasi(b), 'id', { numeric: true, sensitivity: 'base' });
-      });
+      // Tanpa pilihan pengurutan, pertahankan urutan asli dari database.
+      return list.slice();
     }
 
     function sortEvaluasi(key) {
