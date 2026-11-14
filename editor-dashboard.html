@@ -957,6 +957,21 @@
 
           <div class="flex flex-wrap items-center gap-3">
             <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div class="flex flex-col">
+                <label class="text-[9px] font-extrabold text-amber-600 uppercase tracking-widest">Filter Tahun</label>
+                <select id="filter-tahun"
+                  class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                  <option value="all">Semua Tahun</option>
+                </select>
+              </div>
+            </div>
+            <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
               <div class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1437,6 +1452,21 @@
             </div>
           </div>
 
+          <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-[9px] font-extrabold text-amber-600 uppercase tracking-widest">Tahun</label>
+              <select id="crud-filter-tahun"
+                class="text-xs font-bold text-gray-800 bg-transparent outline-none cursor-pointer mt-0.5">
+                <option value="all">Semua Tahun</option>
+              </select>
+            </div>
+          </div>
           <div class="filter-box px-3.5 py-2 rounded-2xl flex items-center gap-2.5">
             <div class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2535,24 +2565,27 @@
 
     function populateFilters() {
       const selectBulan = document.getElementById('filter-bulan');
+      const selectTahun = document.getElementById('filter-tahun');
       const selectEditor = document.getElementById('filter-editor');
       const curBulan = selectBulan.value || 'all';
+      const curTahun = selectTahun ? (selectTahun.value || 'all') : 'all';
       const curEditor = selectEditor.value || 'all';
 
-      const bulanSet = new Set(listPlanningGlobal.map(i => i.bulan));
-      const bulanSorted = Array.from(bulanSet).sort((a, b) => {
-        const ia = URUTAN_BULAN.indexOf(a);
-        const ib = URUTAN_BULAN.indexOf(b);
-        if (ia === -1 && ib === -1) return a.localeCompare(b);
-        if (ia === -1) return 1;
-        if (ib === -1) return -1;
-        return ia - ib;
-      });
+      // Bulan SELALU Januari–Desember (bukan hanya bulan yang sudah ada datanya)
+      const bulanLain = Array.from(new Set(listPlanningGlobal.map(i => normBulanNama(i.bulan)).filter(b => b && !URUTAN_BULAN.includes(b))));
+      selectBulan.innerHTML = '<option value="all">Semua Bulan</option>' +
+        URUTAN_BULAN.concat(bulanLain).map(b => `<option value="${escapeHtml(b)}" ${b === curBulan ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
 
-      selectBulan.innerHTML = '<option value="all">Semua Bulan</option>';
-      bulanSorted.forEach(b => {
-        selectBulan.innerHTML += `<option value="${b}" ${b === curBulan ? 'selected' : ''}>${b}</option>`;
-      });
+      if (selectTahun) {
+        const skr = waktuSekarang().tahun;
+        const tahunSet = new Set([String(skr), String(skr + 1)]);
+        let adaTanpaTahun = false;
+        listPlanningGlobal.forEach(i => { const t = tahunDariNilai(i.tahun); if (t) tahunSet.add(String(t)); else adaTanpaTahun = true; });
+        const tahunList = Array.from(tahunSet).sort((a, b) => a - b);
+        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>' +
+          tahunList.map(t => `<option value="${t}" ${t === curTahun ? 'selected' : ''}>${t}</option>`).join('') +
+          (adaTanpaTahun ? `<option value="none" ${curTahun === 'none' ? 'selected' : ''}>Tanpa Tahun</option>` : '');
+      }
 
       const editorSet = new Set(listPlanningGlobal
         .map(i => i.editor)
@@ -2565,14 +2598,17 @@
     }
 
     document.getElementById('filter-bulan').addEventListener('change', renderSemua);
+    document.getElementById('filter-tahun')?.addEventListener('change', renderSemua);
     document.getElementById('filter-editor').addEventListener('change', renderSemua);
 
     function getFilteredData() {
       const bulanFilter = document.getElementById('filter-bulan').value;
+      const tahunFilter = document.getElementById('filter-tahun')?.value || 'all';
       const editorFilter = document.getElementById('filter-editor').value;
 
       return listPlanningGlobal.filter(item => {
-        if (bulanFilter !== 'all' && item.bulan !== bulanFilter) return false;
+        if (bulanFilter !== 'all' && normBulanNama(item.bulan) !== bulanFilter) return false;
+        if (tahunFilter !== 'all' && (tahunDariNilai(item.tahun) ? String(tahunDariNilai(item.tahun)) : 'none') !== tahunFilter) return false;
         if (editorFilter !== 'all' && item.editor !== editorFilter) return false;
         return true;
       });
@@ -3530,13 +3566,13 @@
       return null;
     }
 
-    function renderVideoDoneBulanan(bulanTarget) {
+    function renderVideoDoneBulanan(bulanTarget, tahunTarget) {
       const tbody = document.getElementById('done-month-body');
       const countEl = document.getElementById('done-month-count');
       if (!tbody || !countEl) return;
 
       const doneItems = listPlanningGlobal
-        .filter(i => i.bulan === bulanTarget && i.statusEdit === 'Done')
+        .filter(i => cocokPeriodeItem(i, bulanTarget, tahunTarget) && i.statusEdit === 'Done')
         .map(item => ({
           ...item,
           dueObj: parseTanggalDue(item.dueDate),
@@ -3551,7 +3587,7 @@
       countEl.textContent = `${doneItems.length} video`;
 
       if (doneItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada video Done pada ${bulanTarget}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-400">Belum ada video Done pada ${bulanTarget} ${tahunTarget}.</td></tr>`;
         return;
       }
 
@@ -3585,29 +3621,52 @@
     function renderTargetBulanan() {
       const container = document.getElementById('target-grid');
       const label = document.getElementById('target-bulan-label');
+      const skr = waktuSekarang();
 
-      const bulanTersedia = Array.from(new Set(listPlanningGlobal
-        .filter(i => URUTAN_BULAN.includes(i.bulan))
-        .map(i => i.bulan)));
+      // Periode data: bulan + tahun (data lama tanpa tahun dianggap tahun berjalan)
+      const periodeData = listPlanningGlobal
+        .map(i => ({ b: normBulanNama(i.bulan), t: tahunDariNilai(i.tahun) ?? skr.tahun }))
+        .filter(p => URUTAN_BULAN.includes(p.b));
 
-      if (bulanTersedia.length === 0) {
+      if (periodeData.length === 0) {
         label.innerText = '';
         container.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Belum ada data bulan yang bisa ditampilkan.</p>';
         return;
       }
 
       const filterBulan = document.getElementById('filter-bulan').value;
-      let bulanTarget = filterBulan !== 'all' ? filterBulan : getBulanBerjalan();
+      const filterTahun = document.getElementById('filter-tahun')?.value || 'all';
+      const adaTahun = /^\d{4}$/.test(filterTahun);
 
-      let bulanFallback = false;
-      if (!bulanTersedia.includes(bulanTarget)) {
-        bulanFallback = true;
-        const terurut = bulanTersedia.slice().sort((a, b) => URUTAN_BULAN.indexOf(a) - URUTAN_BULAN.indexOf(b));
-        bulanTarget = terurut[terurut.length - 1];
+      let bulanTarget, tahunTarget, bulanFallback = false;
+      if (filterBulan !== 'all') {
+        // Bulan dipilih eksplisit: tampilkan bulan itu (walau belum ada data -> 0 / target).
+        bulanTarget = filterBulan;
+        if (adaTahun) {
+          tahunTarget = parseInt(filterTahun, 10);
+        } else {
+          const tahunAda = periodeData.filter(p => p.b === bulanTarget).map(p => p.t);
+          tahunTarget = tahunAda.includes(skr.tahun) ? skr.tahun : (tahunAda.length ? Math.max(...tahunAda) : skr.tahun);
+        }
+      } else {
+        tahunTarget = adaTahun ? parseInt(filterTahun, 10) : skr.tahun;
+        bulanTarget = URUTAN_BULAN[skr.idx];
+        if (!periodeData.some(p => p.b === bulanTarget && p.t === tahunTarget)) {
+          // Bulan berjalan belum ada data: pakai periode terdekat yang sudah lewat, atau yang paling awal.
+          const kandidat = periodeData
+            .filter(p => !adaTahun || p.t === tahunTarget)
+            .map(p => ({ ...p, n: p.t * 12 + URUTAN_BULAN.indexOf(p.b) }))
+            .sort((a, b) => a.n - b.n);
+          if (kandidat.length) {
+            const nilaiSkr = skr.tahun * 12 + skr.idx;
+            const lewat = kandidat.filter(p => p.n <= nilaiSkr);
+            const pilih = lewat.length ? lewat[lewat.length - 1] : kandidat[0];
+            bulanTarget = pilih.b; tahunTarget = pilih.t; bulanFallback = true;
+          }
+        }
       }
 
-      const doneCount = listPlanningGlobal.filter(i => i.bulan === bulanTarget && i.statusEdit === 'Done').length;
-      const tahunTarget = (listPlanningGlobal.find(i => i.bulan === bulanTarget) || {}).tahun || '';
+      const doneCount = listPlanningGlobal.filter(i => cocokPeriodeItem(i, bulanTarget, tahunTarget) && i.statusEdit === 'Done').length;
 
       const persen = Math.min(100, Math.round((doneCount / TARGET_KONSTAN) * 100));
       const tercapai = doneCount >= TARGET_KONSTAN;
@@ -3617,10 +3676,10 @@
         : `<span class="badge-pill bg-amber-50 text-amber-600 border border-amber-200">Kurang ${TARGET_KONSTAN - doneCount} video lagi</span>`;
 
       label.innerText = filterBulan === 'all'
-        ? (bulanFallback ? `Bulan Berjalan (data terbaru: ${bulanTarget})` : 'Bulan Berjalan')
+        ? (bulanFallback ? `Bulan Berjalan (data terbaru: ${bulanTarget} ${tahunTarget})` : 'Bulan Berjalan')
         : 'Sesuai Filter Bulan';
 
-      renderVideoDoneBulanan(bulanTarget);
+      renderVideoDoneBulanan(bulanTarget, tahunTarget);
 
       container.innerHTML = `
         <div class="relative p-5 rounded-2xl border ${tercapai ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50/50'}">
@@ -3705,21 +3764,102 @@
       return `<span class="badge-pill ${cls}">${escapeHtml(raw)}</span>`;
     }
 
+    // ==== Periode = BULAN + TAHUN (sama dengan Planning Landscape di admin) ====
+    function waktuSekarang() {
+      const t = Date.now();
+      if (!waktuSekarang._c || t - waktuSekarang._c.t > 30000) {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jakarta', year: 'numeric', month: 'numeric' }).formatToParts(new Date());
+        const ambil = (tipe) => parseInt(parts.find(p => p.type === tipe).value, 10);
+        waktuSekarang._c = { t, idx: ambil('month') - 1, tahun: ambil('year') };
+      }
+      return waktuSekarang._c;
+    }
+    function bulanBerjalanIdx() { return waktuSekarang().idx; }
+    function normBulanNama(v) {
+      const t = String(v ?? '').trim();
+      return URUTAN_BULAN.find(b => b.toLowerCase() === t.toLowerCase()) || t;
+    }
+    function tahunDariNilai(v) {
+      const m = String(v ?? '').match(/\d{4}/);
+      return m ? parseInt(m[0], 10) : null;
+    }
+    function periodeAsli(item) {
+      const raw = COLUMN_MAP.bulan ? item[COLUMN_MAP.bulan] : null;
+      const bulan = normBulanNama(raw);
+      return { bulan, idx: URUTAN_BULAN.indexOf(bulan), tahun: COLUMN_MAP.tahun ? tahunDariNilai(item[COLUMN_MAP.tahun]) : null };
+    }
+    // Aturan Prioritas/Cadangan (rolling): "Cadangan" yang periodenya <= bulan berjalan digeser ke
+    // bulan berikutnya. Kini membandingkan BULAN + TAHUN (dulu hanya nama bulan, sehingga
+    // "Cadangan Januari 2027" salah digeser ke Desember).
+    function periodeEfektif(item) {
+      const asli = periodeAsli(item);
+      const hasil = { bulan: asli.bulan, idx: asli.idx, tahun: asli.tahun, geser: false, asli };
+      if (asli.idx === -1) return hasil;
+      const pr = COLUMN_MAP.prioritas ? String(item[COLUMN_MAP.prioritas] ?? '').trim().toLowerCase() : '';
+      if (pr !== 'cadangan') return hasil;
+      const skr = waktuSekarang();
+      const nilaiItem = (asli.tahun ?? skr.tahun) * 12 + asli.idx;
+      const nilaiSkr = skr.tahun * 12 + skr.idx;
+      if (nilaiItem > nilaiSkr) return hasil;
+      const n = nilaiSkr + 1;
+      return { bulan: URUTAN_BULAN[n % 12], idx: n % 12, tahun: Math.floor(n / 12), geser: true, asli };
+    }
+    function labelPeriode(p) { return [p.bulan, p.tahun].filter(Boolean).join(' '); }
+    function bulanEfektif(item) { return periodeEfektif(item).bulan; }
+
+    // Cocokkan item dashboard (listPlanningGlobal) dengan periode. Data lama tanpa tahun dianggap tahun berjalan.
+    function cocokPeriodeItem(i, bulan, tahun) {
+      if (normBulanNama(i.bulan) !== bulan) return false;
+      const t = tahunDariNilai(i.tahun);
+      return (t ?? waktuSekarang().tahun) === tahun;
+    }
+
+    function bacaFilterCrud() {
+      const v = (id) => document.getElementById(id)?.value || 'all';
+      return {
+        tahun: v('crud-filter-tahun'), bulan: v('crud-filter-bulan'),
+        statusEdit: v('crud-filter-status-edit'), statusUpload: v('crud-filter-status-upload'),
+        editor: v('crud-filter-editor')
+      };
+    }
+    // abaikan: kunci filter yang dilewati (untuk menghitung jumlah per opsi dropdown)
+    function cocokFilterCrud(item, f, abaikan) {
+      const skip = (k) => !!abaikan && abaikan.includes(k);
+      const assignedEditor = COLUMN_MAP.editor ? String(item[COLUMN_MAP.editor] ?? '').trim() : '';
+      if (!skip('statusEdit') && f.statusEdit !== 'all' && normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null) !== f.statusEdit) return false;
+      if (!skip('statusUpload') && f.statusUpload !== 'all' && (COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null) !== f.statusUpload) return false;
+      if (!skip('editor') && f.editor !== 'all' && assignedEditor !== f.editor) return false;
+      if ((!skip('tahun') && f.tahun !== 'all') || (!skip('bulan') && f.bulan !== 'all')) {
+        const p = periodeEfektif(item);
+        if (!skip('tahun') && f.tahun !== 'all' && (p.tahun ? String(p.tahun) : 'none') !== f.tahun) return false;
+        if (!skip('bulan') && f.bulan !== 'all' && (p.bulan || 'none') !== f.bulan) return false;
+      }
+      return true;
+    }
+    function resetFilterCrud() {
+      ['crud-filter-tahun', 'crud-filter-bulan', 'crud-filter-status-edit', 'crud-filter-status-upload', 'crud-filter-editor']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = 'all'; });
+      renderCrudTable();
+    }
+
     function populateCrudFilters() {
       const selStatusEdit = document.getElementById('crud-filter-status-edit');
       const selStatusUpload = document.getElementById('crud-filter-status-upload');
       const selEditor = document.getElementById('crud-filter-editor');
+      const selTahun = document.getElementById('crud-filter-tahun');
       const selBulan = document.getElementById('crud-filter-bulan');
 
-      const curStatusEdit = selStatusEdit.value || 'all';
-      const curStatusUpload = selStatusUpload.value || 'all';
-      const curEditor = selEditor.value || 'all';
-      const curBulan = selBulan.value || 'all';
+      const cur = {
+        statusEdit: selStatusEdit.value || 'all',
+        statusUpload: selStatusUpload.value || 'all',
+        editor: selEditor.value || 'all',
+        tahun: selTahun ? (selTahun.value || 'all') : 'all',
+        bulan: selBulan.value || 'all'
+      };
 
       const ambilNilai = (key) => COLUMN_MAP[key]
         ? planningRawGlobal.map(i => i[COLUMN_MAP[key]]).filter(v => v !== null && v !== undefined && String(v).trim() !== '')
         : [];
-
 
       const statusEditSet = new Set(ambilNilai('statusEdit').map(v => normalizeStatus(v)).filter(Boolean));
       const urutanStatus = ['Transkrip Siap', 'Skenario Siap', 'WIP', 'Done'];
@@ -3731,26 +3871,47 @@
         return ia - ib;
       });
       selStatusEdit.innerHTML = '<option value="all">Semua Status</option>' +
-        statusEditSorted.map(s => `<option value="${escapeHtml(s)}" ${s === curStatusEdit ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+        statusEditSorted.map(s => `<option value="${escapeHtml(s)}" ${s === cur.statusEdit ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
 
       const statusUploadSet = new Set(ambilNilai('statusUpload'));
       selStatusUpload.innerHTML = '<option value="all">Semua Status</option>' +
-        Array.from(statusUploadSet).sort().map(s => `<option value="${escapeHtml(s)}" ${s === curStatusUpload ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+        Array.from(statusUploadSet).sort().map(s => `<option value="${escapeHtml(s)}" ${s === cur.statusUpload ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
 
       const editorSet = new Set(ambilNilai('editor').filter(e => e.toLowerCase() !== 'all editor'));
       selEditor.innerHTML = '<option value="all">Semua Editor</option>' +
-        Array.from(editorSet).sort().map(e => `<option value="${escapeHtml(e)}" ${e === curEditor ? 'selected' : ''}>${escapeHtml(e)}</option>`).join('');
+        Array.from(editorSet).sort().map(e => `<option value="${escapeHtml(e)}" ${e === cur.editor ? 'selected' : ''}>${escapeHtml(e)}</option>`).join('');
 
-      const bulanSet = new Set(planningRawGlobal.map(i => bulanEfektif(i)).filter(Boolean));
-      const bulanSorted = Array.from(bulanSet).sort((a, b) => {
-        const ia = URUTAN_BULAN.indexOf(a), ib = URUTAN_BULAN.indexOf(b);
-        if (ia === -1 && ib === -1) return a.localeCompare(b);
-        if (ia === -1) return 1;
-        if (ib === -1) return -1;
-        return ia - ib;
+      // ----- Tahun & Bulan: lengkap + jumlah data per opsi -----
+      const f = { ...cur };
+      if (selTahun) {
+        selTahun.closest('.filter-box')?.classList.toggle('hidden', !COLUMN_MAP.tahun);
+        const skr = waktuSekarang().tahun;
+        const tahunSet = new Set([String(skr), String(skr + 1)]);
+        let adaTanpaTahun = false;
+        planningRawGlobal.forEach(i => { const p = periodeEfektif(i); if (p.tahun) tahunSet.add(String(p.tahun)); else adaTanpaTahun = true; });
+        if (/^\d{4}$/.test(cur.tahun)) tahunSet.add(cur.tahun);
+        const tahunList = Array.from(tahunSet).sort((a, b) => a - b);
+        const hitungT = {};
+        planningRawGlobal.filter(i => cocokFilterCrud(i, f, ['tahun'])).forEach(i => {
+          const p = periodeEfektif(i); const k = p.tahun ? String(p.tahun) : 'none'; hitungT[k] = (hitungT[k] || 0) + 1;
+        });
+        const optT = (val, teks) => `<option value="${val}" ${val === cur.tahun ? 'selected' : ''}>${teks}${hitungT[val] ? ` (${hitungT[val]})` : ''}</option>`;
+        selTahun.innerHTML = '<option value="all">Semua Tahun</option>' +
+          tahunList.map(t => optT(t, t)).join('') +
+          ((adaTanpaTahun || cur.tahun === 'none') ? optT('none', 'Tanpa Tahun') : '');
+      }
+
+      // Bulan SELALU Januari–Desember, jumlah mengikuti filter lain (termasuk Tahun)
+      const hitungB = {};
+      planningRawGlobal.filter(i => cocokFilterCrud(i, f, ['bulan'])).forEach(i => {
+        const k = periodeEfektif(i).bulan || 'none'; hitungB[k] = (hitungB[k] || 0) + 1;
       });
+      const bulanLain = Object.keys(hitungB).filter(b => b !== 'none' && !URUTAN_BULAN.includes(b));
+      const optB = (val, teks) => `<option value="${escapeHtml(val)}" ${val === cur.bulan ? 'selected' : ''}>${escapeHtml(teks)}${hitungB[val] ? ` (${hitungB[val]})` : ''}</option>`;
       selBulan.innerHTML = '<option value="all">Semua Bulan</option>' +
-        bulanSorted.map(b => `<option value="${escapeHtml(b)}" ${b === curBulan ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
+        URUTAN_BULAN.map(b => optB(b, b)).join('') +
+        bulanLain.map(b => optB(b, b)).join('') +
+        ((hitungB['none'] || cur.bulan === 'none') ? optB('none', 'Tanpa Bulan') : '');
     }
 
     function renderCrudTable() {
@@ -3760,51 +3921,47 @@
       gambarBarisCrud();
     }
 
-    // ==== Aturan Prioritas/Cadangan per bulan (rolling) — SAMA dengan Planning Landscape di admin ====
-    // Item "Cadangan" yang bulannya <= bulan berjalan otomatis digeser ke bulan berikutnya
-    // (Desember -> Januari). Item "Prioritas"/lainnya tetap di bulan aslinya.
-    function bulanBerjalanIdx() {
-      const nama = new Date().toLocaleString('en-US', { month: 'numeric', timeZone: 'Asia/Jakarta' });
-      return parseInt(nama, 10) - 1;
-    }
-    function bulanEfektif(item) {
-      const raw = COLUMN_MAP.bulan ? item[COLUMN_MAP.bulan] : null;
-      const bulan = raw ? String(raw).trim() : '';
-      const idx = URUTAN_BULAN.indexOf(bulan);
-      if (idx === -1) return bulan;
-      const pr = COLUMN_MAP.prioritas ? String(item[COLUMN_MAP.prioritas] ?? '').trim().toLowerCase() : '';
-      if (pr !== 'cadangan') return bulan;
-      const sekarang = bulanBerjalanIdx();
-      if (idx > sekarang) return bulan;
-      return URUTAN_BULAN[(sekarang + 1) % 12];
-    }
     function badgePrioritas(raw) {
       const s = String(raw ?? '').trim();
       if (!s) return '<span class="text-gray-300">-</span>';
       const n = s.toLowerCase();
       let cls = 'bg-slate-100 text-slate-600 border-slate-200';
-      if (n === 'prioritas') cls = 'bg-rose-50 text-rose-700 border-rose-200';
-      else if (n === 'cadangan') cls = 'bg-blue-50 text-blue-700 border-blue-200';
+      if (n === 'prioritas 1' || n === 'prioritas') cls = 'bg-rose-50 text-rose-700 border-rose-200';
+      else if (n === 'prioritas 2') cls = 'bg-amber-50 text-amber-700 border-amber-200';
+      else if (n === 'opsional' || n === 'cadangan') cls = 'bg-blue-50 text-blue-700 border-blue-200';
       return `<span class="inline-flex items-center justify-center min-w-[78px] px-2.5 py-1.5 rounded-lg border text-[10px] font-extrabold ${cls}">${escapeHtml(s)}</span>`;
     }
-
-    // Mengurutkan indeks baris berdasarkan Bulan EFEKTIF (urutan kalender Januari→Desember, Cadangan
-    // sudah digeser) agar urutannya sama dengan admin. Bulan tidak dikenali/kosong ditaruh di paling akhir.
-    function urutkanIndeksBerdasarkanBulan(daftarIdx) {
-      return daftarIdx.slice().sort((a, b) => {
-        const bulanA = COLUMN_MAP.bulan ? bulanEfektif(planningRawGlobal[a.idx]) : null;
-        const bulanB = COLUMN_MAP.bulan ? bulanEfektif(planningRawGlobal[b.idx]) : null;
-        const ia = bulanA ? URUTAN_BULAN.indexOf(String(bulanA).trim()) : -1;
-        const ib = bulanB ? URUTAN_BULAN.indexOf(String(bulanB).trim()) : -1;
-        const posA = ia === -1 ? 999 : ia;
-        const posB = ib === -1 ? 999 : ib;
-        if (posA !== posB) return posA - posB;
-        return a.idx - b.idx; // tie-breaker: pertahankan urutan asli data
-      });
+    function rankPrioritas(item) {
+      const v = COLUMN_MAP.prioritas ? String(item[COLUMN_MAP.prioritas] ?? '').trim().toLowerCase() : '';
+      if (v === 'prioritas 1' || v === 'prioritas') return 0;
+      if (v === 'prioritas 2') return 1;
+      if (v === 'opsional' || v === 'cadangan') return 2;
+      if (v === '') return 4;
+      return 3;
     }
 
-    ['crud-filter-status-edit', 'crud-filter-status-upload', 'crud-filter-editor', 'crud-filter-bulan'].forEach(id => {
-      document.getElementById(id).addEventListener('change', gambarBarisCrud);
+    // Urut: TAHUN (lama -> baru) -> BULAN (Januari -> Desember, Cadangan sudah digeser) -> Prioritas
+    // -> urutan data. Sama dengan admin. Tahun kosong / bulan tak dikenal ditaruh paling akhir.
+    function urutkanIndeksBerdasarkanBulan(daftarIdx) {
+      const dekor = daftarIdx.map(o => {
+        const item = planningRawGlobal[o.idx];
+        const p = periodeEfektif(item);
+        return { o, th: p.tahun ?? 99999, bl: p.idx === -1 ? 999 : p.idx, rank: rankPrioritas(item) };
+      });
+      dekor.sort((a, b) => (a.th - b.th) || (a.bl - b.bl) || (a.rank - b.rank) || (a.o.idx - b.o.idx));
+      return dekor.map(d => d.o);
+    }
+
+    // Menerapkan kriteria baris ke query Supabase. Nilai NULL WAJIB memakai .is(); .match({k: null})
+    // menghasilkan "k=eq.null" yang tidak pernah cocok, sehingga update 0 baris pada baris yang
+    // banyak kolom kosongnya (mis. hasil sinkron Waiting List) bila tabel tanpa kolom id.
+    function terapkanKriteria(query, kriteria) {
+      Object.entries(kriteria).forEach(([k, v]) => { query = (v === null) ? query.is(k, null) : query.eq(k, v); });
+      return query;
+    }
+
+    ['crud-filter-status-edit', 'crud-filter-status-upload', 'crud-filter-editor', 'crud-filter-tahun', 'crud-filter-bulan'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', renderCrudTable);
     });
 
     function gambarBarisCrud() {
@@ -3817,49 +3974,61 @@
         return;
       }
 
-      const fStatusEdit = document.getElementById('crud-filter-status-edit').value;
-      const fStatusUpload = document.getElementById('crud-filter-status-upload').value;
-      const fEditor = document.getElementById('crud-filter-editor').value;
-      const fBulan = document.getElementById('crud-filter-bulan').value;
-
+      const f = bacaFilterCrud();
       let barisTerfilter = planningRawGlobal
         .map((item, idx) => ({ item, idx }))
-        .filter(({ item }) => {
-          const assignedEditor = COLUMN_MAP.editor ? String(item[COLUMN_MAP.editor] ?? '').trim() : '';
-          if (fStatusEdit !== 'all' && normalizeStatus(COLUMN_MAP.statusEdit ? item[COLUMN_MAP.statusEdit] : null) !== fStatusEdit) return false;
-          if (fStatusUpload !== 'all' && (COLUMN_MAP.statusUpload ? item[COLUMN_MAP.statusUpload] : null) !== fStatusUpload) return false;
-          if (fEditor !== 'all' && assignedEditor !== fEditor) return false;
-          if (fBulan !== 'all' && (COLUMN_MAP.bulan ? bulanEfektif(item) : null) !== fBulan) return false;
-          return true;
-        });
+        .filter(({ item }) => cocokFilterCrud(item, f));
 
-      // Urutkan berdasarkan Bulan supaya tabel lebih enak dibaca
       barisTerfilter = urutkanIndeksBerdasarkanBulan(barisTerfilter);
 
-      countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${planningRawGlobal.length} baris (diurutkan per Bulan & prioritas, sama seperti admin)`;
+      const tanpaTahun = COLUMN_MAP.tahun ? planningRawGlobal.filter(i => !tahunDariNilai(i[COLUMN_MAP.tahun])).length : 0;
+      countLabel.innerText = `Menampilkan ${barisTerfilter.length} dari ${planningRawGlobal.length} baris (diurutkan per Tahun, Bulan & prioritas, sama seperti admin)`
+        + (tanpaTahun ? ` • ⚠ ${tanpaTahun} baris belum diisi Tahun` : '');
 
       if (barisTerfilter.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="13" class="text-center py-8 text-gray-400">Tidak ada data yang cocok dengan filter ini.</td></tr>';
+        const periodeTeks = [
+          f.bulan !== 'all' ? (f.bulan === 'none' ? 'tanpa bulan' : f.bulan) : '',
+          f.tahun !== 'all' ? (f.tahun === 'none' ? 'tanpa tahun' : f.tahun) : ''
+        ].filter(Boolean).join(' ');
+        tbody.innerHTML = `<tr><td colspan="13" class="text-center py-10 text-gray-400">
+          <div class="font-semibold">${periodeTeks ? `Belum ada planning untuk ${escapeHtml(periodeTeks)} dengan filter ini.` : 'Tidak ada data yang cocok dengan filter ini.'}</div>
+          <button type="button" id="crud-reset-filter" class="mt-3 text-xs font-bold text-blue-600 hover:underline">Reset semua filter</button>
+        </td></tr>`;
+        document.getElementById('crud-reset-filter')?.addEventListener('click', resetFilterCrud);
         return;
       }
 
       const val = (item, key) => COLUMN_MAP[key] ? escapeHtml(item[COLUMN_MAP[key]]) : '-';
 
-      tbody.innerHTML = barisTerfilter.map(({ item, idx }) => {
+      // Baris dikelompokkan per Bulan + Tahun dengan pembatas, supaya mudah dipindai.
+      const infoBaris = barisTerfilter.map(({ item }) => {
+        const p = periodeEfektif(item);
+        return { p, k: `${p.tahun ?? ''}|${p.bulan}` };
+      });
+      const jumlahPerGrup = {};
+      infoBaris.forEach(b => { jumlahPerGrup[b.k] = (jumlahPerGrup[b.k] || 0) + 1; });
+      let kunciSebelumnya = null;
+
+      tbody.innerHTML = barisTerfilter.map(({ item, idx }, n) => {
 
         const rid = idx;
+        const { p, k } = infoBaris[n];
+        let headerGrup = '';
+        if (k !== kunciSebelumnya) {
+          kunciSebelumnya = k;
+          const judulGrup = (p.bulan ? labelPeriode(p) : 'Tanpa Bulan') + (p.tahun ? '' : ' (tanpa tahun)');
+          headerGrup = `<tr class="bg-slate-50"><td colspan="13" class="py-2 px-4 text-[11px] font-extrabold uppercase tracking-wider text-slate-500"><i class="fas fa-calendar-days mr-1.5"></i>${escapeHtml(judulGrup)} <span class="ml-1 text-slate-400 font-bold normal-case">• ${jumlahPerGrup[k]} planning</span></td></tr>`;
+        }
 
-        return `
+        return headerGrup + `
           <tr class="hover:bg-gray-50">
             <td class="py-3 px-4">${(() => {
-            const efektif = bulanEfektif(item);
-            const asli = COLUMN_MAP.bulan ? String(item[COLUMN_MAP.bulan] ?? '').trim() : '';
-            if (efektif && asli && efektif !== asli) {
-              return `<span class="font-semibold">${escapeHtml(efektif)}</span><div class="text-[10px] text-blue-600 font-bold" title="Cadangan otomatis digeser ke bulan berikutnya">geser dari ${escapeHtml(asli)}</div>`;
+            if (p.geser) {
+              return `<span class="font-semibold">${escapeHtml(labelPeriode(p))}</span><div class="text-[10px] text-blue-600 font-bold" title="Cadangan otomatis digeser ke bulan berikutnya">geser dari ${escapeHtml(labelPeriode(p.asli))}</div>`;
             }
             return val(item, 'bulan');
           })()}</td>
-            <td class="py-3 px-4">${val(item, 'tahun')}</td>
+            <td class="py-3 px-4">${p.geser ? escapeHtml(p.tahun) : val(item, 'tahun')}</td>
             <td class="py-3 px-4 max-w-[320px]">
               <div class="flex items-start gap-2">
                 <span class="font-medium text-gray-700 whitespace-normal break-words leading-snug">${val(item, 'judul')}</span>
@@ -3989,10 +4158,10 @@
       // yang sudah dipakai di seluruh dashboard (kartu, chart, filter, dsb).
       const nilaiBaru = statusBaru === 'Belum' ? 'Skenario Siap' : statusBaru;
       const kriteria = buatKriteriaBaris(item);
-      const { data, error } = await db.from(NAMA_TABEL_PLANNING)
-        .update({ [COLUMN_MAP.statusEdit]: nilaiBaru })
-        .match(kriteria)
-        .select();
+      const { data, error } = await terapkanKriteria(
+        db.from(NAMA_TABEL_PLANNING).update({ [COLUMN_MAP.statusEdit]: nilaiBaru }),
+        kriteria
+      ).select();
       if (error) { alert('Gagal mengubah status Landscape: ' + error.message); return; }
       if (!data || data.length === 0) { alert('Status Landscape tidak berubah. Periksa policy UPDATE pada tabel Planning_Editor.'); return; }
       await muatDashboard();
